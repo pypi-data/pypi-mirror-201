@@ -1,0 +1,329 @@
+#  ___________________________________________________________________________
+#
+#  Prescient
+#  Copyright 2020 National Technology & Engineering Solutions of Sandia, LLC
+#  (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
+#  Government retains certain rights in this software.
+#  This software is distributed under the Revised BSD License.
+#  ___________________________________________________________________________
+
+from __future__ import annotations
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from typing import Dict, Sequence, TypeVar, Any
+    from prescient.engine.data_extractors import ScedDataExtractor
+    from prescient.engine.abstract_types import OperationsModel, G, L, B, S
+    from .operations_stats import OperationsStats
+
+from dataclasses import dataclass, field
+from datetime import date
+
+@dataclass(init=False)
+class HourlyStats:
+    """Statistics for one hour of simulation"""
+
+    date: date
+    hour: int
+
+    # Stats for sceds within this hour (starts out empty, grows as more SCEDs are completed in simulation)
+    operations_stats: Sequence[OperationsStats]
+
+    sced_count: int # read-only property
+
+    # This is constant throughout the simulation, but we calculate and store it every hour.
+    # We can/should move it somewhere else eventually
+    thermal_fleet_capacity: float = 0.0
+
+    sced_runtime: float = 0.0
+    average_sced_runtime: float = 0.0
+
+    total_demand: float = 0.0
+    fixed_costs: float = 0.0
+    variable_costs: float = 0.0
+    total_costs: float
+
+    power_generated: float = 0.0
+    load_shedding: float = 0.0
+    over_generation: float = 0.0
+    total_thermal_headroom: float = 0.0
+    available_quickstart: float = 0.0
+
+    renewables_available: float = 0.0
+    renewables_used: float = 0.0
+    renewables_curtailment: float = 0.0
+
+    on_offs: int = 0
+    sum_on_off_ramps: float = 0.0
+    sum_nominal_ramps: float = 0.0
+
+    price: float = 0.0
+
+    quick_start_additional_costs: float = 0.0
+    quick_start_additional_power_generated: float = 0.0
+    used_as_quickstart: Dict[G, int]
+
+    event_annotations: Sequence[str]
+
+    observed_thermal_dispatch_levels: Dict[G, float]
+    observed_thermal_headroom_levels: Dict[G, float]
+    observed_thermal_states: Dict[G, float]
+    observed_costs: Dict[G, float]
+    observed_renewables_levels: Dict[G, float] 
+    observed_renewables_curtailment: Dict[G, float]
+    observed_virtual_dispatch_levels: Dict[G, float]
+
+    observed_flow_levels: Dict[L, float]
+    observed_flow_violation_levels: Dict[L, float]
+
+    bus_demands: Dict[B, float]
+
+    observed_bus_mismatches: Dict[B, float]
+    observed_bus_LMPs: Dict[B, float]
+
+    storage_input_dispatch_levels: Dict[S, Sequence[float]]
+    storage_output_dispatch_levels: Dict[S, Sequence[float]]
+    storage_soc_dispatch_levels: Dict[S, Sequence[float]]
+
+    reserve_requirements: Dict[R, float]
+    reserve_shortfalls: Dict[R, float]
+    reserve_RT_prices: Dict[R, float]
+
+    planning_energy_prices: Dict[B, float]
+
+    thermal_gen_cleared_DA: Dict[G, float]
+    thermal_gen_revenue: Dict[G, float]
+    thermal_reserve_cleared_DA: Dict[(R,G), float]
+    thermal_per_reserve_revenue: Dict[(R,G), float]
+    thermal_uplift: Dict[G, float]
+
+    renewable_gen_cleared_DA: Dict[G, float]
+    renewable_gen_revenue: Dict[G, float]
+    renewable_uplift: Dict[G, float]
+
+    virtual_gen_cleared_DA: Dict[G, float]
+    virtual_gen_revenue: Dict[G, float]
+    virtual_uplift: Dict[G, float]
+
+    thermal_energy_payments: float #read-only property
+    renewable_energy_payments: float #read-only property
+    thermal_uplift_payments: float #read-only property
+    renewable_uplift_payments: float #read-only property
+    reserve_payments: float #read-only property
+    total_reserve_shortfall: float # read-only property
+
+    extensions: Dict[Any, Any]
+
+    @property 
+    def sced_count(self) -> int:
+        return len(self.operations_stats)
+
+    @property
+    def total_costs(self) -> float:
+        return self.fixed_costs + self.variable_costs
+
+    @property
+    def thermal_energy_payments(self) -> float:
+        if self._options.compute_market_settlements:
+            return sum(self.thermal_gen_revenue.values())
+        return 0.
+
+    @property
+    def virtual_energy_payments(self) -> float:
+        if self._options.compute_market_settlements:
+            return sum(self.virtual_gen_revenue.values())
+        return 0.
+
+    @property
+    def renewable_energy_payments(self) -> float:
+        if self._options.compute_market_settlements:
+            return sum(self.renewable_gen_revenue.values())
+        return 0.
+
+    @property
+    def thermal_uplift_payments(self) -> float:
+        if self._options.compute_market_settlements:
+            return sum(self.thermal_uplift.values())
+        return 0.
+
+    @property
+    def virtual_uplift_payments(self) -> float:
+        if self._options.compute_market_settlements:
+            return sum(self.virtual_uplift.values())
+        return 0.
+
+    @property
+    def renewable_uplift_payments(self) -> float:
+        if self._options.compute_market_settlements:
+            return sum(self.renewable_uplift.values())
+        return 0.
+
+    @property
+    def total_reserve_shortfall(self) -> float:
+        return sum(self.reserve_shortfalls.values())
+
+    @property
+    def reserve_payments(self) -> float:
+        if self._options.compute_market_settlements:
+            return sum(self.thermal_per_reserve_revenue.values())
+        return 0.
+
+    def __init__(self, options, day: date, hour: int):
+        self._options = options
+        self.date = day
+        self.hour = hour
+        self.operations_stats = []
+        self.event_annotations = []
+        self.extensions = {}
+
+    def get_per_gen_reserve_revenue(self, g: G) -> float:
+        """ Get all reserve revenue for a single generator across all reserve products """
+        return sum(payment
+                   for key,payment in self.thermal_per_reserve_revenue.items()
+                   if key[1] == g)
+
+    def incorporate_operations_stats(self, ops_stats: OperationsStats):
+        # This is a constant, doesn't need to be recalculated over and over, keep it here until
+        # we decide on a better place to keep it.
+        self.thermal_fleet_capacity = ops_stats.thermal_fleet_capacity
+
+        # Add scalar fields
+        summing_fields = [
+            'sced_runtime',
+            'fixed_costs',
+            'variable_costs',
+            'on_offs',
+            'sum_on_off_ramps',
+            'sum_nominal_ramps',
+            'quick_start_additional_costs',
+           ]
+        for field in summing_fields:
+            val = getattr(ops_stats, field)
+            add_to = getattr(self, field)
+            setattr(self, field, add_to+val)
+
+        # Add values indexed by a model entity
+        keyed_summing_fields = [
+            'observed_costs',
+            'thermal_gen_revenue',
+            'thermal_per_reserve_revenue',
+            'thermal_uplift',
+            'renewable_gen_revenue',
+            'renewable_uplift',
+            'virtual_gen_revenue',
+            'virtual_uplift',
+           ]
+        for field in keyed_summing_fields:
+            if not hasattr(ops_stats, field):
+                continue
+            their_dict = getattr(ops_stats, field)
+
+            if hasattr(self, field):
+                my_dict = getattr(self, field)
+            else:
+                my_dict = {}
+                setattr(self, field, my_dict)
+
+            for k,val in their_dict.items():
+                if k in my_dict:
+                    add_to = my_dict[k]
+                    my_dict[k] = add_to + val
+                else:
+                    my_dict[k] = val
+
+        averaging_fields = [
+            'total_demand',
+            'power_generated',
+            'load_shedding',
+            'over_generation',
+            'total_thermal_headroom',
+            'available_quickstart',
+            'renewables_available',
+            'renewables_used',
+            'renewables_curtailment',
+            'quick_start_additional_power_generated',
+            'price'
+           ]
+        for field in averaging_fields:
+            val = getattr(ops_stats, field)
+            old_sum = getattr(self, field)*self.sced_count
+            setattr(self, field, (old_sum+val)/(self.sced_count+1))
+
+        self.average_sced_runtime = \
+            (self.average_sced_runtime*self.sced_count + ops_stats.sced_runtime) / (self.sced_count+1)
+
+        def update_dict_avgs(update_from_dict, dict_to_update):
+            ''' Update values in updating_dict by incorporating values in new_dict
+            ''' 
+            for k,val in update_from_dict.items():
+                if k in dict_to_update:
+                    old_sum = dict_to_update[k]*self.sced_count
+                    dict_to_update[k] = (old_sum+val)/(self.sced_count+1)
+                else:
+                    dict_to_update[k] = val
+
+        keyed_averaging_fields = [
+            'observed_thermal_dispatch_levels',
+            'observed_thermal_headroom_levels',
+            'observed_thermal_states',
+            'observed_renewables_levels',
+            'observed_renewables_curtailment',
+            'observed_virtual_dispatch_levels',
+            'observed_flow_levels',
+            'observed_flow_violation_levels',
+            'bus_demands',
+            'observed_bus_mismatches',
+            'observed_bus_LMPs',
+            'reserve_requirements',
+            'reserve_RT_prices',
+            'reserve_shortfalls',
+            'storage_input_dispatch_levels',
+            'storage_output_dispatch_levels',
+            'storage_soc_dispatch_levels',
+            'planning_energy_prices',
+            'thermal_gen_cleared_DA',
+            'renewable_gen_cleared_DA',
+            'virtual_gen_cleared_DA',
+           ]
+        for field in keyed_averaging_fields:
+            if not hasattr(ops_stats, field):
+                continue
+            their_dict = getattr(ops_stats, field)
+
+            if hasattr(self, field):
+                my_dict = getattr(self, field)
+            else:
+                my_dict = {}
+                setattr(self, field, my_dict)
+
+            update_dict_avgs(their_dict, my_dict)
+
+        double_keyed_averaging_fields = [
+            'thermal_reserve_cleared_DA',
+           ]
+        for field in double_keyed_averaging_fields:
+            if not hasattr(ops_stats, field):
+                continue
+            their_dict = getattr(ops_stats, field)
+
+            # Make sure self has the field
+            if hasattr(self, field):
+                my_dict = getattr(self, field)
+            else:
+                my_dict = {}
+                setattr(self, field, my_dict)
+
+            # Go through all keys in their_dict
+            for k,their_subdict in their_dict.items():
+                # Make sure self.field has the key
+                if not k in my_dict:
+                    my_dict[k] = {}
+                update_dict_avgs(their_subdict, my_dict[k])
+
+        # Flag which generators were used for quickstart at least once in the hour
+        for g,used in ops_stats.used_as_quickstart.items():
+            if g in self.used_as_quickstart:
+                self.used_as_quickstart[g] = used or self.used_as_quickstart[g]
+            else:
+                self.used_as_quickstart[g] = used
+
+        self.operations_stats.append(ops_stats)
