@@ -1,0 +1,370 @@
+import json
+from typing import List
+
+none = "d3043820717d74d9a17694c176d39733"
+
+# region Ocean
+class Ocean:
+	"""
+	# Arguments
+	name: str
+	controller_cluster_id: str
+	region: str
+	auto_scaler: AutoScaler
+	capacity: Capacity
+	strategy: Strategy
+	compute: Compute
+	"""
+	def __init__(
+		self,
+		name=none,
+		controller_cluster_id=none,
+		region=none,
+		auto_scaler=none,
+		capacity=none,
+		strategy=none,
+		compute=none):
+
+		self.name = name
+		self.controller_cluster_id = controller_cluster_id
+		self.region = region
+		self.auto_scaler = auto_scaler
+		self.capacity = capacity
+		self.strategy = strategy
+		self.compute = compute
+# endregion
+
+# region AutoScaler
+class AutoScaler:
+	"""
+	# Arguments
+	is_enabled: bool
+	cooldown: int
+	resource_limits: ResourceLimits
+	down: Down
+	headroom: Headroom
+	is_auto_config: bool
+	"""
+	def __init__(
+		self,
+		is_enabled=none,
+		cooldown=none,
+		resource_limits=none,
+		down=none,
+		headroom=none,
+		is_auto_config=none):
+
+		self.is_enabled = is_enabled
+		self.cooldown = cooldown
+		self.resource_limits = resource_limits
+		self.down = down
+		self.headroom = headroom
+		self.is_auto_config = is_auto_config
+
+class ResourceLimits:
+	"""
+	# Arguments
+	max_memory_gib: nint
+	max_vCpu: int
+	"""
+	def __init__(
+		self,
+		max_memory_gib=none,
+		max_vCpu=none):
+
+		self.max_memory_gib=max_memory_gib
+		self.max_vCpu=max_vCpu
+
+class Down:
+	"""
+	# Arguments
+	evaluation_periods: int
+	"""
+	def __init__(
+		self,
+		evaluation_periods=none):
+		self.evaluation_periods = evaluation_periods
+
+class Headroom:
+	"""
+	# Arguments
+	cpu_per_unit: int
+	memory_per_unit: int
+	num_of_units: int
+	"""
+	def __init__(
+		self,
+		cpu_per_unit=none,
+		memory_per_unit=none,
+		num_of_units=none):
+		self.cpu_per_unit = cpu_per_unit
+		self.memory_per_unit = memory_per_unit
+		self.num_of_units = num_of_units
+# endregion
+
+# region Capacity
+class Capacity:
+	"""
+	# Arguments
+	minimum: int
+	maximum: int
+	target: int
+	"""
+	def __init__(
+		self,
+		minimum=none,
+		maximum=none,
+		target=none):
+
+		self.minimum = minimum
+		self.maximum = maximum
+		self.target = target
+# endregion
+
+# region Strategy
+class Strategy:
+	"""
+	# Arguments
+	utilize_reserved_instances: bool
+	fallback_to_od: bool
+	spot_percentage: int
+	"""
+	def __init__(
+		self,
+		utilize_reserved_instances=none,
+		fallback_to_od=none,
+		spot_percentage=none):
+
+		self.utilize_reserved_instances = utilize_reserved_instances
+		self.fallback_to_od = fallback_to_od
+		self.spot_percentage = spot_percentage
+# endregion
+
+# region Compute
+class Compute:
+	"""
+	# Arguments
+	instance_types: InstanceTypes
+	subnet_ids: List[str]
+	launch_specification: LaunchSpecifications
+	"""
+	def __init__(
+		self,
+		instance_types=none,
+		subnet_ids=none,
+		launch_specification=none):
+
+		self.instance_types = instance_types
+		self.subnet_ids = subnet_ids
+		self.launch_specification = launch_specification
+
+class InstanceTypes:
+	"""
+	# Arguments
+	whitelist: List[str]
+	blacklist: List[str]
+	"""
+	def __init__(
+		self,
+		whitelist=none,
+		blacklist=none):
+
+		self.whitelist = whitelist
+		self.blacklist = blacklist
+
+class LaunchSpecifications:
+	"""
+	# Arguments
+	security_group_ids: List[str]
+	image_id: str
+	iam_instance_profile: IamInstanceProfile
+	key_pair: str
+	user_data: str
+	tags: List[Tag]
+	load_balancers: List[LoadBalancer]
+	"""
+	def __init__(
+		self,
+		security_group_ids=none,
+		image_id=none,
+		iam_instance_profile=none,
+		key_pair=none,
+		user_data=none,
+		tags=none,
+		load_balancers=none):
+
+		self.security_group_ids = security_group_ids
+		self.image_id = image_id
+		self.iam_instance_profile = iam_instance_profile
+		self.key_pair = key_pair
+		self.user_data = user_data
+		self.tags = tags
+		self.load_balancers = load_balancers
+
+class IamInstanceProfile:
+	"""
+	# Arguments
+	arn: str
+	name: str
+	"""
+	def __init__(
+		self,
+		arn=none,
+		name=none):
+		self.arn = arn
+		self.name = name
+
+class Tag:
+	"""
+	# Arguments
+	tag_key: str
+	tag_value: str
+	"""
+	def __init__(
+		self,
+		tag_key=none,
+		tag_value=none):
+		self.tag_key = tag_key
+		self.tag_value = tag_value
+
+class LoadBalancer:
+	"""
+	# Arguments
+	arn:  str
+	name: str
+	lb_type: str
+	"""
+	def __init__(
+		self,
+		arn=none,
+		name=none,
+		lb_type=none):
+		self.arn = arn
+		self.name = name
+		self.type = lb_type
+# endregion
+
+
+# region AggregatedClusterCosts
+class AggregatedClusterCosts:
+	"""
+	# Arguments
+	start_time: str
+	end_time: str
+	groupby: str
+	aggregated_filter: Filter
+	"""
+	def __init__(
+		self,
+		start_time=none,
+		end_time=none,
+		group_by=none,
+		aggregated_filter=none):
+		self.start_time = start_time
+		self.end_time = end_time
+		self.group_by = group_by
+		self.filter = aggregated_filter
+
+
+class Filter:
+	"""
+	# Arguments
+	scope: str
+	conditions: Conditions
+	"""
+	def __init__(
+		self,
+		scope=none,
+		conditions=none):
+		self.scope = scope
+		self.conditions = conditions
+
+
+class Conditions:
+	"""
+	# Arguments
+	any_match: List(AllMatch)
+	"""
+	def __init__(
+		self,
+		any_match=none):
+		self.any_match = any_match
+
+
+class AllMatch:
+	"""
+	# Arguments
+	all_matches:  List(AllMatchInner)
+	"""
+	def __init__(
+		self,
+		all_match=none):
+		self.all_match = all_match
+# endregion
+
+
+class OceanRequest:
+	def __init__(self, cluster):
+		self.cluster = cluster
+
+	def toJSON(self):
+		return json.dumps(self, default=lambda o: o.__dict__,
+                          sort_keys=True, indent=4)
+
+
+class AggregatedClusterCostRequest:
+	def __init__(self, aggregated_cluster_costs):
+		self.start_time = aggregated_cluster_costs.start_time
+		self.end_time = aggregated_cluster_costs.end_time
+		self.group_by = aggregated_cluster_costs.group_by
+		self.filter = aggregated_cluster_costs.filter
+
+	def toJSON(self):
+		return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+
+
+# region RightSizingRecommendationFilter
+class Attribute:
+	"""
+	# Arguments
+	key: str
+	operator: str
+	type: str
+	value: str
+	"""
+	def __init__(
+		self,
+		key: str = none,
+		operator: str = none,
+		type: str = none,
+		value: str = none):
+		self.key = key
+		self.operator = operator
+		self.type = type
+		self.value = value
+
+
+class RightSizingRecommendationFilter:
+	"""
+	# Arguments
+	attribute: Attribute
+	namespaces: List[str]
+	"""
+	def __init__(
+		self,
+		attribute: Attribute = none,
+		namespaces: List[str] = none):
+		self.attribute = attribute
+		self.namespaces = namespaces
+
+# endregion
+
+
+class RightSizingRecommendationRequest:
+	def __init__(self, filter: RightSizingRecommendationFilter = none):
+		self.filter = filter
+
+	def toJSON(self):
+		return json.dumps(self, default=lambda o: o.__dict__,
+                          sort_keys=True, indent=4)
+
