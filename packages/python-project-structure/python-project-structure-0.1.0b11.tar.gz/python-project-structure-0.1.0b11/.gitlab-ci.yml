@@ -1,0 +1,103 @@
+# https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Docker.gitlab-ci.yml
+
+default:
+  image:
+    name: "$CI_TEMPLATE_REGISTRY_HOST/rpatterson/$CI_PROJECT_NAME:build-host"
+    entrypoint:
+      - "docker-entrypoint.sh"
+  services:
+    - "docker:dind"
+  before_script:
+    - "chown -R $PUID:$PGID ./"
+  # TODO: Debug stale venv issues and restore cache once fixed
+
+variables:
+  # Variables controlling behavior:
+  PUID: "1001"
+  PGID: "1001"
+  DOCKER_IMAGE: "$CI_REGISTRY_IMAGE"
+  # Different variable name needed by the GitHub CLI:
+  GH_TOKEN: "$PROJECT_GITHUB_PAT"
+  # Uncomment to get more debugging output:
+  # DEBUG: "true"
+
+stages:
+  - "build-test"
+  - "release"
+  - "scheduled"
+
+build-test:
+  stage: "build-test"
+  rules:
+    - if: >-
+        $CI_COMMIT_TAG
+      when: "never"
+    - if: >-
+        $CI_PIPELINE_SOURCE != "schedule"
+  interruptible: true
+  parallel:
+    matrix:
+      - PYTHON_MINORS:
+          - "3.11"
+          - "3.10"
+          - "3.9"
+          - "3.8"
+          - "3.7"
+  script:
+    # Delegate steps agnostic of the CI/CD platform to the `./Makefile`:
+    - >-
+      entrypoint make -e check-push
+      build-docker-$PYTHON_MINORS
+      test-docker-$PYTHON_MINORS
+      release-docker-$PYTHON_MINORS check-clean
+  coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
+  artifacts:
+    # Upload build artifacts:
+    # https://docs.gitlab.com/ee/ci/pipelines/job_artifacts.html
+    paths:
+      - "./build/py*/pytest*"
+      - "./build/py*/.coverage*"
+      - "./build/py*/coverage*"
+      - "./build/py*/htmlcov"
+      - "./build/py*/prospector*"
+      - "./build/py*/pylint*"
+    reports:
+      junit:
+        - "./build/py*/pytest-junit.xml"
+        - "./build/py*/prospector-xunit.xml"
+      coverage_report:
+        coverage_format: "cobertura"
+        path: "./build/py*/coverage.xml"
+
+release:
+  stage: "release"
+  needs: ["build-test"]
+  # Avoid unnecessary artifact downloads:
+  # https://docs.gitlab.com/ee/ci/yaml/#dependencies
+  dependencies: []
+  rules:
+    - if: >-
+        $CI_COMMIT_TAG
+      when: "never"
+    - if: >-
+        $CI_PROJECT_NAMESPACE == "rpatterson"
+        && $CI_COMMIT_BRANCH =~ "^(develop|master)"
+        && $CI_PIPELINE_SOURCE != "schedule"
+  script:
+    - >-
+      entrypoint make -e BUILD_REQUIREMENTS=false
+      build-bump check-clean
+      release-python check-clean
+  artifacts:
+    paths:
+      - "./NEWS-release.rst"
+      - "./dist/python?project?structure-*"
+
+scheduled:
+  stage: "scheduled"
+  rules:
+    - if: >-
+        $CI_PIPELINE_SOURCE == "schedule"
+  script:
+    - >-
+      entrypoint make -e $SCHEDULED_TARGETS
