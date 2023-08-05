@@ -1,0 +1,79 @@
+Parallelization
+===============
+
+Since version 0.41, Owlready supports some level of parallelization, for increasing performances.
+
+
+Parallelized file parsing
+-------------------------
+
+For huge OWL file (> 8 Mb), Owlready automatically uses a separate process for parsing the file
+(the main process being in charge of inserting triples in the quadstore). This provide a 25% performance boost
+on huge ontologies.
+
+
+Parallel execution with GEvent
+------------------------------
+
+GEvent can be used to execute several SPARQL queries in parallel.
+
+In order to use this feature, you first need to use a World stored in a local file,
+to deactive exclusive mode and to activate GEvent support, as follows:
+
+::
+   
+   >>> default_world.set_backend(filename = "my_quadstore.sqlite3", exclusive = False, enable_gevent = True)
+
+When GEvent is activated, Owlready opens 3 additional connexions to the SQLite3 database storing the quadstore,
+allowing 3 parallel threads.
+
+Then, the quadstore must be saved before running parallel queries, as follows:
+
+::
+   
+   >>> default_world.save()
+   
+
+Executing many SPARQL queries in parallel
+-----------------------------------------
+
+The owlready2.sparql.execute_many() function can be used to execute several prepared SPARQL queries in parallel.
+Both SELECT and INSERT/DELETE queries are supported.
+
+execute_many() will start 3 threads for executing the queries in parallel, and returns a list of query results.
+
+You may expect up to 100% performance boost, especially when the queries are long and complex,
+but the number of results is small (currently, Owlready only parallelize the SQL execution,
+adn not the loading of the resulting objects from the quadstore).
+
+Here is a typical usage:
+
+::
+
+   >>> my_onto = get_ontology("XXX ontology IRI here")
+   
+   >>> queries = [
+   ...     default_world.prepare_sparql("""XXX SPARQL query here"""),
+   ...     ...,
+   ... ]
+   
+   >>> queries_params = [
+   ...     [], # First query parameters
+   ...     ...,
+   ... ]
+   
+   >>> import owlready2.sparql
+   >>> results = [list(gen) for gen in owlready2.sparql.execute_many(my_onto, queries, queries_params)]
+   
+
+Executing a single SPARQL queries in parallel
+---------------------------------------------
+
+A single SPARQL query can be executed in parallel, in a separate thread. The query will not run faster (it will rather takes
+a little more time), but the main thread will be let available for other tasks. This can be interesting e.g. on a server,
+where a long query can be parallelized; meanwhile, the main thread may answer to other clients.
+
+::
+   
+   >>> query = default_world.prepare_sparql("""XXX SPARQL query here""")
+   >>> query.execute(parallel = True)
