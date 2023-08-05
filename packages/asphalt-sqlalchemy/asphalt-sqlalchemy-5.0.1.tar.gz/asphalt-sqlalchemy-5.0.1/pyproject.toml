@@ -1,0 +1,103 @@
+[build-system]
+requires = [
+    "setuptools >= 64",
+    "setuptools_scm >= 6.4"
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "asphalt-sqlalchemy"
+description = "SQLAlchemy integration component for the Asphalt framework"
+readme = "README.rst"
+authors = [{name = "Alex Grönholm", email = "alex.gronholm@nextday.fi"}]
+license = {text = "Apache License 2.0"}
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Web Environment",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Topic :: Database",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+requires-python = ">=3.7"
+dependencies = [
+    "asphalt ~= 4.9",
+    "SQLAlchemy[asyncio] >= 2.0",
+]
+dynamic = ["version"]
+
+[project.urls]
+Homepage = "https://github.com/asphalt-framework/asphalt-sqlalchemy"
+
+[project.optional-dependencies]
+test = [
+    "aiosqlite",
+    "asyncmy; platform_python_implementation == 'CPython'",
+    "asyncpg; platform_python_implementation == 'CPython'",
+    "pymysql",
+    "psycopg >= 3.1; platform_python_implementation == 'CPython'",
+    "pytest",
+    "pytest-asyncio",
+    "pytest-lazy-fixture",
+]
+doc = [
+    "Sphinx >= 6.0",
+    "sphinx_rtd_theme >= 1.2.0",
+    "sphinx-autodoc-typehints >= 1.22",
+    "sphinx-tabs >= 3.3.1",
+]
+
+[project.entry-points."asphalt.components"]
+sqlalchemy = "asphalt.sqlalchemy.component:SQLAlchemyComponent"
+
+[tool.setuptools_scm]
+version_scheme = "post-release"
+local_scheme = "dirty-tag"
+
+[tool.isort]
+skip_gitignore = true
+profile = "black"
+
+[tool.flake8]
+max-line-length = 88
+
+[tool.pytest.ini_options]
+addopts = "-rsx --tb=short"
+asyncio_mode = "strict"
+testpaths = ["tests"]
+
+[tool.mypy]
+python_version = "3.7"
+
+[tool.coverage.run]
+source = ["asphalt.sqlalchemy"]
+relative_files = true
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+
+[tool.tox]
+legacy_tox_ini = """
+[tox]
+envlist = py37, py38, py39, py310, py311, pypy3
+skip_missing_interpreters = true
+minversion = 4.0
+
+[testenv]
+extras = test
+commands = python -m pytest {posargs}
+setenv =
+  MYSQL_URL = mysql+pymysql://root@localhost:33060/asphalttest
+  POSTGRESQL_URL = postgresql+psycopg://postgres:secret@localhost:54320/asphalttest
+
+[testenv:docs]
+extras = doc
+commands = sphinx-build -W docs build/sphinx
+"""
