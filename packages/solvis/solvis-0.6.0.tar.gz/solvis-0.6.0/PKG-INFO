@@ -1,0 +1,122 @@
+Metadata-Version: 2.1
+Name: solvis
+Version: 0.6.0
+Summary: analysis of opensha modular solution files.
+License: AGPL3
+Author: Chris Chamberlain
+Author-email: chrisbc@artisan.co.nz
+Requires-Python: >=3.8,<4.0
+Classifier: Development Status :: 2 - Pre-Alpha
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: GNU General Public License v3 (GPLv3)
+Classifier: License :: Other/Proprietary License
+Classifier: Natural Language :: English
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Provides-Extra: dev
+Provides-Extra: scripts
+Provides-Extra: test
+Provides-Extra: vtk
+Requires-Dist: boto3 (>=1.26.82,<2.0.0) ; extra == "scripts"
+Requires-Dist: click (>=8.1.3,<9.0.0) ; extra == "scripts"
+Requires-Dist: click-plugins (>=1.1.1,<2.0.0)
+Requires-Dist: geopandas (>=0.12.2,<0.13.0)
+Requires-Dist: nshm-toshi-client (>=1.0.0,<2.0.0) ; extra == "scripts"
+Requires-Dist: nzshm-model (>=0.2.0,<0.3.0) ; extra == "scripts"
+Requires-Dist: pandas (>=1.3.4,<2.0.0)
+Requires-Dist: pyproj (>=3.3,<4.0)
+Requires-Dist: python-dateutil (>=2.8.2,<3.0.0)
+Requires-Dist: pytz (==2021.3)
+Requires-Dist: pyvista[vtk] (>=0.37.0,<0.38.0) ; extra == "vtk"
+Description-Content-Type: text/markdown
+
+# solvis
+
+[![pypi](https://img.shields.io/pypi/v/solvis.svg)](https://pypi.org/project/solvis/)
+[![python](https://img.shields.io/pypi/pyversions/solvis.svg)](https://pypi.org/project/solvis/)
+[![Build Status](https://github.com/GNS-Science/solvis/actions/workflows/dev.yml/badge.svg)](https://github.com/GNS-Science/solvis/actions/workflows/dev.yml)
+[![codecov](https://codecov.io/gh/GNS-Science/solvis/branch/main/graphs/badge.svg)](https://codecov.io/github/GNS-Science/solvis)
+
+
+* Documentation: <https://GNS-Science.github.io/solvis>
+* GitHub: <https://github.com/GNS-Science/solvis>
+* PyPI: <https://pypi.org/project/solvis/>
+* Free software: GPL-3.0-only
+
+# Features / Goals
+
+ - analysis of opensha modular solution files.
+ - opensha modular documentation
+ - pandas, geopanda references
+
+From a typical modular opensha Inversion Solution archive, we want to produce views that allow deep exploration 
+of the solution and rupture set characteristics. Features:
+
+ - [ ] user can choose from regions already defined in the solution
+ - user can select ruptures matching 
+    - [x] parent fault
+    - [ ] named fault (fault system)
+    - [ ] constraint region (from TargetMFDs)
+ - [x] user can create new region polygons
+ - [ ] user can compare selections (e.g. Wellington East vs Wellington CBD vs Hutt Valley) 
+ - for a given query result show me dimensions...
+    - mag, length, area, rate, section count, parent fault count, ~jump-length, jump angles~, slip (various), partication, nucleation 
+    - filter, group on any of the dimensions
+
+
+## From here the user can answer questions like ....
+
+ - create a MFD histogram in 0.01 bins from 7.0 to 7.30 (3O bins) for the WHV fault system
+ - list all ruptures between 7.75 and 8.25, ordered by rupture-length
+ - given a user-defined-function udf RuptureComplexity(rupture) rank ruptures in Region X by complexity, then by magnitude
+
+  - regional MFD
+      - [x] participation (sum of rate) for every rupture though a point
+      - [ ] nucleation/blame/culpability rate summed over the region
+           normalised by the area of an area (region, named fault)
+
+
+## Install (Linux, OSX)
+
+```
+poetry add solvis
+```
+
+### Windows Installation with pipwin (CHECK)
+
+This information predates poetry and has not been check since ...
+
+You will have to delete the fiona and shapely lines from requirements.txt, then run the following lines:
+pip3 install -r requirements
+
+```commandline
+pip install pipwin
+pipwin install gdal
+pipwin install fiona
+pipwin install shapely
+pip install -r requirements.txt
+```
+
+## Run
+
+```
+python3 -m demo
+
+or python3 demo.py
+```
+
+## Plotting
+
+
+f = plt.figure()
+#nx = int(f.get_figwidth() * f.dpi)
+#ny = int(f.get_figheight() * f.dpi)
+f.figimage(data)
+plt.show()
