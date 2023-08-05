@@ -1,0 +1,195 @@
+---
+components:
+  responses:
+    # svg responses
+    200_svg_image:
+      description: "SVG image in image/xvg+xml format."
+      content:
+        image/svg+xml:
+
+    404_svg_image_not_found:
+      description: "SVG Not Found image in image/xvg+xml format."
+      content:
+        image/svg+xml:
+
+    # json responses
+    200_ok:
+      description: "OK"
+      content:
+        application/json:
+          schema:
+
+    202_accepted:
+      description: "Accepted"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/HTTP_SUCCESS_ACCEPTED"
+
+    204_no_content:
+      description: "No Content"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/HTTP_SUCCESS_NO_CONTENT"
+
+    302_found:
+      description: "Found"
+      content:
+        application/html:
+
+    400_bad_request:
+      description: "Bad Request"
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/HTTP_ERROR_BAD_REQUEST"
+
+    401_unauthorized:
+      description: "Unauthorized"
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/HTTP_ERROR_UNAUTHORIZED"
+
+    424_failed_dependency:
+      description: "Failed Dependency"
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/HTTP_ERROR_FAILED_DEPENDENCY"
+
+    500_internal_server_error:
+      description: "Internal Server Error"
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/HTTP_ERROR_INTERNAL_SERVER_ERROR"
+
+    503_service_unavailable:
+      description: "Service Unavailable"
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/HTTP_ERROR_SERVICE_UNAVAILABLE"
+
+  # ----------------------------------------------------------------------------
+  # Descriptions copied from:
+  #   https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
+  #
+  schemas:
+    HTTP_SUCCESS_ACCEPTED:
+      description: |
+        The request has been accepted for processing, but the processing has not been completed.
+      required:
+        - status
+        - title
+      properties:
+        status:
+          type: integer
+          format: int32
+          example: 202
+        title:
+          type: string
+          example: "Accepted"
+        detail:
+          type: string
+          example: "Request has been processed."
+
+    HTTP_SUCCESS_NO_CONTENT:
+      description: |
+        The server successfully processed the request and is not returning any content.
+        (Status code: 204)
+      # note: because of validation, we can't set the code in properties
+      required:
+      properties:
+
+    HTTP_ERROR_BAD_REQUEST:
+      description: |
+        The server cannot or will not process the request due to an apparent client error.
+      required:
+        - status
+        - title
+      properties:
+        status:
+          type: integer
+          format: int32
+          example: 400
+        title:
+          type: string
+          example: "Bad Request"
+        detail:
+          type: string
+          example: "Invalid parameter 'foobar'"
+
+    HTTP_ERROR_UNAUTHORIZED:
+      description: |
+        Authentication is required and has failed or has not yet been provided.
+      required:
+        - status
+        - title
+      properties:
+        status:
+          type: integer
+          format: int32
+          example: 401
+        title:
+          type: string
+          example: "Unauthorized"
+        detail:
+          type: string
+          example: "Invalid X-Gitlab-Token header."
+
+    HTTP_ERROR_FAILED_DEPENDENCY:
+      description: |
+        The request failed because it depended on another request and that request failed.
+      required:
+        - status
+        - title
+      properties:
+        status:
+          type: integer
+          format: int32
+          example: 424
+        title:
+          type: string
+          example: "Failed Dependency"
+        detail:
+          type: string
+          example: "Could not connect to 'shields.io'"
+
+    HTTP_ERROR_INTERNAL_SERVER_ERROR:
+      description: |
+        Unexpected condition was encountered.
+      required:
+        - status
+        - title
+      properties:
+        status:
+          type: integer
+          format: int32
+          example: 500
+        title:
+          type: string
+          example: "Internal Server Error"
+        detail:
+          type: string
+          example: "Internal Server Error"
+
+    HTTP_ERROR_SERVICE_UNAVAILABLE:
+      description: |
+        The request failed because it depended on another resource and that resource was not available.
+      required:
+        - status
+        - title
+      properties:
+        status:
+          type: integer
+          format: int32
+          example: 503
+        title:
+          type: string
+          example: "Internal Server Error"
+        detail:
+          type: string
+          example: "Internal Server Error"
