@@ -1,0 +1,233 @@
+# We use v2 because we need volumes_from which was removed in v3.
+# See https://github.com/docker/compose/issues/4379
+version: '2'
+
+services:
+
+  builtin_db:
+    image: ${IMAGE_DB}
+    container_name: teamplify_db
+    environment:
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql/
+      - ${DB_BACKUP_MOUNT}:/backup/
+      - ./mysql.cnf:/etc/mysql/conf.d/teamplify.cnf:ro
+    restart: always
+    command: mysqld --default-authentication-plugin=mysql_native_password
+
+  redis:
+    image: ${IMAGE_REDIS}
+    container_name: teamplify_redis
+    volumes:
+      - ./redis.cnf:/etc/redis/redis.conf:ro
+    restart: always
+    command: redis-server /etc/redis/redis.conf
+
+  nginx:
+    &nginx
+    image: ${IMAGE_NGINX}
+    container_name: teamplify_nginx
+    depends_on:
+      - app
+    volumes:
+      - ${WEB_SSL_CERTS:-nginx_certs}:/etc/nginx/certs:ro
+      - nginx_dhparam:/etc/nginx/dhparam
+      - /etc/nginx/vhost.d
+      - /usr/share/nginx/html
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - ./vhost.conf:/etc/nginx/vhost.d/${WEB_HOST}:ro
+      - ./uwsgi_params.conf:/etc/nginx/uwsgi_params:ro
+    volumes_from:
+      - app:ro
+    environment:
+      - HTTPS_METHOD
+      - HTTPS_PORT
+      - HTTP_PORT=${WEB_PORT}
+      - TRUST_DOWNSTREAM_PROXY=true
+    ports:
+      - ${WEB_PORT}:${WEB_PORT}
+    restart: always
+    entrypoint: bash -c "find /etc/nginx/dhparam/dhparam.pem -empty -delete || true && /app/docker-entrypoint.sh forego start -r"
+    profiles:
+      - nossl
+
+  nginx-ssl:
+    <<: *nginx
+    environment:
+      - HTTPS_METHOD
+      - HTTPS_PORT
+      - HTTP_PORT=${WEB_PORT}
+      - TRUST_DOWNSTREAM_PROXY=true
+    ports:
+      - ${WEB_PORT}:${WEB_PORT}
+      - ${HTTPS_PORT}:${HTTPS_PORT}
+    profiles:
+      - ssl
+
+  letsencrypt:
+    image: ${IMAGE_LETSENCRYPT}
+    container_name: teamplify_letsencrypt
+    depends_on:
+      - nginx-ssl
+    environment:
+      - VIRTUAL_HOST=${WEB_HOST}
+      - LETSENCRYPT_HOST
+    volumes:
+      - nginx_certs:/etc/nginx/certs
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    volumes_from:
+      - nginx-ssl
+    profiles:
+      - letsencrypt
+
+  builtin_smtp:
+    image: ${IMAGE_SMTP}
+    container_name: teamplify_smtp
+    volumes:
+      - ./postfix.cf:/etc/postfix/main.cf.d/10-custom.cf:ro
+    restart: always
+
+  app:
+    image: ${IMAGE_APP}
+    container_name: teamplify_app
+    depends_on:
+      - builtin_db
+      - redis
+    links:
+      - builtin_db
+      - redis
+    volumes:
+      - media:/media/
+    environment:
+      # nginx-proxy & Let's Encrypt configuration:
+      - VIRTUAL_HOST=${WEB_HOST}
+      - VIRTUAL_PORT=8211
+      - VIRTUAL_PROTO=uwsgi
+      - LETSENCRYPT_HOST=${LETSENCRYPT_HOST}
+      - HSTS=off
+
+      - MAIN_PRODUCT_KEY
+      - MAIN_UPDATE_CHANNEL
+      - MAIN_SEND_CRASH_REPORTS
+      - MAIN_BYPASS_EMAIL_CONFIRMATION
+      - WEB_HOST
+      - WEB_PORT
+      - WEB_SSL_PORT
+      - DB_HOST
+      - DB_PORT
+      - DB_USER
+      - DB_PASSWORD
+      - EMAIL_ADDRESS_FROM
+      - EMAIL_SMTP_HOST
+      - EMAIL_SMTP_PROTOCOL
+      - EMAIL_SMTP_PORT
+      - EMAIL_SMTP_USER
+      - EMAIL_SMTP_PASSWORD
+      - CRYPTO_SIGNING_KEY
+    command: /code/server/app.sh
+    restart: always
+
+  worker_slim:
+    image: ${IMAGE_APP}
+    depends_on:
+      - app
+      - builtin_smtp
+    links:
+      - builtin_db
+      - redis
+      - builtin_smtp
+    volumes:
+      - media:/media/
+    environment:
+      - C_FORCE_ROOT=1
+      - MAIN_PRODUCT_KEY
+      - MAIN_UPDATE_CHANNEL
+      - MAIN_SEND_CRASH_REPORTS
+      - WEB_HOST
+      - WEB_PORT
+      - WEB_SSL_PORT
+      - DB_HOST
+      - DB_PORT
+      - DB_USER
+      - DB_PASSWORD
+      - EMAIL_ADDRESS_FROM
+      - EMAIL_SMTP_HOST
+      - EMAIL_SMTP_PROTOCOL
+      - EMAIL_SMTP_PORT
+      - EMAIL_SMTP_USER
+      - EMAIL_SMTP_PASSWORD
+      - CRYPTO_SIGNING_KEY
+    command: /code/server/worker-slim.sh
+    restart: always
+
+  worker_fat:
+    image: ${IMAGE_APP}
+    depends_on:
+      - app
+      - builtin_smtp
+    links:
+      - builtin_db
+      - redis
+      - builtin_smtp
+    volumes:
+      - media:/media/
+    environment:
+      - C_FORCE_ROOT=1
+      - MAIN_PRODUCT_KEY
+      - MAIN_UPDATE_CHANNEL
+      - MAIN_SEND_CRASH_REPORTS
+      - WEB_HOST
+      - WEB_PORT
+      - WEB_SSL_PORT
+      - DB_HOST
+      - DB_PORT
+      - DB_USER
+      - DB_PASSWORD
+      - EMAIL_ADDRESS_FROM
+      - EMAIL_SMTP_HOST
+      - EMAIL_SMTP_PROTOCOL
+      - EMAIL_SMTP_PORT
+      - EMAIL_SMTP_USER
+      - EMAIL_SMTP_PASSWORD
+      - CRYPTO_SIGNING_KEY
+    command: /code/server/worker-fat.sh
+    restart: always
+
+  beat:
+    image: ${IMAGE_APP}
+    container_name: teamplify_beat
+    depends_on:
+      - app
+    links:
+      - builtin_db
+      - redis
+    volumes:
+      - media:/media/
+    environment:
+      - MAIN_PRODUCT_KEY
+      - MAIN_UPDATE_CHANNEL
+      - MAIN_SEND_CRASH_REPORTS
+      - WEB_HOST
+      - WEB_PORT
+      - WEB_SSL_PORT
+      - DB_HOST
+      - DB_PORT
+      - DB_USER
+      - DB_PASSWORD
+      - EMAIL_ADDRESS_FROM
+      - EMAIL_SMTP_HOST
+      - EMAIL_SMTP_PROTOCOL
+      - EMAIL_SMTP_PORT
+      - EMAIL_SMTP_USER
+      - EMAIL_SMTP_PASSWORD
+      - CRYPTO_SIGNING_KEY
+    command: /code/server/beat.sh
+    restart: always
+
+volumes:
+  nginx_certs:
+  nginx_dhparam:
+  media:
+  mysql_data:
