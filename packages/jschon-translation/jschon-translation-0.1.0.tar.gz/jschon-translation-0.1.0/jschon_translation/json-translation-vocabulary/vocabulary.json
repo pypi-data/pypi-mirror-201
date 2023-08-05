@@ -1,0 +1,75 @@
+{
+    "title": "JSON translation vocabulary meta-schema",
+    "description": "A meta-schema describing the keywords of a JSON translation vocabulary",
+    "$id": "https://jschon.dev/meta/translation/vocabulary",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$vocabulary": {
+        "https://jschon.dev/vocab/translation": true
+    },
+    "$dynamicAnchor": "meta",
+    "type": ["object", "boolean"],
+    "properties": {
+        "translations": {
+            "type": "array",
+            "items": {
+                "$dynamicAnchor": "t9n",
+                "type": "object",
+                "properties": {
+                    "t9nScheme": {
+                        "type": "string"
+                    },
+                    "t9nTarget": {
+                        "type": "string",
+                        "format": "json-pointer"
+                    },
+                    "t9nCondition": {
+                        "$dynamicRef": "#meta"
+                    }
+                },
+                "required": ["t9nScheme", "t9nTarget"],
+                "$dynamicRef": "#t9n-value"
+            }
+        }
+    },
+    "$defs": {
+        "t9nValueSchema": {
+            "$dynamicAnchor": "t9n-value",
+            "type": "object",
+            "properties": {
+                "t9nConst": true,
+                "t9nSource": {
+                    "$dynamicRef": "#t9n-source"
+                },
+                "t9nConcat": {
+                    "type": "array",
+                    "items": {"$dynamicRef": "#t9n-source"}
+                },
+                "t9nSep": {
+                    "type": "string",
+                    "default": ""
+                },
+                "t9nFilter": {
+                    "type": ["string", "object"]
+                },
+                "t9nCast": {
+                    "enum": ["boolean", "integer", "number", "string"]
+                },
+                "t9nArray": {
+                    "$dynamicRef": "#t9n-value"
+                },
+                "t9nObject": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "$dynamicRef": "#t9n-value"
+                    }
+                }
+            }
+        },
+        "t9nSourceSchema": {
+            "$dynamicAnchor": "t9n-source",
+            "type": "string",
+            "format": "relative-json-pointer",
+            "default": "0"
+        }
+    }
+}
