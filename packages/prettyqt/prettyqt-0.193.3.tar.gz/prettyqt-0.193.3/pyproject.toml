@@ -1,0 +1,204 @@
+[tool.poetry]
+name = "PrettyQt"
+version = "0.193.3"
+description = "A pythonic layer on top of PyQt5 / PyQt6 / PySide6"
+readme = 'docs/index.md'
+repository = "https://github.com/phil65/prettyqt"
+homepage = "https://github.com/phil65/prettyqt"
+authors = ["phil65 <philipptemminghoff@googlemail.com>"]
+packages = [
+    { include = "prettyqt" },
+]
+
+[tool.poetry.scripts]
+regexeditor = "prettyqt.custom_widgets.regexeditor.__main__:run"
+iconbrowser = "prettyqt.custom_widgets.iconbrowser:run"
+
+[tool.poetry.plugins."pyinstaller40"]
+hook-dirs = "prettyqt.__pyinstaller:get_hook_dirs"
+
+# [tool.poetry.plugins."pytest11"]
+# pytest-qt = "prettyqt.prettyqtest.plugin"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+bidict = "^0"
+docutils = {version = "^0.19", optional=true}
+orjson = {version = "^3", python = "<3.12", optional=true}
+
+regex = "^2022"
+
+PyQtWebEngine = {version = "^5.15", optional=true}
+PyQtChart = {version = "^5.15", optional=true, markers = "python_version != '3.10' or sys_platform != 'win32'"}
+QScintilla = {version = "^2.11", optional=true}
+
+PyQt6 = {version = "^6.2", optional=true}
+PyQt6-Charts = {version = "^6.2", optional=true}
+PyQt6-WebEngine = {version = "^6.2", optional=true}
+PyQt6-QScintilla = {version = "^2.0", optional=true}
+# PyQtAds = {version = "^3.8", optional=true}
+pyside6 = {version = "^6.4", python = "<3.12", optional=true}
+darkdetect = {version = "^0", markers = "sys_platform == 'darwin'"}
+pywin32 = {version = "*", markers = "sys_platform == 'win32'"}
+pygments = "^2.6"
+qstylizer = "^0.2"
+deprecated = "^1.2"
+types-Deprecated = "^1.2"
+
+[tool.poetry.dev-dependencies]
+pytest = "^7"
+pip = "^23"
+pytest-cov = "^4"
+pytest-qt = {version = "^4.1"}
+mypy = "^0"
+types-Deprecated = "^1.2"
+types-docutils = "^0"
+types-orjson = "^3.6"
+pylint = "^2.5"
+pytest-xvfb = {version = "^2", markers = "sys_platform == 'linux'"}
+codecov = "^2.1"
+coverage = "^7"
+mkdocs = "^1"
+mkdocs-material = "^9"
+mkdocstrings = {version = "^0", extras = ["python-legacy"]}
+
+pymdown-extensions = "^9"
+black = "^23"
+devtools = "^0"
+commitizen = "^2.20"
+
+[tool.poetry.extras]
+pyqt5 = ["PyQt5", "PyQtWebEngine", "PyQtChart", "QScintilla"]
+pyside6 = ["pyside6", "PySide6-QtAds"]
+pyqt6 = ["pyqt6", "PyQt6-Charts", "PyQt6-WebEngine", "PyQt6-QScintilla", "PyQtAds"]
+addons = ["docutils", "orjson"]
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+testpaths = [
+    "tests",
+]
+junit_family = "xunit2"
+qt_qapp_name = "prettyqt-test"
+# qt_api = "pyside6"
+qt_log_level_fail = "CRITICAL"
+log_cli = true
+log_format = "%(asctime)s %(levelname)s %(message)s"
+log_date_format = "%Y-%m-%d %H:%M:%S"
+
+[tool.isort]
+line_length = 88
+ensure_newline_before_comments = true
+include_trailing_comma = true
+lines_after_imports = 2
+lines_between_types = 1
+# atomic = true
+multi_line_output = 3
+force_sort_within_sections = true
+combine_as_imports = true
+use_parentheses = true
+force_grid_wrap = 0
+# skip = "__init__.py"
+skip_glob = ["*/setup.py", "*/**/__init__.py"]
+# filter_files = true
+
+# known_first_party = "poetry"
+# known_third_party = [
+#     "cachecontrol",
+#     "cachy",
+#     "cleo",
+#     "clikit",
+#     "html5lib",
+#     "httpretty",
+#     "jsonschema",
+#     "keyring",
+#     "pexpect",
+#     "pkginfo",
+#     "pyparsing",
+#     "pytest",
+#     "requests",
+#     "requests_toolbelt",
+#     "shellingham",
+#     "tomlkit",
+# ]
+
+[tool.flit.metadata]
+module = "prettyqt"
+author = "Philipp Temminghoff"
+author-email = "philipptemminghoff@googlemail.com"
+home-page = "https://github.com/phil65/prettyqt"
+
+[tool.ruff]
+line-length = 90
+select = ["C", "E", "F", "W"]
+# Never enforce `E501`.
+ignore = ["C408"]
+extend-select = ["D"]
+extend-ignore = [
+    "D100",
+    "D101",
+    "D102",
+    "D103",
+    "D105",
+    "D107",
+    "D203",
+    "D204",
+    "D213",
+    "D215",
+    "D400",
+    "D404",
+    "D406",
+    "D407",
+    "D408",
+    "D409",
+    "D413",
+]
+exclude = [
+    'docs',
+    '.eggs/*.py',
+]
+extend-exclude = [
+    "prettyqt/qt/",
+    ]
+
+[tool.ruff.flake8-quotes]
+docstring-quotes = "double"
+
+[tool.black]
+line-length = 90
+target-version = ['py37']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | tests/.*/setup.py
+)/
+'''
+[tool.commitizen]
+name = "cz_conventional_commits"
+version = "0.193.3"
+tag_format = "v$version"
+update_changelog_on_bump = true
+changelog_start_rev = "v0.100.0"
+changelog_file = "docs/changelog.md"
+version_files = [
+    "prettyqt/__init__.py:__version__",
+    "pyproject.toml:version",
+]
+
+[build-system]
+# requires = ["poetry>=0.12"]
+# build-backend = "poetry.masonry.api"
+# need to check this
+requires = ["poetry_core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+# for pip install -e .
+# requires = ["setuptools>=42", "wheel", "setuptools_scm[toml]>=3.4", "pbr"]
