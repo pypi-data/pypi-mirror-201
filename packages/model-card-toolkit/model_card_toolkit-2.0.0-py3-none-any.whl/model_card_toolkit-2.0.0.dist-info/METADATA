@@ -1,0 +1,102 @@
+Metadata-Version: 2.1
+Name: model-card-toolkit
+Version: 2.0.0
+Summary: Model Card Toolkit
+Home-page: https://github.com/tensorflow/model-card-toolkit
+Author: Google LLC
+Author-email: tensorflow-extended-dev@googlegroups.com
+License: Apache 2.0
+Keywords: model card toolkit ml metadata machine learning
+Platform: UNKNOWN
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Education
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Topic :: Scientific/Engineering
+Classifier: Topic :: Scientific/Engineering :: Mathematics
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Classifier: Topic :: Software Development
+Classifier: Topic :: Software Development :: Libraries
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Requires-Python: >=3.7,<4
+Description-Content-Type: text/markdown
+Requires-Dist: absl-py (<1.1,>=0.9)
+Requires-Dist: jinja2 (<3.2,>=3.1)
+Requires-Dist: matplotlib (<4,>=3.2.0)
+Requires-Dist: jsonschema (<4,>=3.2.0)
+Requires-Dist: tensorflow-data-validation (<2.0.0,>=1.5.0)
+Requires-Dist: tensorflow-model-analysis (<0.42.0,>=0.36.0)
+Requires-Dist: tensorflow-metadata (<2.0.0,>=1.5.0)
+Requires-Dist: ml-metadata (<2.0.0,>=1.5.0)
+Provides-Extra: test
+Requires-Dist: pytest ; extra == 'test'
+Requires-Dist: tensorflow-datasets (>=4.8.2) ; extra == 'test'
+
+# Model Card Toolkit
+
+The Model Card Toolkit (MCT) streamlines and automates generation of [Model Cards](https://modelcards.withgoogle.com/about) [1], machine learning documents that provide context and transparency into a model's development and performance. Integrating the MCT into your ML pipeline enables the sharing model metadata and metrics with researchers, developers, reporters, and more.
+
+Some use cases of model cards include:
+
+* Facilitating the exchange of information between model builders and product developers.
+* Informing users of ML models to make better-informed decisions about how to use them (or how not to use them).
+* Providing model information required for effective public oversight and accountability.
+
+![Generated model card image](https://raw.githubusercontent.com/tensorflow/model-card-toolkit/main/model_card_toolkit/documentation/guide/images/model_card.png)
+
+## Installation
+
+The Model Card Toolkit is hosted on [PyPI](https://pypi.org/project/model-card-toolkit/), and can be installed with `pip install model-card-toolkit` (or `pip install model-card-toolkit
+--use-deprecated=legacy-resolver` for versions of pip starting with 20.3). See [the installation guide](model_card_toolkit/documentation/guide/install.md) for more details.
+
+## Getting Started
+
+    import model_card_toolkit
+
+    # Initialize the Model Card Toolkit with a path to store generate assets
+    model_card_output_path = ...
+    mct = model_card_toolkit.ModelCardToolkit(model_card_output_path)
+
+    # Initialize the model_card_toolkit.ModelCard, which can be freely populated
+    model_card = mct.scaffold_assets()
+    model_card.model_details.name = 'My Model'
+
+    # Write the model card data to a proto file
+    mct.update_model_card(model_card)
+
+    # Return the model card document as an HTML page
+    html = mct.export_format()
+
+## Model Card Generation on TFX
+
+If you are using [TensorFlow Extended (TFX)](https://www.tensorflow.org/tfx), you can
+incorporate model card generation into your TFX pipeline via the `ModelCardGenerator`
+component.
+
+The `ModelCardGenerator` component is moving to the
+[TFX Addons](https://github.com/tensorflow/tfx-addons) library and will no longer
+be packaged in Model Card Toolkit from version 2.0.0. Before you can use the
+component, you will need to install the `tfx-addons` package:
+
+```sh
+pip install tfx-addons[model_card_generator]
+```
+
+This page will be updated to include the new links for the Model Cards in TFX
+guide and the end-to-end demo when the migration is completed.
+
+## Schema
+
+Model cards are stored in proto as an intermediate format. You can see the model card JSON schema in the `schema` directory.
+
+## References
+
+[1] https://arxiv.org/abs/1810.03993
+
+
