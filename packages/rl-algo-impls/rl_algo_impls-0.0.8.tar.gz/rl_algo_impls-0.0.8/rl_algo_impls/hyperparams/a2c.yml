@@ -1,0 +1,142 @@
+CartPole-v1: &cartpole-defaults
+  n_timesteps: !!float 5e5
+  env_hyperparams:
+    n_envs: 8
+
+CartPole-v0:
+  <<: *cartpole-defaults
+
+MountainCar-v0:
+  n_timesteps: !!float 1e6
+  env_hyperparams:
+    n_envs: 16
+    normalize: true
+
+MountainCarContinuous-v0:
+  n_timesteps: !!float 1e5
+  env_hyperparams:
+    n_envs: 4
+    normalize: true
+  # policy_hyperparams:
+  #   use_sde: true
+  #   log_std_init: 0.0
+  #   init_layers_orthogonal: false
+  algo_hyperparams:
+    n_steps: 100
+    sde_sample_freq: 16
+
+Acrobot-v1:
+  n_timesteps: !!float 5e5
+  env_hyperparams:
+    normalize: true
+    n_envs: 16
+
+# Tuned
+LunarLander-v2:
+  device: cpu
+  n_timesteps: !!float 1e6
+  env_hyperparams:
+    n_envs: 4
+    normalize: true
+  algo_hyperparams:
+    n_steps: 2
+    gamma: 0.9955517404308908
+    gae_lambda: 0.9875340918797773
+    learning_rate: 0.0013814130817068916
+    learning_rate_decay: linear
+    ent_coef: !!float 3.388369146384422e-7
+    ent_coef_decay: none
+    max_grad_norm: 3.33982095073364
+    normalize_advantage: true
+    vf_coef: 0.1667838310548184
+
+BipedalWalker-v3:
+  n_timesteps: !!float 5e6
+  env_hyperparams:
+    n_envs: 16
+    normalize: true
+  policy_hyperparams:
+    use_sde: true
+    log_std_init: -2
+    init_layers_orthogonal: false
+  algo_hyperparams:
+    ent_coef: 0
+    max_grad_norm: 0.5
+    n_steps: 8
+    gae_lambda: 0.9
+    vf_coef: 0.4
+    gamma: 0.99
+    learning_rate: !!float 9.6e-4
+    learning_rate_decay: linear
+
+HalfCheetahBulletEnv-v0: &pybullet-defaults
+  n_timesteps: !!float 2e6
+  env_hyperparams:
+    n_envs: 4
+    normalize: true
+  policy_hyperparams:
+    use_sde: true
+    log_std_init: -2
+    init_layers_orthogonal: false
+  algo_hyperparams: &pybullet-algo-defaults
+    n_steps: 8
+    ent_coef: 0
+    max_grad_norm: 0.5
+    gae_lambda: 0.9
+    gamma: 0.99
+    vf_coef: 0.4
+    learning_rate: !!float 9.6e-4
+    learning_rate_decay: linear
+
+AntBulletEnv-v0:
+  <<: *pybullet-defaults
+
+Walker2DBulletEnv-v0:
+  <<: *pybullet-defaults
+
+HopperBulletEnv-v0:
+  <<: *pybullet-defaults
+
+# Tuned
+CarRacing-v0:
+  n_timesteps: !!float 4e6
+  env_hyperparams:
+    n_envs: 16
+    frame_stack: 4
+    normalize: true
+    normalize_kwargs:
+      norm_obs: false
+      norm_reward: true
+  policy_hyperparams:
+    use_sde: false
+    log_std_init: -1.3502584927786276
+    init_layers_orthogonal: true
+    activation_fn: tanh
+    share_features_extractor: false
+    cnn_flatten_dim: 256
+    hidden_sizes: [256]
+  algo_hyperparams:
+    n_steps: 16
+    learning_rate: 0.000025630993245026736
+    learning_rate_decay: linear
+    gamma: 0.99957617037542
+    gae_lambda: 0.949455676599436
+    ent_coef: !!float 1.707983205298309e-7
+    vf_coef: 0.10428178193833336
+    max_grad_norm: 0.5406643389792273
+    normalize_advantage: true
+    use_rms_prop: false
+
+_atari: &atari-defaults
+  n_timesteps: !!float 1e7
+  env_hyperparams: &atari-env-defaults
+    n_envs: 16
+    frame_stack: 4
+    no_reward_timeout_steps: 1000
+    no_reward_fire_steps: 500
+    vec_env_class: async
+  policy_hyperparams: &atari-policy-defaults
+    activation_fn: relu
+  algo_hyperparams:
+    ent_coef: 0.01
+    vf_coef: 0.25
