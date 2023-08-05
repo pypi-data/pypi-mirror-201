@@ -1,0 +1,47 @@
+---
+paths:
+  /api/webhooks/gitlab/jobs/monitor/purge:
+    post:
+      operationId: api.webhooks.gitlab.jobs.monitor_purge
+      summary: "Purge monitor job creations and destructions"
+      tags:
+        - gitlab
+        - jobs
+      responses:
+        200:
+          $ref: "#/components/responses/200_ok"
+        400:
+          $ref: "#/components/responses/400_bad_request"
+        500:
+          $ref: "#/components/responses/500_internal_server_error"
+
+  /api/webhooks/gitlab/jobs/monitor:
+    post:
+      operationId: api.webhooks.gitlab.jobs.monitor
+      summary: "Monitor job creations and destructions"
+      tags:
+        - gitlab
+        - jobs
+
+      requestBody:
+        description: |
+          The request body corresponds to the Gitlab API payload for a Job webhook event.
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                 - $ref: "#/components/schemas/GitlabBuildEvent"
+                 - $ref: "#/components/schemas/GitlabSystemEvent"
+              discriminator:
+                propertyName: object_kind
+
+      responses:
+        200:
+          $ref: "#/components/responses/200_ok"
+        204:
+          $ref: "#/components/responses/204_no_content"
+        400:
+          $ref: "#/components/responses/400_bad_request"
+        500:
+          $ref: "#/components/responses/500_internal_server_error"
