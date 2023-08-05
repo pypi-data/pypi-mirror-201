@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkjupyterlab_quarto=self.webpackChunkjupyterlab_quarto||[]).push([[643],{6643:(e,a,r)=>{r.r(a);var s=r(6062),t=r.n(s),u=r(1246);t()(u.Z,{insert:"head",singleton:!1}),u.Z.locals}}]);
