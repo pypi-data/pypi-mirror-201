@@ -1,0 +1,52 @@
+# Summary
+
+Text Cut is meant to wrap text *naturally*, preferring to cut the sentence where this is the least
+disturbing for the reader.
+
+# Install
+
+```bash
+python -m pip install textcut
+```
+
+# Usage
+
+```py
+from textcut import TextCut
+print(TextCut().fill(my_text))
+```
+
+## Methods
+
+The `textcut` package offers two main methods: `wrap` cuts a long text into multiple lines,
+and `fill` does the same but join the resulting list with new line character for easy printing.
+
+## Options
+
+Several options are available to configure the wrapping:
+
+- `language`: for now only `fr` (French), the rules to wrap text depends on the language. Although `fr` works quite well with English too.
+- `width`: the maximum width of the lines
+- `tolerance`: whether it's ok to have shorter lines that other (high tolerance >0.5) or not (low tolerance, <0.1)
+- `trim`: whether to trim the lines to remove extra spaces
+- `len_func`: a function to determine the length of a string, defaults to `len`
+- `normalise`: tries to minimise the length differences between lines (not optimised)
+
+## Example
+
+```py
+TextCut(language = 'fr', width = 80, tolerance = 0.4, trim = True, len_func = len).fill(text)
+```
+
+Output:
+```
+If I were asked to answer the following question: What is slavery?
+and I should answer in one word, It is murder!,
+my meaning would be understood at once.
+No extended argument would be required to show that the power to remove a man's
+mind, will, and personality, is the power of life and death,
+and that it makes a man a slave. It is murder. Why, then,
+to this other question: What is property? may I not likewise answer,
+It is robbery!, without the certainty of being misunderstood;
+the second proposition being no other than a transformation of the first?
+```
