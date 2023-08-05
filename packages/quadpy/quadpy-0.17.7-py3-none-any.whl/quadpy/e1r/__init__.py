@@ -1,0 +1,1 @@
+from .._agg import _sO65l as gauss_laguerre
