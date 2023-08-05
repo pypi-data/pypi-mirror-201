@@ -1,0 +1,3 @@
+(function() {var implementors = {
+"u_interface":[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.65.0/core/marker/trait.StructuralPartialEq.html\" title=\"trait core::marker::StructuralPartialEq\">StructuralPartialEq</a> for <a class=\"struct\" href=\"u_interface/struct.UserSubmission.html\" title=\"struct u_interface::UserSubmission\">UserSubmission</a>"]]
+};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
