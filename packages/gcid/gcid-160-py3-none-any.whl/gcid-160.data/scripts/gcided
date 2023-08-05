@@ -1,0 +1,70 @@
+#!python
+# This file is placed in the Public Domain.
+
+
+"medicine care, poison genocide"
+
+
+import getpass
+import os
+import pwd
+import sys
+import time
+
+
+from gcid.handler import Command, Handler, scan
+from gcid.modules import cmd, irc, log, mdl, rss, tdo, wsd
+from gcid.persist import Persist
+
+
+Persist.workdir = "/var/lib/gcid/"
+
+
+scan(cmd)
+scan(log)
+scan(mdl)
+scan(rss)
+scan(tdo)
+scan(wsd)
+
+
+def privileges(username):
+    if os.getuid() != 0:
+        return
+    try:
+        pwnam = pwd.getpwnam(username)
+    except KeyError:
+        username = getpass.getuser()
+        pwnam = pwd.getpwnam(username)
+    os.setgroups([])
+    os.setgid(pwnam.pw_gid)
+    os.setuid(pwnam.pw_uid)
+
+
+
+def waiter():
+    got = []
+    for ex in Handler.errors:
+        traceback.print_exception(type(ex), ex, ex.__traceback__)
+        got.append(ex)
+    for exc in got:
+        Handler.errors.remove(exc)
+    got = []
+    for ex in Command.errors:
+        traceback.print_exception(type(ex), ex, ex.__traceback__)
+        got.append(ex)
+    for exc in got:
+        Command.errors.remove(exc)
+
+
+def main():
+    privileges("gcid")
+    irc.start()
+    mdl.start()
+    rss.start()
+    while 1:
+        time.sleep(1.0)
+        waiter()
+        
+
+main()
