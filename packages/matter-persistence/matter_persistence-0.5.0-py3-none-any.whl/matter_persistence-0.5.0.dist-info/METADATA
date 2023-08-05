@@ -1,0 +1,161 @@
+Metadata-Version: 2.1
+Name: matter-persistence
+Version: 0.5.0
+Summary: Matter persistance library.
+Project-URL: Documentation, https://github.com/Matter-Tech/matter-persistence#readme
+Project-URL: Issues, https://github.com/Matter-Tech/matter-persistence/issues
+Project-URL: Source, https://github.com/Matter-Tech/matter-persistence
+Author-email: Rômulo Jales <romulo@thisismatter.com>
+License-Expression: MIT
+License-File: LICENSE
+Keywords: database,migrations,orm
+Classifier: Development Status :: 4 - Beta
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Classifier: Programming Language :: Python :: Implementation :: PyPy
+Requires-Python: >=3.10
+Requires-Dist: matter-exceptions~=1.0
+Requires-Dist: pydantic~=1.10
+Provides-Extra: cache
+Requires-Dist: aiocache==0.12.0; extra == 'cache'
+Provides-Extra: cache-memcached
+Requires-Dist: aiocache[memcached]==0.12.0; extra == 'cache-memcached'
+Requires-Dist: matter-persistence[cache]; extra == 'cache-memcached'
+Provides-Extra: database
+Requires-Dist: sqlalchemy[asyncio]==2.0.7; extra == 'database'
+Provides-Extra: database-migrations
+Requires-Dist: alembic==1.10.2; extra == 'database-migrations'
+Requires-Dist: matter-persistence[database]; extra == 'database-migrations'
+Requires-Dist: python-dotenv~=1.0; extra == 'database-migrations'
+Requires-Dist: typer==0.7.0; extra == 'database-migrations'
+Provides-Extra: database-postgresql
+Requires-Dist: asyncpg==0.27.0; extra == 'database-postgresql'
+Requires-Dist: matter-persistence[database]; extra == 'database-postgresql'
+Requires-Dist: sqlalchemy[postgresql]==2.0.7; extra == 'database-postgresql'
+Description-Content-Type: text/markdown
+
+# matter-persistence
+
+[![PyPI - Version](https://img.shields.io/pypi/v/matter-persistence.svg)](https://pypi.org/project/matter-persistence)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/matter-persistence.svg)](https://pypi.org/project/matter-persistence)
+
+**Table of Contents**
+
+- [Installation](#installation)
+- [License](#license)
+
+## Installation
+
+```console
+pip install matter-persistence
+```
+
+### With migration support
+
+```console
+pip install matter-persistence[database-migration]
+```
+
+### With postgres support
+
+```console
+pip install matter-persistence[database-postgres]
+```
+
+### With cache support 
+
+```console
+pip install matter-persistence[cache]
+```
+
+### With memcached support 
+
+```console
+pip install matter-persistence[cache-memcached]
+```
+## Usage
+
+First you need to configure your database.
+
+```python
+from matter_persistence.database import DatabaseConfig
+
+db_config = DatabaseConfig(connection_uri="sqlite:///test.db")
+```
+
+Then you need start the DatabaseClient
+
+
+```python
+from matter_persistence.database import DatabaseConfig, DatabaseClient
+
+db_config = DatabaseConfig(connection_uri="sqlite:///test.db")
+DatabaseClient.start(db_config)
+```
+
+One now have two options:
+
+* Create ORM models
+* Use the sqlalchemy connection directly
+
+### ORM models
+
+```python
+from matter_persistence.database import DatabaseBaseModel
+from sqlalchemy import Column, Integer, String
+
+class ExampleModel(DatabaseBaseModel):
+    __tablename__ = "example"
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+
+async def an_async_function():
+    example = ExampleModel(name="test")
+    await example.save()
+```
+
+### sqlalchemy connection directly
+
+```python
+from matter_persistence.database import get_or_reuse_connection
+import  sqlalchemy as sa
+
+async def another_sync_function():
+    async with get_or_reuse_connection() as conn:
+        await conn.execute(sa.text("SELECT 1"))
+```
+
+## Migrations
+
+One may use the command `migrations` to create and apply migrations.
+
+First you need to configure you database client:
+```python
+from matter_persistence.database import DatabaseConfig
+
+db_config = DatabaseConfig(connection_uri="sqlite:///test.db",
+                           migration={"path": <a path to your migrations folder>,
+                                      "models": [<a list of full qualified class path of your ORM models>]})
+```
+If models is an empty array, or you don't have changed the models, the command will create an empty migration
+and you can customize it.
+
+Then you can use the command `migrations` to create and apply migrations. You must provide the full qualified
+python path to your configuration instance
+
+```console
+migrations create --config python.path.to.your.db_config.instance --message <migration name>
+```
+
+Then apply it, You must provide the full qualified  python path to your configuration instance:
+```console
+migrations apply --config python.path.to.your.db_config.instance 
+```
+## Cache
+
+
+### Contributing
+
+for contributions, check the [CONTRIBUTING.md](CONTRIBUTING.md) file
