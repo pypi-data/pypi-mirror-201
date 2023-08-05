@@ -1,0 +1,3 @@
+class FormParameterModel:
+    Name=""
+    Value=""

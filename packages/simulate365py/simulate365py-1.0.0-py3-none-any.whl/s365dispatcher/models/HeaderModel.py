@@ -1,0 +1,3 @@
+class HeaderModel:
+    Name=""
+    Value=""
