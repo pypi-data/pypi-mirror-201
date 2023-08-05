@@ -1,0 +1,68 @@
+Metadata-Version: 2.1
+Name: databricks-mosaic-gdal
+Version: 3.4.3.post3
+Summary: GDAL install with Java Bindings for Databricks Runtime 11+
+Home-page: https://github.com/databrickslabs/mosaic/tree/main/modules/python/gdal_package
+Author: Databricks
+License: Databricks License
+Classifier: License :: Other/Proprietary License
+Classifier: Topic :: Scientific/Engineering :: GIS
+Classifier: Operating System :: POSIX :: Linux
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: C
+Classifier: Programming Language :: C++
+Classifier: Programming Language :: Java
+Requires-Python: >=3.7.0
+Description-Content-Type: text/markdown
+License-File: LICENSE
+
+# PyPI Project 'databricks-mosaic-gdal' Overview
+
+> Current version is 3.4.3 (to match GDAL).
+
+This is a filetree (vs apt based) drop-in packaging of GDAL with Java Bindings for Ubuntu 20.04 (Focal Fossa) which is used by [Databricks Runtime](https://docs.databricks.com/release-notes/runtime/releases.html) (DBR) 11.3+. 
+
+1. `gdal-3.4.3-filetree.tar.xz` is ~50MB - it is extracted with `tar -xf gdal-3.4.3-filetree.tar.xz -C /`
+2. `gdal-3.4.3.-symlinks.tar.xz` is ~19MB - it is extracted with `tar -xhf gdal-3.4.3-symlinks.tar.xz -C /`
+
+__This (databricks-mosaic-gdal) package, starting in version `3.4.3.post2+`, now supports auto-detects and handles tarball unpacking without requiring an init script, e.g. install in a notebook with `%pip install --no-binary :all: databricks-mosaic-gdal` (where the `--no-binary :all:` forces use of custom tarball install logic in `setup.py`).__
+
+An __alternative (but no longer required)__ [init script](https://docs.databricks.com/clusters/init-scripts.html) is provided at [gdal-3.4.3-filetree-init.sh](https://github.com/databrickslabs/mosaic/blob/main/modules/python/gdal_package/databricks-mosaic-gdal/resources/scripts/mosaic-gdal-3.4.3-filetree-init.sh) for managing install of the tarballs across a DBR cluster with install from [PyPI](https://pypi.org/project/databricks-mosaic-gdal/). _You could also install just the WHL for other manual installation procedures with `[%]pip install databricks-mosaic-gdal`._
+
+ __Requirements:__
+
+* This will not install the GDAL tarballs if not on Databricks Runtime >= 11.3
+* Added benefit of not accidentally installing on your local machine which would be bad since it unpacks to root (`/`)
+
+ __Notes:__
+
+* This is a very specific packaging for GDAL + dependencies which removes any libraries that are already provided by DBR, so it will not be not useful outside Databricks.
+* It additionally includes GDAL shared objects (`.so`) for Java Bindings, GDAL 3.4.3 Python bindings, and tweak for OSGEO as currently supplied by [UbuntuGIS PPA](https://launchpad.net/~ubuntugis/+archive/ubuntu/ubuntugis-unstable) based init script [install-gdal-databricks.sh](https://github.com/databrickslabs/mosaic/blob/main/src/main/resources/scripts/install-gdal-databricks.sh) provided by Mosaic. This install replaces the existing way on Mosaic, so choose one or the other.
+* The GDAL JAR for 3.4 is not included but is provided by Mosaic itself and added to your Databricks cluster as part of the [enable_gdal](https://databrickslabs.github.io/mosaic/usage/install-gdal.html#enable-gdal-for-a-notebook) called when configuring Mosaic for GDAL. Separately, the JAR could be added as a [cluster-installed library](https://docs.databricks.com/libraries/cluster-libraries.html#cluster-installed-library), e.g. through Maven coordinates `org.gdal:gdal:3.4.0` from [mvnrepository](https://mvnrepository.com/artifact/org.gdal/gdal/3.4.0).
+* Starting with version `3.4.3.post2`,  Mosaic is able to directly leverage this [PyPI](https://pypi.org/project/databricks-mosaic-gdal/) project and can altogether avoid the init script as a precursor to calling [enable_gdal](https://databrickslabs.github.io/mosaic/usage/install-gdal.html#enable-gdal-for-a-notebook):
+
+_The install in a notebook for both Mosaic and GDAL would look like:_
+
+```
+# - cmd order doesn't matter
+# - put each in their own cell
+# - since %pip restarts the python kernel, run at the top of your notebook
+
+# cmd-1
+%pip install --no-binary :all: databricks-mosaic-gdal
+
+# cmd-2
+%pip install databricks-mosaic
+```
+
+_Then you can initialize:_
+
+```
+import mosaic as mos
+mos.enable_mosaic(spark, dbutils)
+mos.enable_gdal(spark)
+```
+
+_Check Mosaic [GDAL Installation Guide](https://databrickslabs.github.io/mosaic/usage/install-gdal.html#) updated instructions on/around APR 2023._
