@@ -1,0 +1,186 @@
+Metadata-Version: 2.1
+Name: pxd
+Version: 0.5.1
+Summary: This is a tool to download and install PolarDB-X
+Home-page: UNKNOWN
+Author: polardbx
+Author-email: vettal.wd@alibaba-inc.com
+License: UNKNOWN
+Platform: all
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.5
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Operating System :: OS Independent
+Description-Content-Type: text/markdown
+Requires-Dist: certifi (==2021.5.30)
+Requires-Dist: charset-normalizer (==2.0.4)
+Requires-Dist: click (==8.0.1)
+Requires-Dist: docker (==5.0.0)
+Requires-Dist: idna (==3.2)
+Requires-Dist: colorama (==0.4.4)
+Requires-Dist: pycryptodomex (==3.10.1)
+Requires-Dist: PyMySQL (==1.0.2)
+Requires-Dist: PyYAML (==5.4.1)
+Requires-Dist: requests (==2.26.0)
+Requires-Dist: retrying (==1.3.3)
+Requires-Dist: six (==1.16.0)
+Requires-Dist: urllib3 (==1.26.6)
+Requires-Dist: websocket-client (==1.2.1)
+Requires-Dist: spurplus (==2.3.4)
+Requires-Dist: humanfriendly (==10.0)
+Requires-Dist: packaging (>=21.0)
+
+# What is pxd?
+
+pxd(polardbx-deployer) is a tool to deploy [PolarDB-X](https://help.aliyun.com/product/29657.html).
+
+# Install
+
+Run command:
+
+```
+pip install pxd
+```
+
+More details see: [Quick Start](https://github.com/ApsaraDB/galaxysql/blob/main/docs/en/quickstart.md)
+
+# Usage
+
+## Create PolarDB-X for tryout
+
+Create a default cluster(1 GMS, 1 DN, 1 CN, 1 CDC) for tryout on your local machine:
+
+```
+pxd tryout
+```
+You can specify cn and dn version using the following options:
+
+```
+Options:
+  -name TEXT            PolarDB-X Cluster name, default: pxc-tryout
+  -cn_replica INTEGER   cn node count
+  -cn_version TEXT      cn node version
+  -dn_replica INTEGER   dn node count
+  -dn_version TEXT      dn node version
+  -cdc_replica INTEGER  cdc node count
+  -cdc_version TEXT     cdc node version
+  -leader_only BOOLEAN  create gms and dn with single node by default,
+                        otherwise a x-paxos cluster
+
+  --help                Show this message and exit.
+```
+
+If you want to create gms and dn with a x-paxos cluster, using the following command:
+
+```
+pxd tryout -leader_only false
+```
+
+## Create PolarDB-X for cluster mode
+
+```
+pxd create -file cluster.yaml
+```
+
+Following is an example of cluster.yaml
+
+```
+version: v1
+type: polardbx
+cluster:
+  name: pxc_test
+  gms:
+    image: polardbx/galaxyengine:latest
+    host_group: [10.168.0.37]
+    resources:
+      mem_limit: 2G
+  cn:
+    image: polardbx/galaxysql:latest
+    replica: 3
+    nodes:
+      - host: 10.168.0.37
+      - host: 10.168.0.38
+      - host: 10.168.0.39
+    resources:
+      mem_limit: 4G
+  dn:
+    image: polardbx/galaxyengine:latest
+    replica: 2
+    nodes:
+      - host_group: [10.168.0.38]
+      - host_group: [10.168.0.39]
+    resources:
+      mem_limit: 4G
+  cdc:
+    image: polardbx/galaxycdc:latest
+    replica: 3
+    nodes:
+      - host: 10.168.0.37
+      - host: 10.168.0.38
+      - host: 10.168.0.39
+    resources:
+      mem_limit: 4G
+```
+
+* version: topology version, default v1
+* type: cluster type, polardbx
+* cluster.name：The name of PolarDB-X cluster
+* cluster.gms.image: docker image of gms, default is the latest
+* cluster.gms.host_group: gms ip list. If set three ips, it will create a x-paxos cluster
+* cluster.cn
+    * image: docker image of cn, default is the latest
+    * replica: cn node count
+    * nodes: list, cn node hosts
+    * resources: 
+        * mem_limit: memory limit，default 1G
+* cluster.dn
+    * image: docker image of dn, default is the latest
+    * replica: dn node count
+    * nodes: dn host group list. If set three ips, it will create a x-paxos cluster
+    * resources: 
+        * mem_limit: memory limit，default 1G
+* cluster.cdc
+    * image: docker image of cdc, default is the latest
+    * replica: cdc node count
+    * nodes: cdc node ip list
+    * resources: 
+        * mem_limit: memory limit，default 1G
+
+## List existing clusters
+
+```
+pxd list
+```
+It will show all PolarDB-X clusters.
+
+## Delete Cluster
+
+Delete a specific PolarDB-X cluster:
+
+```
+pxd delete {pxc_name}
+```
+
+Delete all PolarDB-X clusters:
+
+```
+pxd cleanup
+```
+
+More information about pxd, please run following command:
+
+```
+pxd --help
+```
+
+More information about PolarDB-X, refer to following links:
+
+* https://help.aliyun.com/product/29657.html
+* https://www.zhihu.com/org/polardb-x
+
+
+
