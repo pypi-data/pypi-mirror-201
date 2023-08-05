@@ -1,0 +1,480 @@
+# cd2t
+
+**repository**:   https://gitlab.com/ko.no/cd2t
+
+**Table of Content**
+- [Key Features](#key-features)
+- [Change Log](#change-log)
+- [Data Structure Schema](#data-structure-schema)
+- [Data Type Options](#data-type-options)
+- [Python Code Example](#python-code-example)
+
+## Key Features
+- **Feature Rich Data Type and Value Validation**
+- **Unlimited Data Structure**: Recursive linking of data types like lists or objects can represent any data structure.
+- **Data Structure Nesting**: Sub schemas allows you to define repeating data structures only once. Sub schema can unlimited  nested. Loops are not allowed.
+- **Multi Data Support**: Multiple data sources can be check with one schema or many schemas. You can switch schemas during iterating over data sources. Referencing or Autogeneration works across schemas and data sources by using namespaces.
+- **Referencing**: Referencing can check the **uniqueness** of values at different positions in the data structure (i.e. lists of objects with ID attribute). It also can enforce a **consumer/producer modell**. In example, strings at some positions can be collected as *producers*. Strings at other positions must match one of those *produced* string. Scope of references can be limited to namespace.
+- **Value Autogeneration**: Some data types support creation of non-existing values. I.e. unique IDs can be added to the data structure.
+Uniqueness can be limited to namespaces.
+- **Multi Data Support**: Multiple data sources can be check with one schema or many schemas. You can switch schemas during iterating over data sources. Referencing or Autogeneration works across schemas and data sources - but can also be limited to current data.
+- **Schema Validation**: Typos, syntax mistakes or missing required options are reported as SchemaErrors (Exception) during schema loading. Reason and path through schema structured are provided.
+
+## Change Log
+**Version 1.2**:
+- *New*: Bool Data Type - Validate allowed value
+- *New*: Findings - Namespace information added
+- *Changed/Fix*: Validator method name 'change_namespace'
+- *Fix*: Schema Data Type - Subschema loop false positives
+- *Fix*: Referencing - Options for scope definition values
+- *Fix*: Referencing - Namespace local consumer producer linking
+- *Fix*: Object Data Type - Dependencies false positives
+
+
+**Version 1.1**: *withdrawn form pypi.org*
+- *New*: Object Data Type - Allow empty dictionaries in validation
+- *Changed*: List Data Type - Option 'duplicates' renamed to 'allow_duplicates'
+
+**Version 1.0**: *withdrawn form pypi.org*
+
+## Data Structure Schema
+```yaml
+name: < str >
+description: < str >
+root: { data type schema }
+
+subschemas:
+  < sub schema name >: { data type schema }
+```
+
+## Data Type Options
+
+- [Any Data Type](#any-data-type)
+- [Bool Data Type](#bool-data-type)
+- [Enum Data Type](#enum-data-type)
+- [Float Data Type](#float-data-type)
+- [ID-List Data Type](#id-list-data-type)
+- [Integer Data Type](#integer-data-type)
+- [List Data Type](#list-data-type)
+- [Multitype Data Type](#multitype-data-type)
+- [Object Data Type](#object-data-type)
+- [Schema Data Type](#schema-data-type)
+- [String Data Type](#string-data-type)
+- [Reference Options](#reference-options)
+
+### Any Data Type
+**Description**  
+This data type represents any data. The validator stops further data validation or autogeneration.
+
+**Limitations**  
+- *referencing* is not supported
+- *autogeneration* is not supported
+
+**Any Schema Keys**  
+```yaml
+type: 'any' # If type is omitted, validator uses Any Data Type
+```
+
+### Bool Data Type
+**Description**  
+This data type represents a boolean values (true/false).
+
+**Limitations**  
+- *referencing* is not supported
+
+**Bool Schema Keys**  
+```yaml
+type: 'bool'
+
+allowed_value: < bool > # true or false
+
+autogenerate: < bool | default -> false >
+# Autogenerate the default value, if data is not existing.
+# Requires 'autogenerate_default'
+
+autogenerate_default: < bool > # true or false; must match 'allowed_value' (if set)
+```
+
+### Enum Data Type
+**Description**  
+This data type represents a selection of allowed values.
+
+**Limitations**  
+- *referencing* is not supported
+- *autogeneration* is not supported
+
+**Enum Schema Keys**  
+```yaml
+type: 'enum'
+
+allowed_values: # required
+- < value >
+```
+
+### Float Data Type
+**Description**  
+This data type represents float values.
+
+**Float Schema Keys**
+```yaml
+type: 'float'
+
+reference: { unique options }
+
+maximum: < float >
+# value must be lower or equal to this
+
+minimum: < float >
+# value must be greater or equal to this
+
+maximum_decimals: < int > # >= 0
+# Maximum allowed decimal places.
+
+allowed_values:
+- < float > # value must match this value
+- round: < int > # value rounded to < int > digits must match 'matches'
+  matches: < float >
+- range_start: < float > # 'range_start' <= value <= 'range_end'
+  range_end: < float >
+# List of directives which values must match.
+
+not_allowed_values:
+- < float > # value mustn't match this value
+- round: < int > # value rounded to < int > digits mustn't match 'matches'
+  matches: < float >
+- range_start: < float > # value < 'range_start' and value > 'range_end'
+  range_end: < float >
+# List of directives which values mustn't match.
+
+autogenerate: < bool | default -> false >
+# uses 'autogenerate_default' value.
+#
+# OR
+#
+# try for 'autogenerate_random_tries' times:
+#   1. Create a random float value, which is within the 'autogenerate_ranges'
+#      or 'minimum' <= random value <= 'maximum'
+#   2. Check if random value passes the validation process.
+
+autogenerate_default: < float >
+# Autogenerate uses this value.
+
+autogenerate_random_tries: < int | default 10 > # 0 < x < 50
+# Ignored, if 'autogenerate_default' is set.
+# Maximum amount of tries to find a random float value, which is not used by any reference.
+# Integer value must be greater than 0 and lower than 50.
+
+autogenerate_ranges:
+- minimum: < float >
+  maximum: < float >
+# Ignored, if 'autogenerate_default' is set.
+# '[.]minimum' <= '[.]maximum'
+# Autogenerated float is within the ranges.
+# If omitted, global 'minimum' and 'maximum' limits the random value.
+
+autogenerate_random_decimals: < int | default 2 > # >= 0
+# Ignored, if 'autogenerate_default' is set.
+# Limit the decimal places for the random value.
+```
+
+**Validation Process**  
+If options are missing, corresponding checks are skipped.
+1. value >= minimum
+2. value <= maximum
+3. round of value == value
+4. value is not in not_allowed_values
+5. value is in allowed_values
+
+### ID-List Data Type
+**Description**  
+This data type represents a dictionary, where keys are IDs.
+IDs can be strings or integer.
+
+**Limitations**  
+- *autogeneration* is not supported
+
+**ID-List Schema Keys**  
+```yaml
+type: 'id_list'
+
+reference: { unique options }
+# Note: Every ID is referenced as a value with the 'reference.key'.
+
+minimum: <int | default -> 0 > # >= 0
+# Minimum required amount of IDs
+
+maximum: < int > # >= 0
+# Maximum allowed amount of IDs
+# If omitted, even an empty id_list is allowed.
+
+elements: { data type schema } # required
+# Data schema defining element data type
+
+id_type: < 'integer' | 'string' | default -> 'string' >
+# Indicates if IDs are integer or string
+
+id_minimum: <int | default -> 0 > # >= 0
+# Minimum required ID string length or minimum ID integer value
+
+id_maximum: < int > # >= 0
+# Maximum required ID string length or maximum ID integer value
+# If omitted, even '' is allowed as ID string.
+
+allowed_ids:
+- < string | integer >
+# List of regex strings or integers - depending on 'id_type'
+# If ID matches any of it, the ID is allowed.
+
+not_allowed_ids:
+- < string >
+# List of regex strings or integers - depending on 'id_type'
+# If ID matches any of it, the ID is not allowed.
+# 'not_allowed_ids' are test before 'allowed_ids'.
+```
+
+### Integer Data Type
+**Description**  
+This data type represents integer values.
+
+**Integer Schema Keys**  
+```yaml
+type: 'integer'
+
+reference: { unique options }
+
+maximum: < int >
+# value must be lower or equal to this
+
+minimum: < int >
+# value must be greater or equal to this
+
+not_allowed_values:
+- < int >
+# List of integers which values mustn't match.
+
+autogenerate: < bool | default -> false >
+# Requires 'reference.key' to be defined and not ''.
+# If no unique value could be generated, autogeneration fails.
+
+autogenerate_maximum: < int >
+# Autogenerated integer must be lower or equals to this.
+# If omitted, 'maximum' key is upper limit
+
+autogenerate_minimum: < int >
+# Autogenerated integer must be greater or equals to this.
+# If omitted, 'minimum' key is lower limit
+
+autogenerate_find: < 'next_higher' | 'next_lower' | default -> 'next_higher' >
+# Tells autogenerate to try first available integer
+# starting at 'minimum' and increasing ('next_higher') or
+# starting at 'maximum' and decreasing ('next_lower').
+# If 'maximum' or 'minimum' is not specified, autogeneration starts at 1.
+```
+
+### List Data Type
+**Description**  
+This data type represents a list of same data types.  
+If different data types are allowed in the list,
+use data type 'multitype' as elements.
+
+**Limitations**  
+- *referencing* is not supported - use referencing in the 'elements' data type
+- *autogeneration* of list elements is not supported - but autogeneration within existing elements data structure is supported (pass-through).
+
+**List Schema Keys**  
+```yaml
+type: 'list' # required
+
+elements: { data type schema }  # required
+# Data schema defining elements data type
+
+minimum: <int | default -> 0 > # >= 0
+# Minimum required amount of elements in the list.
+
+maximum: < int > # >= 0
+# Maximum allowed amount of elements in the list.
+
+allow_duplicates: < bool | default -> true >
+# Allow same element data multiple times
+```
+
+### Multitype Data Type
+**Description**  
+This data type represents a selection of allowed data types.
+
+**Limitations**  
+- *referencing* is not supported - use referencing in the 'elements' data type
+- *autogeneration* of data types is not supported - but autogeneration within existing data structure is supported (pass-through).
+- Data Type Selection Rules:
+  - Data type *Schema* is not allowed - use *schema* in first place and use *Multitype* in subschema's root data type.
+  - Each data type is allowed only once.
+  - *ID-List* and *Object* are treated as the same data type as both rely on dictionaries.
+
+**Multitype Schema Keys**  
+```yaml
+type: 'multitype'
+types: # required
+- { data type schema }
+# List of data type schemas.
+```
+
+### Object Data Type
+**Description**  
+This data type represents an object with attributes. Technically its a dictionary in Python.  
+Attributes of the object are keys in the dictionary.
+
+**Limitations**  
+- *autogeneration* of missing keys is supported, if value data type supports autogeneration
+
+**Object Schema Keys**  
+```yaml
+type: 'object'
+
+attributes:
+  < attribute_name >: { data type schema }
+# Mapping with key as attribute name and value as data type schema.
+# If omitted, any data which is an dictionary is accepted.
+
+required_attributes:
+- < attribute_name >
+# List of attribute names, which must be in the object.
+
+ignore_undefined_attributes: < bool | default -> false >
+# Tell validator to ignore attributes in data object, which are not defined in 'attributes'.
+
+dependencies:
+  < attribute_name >:
+    requires:
+    - < attribute_name >
+    # List of attribute names, which must be in the object, if this attribute is in.
+    excludes:
+    - < attribute_name >
+    # List of attribute names, which must not be in the object, if this attribute is in.
+
+allow_regex_attributes: < bool | default -> False >
+# If enabled, regular expressions are allowed in:
+# 'attributes': If object attribute name matches, schema is verified.
+# 'required_attributes': Each element must have a at least one matching attribute name.
+# 'dependencies.<>.requires': Successful if any object attribute name matches each list entry.
+# 'dependencies.<>.excludes': Error if any object attribute name matches any list entry.
+# !!! Disables autogeneration of missing keys !!!
+
+autogenerate: < bool | default -> True >
+# Enable/Disable autogeneration of missing attributes,
+# if attribute's data type supports autogeneration and is defined within.
+
+reference: { reference options }
+# The validator checks, if the same combination of attribute values is specified at
+# another data type with the same reference.key.
+# Requires 'reference_attributes' to be defined.
+    
+reference_attributes:
+- < attribute_name >
+# List of attribute names, which values should be combined uniqueness check.
+```
+
+### Schema Data Type
+**Description**  
+This data type does not represents an expected data value.  
+It uses a subschema's root data type to process the data structure.
+
+**Schema Schema Keys**  
+```yaml
+type: 'schema'
+
+subschema: < str >
+# Name of the subschema, which is defined under 'subschemas' in schema.
+```
+
+### String Data Type
+**Description**  
+This data type represents a string.
+
+**Limitations**  
+- *autogeneration* is not supported.
+
+**String Schema Keys**  
+```yaml
+type: 'string'
+
+reference: { unique options }
+
+minimum: <int | default -> 0 > # >= 0
+# Minimum required string length
+
+maximum: < int > # >= 0
+# Maximum allowed string length
+
+allowed_values:
+- < string >
+# List of strings
+# Dependis on 'regex_mode':
+# == false: String must be equal to any string in the list.
+# == true: String must match with any regex in the list.
+
+not_allowed_values:
+- < string >
+# List of strings
+# Dependis on 'regex_mode':
+# == false: String mustn't be equal to any string in the list.
+# == true: String mustn't match with any regex in the list.
+
+regex_mode: < bool | default -> false >
+# Use strings in 'allowed_values' and 'not_allowed_values' for regex matching.
+
+regex_multiline: < bool | default -> false >
+# Use multiline matching for regex tests or not
+
+regex_fullmatch: < bool | default -> true >
+# String must fully match.
+```
+
+### Reference Options
+If data type supports referencing, these options are available.
+```yaml
+reference:
+  key: < string > # required
+  # Identifier to map data at different positions in the data structure
+
+  # Define the reference mode.
+  mode: < 'unique' | 'producer' | 'consumer' | default -> 'unique' >
+  # - 'producer': collect values as allowed values for 'consumer' positions.
+  # - 'unique': Inherits 'producer' and checks uniqueness of the value
+  #   among other values at other positions with the same key.
+  # - 'consumer': data value must match to a 'producer' value.
+
+  allow_orphan_producer: < bool | default -> true >
+  # If disabled, producer value without a consumer are not allowed.
+
+  # Select the scope of the reference.
+  unique_scope: < 'namespace' | 'global' | default -> 'global' > # Ignored in 'provider' or 'consumer' mode
+  provider_scope: < 'namespace' | 'global' | default -> 'global' > # 'ignored in 'consumer' mode
+  consumer_scope: < 'namespace' | 'global' | default -> 'global' > # Ignored in 'unique' or 'provider' mode
+  # 'namespace' scopes to the same namespace data only. References across namespaces only works,
+  # if both 'ends' specify 'global'.
+```
+
+## Python Code Example
+```python
+import os
+import yaml
+from cd2t import Validator
+
+with open('my_schema.yml') as f:
+    schema = yaml.load(f)
+
+validator = Validator()
+validator.load_schema(schema)
+
+results = list()
+for filename in os.listdir('./my_data_folder'):
+    with open(filename) as f:
+        test_data = yaml.load(f)
+    validator.change_namespace(filename)
+    _results = validator.validate_data(test_data)
+    results.extend(_results)
+    _results = validator.references.get_producer_consumer_issues()
+    results.extend(_results)
+
+print('\n'.join(results))
+```
