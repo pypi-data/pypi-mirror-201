@@ -1,0 +1,56 @@
+Metadata-Version: 2.1
+Name: wikibase_reconcile
+Version: 0.1
+Summary: An async client to reconcile entities against wikidata.
+Author-email: Paul Balluff <paul.balluff@gmail.com>
+Project-URL: Homepage, https://github.com/mrwunderbar666/wikibase_reconcile
+Project-URL: Bug Tracker, https://github.com/mrwunderbar666/wikibase_reconcile/sampleproject/issues
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+License-File: LICENSE
+
+# Wikibase Reconcile
+
+An async client to reconcile against wikidata.
+
+This project is inspired by [reconciler](https://pypi.org/project/reconciler/). If you look for stable and mature software, I recommend using the excellent package `reconciler`.
+
+
+## Features
+
+- Async requests to wikidata reconiliation API
+- Makes atomic requests and is more robust when the API returns errors
+- Takes a pandas dataframe as input and also as output
+- User has rather high degree of control (but also needs more code)
+
+
+## Usage
+
+```python
+from wikibase_reconcile import Client
+
+client = Client(language="fr")
+
+# Initialize some simple test data
+characters = [
+    {"type": "Q15632617", "query": "Marge Simpson"},
+    {"type": "Q15632617", "query": "Homer Simpson"},
+    {"type": "Q15632617", "query": "Bart Simpson"},
+    {"type": "Q15632617", "query": "Lisa Simpson"},
+    {"type": "Q15632617", "query": "Maggie Simpson"},
+    {"type": "Q15632617", "query": "Abraham Simpson"},
+    {"type": "Q15632617", "query": "Apu Nahasapeemapetilon"},
+    {"type": "Q15632617", "query": "Barney Gumble"}
+]
+
+df = pd.DataFrame(characters)
+
+# reconcile each search query against the type "Fictional Human"
+results = client.reconcile(df)
+
+# Turn results into a dataframe, keep only the top result
+df_reconciled = client.results_to_pandas(results)
+```
