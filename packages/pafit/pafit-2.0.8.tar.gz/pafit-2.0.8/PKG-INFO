@@ -1,0 +1,227 @@
+Metadata-Version: 2.1
+Name: pafit
+Version: 2.0.8
+Summary: PaFit: Galaxies Kinematic Position Angle Fitting
+Home-page: https://purl.org/cappellari/software
+Author: Michele Cappellari
+Author-email: michele.cappellari@physics.ox.ac.uk
+License: Other/Proprietary License
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Science/Research
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Description-Content-Type: text/x-rst
+
+The PaFit Package
+=================
+
+**Kinematic Position Angle Fitting for Galaxies**
+
+.. image:: https://img.shields.io/pypi/v/pafit.svg
+        :target: https://pypi.org/project/pafit/
+.. image:: https://img.shields.io/badge/arXiv-astroph:0512200-orange.svg
+        :target: https://arxiv.org/abs/astro-ph/0512200
+.. image:: https://img.shields.io/badge/DOI-10.1111/...-green.svg
+        :target: https://doi.org/10.1111/j.1365-2966.2005.09902.x
+
+The PaFit package is a Python-based tool to determine the global kinematic
+position angle of galaxies. This is done by analyzing the observed integral-field
+stellar or gas kinematics of the galaxies, using the algorithm described in
+Appendix C of `Krajnovic et al. (2006) <https://ui.adsabs.harvard.edu/abs/2006MNRAS.366..787K>`_.
+
+.. contents:: :depth: 2
+
+Attribution
+-----------
+
+If you use this software for your research, please cite `Krajnovic et al. (2006)
+<https://ui.adsabs.harvard.edu/abs/2006MNRAS.366..787K>`_.
+The BibTeX entry for the paper is::
+
+    @Article{Krajnovic2006,
+        title = {Kinemetry: a generalization of photometry to the higher moments
+            of the line-of-sight velocity distribution},
+        author = {{Krajnovi{\'c}}, D. and {Cappellari}, M. and {de Zeeuw}, P.~T.
+            and {Copin}, Y.},
+        journal = {MNRAS},
+        eprint = {arXiv:astro-ph/0512200}
+        year = {2006},
+        pages = {787-802},
+        volume = {366},
+        doi = {10.1111/j.1365-2966.2005.09902.x}
+    }
+
+
+Installation
+------------
+
+install with::
+
+    pip install pafit
+
+Without writing access to the global ``site-packages`` directory, use::
+
+    pip install --user pafit
+
+To upgrade PaFit to the latest version use::
+
+    pip install --upgrade pafit    
+
+Documentation
+-------------
+
+See the ``pafit/fit_kinematic_pa.py`` file docstring or
+`PyPi <https://pypi.org/project/pafit/>`_.
+
+###########################################################################
+
+fit_kinematic_pa
+================
+
+Purpose
+-------
+
+Determine the global kinematic position angle of a galaxy from
+integral-field kinematics of the stars or gas with the method described in
+Appendix C of `Krajnovic et al. (2006) <https://ui.adsabs.harvard.edu/abs/2006MNRAS.366..787K>`_
+
+Calling Sequence
+----------------
+
+.. code-block:: python
+
+    angBest, angErr, vSyst = fit_kinematic_pa(
+        x, y, vel, debug=False, nsteps=361, quiet=False, plot=True, dvel=10)
+
+Input Parameters
+----------------
+
+xbin, ybin:
+    Vectors with the coordinates of the bins (or pixels) measured from
+    the centre of rotation (typically the galaxy centre).
+
+    IMPORTANT: The routine will not give meaningful output unless
+    ``(x, y) = (0, 0)`` is an estimate of the centre of rotation.
+vel:
+    Measured velocity at the position ``(xbin, ybin)``.
+
+    IMPORTANT: An estimate of the systemic velocity has to be already
+    subtracted from this velocity [e.g. ``vel_corr = vel - np.median(vel)``].
+    The routine will then provide in the output ``velsyst`` a correction
+    to be added to the adopted systemic velocity.
+dvel:
+    Scalar with the typical uncertainty in the velocity ``vel`` or vector
+    with the uncertainty of each bin ``(xbin, ybin)``.
+
+Optional Keywords
+-----------------
+
+nsteps:
+    Number of steps along which the angle is sampled.
+    Default is 361 steps which gives a 0.5 degr accuracy.
+    Decrease this number to limit computation time during testing.
+
+Output Parameters
+-----------------
+
+anglebest:
+    Kinematical PA. Note that this is the angle along which
+    ``|vel|`` is maximum (note modulus!). If one reverses the sense of
+    rotation in a galaxy ``anglebest`` does not change. The sense of
+    rotation can be trivially determined by looking at the map of Vel.
+angleerror:
+    Corresponding error to assign to ``anglebest``.
+velsyst:
+    Best-fitting correction to the adopted systemic velocity for the galaxy.
+
+    If the median was subtracted to the input velocity ``vel`` before
+    the ``pa`` fit, then the corrected systemic velocity will be
+
+###########################################################################
+
+
+License
+=======
+
+Other/Proprietary License
+
+Copyright (c) 2005-2023 Michele Cappellari
+
+This software is provided as is without any warranty whatsoever.
+Permission to use, for non-commercial purposes is granted.
+Permission to modify for personal or internal use is granted,
+provided this copyright and disclaimer are included in all 
+copies of the software. All other rights are reserved.
+In particular, redistribution of the code is not allowed.
+
+###########################################################################
+
+Changelog
+=========
+
+V2.0.8: MC, Oxford, 3 April 2023
+    - Included ``kwargs`` keyword passed to ``plot_velfield``.
+    - Subtract ``np.median(vel)`` in the example.
+    - Formatted documentation as docstring.
+    - Published documentation on PyPi.
+
+V2.0.7: MC, Oxford, 23 March 2021
+    - Some documentation updates.
+
+V2.0.6: MC, Oxford 12 May 2018
+    - Dropped Python 2.7 support.
+
+V2.0.5: MC, Oxford, 17 April 2018
+    - Changed imports for plotbin as package.
+
+V2.0.4: MC, Oxford, 17 March 2017
+    - Use Numpy ``np.percentile`` instead of deprecated Scipy version.
+
+V2.0.3: MC, Oxford, 7 September 2015
+    - Changed color of plotted lines.
+    - Check matching of input sizes.
+
+V2.0.2: MC, Sydney, 2 February 2015
+    - Fixed possible program stop.
+
+V2.0.1: MC, Oxford, 25 May 2014
+    - Support both legacy Python 2.7 and Python 3.
+
+V2.0.0: MC, Oxford, 10 April 2014
+    - Translated from IDL into Python.
+
+V1.3.1: MC, Oxford, 2 December 2013
+    - Uses CAP_RANGE routine to avoid potential naming conflicts.
+    - Uses TOLERANCE keyword of TRIANGULATE to try to avoid IDL error
+      "TRIANGULATE: Points are co-linear, no solution."
+
+V1.3.0: MC, Oxford, 8 October 2013
+    - The program is two orders of magnitude faster, thanks to a
+      new ``cap_symmetrize_velfield`` routine.
+
+V1.2.0: MC, Oxford, 23 March 2010
+    - Includes error in chi^2 in the determination of angErr.
+      Thanks to Davor Krajnovic for reporting problems.
+
+V1.1.5: MC, Oxford, 14 October 2009
+    - Overplot best PA on data. Some changes to the documentation.
+
+V1.1.4: MC, Oxford, 31 March 2009
+    - Clarified that systemic velocity has to be subtracted from VEL.
+   
+V1.1.3: MC, Leiden, 25 May 2008
+    - Determine plotting ranges from velSym instead of vel.
+      Thanks to Anne-Marie Weijmans.
+
+V1.1.2: MC, Oxford, 19 October 2007
+    - Force error to be larger than 1/2 of the angular step size.
+   
+V1.1.1: MC, Oxford, 17 October 2007
+    - Corrected handling of NSTEPS keyword. Thanks to Roland Jesseit.
+   
+V1.1.0: MC, Oxford, 9 October 2007
+    - Written documentation.
+
+V1.0.0: Michele Cappellari, Leiden, 30 May 2005
+    - Written and tested
