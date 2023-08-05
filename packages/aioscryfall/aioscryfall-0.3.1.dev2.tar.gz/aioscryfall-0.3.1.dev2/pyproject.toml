@@ -1,0 +1,146 @@
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[project]
+name = "aioscryfall"
+description = "Asynchronous Python client for the Scryfall API"
+dynamic = ["version"]
+readme = "README.rst"
+authors = [
+    {name = "George Leslie-Waksman", email ="waksman@gmail.com"},
+]
+requires-python = ">=3.11"
+keywords = [
+    "mtg",
+    "magic",
+    "scryfall",
+]
+license = {text = "MIT"}
+dependencies = [
+    "aiohttp",
+    "aiolimiter",
+    "appdirs",
+    "msgspec",
+    "requests-cache",
+    "requests",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/gwax/aioscryfall"
+"Bug Tracker" = "https://github.com/gwax/aioscryfall/issues"
+
+[project.optional-dependencies]
+dev = [
+    "aiofiles",
+    "aioresponses",
+    "black",
+    "doc8",
+    "isort",
+    "mypy",
+    "Pygments",
+    "pylint",
+    "pytest",
+    "pytest-asyncio",
+    "ruff",
+    "types-aiofiles",
+]
+
+[tool.mypy]
+python_version = "3.11"
+
+follow_imports = "normal"
+disallow_untyped_defs = true
+allow_untyped_globals = false
+
+[tool.flake8]
+ignore = ["E203", "E501", "F401", "W503"]
+max_complexity = 10
+exclude = [".git", "__pycache__", "build", "dist"]
+
+[tool.pytest.ini_options]
+markers = [
+    "integration: marks tests as integration tests (deselected by default; select with '-m integration')",
+]
+addopts = "-m \"not integration\""
+xfail_strict = true
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.version.raw-options]
+local_scheme = 'no-local-version'
+
+[tool.hatch.build.hooks.vcs]
+version-file = "aioscryfall/_version.py"
+
+[tool.hatch.build.targets.sdist]
+exclude = [
+    "/.github"
+]
+
+[tool.black]
+line-length = 99
+target-version = ["py311"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 99
+select = [
+  "F",
+  "E", "W",
+  "C90",
+  "I",
+  "N",
+  "D",
+  "UP",
+  "YTT",
+  "S",
+  "BLE",
+  "FBT",
+  "B",
+  "A",
+  "C4",
+  "DTZ",
+  "EM",
+  "ISC",
+  "ICN",
+  "G",
+  "INP",
+  "PIE",
+  "T20",
+  "PYI",
+  "PT",
+  "RSE",
+  "RET",
+  "SLF",
+  "SIM",
+  "TID",
+  "ARG",
+  # "PTH",
+  "ERA",
+  "PL",
+  "TRY",
+  "RUF",
+]
+ignore = [
+  "E501",  # line too long, handled by black
+  "S105",  # too many password flase positives
+  "D107",  # Prefer class docstring on class, not __init__()
+]
+
+[tool.ruff.per-file-ignores]
+# Tests can use relative imports and assertions
+"tests/**/*" = [
+  "S101",  # tests should use assert
+  "PLR2004",  # tests may use magic constants
+  "D101",  # test classes may have missing docstrings
+  "D102",  # test methods may have missing docstrings
+  "D103",  # test functions may have missing docstrings
+]
+
+[tool.ruff.isort]
+known-first-party = ["aioscryfall"]
+
