@@ -1,0 +1,21 @@
+from setuptools import setup, find_packages
+
+setup(
+    name='rapid_innovation',
+    version='1.8.5',
+    description='Rapid Innovation package',
+    url='https://github.com/Rapid-Python/python-package-rapid',
+    author='Abhishek Negi',
+    author_email='abhisheknegi@rapidinnovation.dev',
+    license='MIT',
+    python_requires='>=3.7',
+    packages=find_packages(),
+    package_dir={"app": "app"},
+    include_package_data=True,
+    install_requires=[],
+    classifiers=[
+        'Programming Language :: Python :: 3.7',
+        'License :: OSI Approved :: MIT License',
+        'Operating System :: OS Independent',
+    ],
+)
