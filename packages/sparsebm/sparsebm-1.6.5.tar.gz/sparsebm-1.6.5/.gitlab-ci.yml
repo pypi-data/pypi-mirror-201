@@ -1,0 +1,77 @@
+image: "python:3.9"
+
+stages:
+  - linting
+  - build
+  - publish
+
+black:
+  stage: linting
+  image: registry.gitlab.com/pipeline-components/black:latest
+  script:
+    - black --check --verbose -- .
+  tags:
+    - docker
+
+pylint:
+  stage: linting
+  before_script:
+    - pip install pylint
+  script:
+    - find . -type f -name "*.py" |
+      xargs pylint
+          --disable=import-error
+          --load-plugins=pylint.extensions.docparams
+          --disable=R0801,R0401
+
+build_package:
+  stage: build
+  before_script:
+    - pip install build
+  script:
+    - rm -rf dist/
+    - python -m build
+  artifacts:
+    untracked: true
+    expire_in: 1 week
+  tags:
+    - docker
+
+publish_package:
+  stage: publish
+  before_script:
+    - pip install twine
+  script:
+    - TWINE_USERNAME=__token__ python -m twine upload dist/*
+  tags:
+    - docker
+  only:
+    - tags
+
+build_doc:
+  stage: build
+  before_script:
+    - pip install '.[build-doc]'
+  script:
+    - pip install .
+    - make -C doc html
+    - mkdir doc/build/html/examples/
+    - cp examples/*.py examples/*.ipynb doc/build/html/examples/
+  artifacts:
+    untracked: true
+    expire_in: 1 week
+  tags:
+    - docker
+
+pages:
+  stage: publish
+  script:
+    - rm -rf public/
+    - cp -r doc/build/html public/
+  artifacts:
+    paths:
+    - public
+  tags:
+    - docker
+  only:
+    - tags
