@@ -1,0 +1,72 @@
+
+    
+<h1 style="color:red; text-align: center;">Omar_Style</h1>
+
+
+
+
+<!-- ___
+| Name | code | email |
+|----|----|---|
+|omar|10|omar@gamli.com|
+___ -->
+___
+May the peace, blessings, and mercy of God be upon you. Welcome to this nice library
+Also, using this library is very simple
+See, in the second example, how is his office?
+## note
+
+This library is used with a library <g style="color:red; font-size: 20px;" >tkinter</g >
+
+___
+## Download the library
+``` bash 
+pip install OmarStyleTk
+``` 
+___
+``` python
+from  OmarStyleTk import  Omar_TK as photo
+
+photo.im_Tk("image")
+
+photo.Close("")
+```
+____
+## Library usage example
+``` python
+from  OmarStyleTk import  Omar_TK as photo
+from tkinter import *
+root = Tk()
+root.geometry("900x500")
+root.config(background="gray")
+
+pp =  photo()
+v = pp.im_Tk("https://1.bp.blogspot.com/-M59BJhSVD9g/WwmcLxIBwPI/AAAAAAAAy0U/w9xqdqplTSsqY6jokBrDcyUM6-FMZVvNACLcBGAs/s200/6f0cf672baea29dd0c04765a125b9be1.jpg")
+a = pp.im_Tk("https://3.bp.blogspot.com/-Dwjhp14mJ4I/WwmcsnwAjjI/AAAAAAAAy28/_lIo_c6MWYY6quSmEevexcU5Laea6MR5QCLcBGAs/s320/beautiful-photos-facebook-%2B%252879%2529.jpg")
+c = pp.im_Tk("https://3.bp.blogspot.com/-Dwjhp14mJ4I/WwmcsnwAjjI/AAAAAAAAy28/_lIo_c6MWYY6quSmEevexcU5Laea6MR5QCLcBGAs/s320/beautiful-photos-facebook-%2B%252879%2529.jpg")
+m = pp.im_Tk("https://3.bp.blogspot.com/-Dwjhp14mJ4I/WwmcsnwAjjI/AAAAAAAAy28/_lIo_c6MWYY6quSmEevexcU5Laea6MR5QCLcBGAs/s320/beautiful-photos-facebook-%2B%252879%2529.jpg")
+
+frame1 = Frame(root, width=100, height=500)
+frame1.pack(side=LEFT)
+
+frame2 = Frame(root, width=400, height=500)
+frame2.pack(side=RIGHT)
+
+imga1 = Label(frame2, image=v)
+imga1.place(x=10,y=4)
+imga12 = Label(frame2, image=c)
+imga12.place(x=100,y=4)
+imga = Label(frame1, image=a)
+imga.pack()
+
+root.mainloop()
+
+photo.Close("")
+```
+## Any problem contact us
+[Telegram](https://t.me/OmarStyle1)
+
+### The developer of this library
+Omar_Style _ 〄
+
+
