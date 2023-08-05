@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<header>
+<link rel="stylesheet" data-name="vs/editor/editor.main" href="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.20.0/min/vs/editor/editor.main.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.20.0/min/vs/loader.min.js"></script>
+<script>
+function submit() {
+    var pt_src = window.pt_editor.getValue();
+    var pjmap = window.pjmap_editor.getValue();
+	// console.log(ta);
+    // console.log(ta.value);
+	// console.log(1);
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            window.jt_editor.setValue(JSON.parse(this.responseText).jt_src);
+            // console.log(this.responseText);
+       }
+    };
+    xhttp.open("POST", "http://127.0.0.1:5000", true);
+    data = {"src":pt_src, "pjmap":pjmap};
+    xhttp.send(JSON.stringify(data));
+}
+</script>
+<style>
+
+#container {
+    height: 70vh;
+}
+
+#pjmap {
+    width: 99%;
+    height: 15vh;
+}
+
+#buttom button {
+    width: 100%;
+  background-color: #4CAF50; /* Green */
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  border-radius: 12px;
+  margin-top: 1vh;
+}
+
+</style>
+</header>
+<body>
+<h2>在线PyTorch-to-Jittor转换工具</h2>
+<div id="container"></div>
+<script>
+    // Based on https://jsfiddle.net/developit/bwgkr6uq/ which just works but is based on unpkg.com.
+    // Provided by loader.min.js.
+    require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.20.0/min/vs' }});
+    window.MonacoEnvironment = { getWorkerUrl: () => proxy };
+    let proxy = URL.createObjectURL(new Blob([`
+        self.MonacoEnvironment = {
+            baseUrl: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.20.0/min'
+        };
+        importScripts('https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.20.0/min/vs/base/worker/workerMain.min.js');
+    `], { type: 'text/javascript' }));
+    require(["vs/editor/editor.main"], function () {
+        var pt_src = `from torch import nn
+
+class AlexNet(nn.Module):
+
+    def __init__(self, num_classes=1000):
+        super(AlexNet, self).__init__()
+        self.features = nn.Sequential(
+            nn.Conv2d(3, 64, kernel_size=11, stride=4, padding=2),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=3, stride=2),
+            nn.Conv2d(64, 192, kernel_size=5, padding=2),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=3, stride=2),
+            nn.Conv2d(192, 384, kernel_size=3, padding=1),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(384, 256, kernel_size=3, padding=1),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(256, 256, kernel_size=3, padding=1),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=3, stride=2),
+        )
+        self.classifier = nn.Sequential(
+            nn.Dropout(),
+            nn.Linear(256 * 6 * 6, 4096),
+            nn.ReLU(inplace=True),
+            nn.Dropout(),
+            nn.Linear(4096, 4096),
+            nn.ReLU(inplace=True),
+            nn.Linear(4096, num_classes),
+        )
+
+    def forward(self, x):
+        x = self.features(x)
+        x = torch.flatten(x, 1)
+        x = self.classifier(x)
+        return x`;
+        var jt_src = `import jittor as jt
+from jittor import init
+from jittor import nn
+
+class AlexNet(nn.Module):
+
+    def __init__(self, num_classes=1000):
+        super(AlexNet, self).__init__()
+        self.features = nn.Sequential(nn.Conv(3, 64, 11, stride=4, padding=2), nn.ReLU(), nn.Pool(3, stride=2, op='maximum'), nn.Conv(64, 192, 5, padding=2), nn.ReLU(), nn.Pool(3, stride=2, op='maximum'), nn.Conv(192, 384, 3, padding=1), nn.ReLU(), nn.Conv(384, 256, 3, padding=1), nn.ReLU(), nn.Conv(256, 256, 3, padding=1), nn.ReLU(), nn.Pool(3, stride=2, op='maximum'))
+        self.classifier = nn.Sequential(nn.Dropout(), nn.Linear(((256 * 6) * 6), 4096), nn.ReLU(), nn.Dropout(), nn.Linear(4096, 4096), nn.ReLU(), nn.Linear(4096, num_classes))
+
+    def execute(self, x):
+        x = self.features(x)
+        x = jt.flatten(x, start_dim=1)
+        x = self.classifier(x)
+        return x
+`;
+        var pjmap_src = `{
+  "LeakyReLU": {
+      "pytorch": {
+          "args": "negative_slope=0.01, inplace=False"
+      },
+      "jittor": {
+          "module": "nn",
+          "name": "LeakyReLU",
+          "args": "scale=0.01"
+      },
+      "links": {"negative_slope": "scale"},
+      "extras": {},
+      "delete": ["inplace"]
+  }
+}`;
+        var originalModel = monaco.editor.createModel(pt_src, "python");
+        var modifiedModel = monaco.editor.createModel(jt_src, "python");
+
+        var diffEditor = monaco.editor.createDiffEditor(document.getElementById("container"), {
+            language: 'python',
+            theme: 'vs-dark',
+            originalEditable: true
+        });
+        diffEditor.setModel({
+            original: originalModel,
+            modified: modifiedModel
+        });
+        window.pt_editor = originalModel;
+        window.jt_editor = modifiedModel;
+        window.diffEditor = diffEditor;
+
+        var pjmap_editor = monaco.editor.create(document.getElementById('pjmap'), {
+            value: pjmap_src,
+            language: 'json',
+            theme: 'vs-dark'
+        });
+        window.pjmap_editor = pjmap_editor;
+    });
+</script>
+
+<div id="buttom">
+<b><div>此处填入pjmap（<a href="https://cg.cs.tsinghua.edu.cn/jittor/tutorial/2020-5-2-16-43-pytorchconvert/#%E7%AC%AC%E4%BA%8C%E9%83%A8%E5%88%86-%E8%BD%AC%E6%8D%A2%E5%8E%9F%E7%90%86">详细说明</a>）：</div></b>
+<div id="pjmap"></div>
+<button type="submit" onclick="submit();">提交</button>
+</div>
+</body>
+</html>
