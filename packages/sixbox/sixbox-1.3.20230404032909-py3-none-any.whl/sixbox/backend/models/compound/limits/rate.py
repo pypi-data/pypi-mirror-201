@@ -1,0 +1,14 @@
+from sixbox.backend.meta.fields import IntegerField, DateTimeField
+from sixbox.backend.meta.resource import Resource
+
+
+class Rate(Resource):
+    """
+    Rate resource.
+    """
+    limit = IntegerField(read_only=True)
+    remaining = IntegerField(read_only=True)
+    reset = DateTimeField(read_only=True)
+
+    def __str__(self):
+        return f'<Rate: limit={self.limit}, remaining={self.remaining}>'
