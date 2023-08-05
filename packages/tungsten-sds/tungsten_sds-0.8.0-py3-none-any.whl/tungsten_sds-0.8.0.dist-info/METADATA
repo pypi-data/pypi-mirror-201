@@ -1,0 +1,93 @@
+Metadata-Version: 2.1
+Name: tungsten-sds
+Version: 0.8.0
+Summary: An MSDS parser.
+Home-page: https://github.com/Den4200/tungsten
+License: MIT
+Keywords: sds,parser
+Author: Dennis Pham
+Author-email: dennis@dennispham.me
+Requires-Python: >=3.10,<4.0
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Requires-Dist: numpy (>=1.24.2,<2.0.0)
+Requires-Dist: opencv-python-headless (>=4.7.0.68,<5.0.0.0)
+Requires-Dist: pdfminer.six (>=20220524,<20220525)
+Requires-Dist: pillow (>=9.4.0,<10.0.0)
+Requires-Dist: tabula-py (>=2.5.1,<3.0.0)
+Project-URL: Repository, https://github.com/Den4200/tungsten
+Description-Content-Type: text/markdown
+
+<div align="center">
+    <a align="center" href="https://pypi.org/project/tungsten-sds/">
+        <img src="https://raw.githubusercontent.com/CrucibleSDS/tungsten/main/assets/tungsten-wide-dark-bg-pad.png" align="center" alt="Tungsten" />
+    </a>
+    <h1 align="center">Tungsten</h1>
+    <p align="center">A material safety data sheet parser.</p>
+</div>
+
+## Installation
+
+Tungsten is available on PyPi via pip. To install, run the following command:
+
+```sh
+pip install tungsten-sds
+```
+
+## Usage Example
+
+```python
+import json
+from pathlib import Path
+
+from tungsten import SigmaAldrichSdsParser, SdsQueryFieldName, \
+    SigmaAldrichFieldMapper
+
+sds_parser = SigmaAldrichSdsParser()
+sds_path = Path("CERILLIAN_L-001.pdf")
+
+# Convert PDF file to parsed data
+with open(sds_path, "rb") as f:
+    sds = sds_parser.parse_to_ghs_sds(f)
+
+field_mapper = SigmaAldrichFieldMapper()
+
+fields = [
+    SdsQueryFieldName.PRODUCT_NAME,
+    SdsQueryFieldName.PRODUCT_NUMBER,
+    SdsQueryFieldName.CAS_NUMBER,
+    SdsQueryFieldName.PRODUCT_BRAND,
+    SdsQueryFieldName.RECOMMENDED_USE_AND_RESTRICTIONS,
+    SdsQueryFieldName.SUPPLIER_ADDRESS,
+    SdsQueryFieldName.SUPPLIER_TELEPHONE,
+    SdsQueryFieldName.SUPPLIER_FAX,
+    SdsQueryFieldName.EMERGENCY_TELEPHONE,
+    SdsQueryFieldName.IDENTIFICATION_OTHER,
+    SdsQueryFieldName.SUBSTANCE_CLASSIFICATION,
+    SdsQueryFieldName.PICTOGRAM,
+    SdsQueryFieldName.SIGNAL_WORD,
+    SdsQueryFieldName.STATEMENTS,
+    SdsQueryFieldName.HNOC_HAZARD,
+]
+
+# Serialize parsed data to JSON and dump to a file
+with open(sds_path.stem + ".json", "w") as f:
+    sds.dump(f)
+    # Also print out mapped fields
+    for field in fields:
+        print(field.name, field_mapper.get_field(field, json.loads(sds.dumps())))
+
+```
+
+## License
+
+This work is licensed under MIT. Media assets in the `assets` directory are licensed under a
+Creative Commons Attribution-NoDerivatives 4.0 International Public License.
+
+## Notes
+
+This library currently comes bundled with a new build of `tabula-java`, which is also licensed
+under MIT, to see the full license, see https://github.com/tabulapdf/tabula-java/blob/master/LICENSE.
+
