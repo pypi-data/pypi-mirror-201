@@ -1,0 +1,172 @@
+[build-system]
+requires = ['pip>=20.3', 'setuptools>=61', 'wheel',
+            'setuptools_scm[toml]>=6.0']
+build-backend = 'setuptools.build_meta'
+
+[project]
+name = 'Diofant'
+description = 'Computer algebra system (CAS) in Python'
+keywords = ['Math', 'CAS']
+license = {text = 'BSD'}
+authors = [{name = 'Sergey B Kirpichev et al'}]
+maintainers = [{name = 'Sergey B Kirpichev', email = 'diofant@googlegroups.com'}]
+classifiers = ['Development Status :: 4 - Beta',
+               'Intended Audience :: Education',
+               'Intended Audience :: Science/Research',
+               'License :: OSI Approved :: BSD License',
+               'Operating System :: OS Independent',
+               'Programming Language :: Python',
+               'Topic :: Scientific/Engineering',
+               'Topic :: Scientific/Engineering :: Mathematics',
+               'Topic :: Scientific/Engineering :: Physics',
+               'Topic :: Software Development :: Libraries :: Python Modules',
+               'Programming Language :: Python :: 3',
+               'Programming Language :: Python :: 3 :: Only',
+               'Programming Language :: Python :: 3.10',
+               'Programming Language :: Python :: 3.11',
+               'Programming Language :: Python :: Implementation :: CPython']
+requires-python = '>=3.10'
+dependencies = ['mpmath>=1.3']
+dynamic = ['version']
+[project.readme]
+file = 'docs/README.rst'
+content-type = 'text/x-rst'
+[project.urls]
+Homepage = 'https://diofant.readthedocs.io/'
+'Source Code' = 'https://github.com/diofant/diofant/'
+'Bug Tracker' = 'https://github.com/diofant/diofant/issues/'
+Download = 'https://github.com/diofant/diofant/releases/'
+[project.optional-dependencies]
+exports = ['numpy>=1.19', 'scipy>=1.6', 'cython>=0.29']
+gmpy = ['gmpy2>=2.1.0']
+interactive = ['ipykernel']
+docs = ['sphinx>=4', 'sphinxcontrib-bibtex>=2.1', 'sphinxcontrib-autoprogram',
+        'sphinx-rtd-theme>=1,<1.2']
+tests = ['pytest>=6', 'hypothesis', 'pytest-timeout', 'pexpect']
+develop = ['diofant[tests]', 'flake518>=1.5', 'flake8-docstrings>=1.3',
+           'pep8-naming', 'flake8-comprehensions', 'flake8-isort>=4.1',
+           'flake8-quotes>=3', 'flake8-sfs', 'pytest-xdist>=1.22',
+           'pytest-cov', 'pylint>=2.14.2', 'coverage[toml]>=6.1.2',
+           'coverage_enable_subprocess', 'mypy', 'build',
+           'flake8-pytest-style']
+testing = ['diofant[develop]']
+[tool.setuptools]
+zip-safe = true
+include-package-data = false
+[tool.setuptools.packages]
+find = {namespaces = false}
+[tool.setuptools.package-data]
+diofant = ['tests/logic/*.cnf']
+[tool.setuptools.dynamic]
+version = {attr = 'setuptools_scm.get_version'}
+[tool.isort]
+lines_after_imports = 2
+skip = ['diofant/core/expr.py',
+        'diofant/__init__.py',
+        'diofant/core/__init__.py',
+        'diofant/polys/__init__.py']
+atomic = true
+[tool.pylint.MASTER]
+jobs = 0
+[tool.pylint.format]
+max-line-length = 7000
+[tool.pylint.design]
+max-locals = 100
+max-returns = 35
+max-attributes = 120
+max-branches = 90
+max-parents = 12
+max-statements = 310
+max-args = 12
+max-nested-blocks = 10
+max-bool-expr = 10
+min-public-methods = 0
+max-public-methods = 110
+max-module-lines = 7300
+[tool.pylint.similarities]
+min-similarity-lines = 10
+[tool.pylint.classes]
+valid-metaclass-classmethod-first-arg = ["cls"]
+[tool.pylint.BASIC]
+bad-names = []
+[tool.pylint.'MESSAGES CONTROL']
+disable = ['invalid-name',
+           'missing-docstring',
+           'unidiomatic-typecheck',
+           'bad-mcs-method-argument',
+           'wrong-import-position',
+           'non-iterator-returned',
+           'relative-beyond-top-level',
+           'unbalanced-tuple-unpacking',
+           'no-member',
+           'not-callable',
+           'no-value-for-parameter',
+           'invalid-unary-operand-type',
+           'bad-inline-option',
+           'cyclic-import',
+           'duplicate-code',
+           'redefined-argument-from-local',
+           'trailing-comma-tuple',
+           'inconsistent-return-statements',
+           'dangerous-default-value',
+           'protected-access',
+           'arguments-differ',
+           'abstract-method',
+           'fixme',
+           'global-variable-undefined',
+           'global-variable-not-assigned',
+           'unused-argument',
+           'redefined-outer-name',
+           'redefined-builtin',
+           'undefined-loop-variable',
+           'cell-var-from-loop',
+           'import-outside-toplevel',
+           'arguments-out-of-order',
+           'consider-using-f-string']
+[tool.pytest.ini_options]
+doctest_optionflags = ['ELLIPSIS', 'NORMALIZE_WHITESPACE',
+                       'IGNORE_EXCEPTION_DETAIL']
+addopts = """\
+          --durations=20 -r X --doctest-glob='*.rst' \
+          --cov-config=pyproject.toml -n auto \
+          """
+norecursedirs = ['build', '.eggs', '.git']
+timeout = 1000
+xfail_strict = true
+filterwarnings = ['ignore::UserWarning',
+                  'error::DeprecationWarning',
+                  'ignore:The --rsyncdir command line argument and rsyncdirs config variable are deprecated.:DeprecationWarning']
+[tool.coverage.run]
+branch = true
+omit = ['conftest.py',
+        'diofant/tests/*',
+        'diofant/tests/*/*']
+parallel = true
+[tool.coverage.html]
+directory = 'build/coverage/html'
+[tool.coverage.report]
+exclude_lines = ['pragma: no cover',
+                 'except NotImplementedError',
+                 'raise NotImplementedError',
+                 'return NotImplemented']
+show_missing = true
+[tool.mypy]
+follow_imports = 'silent'
+[[tool.mypy.overrides]]
+module = ['IPython.*', 'gmpy2', 'mpmath.*', 'pexpect',
+          'scipy.*', 'traitlets.*']
+ignore_missing_imports = true
+[tool.flake8]
+statistics = true
+ignore = ['E201', 'E202', 'E226', 'E241', 'W503', 'F402', 'F821',
+          'N801', 'N802', 'N803', 'N806', 'D402', 'D103', 'D100', 'D105',
+          'D205', 'D401', 'D102', 'D400', 'E741', 'N807', 'W504',
+          'N815', 'SFS301']
+max_line_length = 7000
+exclude = ['build', '.eggs', '.git' , '*.rst' , '*.cfg', '*.yml']
+jobs = 1
+per_file_ignores = ['diofant/printing/latex.py:SFS101']
+pytest-fixture-no-parentheses = true
+pytest-mark-no-parentheses = true
+pytest-raises-require-match-for = ['BaseException', 'Exception', 'OSError',
+                                   'IOError', 'EnvironmentError', 'socket.error']
