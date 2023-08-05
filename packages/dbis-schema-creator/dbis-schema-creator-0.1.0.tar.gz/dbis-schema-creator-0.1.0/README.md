@@ -1,0 +1,88 @@
+# DBIS Schema Creator
+
+[![pypi](https://img.shields.io/pypi/pyversions/dbis-schema-creator)](https://pypi.org/project/dbis-schema-creator/)
+[![PyPI Status](https://img.shields.io/pypi/v/dbis-schema-creator)](https://pypi.org/project/dbis-schema-creator/)
+
+Create a schema for SQLite databases and populate it using object-oriented programming. Also draw the corresponding [er-diagram](https://pypi.org/project/dbis-er-diagram/).
+
+## Installation
+```bash
+pip install dbis-schema-creator
+```
+
+## Usage
+```python
+from schema_creator import *
+
+from erdiagram import ER
+
+from faker import Faker
+fake = Faker()
+
+
+# Create a Table object (sqlalchemy style)
+class Users(Table):
+	# Create tables
+	user_id = Column(Integer, primary_key=True)
+	username = Column(String(50))
+
+	# Optionally set the table name. Default is the lowercase class name
+	__tablename__ = 'users'
+
+	# Specify how to populate the table (e.g., using faker or random)
+	def populate(session, seed=None):
+		for _ in range(100):
+			user = Users(username=fake.name())
+			session.add(user)
+
+	# Specify how to draw the er-diagram
+	def to_er_diagram():
+		g = ER()
+		g.add_node("User")
+		g.add_attribute("User", "user_id", isPK=True)
+		g.add_attribute("User", "username")
+		return g
+
+
+class Posts(Table):
+	post_id = Column(Integer, primary_key=True)
+	user_id = Column(Integer, ForeignKey('users.user_id'))
+	text = Column(String(1000))
+
+	depedencies = {Users} # specify the tables that this table depends on. Default is none
+
+	def populate(session, seed=None):
+		# get already populated user table
+		users = session.query(Users).all()
+		for _ in range(1000):
+			user = random.choice(users)
+			post = Posts(user_id=user.user_id, text=fake.text())
+			session.add(post)
+
+	def to_er_diagram():
+		g = ER()
+		g.add_node("Post", isWeak=True)
+		g.add_attribute("Post", "post_id", isPK=True, isWeak=True)
+		g.add_attribute("Post", "user_id")
+		g.add_attribute("Post", "text")
+		g.add_relation("User", "posts", "Post", "1", "m", isWeak=True)
+		return g
+
+
+# Create the schema factory
+tables = {Users, Posts}
+factory = SchemaFactory(tables)
+
+# populate the table
+factory.populate()
+
+# create the schema
+schema = factory.to_sql()
+
+# create the er-diagram
+er_diagram = factory.to_er_diagram()
+
+# draw the er diagram
+digraph = er_diagram.draw()
+digraph.render('er-diagram', format='png', view=True)
+```
