@@ -1,0 +1,52 @@
+Metadata-Version: 2.1
+Name: tks-simple-pika
+Version: 0.1.6
+Summary: Library for a simple implementation of a RabbitMQ consumer and producer using the python pika library
+Home-page: 
+Author: Oscar Fernandez Robles
+Author-email: oskijob@gmail.com
+License: MIT
+Description-Content-Type: text/markdown
+Requires-Dist: pika
+Requires-Dist: pydantic
+Requires-Dist: pydantic[email]
+
+### Features
+
+Library for a simple implementation of a RabbitMQ consumer and producer using the python pika library
+
+# Editor.md
+
+This library includes the pika library and only the following steps are necessary:
+
+- call to the generator or consumer class if applicable. 
+	To consumer: (Make a call to the consumer class and override the callback method with the required business logic.)
+		consumer = TksSimplePikaConsumer('exchange_name')
+        funcType = type(TksSimplePikaConsumer.callback)
+        def __callback(self, ch, method, properties, body):
+            print(" [x] %r %s %s %s" % (body, ch, method, properties))
+            data = json.loads(body)
+            notification = Notifications(**data)
+            notification.raiseNotification()
+        consumer.callback = __callback.__get__(consumer,TksSimplePikaConsumer)
+        consumer.consumer_start()
+	To generator (message example):
+		publisher = TksSimplePikaPublisher('notifications', id=1, email='johndoe@email.com', type='email', msg='Test message')
+        publisher.send()
+        The following parameters are required::
+		    - id (int)
+		    - type (str)
+		    - msg (str)
+        Optional parameters:
+		    - email (EmailStr)
+		    - subject (str)
+		    - phone (int)
+		    - description (str)
+- The following environment variables are required (Would be in an .env file):
+    - RABBITMQ_HOST
+    - RABBITMQ_PORT
+    - RABBITMQ_USER
+    - RABBITMQ_PASSWORD
+    - RABBITMQ_EXCHANGE_TYPE (funout)
+
+
