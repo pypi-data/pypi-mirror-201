@@ -1,0 +1,70 @@
+---
+include:
+  - local: '.gitlab-ci-pages.yml'
+  - local: '.gitlab-ci-slides.yml'
+
+python:
+  image: debian:bullseye
+  script:
+    - apt-get update
+    - apt-get install -y git
+    - git submodule update --init --recursive
+    - scripts/provision-packaging-python
+    - mkdir -p dist
+    - make build-python-package
+  artifacts:
+    paths:
+      - dist
+  only:
+    - main
+
+debian:
+  # Using bookworm support due to the pybuild-plugin-pyproject package
+  #image: debian:bullseye
+  #image: debian:bullseye-backports
+  image: debian:bookworm
+  script:
+    - apt-get update
+    - apt-get install -y git
+    - git submodule update --init --recursive
+    - scripts/provision-packaging-debian
+    - make build-debian-test-package
+    - mkdir -p dist
+    - mv ../onionprobe_* dist
+  artifacts:
+    paths:
+      - dist
+  only:
+    - main
+
+configs:
+  image: debian:bullseye
+  script:
+    - apt-get update
+    - apt-get install -y git
+    - git submodule update --init --recursive
+    - scripts/provision-onionprobe
+    - make configs
+    - mkdir -p dist
+    - cp configs/*.yaml dist
+  artifacts:
+    paths:
+      - dist
+  only:
+    - main
+
+#manpage:
+#  image: debian:bullseye
+#  script:
+#    - apt-get update
+#    - apt-get install -y git
+#    - git submodule update --init --recursive
+#    - scripts/provision-onionprobe
+#    - make manpage
+#    - mkdir -p dist
+#    - cp docs/man/onionprobe.1.md dist
+#  artifacts:
+#    paths:
+#      - dist
+#  only:
+#    - main
