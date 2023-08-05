@@ -1,0 +1,27 @@
+rules:
+
+- id: remove-none-from-default-get
+  description: Replace `dict.get(x, None)` with `dict.get(x)`
+  tags:
+  - default
+  pattern: |
+    ${value} = ${d}.get(${key}, None)
+  condition: |
+    d.has_type("dict")
+  replacement: |
+    ${value} = ${d}.get(${key})
+  explanation: |
+    When using a dictionary's `get` method you can specify a default to return if
+    the key is not found. This defaults to `None`, so it is unnecessary to specify
+    `None` if this is the required behaviour. Removing the unnecessary argument
+    makes the code slightly shorter and clearer.
+  tests:
+  - match: |
+      hats = {"bowler": Bowler(), "sombrero": Sombrero()}
+      fedora = hats.get("fedora", None)
+    expect: |
+      hats = {"bowler": Bowler(), "sombrero": Sombrero()}
+      fedora = hats.get("fedora")
+  - no-match: |
+      hats = {"bowler": Bowler(), "sombrero": Sombrero()}
+      fedora = hats.get("fedora")
