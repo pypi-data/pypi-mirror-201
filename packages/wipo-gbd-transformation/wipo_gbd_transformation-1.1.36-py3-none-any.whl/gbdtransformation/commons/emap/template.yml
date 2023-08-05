@@ -1,0 +1,29 @@
+# known issues:
+# Address lines do not have language codes => defaulting to application language code
+# Applicants/Representatives do not have an identifier
+# THTM: no MarkFeature => deduce
+# No Publication Section
+
+{% from 'navigation.tmpl' import match %}
+
+applicant:
+    identifier: {{ Applicant.ApplicantIdentifier }}
+    kind: {{ Applicant.ApplicantLegalEntity}}
+    fullName:
+      {% call(nameline) match('FormattedNameAddress.Name.FormattedName.LastName', Applicant.ApplicantAddressBook) %}
+      - text: {{ nameline }}
+        languageCode: {{ nameline | guess_language('en') }}
+      {% endcall %}
+    fullAddress:
+      {% call(adrline) match('PostalAddress', Applicant.ApplicantAddressBook) %}
+      - text: {{ adrline }}
+        languageCode: {{ adrline | guess_language('en') }}
+      {% endcall %}
+    contact:
+      phone: {{ Applicant.ApplicantAddressBook.ContactInformationDetails.Phone }}
+      fax: {{ Applicant.ApplicantAddressBook.ContactInformationDetails.Fax }}
+      email: {{ Applicant.ApplicantAddressBook.ContactInformationDetails.Email }}
+      url: {{ Applicant.ApplicantAddressBook.ContactInformationDetails.URL }}
+    {% call(adrline) match('FormattedNameAddress.Address', Applicant.ApplicantAddressBook) %}
+    countryCode: {{ adrline.AddressCountryCode }}
+    {% endcall %}
