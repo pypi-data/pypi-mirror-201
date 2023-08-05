@@ -1,0 +1,72 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "sh40-carmine"
+description = "A dynamic CLI generator utilizing Python function signatures."
+readme = "README.md"
+requires-python = ">=3.8"
+keywords = []
+authors = [
+  { name = "bczsalba", email = "bczsalba@gmail.com" },
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+]
+dependencies = [
+    # TODO: We will likely use `Terminal` in the future, so we have a direct
+    #       dependency. If that doesn't work out, we should remove this!
+    "sh40-slate",
+
+    "sh40-zenith",
+    "griffe",
+]
+dynamic = ["version"]
+
+[project.urls]
+Documentation = "https://github.com/shade40/carmine#readme"
+Issues = "https://github.com/shade40/carmine/issues"
+Source = "https://github.com/shade40/carmine"
+
+[project.scripts]
+carmine = "carmine.__main__:main"
+
+[tool.hatch.version]
+path = "carmine/__about__.py"
+
+[tool.hatch.envs.default]
+dependencies = [
+  "pytest",
+  "pytest-cov",
+]
+[tool.hatch.envs.default.scripts]
+test = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=carmine --cov=tests && coverage html"
+lint = "pylint carmine"
+type = "mypy carmine"
+upload = "hatch build && twine upload dist/* && hatch clean"
+
+[[tool.hatch.envs.test.matrix]]
+python = ["38", "39", "310", "311"]
+
+[tool.coverage.run]
+branch = true
+parallel = true
+omit = [
+  "carmine/__about__.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+  "no-cov",
+  "def __repr__",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+]
