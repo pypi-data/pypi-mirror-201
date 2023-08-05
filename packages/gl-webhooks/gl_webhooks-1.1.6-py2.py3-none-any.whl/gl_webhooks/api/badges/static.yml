@@ -1,0 +1,135 @@
+# """ /api/badges/* endpoint
+#
+# files:
+#   gl_webhooks/api/badges/static.py
+#   gl_webhooks/api/badges/static.yml
+#   tests/api/badges/test_static.py
+# """
+
+---
+paths:
+  /api/badges/{badge}:
+    get:
+      operationId: api.badges.static.get
+      summary: "Return a shields.io badge"
+      description: |
+        Return a shields.io badge as if you had called shields.io directly.
+        This endpoint is less permissive than shields.io's one.
+      tags:
+        - badges
+
+      parameters:
+        - name: "badge"
+          in: path
+          description: "Badge using dash separator, label-message-color or message-color."
+          required: true
+          schema:
+            type: string
+            # 1 (message) 1 (dash) 3 (color)
+            minLength: 5
+
+      responses:
+        200:
+          $ref: "#/components/responses/200_svg_image"
+        404:
+          $ref: "#/components/responses/404_svg_image_not_found"
+
+  /api/badges/static.svg:
+    get:
+      operationId: api.badges.static.svg
+      summary: "Return a shields.io badge using query string parameters."
+      description: |
+        Return a https://shields.io badge only using query string parameters.
+        This endpoint is less permissive than shields.io's one.
+      tags:
+        - badges
+
+      parameters:
+        - name: "label"
+          in: query
+          description: |
+            Left-hand-side text.
+            Defaults to empty string, shields.io defaults to 'static'.
+          required: false
+          schema:
+            type: string
+            default: ""
+            example: "static"
+
+        - name: "message"
+          in: query
+          description: |
+            Right hand side message.
+            Defaults to empty string which will show an empty message.
+          required: false
+          schema:
+            type: string
+            default: ""
+            example: "success"
+
+        - name: "color"
+          in: query
+          description: "Set background of the right part (hex, rgb, rgba, hsl, hsla and css named colors supported)."
+          required: false
+          schema:
+            type: string
+            minLength: 3
+            default: brightgreen
+
+        - name: "style"
+          in: query
+          description: |
+            The following styles are available: plastic, flat, flat-square, for-the-badge, popout, popout-square, social.
+            Flat is the default.
+          required: false
+          schema:
+            type: string
+            default: "flat"
+            enum: [
+              "flat",
+              "flat-square",
+              "for-the-badge",
+              "plastic",
+              "popout",
+              "popout-square",
+              "social"
+            ]
+
+        - name: "logo"
+          in: query
+          description: "Insert one of the named logos from https://simpleicons.org/"
+          required: false
+          schema:
+            type: string
+            # shortest named icon is "r"
+            minLength: 1
+
+        - name: "logoColor"
+          in: query
+          description: "Set the color of the logo (hex, rgb, rgba, hsl, hsla and css named colors supported)."
+          required: false
+          schema:
+            type: string
+            minLength: 3
+
+        - name: "logoWidth"
+          in: query
+          description: "Set the horizontal space to give to the logo."
+          required: false
+          schema:
+            type: integer
+
+        - name: "labelColor"
+          in: query
+          description: "Set background of the left part (hex, rgb, rgba, hsl, hsla and css named colors supported)."
+          required: false
+          schema:
+            type: string
+            minLength: 3
+            default: "grey"
+
+      responses:
+        200:
+          $ref: "#/components/responses/200_svg_image"
+        400:
+          $ref: "#/components/responses/400_bad_request"
