@@ -1,0 +1,1 @@
+An airflow operator for spark command submission
