@@ -1,0 +1,83 @@
+from __future__ import annotations
+
+from concurrent import futures
+from typing import TYPE_CHECKING, Optional
+
+from ert._c_wrappers.job_queue import Workflow
+
+if TYPE_CHECKING:
+    from ert._c_wrappers.enkf import EnKFMain
+    from ert.storage import EnsembleAccessor, StorageAccessor
+
+
+class WorkflowRunner:
+    def __init__(
+        self,
+        workflow: Workflow,
+        ert: Optional[EnKFMain] = None,
+        storage: Optional[StorageAccessor] = None,
+        ensemble: Optional[EnsembleAccessor] = None,
+    ):
+        super().__init__()
+
+        self.__workflow = workflow
+        self._ert = ert
+        self._storage = storage
+        self._ensemble = ensemble
+
+        self.__workflow_result = None
+        self._workflow_executor = futures.ThreadPoolExecutor(max_workers=1)
+        self._workflow_job = None
+
+    def __enter__(self):
+        self.run()
+        return self
+
+    def __exit__(self, _type, value, traceback):
+        self.wait()
+
+    def run(self):
+        if self.isRunning():
+            raise AssertionError("An instance of workflow is already running!")
+        self._workflow_job = self._workflow_executor.submit(self.__runWorkflow)
+
+    def __runWorkflow(self):
+        self.__workflow_result = self.__workflow.run(
+            self._ert, self._storage, self._ensemble
+        )
+
+    def isRunning(self) -> bool:
+        if self.__workflow.isRunning():
+            return True
+
+        # Completion of _workflow does not indicate that __workflow_result is
+        # set. Check future status, since __workflow_result follows future
+        # completion.
+        return self._workflow_job is not None and not self._workflow_job.done()
+
+    def isCancelled(self) -> bool:
+        return self.__workflow.isCancelled()
+
+    def cancel(self):
+        if self.isRunning():
+            self.__workflow.cancel()
+        self.wait()
+
+    def exception(self):
+        if self._workflow_job is not None:
+            return self._workflow_job._exception
+        return None
+
+    def wait(self):
+        # This returns a tuple (done, pending), since we run only one job we don't
+        # need to use it
+        _, _ = futures.wait(
+            [self._workflow_job], timeout=None, return_when=futures.FIRST_EXCEPTION
+        )
+
+    def workflowResult(self) -> Optional[bool]:
+        return self.__workflow_result
+
+    def workflowReport(self):
+        """@rtype: {dict}"""
+        return self.__workflow.getJobsReport()
