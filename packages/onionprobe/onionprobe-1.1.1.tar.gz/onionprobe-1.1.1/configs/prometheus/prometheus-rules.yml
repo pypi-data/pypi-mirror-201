@@ -1,0 +1,59 @@
+---
+# Sample Prometheus rule file to be used with Docker Compose.
+#
+# Copyright (C) 2022 Silvio Rhatto <rhatto@torproject.org>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published
+# by the Free Software Foundation, either version 3 of the License,
+# or any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+groups:
+- name: Onion Services
+  rules:
+    - alert: Onion Service descriptor unreachable
+      expr: onion_service_descriptor_reachable != 1
+      for: 30m
+      labels:
+        severity: critical
+      annotations:
+        summary: Onion Service descriptor reachability
+
+    - alert: Invalid certificate for the Onion Service
+      expr: onion_service_valid_certificate != 1
+      for: 30m
+      labels:
+        severity: critical
+      annotations:
+        summary: Certificate validity
+
+    - alert: Expiring certificate for the Onion Service
+      expr: onion_service_certificate_expiry_seconds < 86400 * 30
+      labels:
+        severity: page
+      annotations:
+        summary: Certificate expiration
+
+    - alert: Onion Service unreachable
+      expr: onion_service_reachable != 1
+      for: 30m
+      labels:
+        severity: critical
+      annotations:
+        summary: Onion Service reachability
+
+    - alert: Status code
+      expr: onion_service_unexpected_status_code == 1
+      for: 30m
+      labels:
+        severity: critical
+      annotations:
+        summary: Unexpected HTTP status code
