@@ -1,0 +1,111 @@
+<!--
+ *  Copyright (c) 2021 GraphQL Contributors
+ *  All rights reserved.
+ *
+ *  This source code is licensed under the license found in the
+ *  LICENSE file in the root directory of this source tree.
+-->
+<!DOCTYPE html>
+<html lang="en" style="font-size: 14px">
+<head>
+    <title></title>
+    <style>
+        body {
+            height: 100%;
+            margin: 0;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        #graphiql {
+            height: 100vh;
+        }
+    </style>
+
+    <link rel="stylesheet" href="https://unpkg.com/graphiql/graphiql.min.css" />
+    <link
+            rel="stylesheet"
+            href="https://unpkg.com/@graphiql/plugin-explorer/dist/style.css"
+    />
+</head>
+
+<body>
+<div id="graphiql">Loading...</div>
+
+<script
+        src="https://unpkg.com/react@17/umd/react.development.js" crossorigin="anonymous"
+></script>
+<script
+        src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin="anonymous"
+></script>
+
+<script
+        src="https://unpkg.com/graphiql/graphiql.min.js" crossorigin="anonymous"
+></script>
+<script
+        src="https://unpkg.com/@graphiql/plugin-explorer@0.1.12/dist/graphiql-plugin-explorer.umd.js" crossorigin="anonymous"
+></script>
+
+<script>
+    // Collect the URL parameters
+    let parameters = {};
+
+    window.location.search.substr(1).split('&').forEach(function (entry) {
+        let eq = entry.indexOf('=');
+        if (eq >= 0) {
+            parameters[decodeURIComponent(entry.slice(0, eq))] =
+                decodeURIComponent(entry.slice(eq + 1));
+        }
+    });
+
+    // Produce a Location query string from a parameter object.
+    function locationQuery(params) {
+        return '?' + Object.keys(params).map(function (key) {
+            return encodeURIComponent(key) + '=' +
+                encodeURIComponent(params[key]);
+        }).join('&');
+    }
+
+    // Derive a fetch URL from the current URL, sans the GraphQL parameters.
+    let graphqlParamNames = {
+        query: true,
+        variables: true,
+        operationName: true
+    };
+
+    let otherParams = {};
+    for (let k in parameters) {
+        if (parameters.hasOwnProperty(k) && graphqlParamNames[k] !== true) {
+            otherParams[k] = parameters[k];
+        }
+    }
+    let fetchURL = locationQuery(otherParams);
+
+    function GraphiQLWithExplorer() {
+        var [query, setQuery] = React.useState(
+            DEFAULT_QUERY,
+        );
+        var explorerPlugin = GraphiQLPluginExplorer.useExplorerPlugin({
+            query: query,
+            onEdit: setQuery,
+        });
+        return React.createElement(GraphiQL, {
+            fetcher: GraphiQL.createFetcher({
+                url: fetchURL,
+            }),
+            defaultEditorToolsVisibility: true,
+            plugins: [explorerPlugin],
+            visiblePlugin: explorerPlugin,
+            query: query,
+            onEditQuery: setQuery,
+            schemaDescription: "test"
+        });
+    }
+
+    ReactDOM.render(
+        React.createElement(GraphiQLWithExplorer),
+        document.getElementById('graphiql'),
+    );
+</script>
+</body>
+</html>
