@@ -1,0 +1,158 @@
+
+# Table of Contents
+
+1.  [Introduction](#Introduction)
+2.  [Install](#Install)
+3.  [Usage](#Usage)
+    1.  [Examples](#Examples)
+        1.  [Download the most recent 5 `cat:cs.AI` papers in arxiv.](#Download-the-most-recent-5--cat-cs.AI--papers-in-arxiv.)
+        2.  [Download the most recent 5 math Algebraic Geometry category papers in arxiv.](#Download-the-most-recent-5-math-Algebraic-Geometry-category-papers-in-arxiv.)
+        3.  [Download the most recent 2 papers in biorxiv.](#Download-the-most-recent-2-papers-in-biorxiv.)
+        4.  [Read DB.](#Read-DB.)
+
+
+
+<a id="Introduction"></a>
+
+# Introduction
+
+Download and save daily papers.
+
+
+<a id="Install"></a>
+
+# Install
+
+    python -m pip install auto-paper -U
+
+
+<a id="Usage"></a>
+
+# Usage
+
+    > python -m auto_paper --help
+    
+    usage: auto_paper.py [-h] [--conf.src {arxiv,biorxiv,medrxiv}] [--conf.max-paper INT] [--conf.paper-db PATH] [--conf.pdf-dir PATH]
+                         [--conf.query STR] [--conf.filters {all,new,today}] [--conf.sortby {Relevance,LastUpdatedDate,SubmittedDate}]
+                         [--conf.filterby {updated,published}] [--conf.no-save-pdf] [--conf.no-show] [--url {None}|STR]
+    
+    Run main function.
+    
+    ╭─ arguments ─────────────────────────────────────────────╮
+    │ -h, --help              show this help message and exit │
+    │ --url {None}|STR        (default: None)                 │
+    ╰─────────────────────────────────────────────────────────╯
+    ╭─ conf arguments ────────────────────────────────────────╮
+    │ Configuration.                                          │
+    │ ─────────────────────────────────────────────────────── │
+    │ --conf.src {arxiv,biorxiv,medrxiv}                      │
+    │                         (default: arxiv)                │
+    │ --conf.max-paper INT    (default: 100)                  │
+    │ --conf.paper-db PATH    (default: papers.db)            │
+    │ --conf.pdf-dir PATH     (default: pdfs)                 │
+    │ --conf.query STR        (default: cat:cs.AI)            │
+    │ --conf.filters {all,new,today}                          │
+    │                         (default: new)                  │
+    │ --conf.sortby {Relevance,LastUpdatedDate,SubmittedDate} │
+    │                         (default: LastUpdatedDate)      │
+    │ --conf.filterby {updated,published}                     │
+    │                         (default: updated)              │
+    │ --conf.no-save-pdf      (sets: save_pdf=False)          │
+    │ --conf.no-show          (sets: show=False)              │
+    ╰─────────────────────────────────────────────────────────╯
+
+
+<a id="Examples"></a>
+
+## Examples
+
+
+<a id="Download-the-most-recent-5--cat-cs.AI--papers-in-arxiv."></a>
+
+### Download the most recent 5 `cat:cs.AI` papers in arxiv.
+
+    python -m auto_paper --conf.max-paper 5
+
+    Fetching http://arxiv.org/pdf/2304.01196v1
+    Fetching http://arxiv.org/pdf/2202.01752v3
+    Fetching http://arxiv.org/pdf/2304.01179v1
+    Fetching http://arxiv.org/pdf/2304.01195v1
+    Fetching http://arxiv.org/pdf/2304.01201v1
+
+    > ls pdfs
+    2202.01752v3.pdf 2304.01179v1.pdf 2304.01195v1.pdf 2304.01196v1.pdf 2304.01201v1.pdf
+
+
+<a id="Download-the-most-recent-5-math-Algebraic-Geometry-category-papers-in-arxiv."></a>
+
+### Download the most recent 5 math Algebraic Geometry category papers in arxiv.
+
+    python -m auto_paper --conf.max-paper 5 --conf.query cat:math.AG
+
+    Fetching http://arxiv.org/pdf/2111.11216v3
+    Fetching http://arxiv.org/pdf/2304.01135v1
+    Fetching http://arxiv.org/pdf/2304.01149v1
+    Fetching http://arxiv.org/pdf/2101.12186v3
+    Fetching http://arxiv.org/pdf/2303.15776v2
+
+    > ls
+    2101.12186v3.pdf 2202.01752v3.pdf 2304.01135v1.pdf 2304.01179v1.pdf 2304.01196v1.pdf
+    2111.11216v3.pdf 2303.15776v2.pdf 2304.01149v1.pdf 2304.01195v1.pdf 2304.01201v1.pdf
+
+
+<a id="Download-the-most-recent-2-papers-in-biorxiv."></a>
+
+### Download the most recent 2 papers in biorxiv.
+
+    python -m auto_paper --conf.max-paper 2 --conf.src biorxiv
+
+    Fetching https://www.biorxiv.org/content/10.1101/2021.01.11.426044.full.pdf
+    Fetching https://www.biorxiv.org/content/10.1101/2020.12.16.423137.full.pdf
+
+    > ls
+    10.1101.2020.12.16.423137.full.pdf 2111.11216v3.pdf                   2304.01135v1.pdf                   2304.01195v1.pdf
+    10.1101.2021.01.11.426044.full.pdf 2202.01752v3.pdf                   2304.01149v1.pdf                   2304.01196v1.pdf
+    2101.12186v3.pdf                   2303.15776v2.pdf                   2304.01179v1.pdf                   2304.01201v1.pdf
+
+
+<a id="Read-DB."></a>
+
+### Read DB.
+
+    import shelev
+    
+    with shelve.open("papers.db") as db:
+      keys = list(db.keys())
+    
+    print(keys)
+    # ['http://arxiv.org/abs/2202.01752v3',
+    #  'http://arxiv.org/abs/2304.01195v1',
+    #  'http://arxiv.org/abs/2304.01201v1',
+    #  'https://www.biorxiv.org/content/10.1101/2020.12.16.423137',
+    #  'http://arxiv.org/abs/2304.01196v1',
+    #  'https://www.biorxiv.org/content/10.1101/2021.01.11.426044',
+    #  'http://arxiv.org/abs/2111.11216v3',
+    #  'http://arxiv.org/abs/2304.01179v1',
+    #  'http://arxiv.org/abs/2303.15776v2',
+    #  'http://arxiv.org/abs/2304.01135v1',
+    #  'http://arxiv.org/abs/2304.01149v1',
+    #  'http://arxiv.org/abs/2101.12186v3']
+    
+    print(db["http://arxiv.org/abs/2202.01752v3"])
+    # {
+    #     'pid': 'http://arxiv.org/abs/2202.01752v3',
+    #     'title': 'Near-Optimal Learning of Extensive-Form Games with Imperfect Information',
+    #     'abstract': 'This paper resolves the open question of designing near-optimal algorithms\nfor learning imperfect-information extensive-form games
+    # from bandit feedback.\nWe present the first line of algorithms that require only\n$\\widetilde{\\mathcal{O}}((XA+YB)/\\varepsilon^2)$ episodes of
+    # play to find an\n$\\varepsilon$-approximate Nash equilibrium in two-player zero-sum games, where\n$X,Y$ are the number of information sets and $A,B$
+    # are the number of actions\nfor the two players. This improves upon the best known sample complexity
+    # of\n$\\widetilde{\\mathcal{O}}((X^2A+Y^2B)/\\varepsilon^2)$ by a factor of\n$\\widetilde{\\mathcal{O}}(\\max\\{X, Y\\})$, and matches the
+    # information-theoretic\nlower bound up to logarithmic factors. We achieve this sample complexity by two\nnew algorithms: Balanced Online Mirror
+    # Descent, and Balanced Counterfactual\nRegret Minimization. Both algorithms rely on novel approaches of integrating\n\\emph{balanced exploration
+    # policies} into their classical counterparts. We also\nextend our results to learning Coarse Correlated Equilibria in multi-player\ngeneral-sum
+    # games.',
+    #     'published': '2022-02-03',
+    #     'updated': '2023-04-03',
+    #     'categorie': ('cs.LG', 'cs.AI', 'cs.GT', 'stat.ML')
+    # }
+
