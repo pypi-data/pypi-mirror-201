@@ -1,0 +1,1 @@
+from baselib.qywx.qywx import QyWechat
