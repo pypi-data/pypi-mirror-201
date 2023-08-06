@@ -1,0 +1,1 @@
+This is a library that adds some usefull/not usefull fucnctions.
