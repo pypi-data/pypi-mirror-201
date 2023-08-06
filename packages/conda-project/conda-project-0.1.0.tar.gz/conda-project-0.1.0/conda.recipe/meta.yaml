@@ -1,0 +1,41 @@
+{% set pyproject = load_file_data('../pyproject.toml', from_recipe_dir=True) %}
+
+package:
+  name: conda-project
+  version: {{ VERSION }}
+
+source:
+  path: ..
+
+build:
+  script: {{ PYTHON }} -m pip install --no-deps --ignore-installed -vv .
+  noarch: python
+
+  entry_points:
+    {% for name, reference in pyproject['project']['scripts'].items() %}
+    - {{ name }} = {{ reference }}
+    {% endfor %}
+
+
+requirements:
+  host:
+    - python {{ pyproject['project']['requires-python'] }}
+    - pip
+    - setuptools
+  run:
+    - python {{ pyproject['project']['requires-python'] }}
+    {% for dep in pyproject['project']['dependencies'] %}
+    - {{ dep.lower() }}
+    {% endfor %}
+
+test:
+  imports:
+    - conda_project
+  commands:
+    - conda-project --help
+
+about:
+  home: {{ pyproject['project']['urls']['repository'] }}
+  summary: {{ pyproject['project']['description'] }}
+  license: {{ pyproject['project']['license']['text'] }}
+  license_file: LICENSE
