@@ -1,0 +1,423 @@
+__doc__ = """
+The safeguard control provides a mechanism to keep an eye on the system
+while running an experiment to decide if the experiment ought to stop as soon
+as possible or not.
+
+For instance, let's say your system detects a dire condition that has nothing
+to do with this experiment. It may decide it's time for the experiment to
+terminate as it could create even more noise or problems.
+
+To use this control, simply add the following to your global (or per
+experiment) controls block:
+
+```json
+"controls": [
+    {
+        "name": "safeguard",
+        "provider": {
+            "type": "python",
+            "module": "chaosaddons.controls.safeguards",
+            "arguments": {
+                "probes": [
+                    {
+                        "name": "safeguard_1",
+                        "type": "probe",
+                        "provider": {
+                            "type": "python",
+                            "module": "mymodule",
+                            "func": "checkstuff"
+                        },
+                        "background": true,
+                        "tolerance": true
+                    },
+                    {
+                        "name": "safeguard_2",
+                        "type": "probe",
+                        "provider": {
+                            "type": "python",
+                            "module": "mymodule",
+                            "func": "checkstuff"
+                        },
+                        "tolerance": true
+                    },
+                    {
+                        "name": "safeguard_3",
+                        "type": "probe",
+                        "provider": {
+                            "type": "python",
+                            "module": "mymodule",
+                            "func": "checkstuff"
+                        },
+                        "frequency": 2,
+                        "tolerance": true
+                    }
+                ]
+            }
+        }
+    }
+],
+```
+
+In this example, we declare three safeguard probes. The first one will run
+once in the background as soon as possible. The second one will run once
+before the experiment starts. The third one will run repeatedly every 2
+seconds.
+
+If either of them doesn't meet its tolerance, the entire execution will
+terminate as soon as possible and leave the status of the experiment to
+`interrupted`.
+
+Probes that do not declare the `background` or `frequency` properties are meant
+to run before the experiment really starts and will block until they are all
+finished. This offers a mechanism for pre-checking the system's health.
+
+When the properties are set, the probes run as soon as possible but do not
+block the experiment from carrying on.
+
+Bear in mind that your probes can also block the process from exiting. This
+means that while the experiment has ended, your probe could be not returning
+and therefore blocking the process. Make sure your probe do not make blocking
+calls for too long.
+"""
+from concurrent.futures import Future, ThreadPoolExecutor
+from copy import deepcopy
+from datetime import datetime
+from functools import partial
+import sys
+import threading
+import time
+import traceback
+from typing import List
+
+from logzero import logger
+
+from chaoslib.activity import ensure_activity_is_valid, run_activity
+from chaoslib.caching import lookup_activity
+from chaoslib.control import controls
+from chaoslib.exceptions import ActivityFailed, InvalidActivity
+from chaoslib.exit import exit_gracefully
+from chaoslib.hypothesis import ensure_hypothesis_tolerance_is_valid, \
+    within_tolerance
+from chaoslib.types import Configuration, Control, \
+    Experiment, Probe, Run, Secrets, Settings
+
+from .synchronization import experiment_finished
+
+
+__all__ = ["configure_control", "before_experiment_control",
+           "after_experiment_control", "validate_control"]
+
+
+class Guardian:
+    def __init__(self) -> None:
+        self._lock = threading.Lock()
+        self._interrupted = False
+        self._setup = False
+        self.triggered_by = None
+        self.triggered_by_run = None
+        self.was_triggered = False
+
+    @property
+    def interrupted(self) -> bool:
+        """
+        Flag that says one of our safeguards raised an execution interruption
+        """
+        with self._lock:
+            return self._interrupted
+
+    @interrupted.setter
+    def interrupted(self, value: bool) -> None:
+        """
+        Set the interruption flag on.
+        """
+        with self._lock:
+            self._interrupted = value
+
+    def prepare(self, probes: List[Probe]) -> None:
+        """
+        Configure the guardian so that it runs with the right amount of
+        resources.
+        """
+        once_count = 0
+        repeating_count = 0
+        now_count = 0
+        for probe in probes:
+            if probe.get("frequency"):
+                repeating_count += 1
+            elif probe.get("background"):
+                once_count += 1
+            else:
+                now_count += 1
+
+        self.repeating_until = threading.Event()
+        self.wait_for_interruption = threading.Event()
+        self.now_all_done = threading.Barrier(parties=now_count + 1)
+        self.now = ThreadPoolExecutor(max_workers=now_count or 1)
+        self.once = ThreadPoolExecutor(max_workers=once_count or 1)
+        self.repeating = ThreadPoolExecutor(max_workers=repeating_count or 1)
+        self.interrupter = threading.Thread(None, self._wait_interruption)
+        self._setup = True
+
+    def run(self, experiment: Experiment, probes: List[Probe],
+            configuration: Configuration, secrets: Secrets,
+            settings: Settings) -> None:
+        """
+        Run the guardian safeguards in their own threads.
+
+        If any probes is not flagged to run in the background (repeatedly
+        or not), then this call blocks until all these pre-check safeguards
+        are completed.
+        """
+        self.interrupter.start()
+
+        for p in probes:
+            f = None
+            if p.get("frequency"):
+                f = self.repeating.submit(
+                    run_repeatedly, guard=self, experiment=experiment,
+                    probe=p, configuration=configuration,
+                    secrets=secrets, stop_repeating=self.repeating_until)
+            elif p.get("background"):
+                f = self.once.submit(
+                    run_soon, guard=self, experiment=experiment,
+                    probe=p, configuration=configuration,
+                    secrets=secrets)
+            else:
+                f = self.now.submit(
+                    run_now, guard=self, experiment=experiment,
+                    probe=p, configuration=configuration,
+                    secrets=secrets, done=self.now_all_done)
+
+            if f is not None:
+                f.add_done_callback(partial(self._log_finished, probe=p))
+
+        # wait for all probes that must run first to complete
+        # this allows the experiment to block until these are passed
+        self.now_all_done.wait()
+
+    def interrupt_now(self, triggered_by: str, run: Run) -> None:
+        with self._lock:
+            self.triggered_by = triggered_by
+            self.triggered_by_run = deepcopy(run)
+            self.was_triggered = True
+
+        self.wait_for_interruption.set()
+
+    def _wait_interruption(self) -> None:
+        self.wait_for_interruption.wait()
+
+        # cannot interrupt if already finished
+        if experiment_finished.is_set():
+            return None
+
+        if not self.was_triggered:
+            return None
+
+        do_exit = False
+        with self._lock:
+            if not self._interrupted:
+                self._interrupted = True
+                logger.critical(
+                    "Safeguard '{}' triggered the end of the experiment".format(
+                        self.triggered_by))
+                do_exit = True
+
+        if do_exit:
+            self._exit()
+
+    def _exit(self) -> None:
+        exit_gracefully()
+
+    def _log_finished(self, f: Future, probe: Probe) -> None:
+        """
+        Logs each safeguard when they terminated.
+        """
+        name = probe.get("name")
+        x = f.exception()
+        if x is not None:
+            logger.debug(
+                "Safeguard '{}' failed: {}".format(
+                    name, str(x)), exc_info=x)
+        else:
+            logger.debug("Safeguard '{}' finished normally".format(name))
+
+    def terminate(self) -> None:
+        """
+        Stop the guardian and all its safeguards.
+        """
+        if not self._setup:
+            return None
+
+        self.wait_for_interruption.set()
+        self.repeating_until.set()
+
+        if sys.version_info >= (3, 9):
+            self.now.shutdown(wait=True, cancel_futures=True)
+            self.repeating.shutdown(wait=True, cancel_futures=True)
+            self.once.shutdown(wait=True, cancel_futures=True)
+        else:
+            self.now.shutdown(wait=True)
+            self.repeating.shutdown(wait=True)
+            self.once.shutdown(wait=True)
+
+        logger.debug("Guardian is now terminated")
+
+
+guardian = Guardian()
+
+
+def validate_control(control: Control) -> None:
+    probes = control["provider"].get("arguments", {}).get("probes")
+    validate_probes(probes)
+
+
+def configure_control(configuration: Configuration = None,
+                      secrets: Secrets = None, settings: Settings = None,
+                      experiment: Experiment = None,
+                      probes: List[Probe] = None) -> None:
+    guardian.prepare(probes)
+
+
+def before_experiment_control(context: str,
+                              configuration: Configuration = None,
+                              secrets: Secrets = None,
+                              settings: Settings = None,
+                              experiment: Experiment = None,
+                              probes: List[Probe] = None) -> None:
+    guardian.run(experiment, probes, configuration, secrets, settings)
+
+
+def after_experiment_control(**kwargs):
+    guardian.terminate()
+
+
+###############################################################################
+# Internals
+###############################################################################
+def run_repeatedly(guard: Guardian, experiment: Experiment, probe: Probe,
+                   configuration: Configuration, secrets: Secrets,
+                   stop_repeating: threading.Event) -> None:
+    wait_for = probe.get("frequency")
+    while not stop_repeating.is_set():
+        run = execute_activity(
+            experiment=experiment, probe=probe,
+            configuration=configuration, secrets=secrets)
+        stop_repeating.wait(timeout=wait_for)
+        if not stop_repeating.is_set():
+            interrupt_experiment_on_unhealthy_probe(
+                guard, probe, run, configuration, secrets)
+
+
+def run_soon(guard: Guardian, experiment: Experiment, probe: Probe,
+             configuration: Configuration,
+             secrets: Secrets) -> None:
+    run = execute_activity(
+        experiment=experiment, probe=probe,
+        configuration=configuration, secrets=secrets)
+    interrupt_experiment_on_unhealthy_probe(
+        guard, probe, run, configuration, secrets)
+
+
+def run_now(guard: Guardian, experiment: Experiment, probe: Probe,
+            configuration: Configuration,
+            secrets: Secrets, done: threading.Barrier) -> None:
+    try:
+        run = execute_activity(
+            experiment=experiment, probe=probe,
+            configuration=configuration, secrets=secrets)
+    finally:
+        done.wait()
+
+    interrupt_experiment_on_unhealthy_probe(
+        guard, probe, run, configuration, secrets)
+
+
+def interrupt_experiment_on_unhealthy_probe(guard: Guardian, probe: Probe,
+                                            run: Run,
+                                            configuration: Configuration,
+                                            secrets=Secrets) -> None:
+    if experiment_finished.is_set():
+        return
+
+    tolerance = probe.get("tolerance")
+    checked = within_tolerance(
+        tolerance, run["output"], configuration=configuration,
+        secrets=secrets)
+    if not checked:
+        guard.interrupt_now(probe["name"], run)
+
+
+def execute_activity(experiment: Experiment, probe: Probe,
+                     configuration: Configuration, secrets: Secrets) -> Run:
+    """
+    Low-level wrapper around the actual activity provider call to collect
+    some meta data (like duration, start/end time, exceptions...) during
+    the run.
+    """
+    ref = probe.get("ref")
+    if ref:
+        probe = lookup_activity(ref)
+        if not probe:
+            raise ActivityFailed(
+                "could not find referenced activity '{r}'".format(r=ref))
+
+    with controls(level="activity", experiment=experiment, context=probe,
+                  configuration=configuration, secrets=secrets) as control:
+        pauses = probe.get("pauses", {})
+        pause_before = pauses.get("before")
+        if pause_before:
+            time.sleep(pause_before)
+
+        start = datetime.utcnow()
+
+        run = {
+            "activity": probe.copy(),
+            "output": None
+        }
+
+        result = None
+        try:
+            result = run_activity(probe, configuration, secrets)
+            run["output"] = result
+            run["status"] = "succeeded"
+        except ActivityFailed as x:
+            run["status"] = "failed"
+            run["output"] = result
+            run["exception"] = traceback.format_exception(type(x), x, None)
+        finally:
+            end = datetime.utcnow()
+            run["start"] = start.isoformat()
+            run["end"] = end.isoformat()
+            run["duration"] = (end - start).total_seconds()
+
+            pause_after = pauses.get("after")
+            if pause_after:
+                time.sleep(pause_after)
+
+        control.with_state(run)
+
+    return run
+
+
+def validate_probes(probes: List[Probe]):
+    """
+    Validate all probes part of the safeguard control and ensure they are
+    valid Chaos Toolkit probes or fail the experiment's run.
+    """
+    if not probes:
+        raise InvalidActivity("safeguard control must have at least one probe")
+
+    for probe in probes:
+        ensure_activity_is_valid(probe)
+
+        if probe["type"] != "probe":
+            raise InvalidActivity(
+                "safeguard control '{}' should be of type 'probe' "
+                "not '{}'".format(probe['name'], probe['type']))
+
+        if "tolerance" not in probe:
+            raise InvalidActivity(
+                "safeguard control is invalid as the probe '{}' is "
+                "missing a tolerance property".format(probe['name']))
+
+        ensure_hypothesis_tolerance_is_valid(probe["tolerance"])
