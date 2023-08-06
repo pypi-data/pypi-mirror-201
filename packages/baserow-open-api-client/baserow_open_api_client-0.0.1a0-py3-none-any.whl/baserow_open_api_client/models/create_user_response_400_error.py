@@ -1,0 +1,11 @@
+from enum import Enum
+
+
+class CreateUserResponse400Error(str, Enum):
+    BAD_TOKEN_SIGNATURE = "BAD_TOKEN_SIGNATURE"
+    ERROR_ALREADY_EXISTS = "ERROR_ALREADY_EXISTS"
+    ERROR_GROUP_INVITATION_DOES_NOT_EXIST = "ERROR_GROUP_INVITATION_DOES_NOT_EXIST"
+    ERROR_REQUEST_BODY_VALIDATION = "ERROR_REQUEST_BODY_VALIDATION"
+
+    def __str__(self) -> str:
+        return str(self.value)
