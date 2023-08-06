@@ -1,0 +1,104 @@
+#!/bin/bash -ex
+
+ARCH="$(uname -m)"
+
+# Stop the firecracker process if it is already running
+API_SOCKET="./fc-{{ app_id }}.socket"
+rm -f $API_SOCKET
+
+# Run firecracker
+pkill -f "fc-{{ app_id }}.socket" || true
+firecracker --api-sock "${API_SOCKET}" &
+
+# set up the kernel boot args and env vars
+MASK_LONG="255.255.255.252"
+MASK_SHORT="/30"
+
+# Based on how many taps we have, we need to set up the IP addresses
+# for the gateway and the tap interface. Pick the first available IP
+# address in the local link range (169.254.0.0/16).
+for GW_ID in $(seq 0 255); do
+  echo "Checking if 169.254.$((4 * GW_ID + 1)) is available"
+  if ! ip addr show | grep -q "169.254.$((4 * GW_ID + 1))."; then
+    echo "Found available IP address: 169.254.$((4 * GW_ID + 1))"
+    break
+  fi
+done
+GW_IP="$(printf '169.254.%s.%s' $(((4 * GW_ID + 1) / 256)) $(((4 * GW_ID + 1) % 256)))"
+TAP_IP="$(printf '169.254.%s.%s' $(((4 * GW_ID + 2) / 256)) $(((4 * GW_ID + 2) % 256)))"
+DEVICE_NAME=$(ip route | grep default | awk '{print $5}')
+KERNEL_BOOT_ARGS="console=ttyS0 rw noapic reboot=k panic=1 pci=off nomodules random.trust_cpu=on ip=${GW_IP}::${TAP_IP}:${MASK_LONG}::eth0:off"
+
+# set up a tap network interface for the Firecracker VM to use
+TAP_DEV="fc-$GW_ID-tap0"
+ip link del "$TAP_DEV" 2> /dev/null || true
+ip tuntap add "$TAP_DEV" mode tap
+ip addr add "${TAP_IP}${MASK_SHORT}" dev "$TAP_DEV"
+ip link set "$TAP_DEV" up
+FC_MAC="$(cat /sys/class/net/$TAP_DEV/address)"
+
+# Enable packet forwarding for internet access
+echo 1 > /proc/sys/net/ipv4/ip_forward
+iptables -t nat -A POSTROUTING -o $DEVICE_NAME -j MASQUERADE
+iptables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+iptables -A FORWARD -i $TAP_DEV -o $DEVICE_NAME -j ACCEPT
+
+# Download a linux kernel binary
+wget --no-clobber https://s3.amazonaws.com/spec.ccfc.min/img/${ARCH}/ubuntu/kernel/vmlinux.bin
+KERNEL_IMAGE_PATH="vmlinux.bin"
+
+#
+# Build and run image!
+#
+docker build -t {{ app_id }} /{{ app_id }}_image
+CODEDIR="$(readlink -f /{{ app_id }}_code)"
+docker run --rm --privileged --env IP=$TAP_IP$MASK_SHORT --env GATEWAY=$GW_IP -v $CODEDIR:/opt/code {{ app_id }}
+# NOTE: remove the --env vars if you don't want to set up networking
+ROOTFSDIR="$(readlink -f {{ app_id }}_fs)"
+mv $CODEDIR/rootfs $ROOTFSDIR
+ROOTFS_PATH_ON_HOST="{{ app_id }}_fs"
+
+#
+# # Download a rootfs example
+# # In place of what's above, you can run this to test your setup
+#
+# wget --no-clobber https://s3.amazonaws.com/spec.ccfc.min/ci-artifacts/disks/${ARCH}/ubuntu-18.04.ext4
+# ROOTFS_PATH_ON_HOST="ubuntu-18.04.ext4"
+# # Download the ssh key for the rootfs
+# wget --no-clobber https://s3.amazonaws.com/spec.ccfc.min/ci-artifacts/disks/${ARCH}/ubuntu-18.04.id_rsa
+# # Set user read permission on the ssh key
+# chmod 400 ./ubuntu-18.04.id_rsa
+# after you run the config file, you can ssh into the micro VM with:
+# ssh -o StrictHostKeyChecking=false -i ubuntu-18.04.id_rsa root@169.254.0.21
+
+# make a configuration file
+cat <<EOF > fc-{{ app_id }}-config.json
+{
+  "boot-source": {
+    "kernel_image_path": "$KERNEL_IMAGE_PATH",
+    "boot_args": "$KERNEL_BOOT_ARGS"
+  },
+  "drives": [
+    {
+      "drive_id": "rootfs",
+      "path_on_host": "$ROOTFS_PATH_ON_HOST",
+      "is_root_device": true,
+      "is_read_only": false
+    }
+  ],
+  "network-interfaces": [
+      {
+          "iface_id": "eth0",
+          "guest_mac": "$FC_MAC",
+          "host_dev_name": "$TAP_DEV"
+      }
+  ],
+  "machine-config": {
+    "vcpu_count": {{ vcpu_count }},
+    "mem_size_mib": {{ mem_size_mib }}
+  }
+}
+EOF
+
+# start firecracker
+firecracker --no-api --config-file fc-{{ app_id }}-config.json
