@@ -1,0 +1,1 @@
+from foggynight.foggynight import Weather
