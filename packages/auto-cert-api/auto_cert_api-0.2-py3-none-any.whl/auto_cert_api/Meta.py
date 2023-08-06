@@ -1,0 +1,5 @@
+title = 'Auto-CertBot API'
+description = ''
+version = '1'
+release = '0.0'
+uri_prefix = f'/v{version}'
