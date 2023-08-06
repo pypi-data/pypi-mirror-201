@@ -1,0 +1,32 @@
+---
+import Badge from "@components/shared/Badge.astro";
+import BaseLayout from "@layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+const data = await getCollection("data");
+---
+
+<BaseLayout>
+  <h1>Datasets</h1>
+  <div class="grid grid-cols-3 gap-3">
+    {
+      data.map((entry) => (
+        <div class="h-40 rounded-lg border shadow-lg border-blue-300 flex justify-center items-center hover:border-2 hover:border-blue-700 relative">
+          <a
+            class="w-full h-full inline-flex justify-center items-center"
+            href={`/data/${entry.slug}`}
+          >
+            {entry.data.title}
+          </a>
+          {entry.data.exports.length > 0 && (
+            <a
+              href={`/playground/${entry.slug}`}
+              class="absolute bottom-1 right-1"
+            >
+              <Badge class="bg-blue-200 text-blue-800">Playground</Badge>
+            </a>
+          )}
+        </div>
+      ))
+    }
+  </div>
+</BaseLayout>

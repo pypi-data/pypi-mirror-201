@@ -1,0 +1,35 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+let homePage = null;
+try {
+  const mdFiles = await Astro.glob("./*.md");
+  for (let i = 0; i < mdFiles.length; i++) {
+    if (mdFiles[i].file.includes("_index.md")) {
+      homePage = await import("./_index.md");
+      break;
+    }
+  }
+} catch (error) {
+  console.log("no _index.md found in src/pages");
+}
+---
+
+<BaseLayout>
+  <div class="max-w-3xl mx-auto prose">
+    {
+      homePage ? (
+        <article>
+          <h1>{homePage.frontmatter.title}</h1>
+          <homePage.Content />
+        </article>
+      ) : (
+        <p class="text-lg border-2 border-red-200 p-2 rounded-md">
+          No <code>index.md</code> found in <code>src/pages</code>, create a{" "}
+          <code>index.qmd</code> file under project root and use{" "}
+          <code>quarto render</code> to populate content for the home page.
+        </p>
+      )
+    }
+  </div>
+</BaseLayout>
