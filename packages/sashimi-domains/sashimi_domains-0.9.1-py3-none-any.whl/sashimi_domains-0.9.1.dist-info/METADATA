@@ -1,0 +1,204 @@
+Metadata-Version: 2.1
+Name: sashimi-domains
+Version: 0.9.1
+Summary: Sashimi is a Python module that provides tailored mathematical models and corresponding interactive visualisations for exploratory and confirmatory mixed-methods analysis of large textual or token corpora. It can detect textual and metadata structures and shifts, by employing stochastic block modeling (SBM) from graph-tool or [currently deprecated] word embedding from Gensim.
+Project-URL: Documentation, https://gitlab.com/solstag/abstractology/
+Project-URL: Issues, https://gitlab.com/solstag/abstractology/-/issues
+Project-URL: Source, https://gitlab.com/solstag/abstractology/
+Author-email: Ale Abdo <abdo@member.fsf.org>
+License-Expression: GPL-3.0-or-later
+License-File: LICENSE
+Classifier: Development Status :: 4 - Beta
+Classifier: License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)
+Classifier: Programming Language :: Python
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Classifier: Topic :: Scientific/Engineering :: Visualization
+Classifier: Topic :: Sociology
+Requires-Python: >=3.8
+Requires-Dist: bokeh
+Requires-Dist: colorcet
+Requires-Dist: gensim
+Requires-Dist: lxml
+Requires-Dist: matplotlib
+Requires-Dist: numpy
+Requires-Dist: pandas
+Requires-Dist: scipy
+Requires-Dist: spacy
+Requires-Dist: tqdm
+Description-Content-Type: text/markdown
+
+# Sashimi - study the organisation and evolution of corpora
+
+Sashimi is a Python module that provides tailored mathematical models and corresponding interactive visualisations
+for exploratory and confirmatory mixed-methods analysis of large textual or token corpora. It can detect textual
+and metadata structures and shifts, by employing stochastic block modeling (SBM) from [graph-tool](https://graph-tool.skewed.de/) or
+[currently deprecated] word embedding from `Gensim`.
+
+Models:
+- Domain-topic models
+- Domain-chained (metadata) models
+
+Model-based data interfaces (visualisations):
+- Interactive domain-topic maps and domain-chained maps
+- Domain-topic tables and domain-chained tables
+- Domain-topic, domain-chained and domain-topic-chained networks
+- Area rank charts (bump charts) of the evolution of domain sizes
+
+<img alt="Domain-topic network" src="https://docs.cortext.net/wp-content/uploads/Screenshot-from-2022-11-19-17-42-28.png" width="50%"><img alt="Domain-topic map" src="https://docs.cortext.net/wp-content/uploads/dtm-example-chloroquine.png" width="50%">
+
+## Using Sashimi without programming (no code)
+
+Sashimi is available as a suite of methods in the [Cortext Manager](https://docs.cortext.net/) web service. See [SASHIMI](https://docs.cortext.net/sashimi/).
+
+## Savoring Sashimi
+Also for users of this library, the [documentation](https://docs.cortext.net/sashimi/) at Cortext serves as a good introduction to the methodology.
+
+## Installation
+
+Install [graph-tool](https://git.skewed.de/count0/graph-tool/-/wikis/installation-instructions) according to your system.
+
+Then:
+
+`pip install sashimi-domains`
+
+### Dependencies
+
+This project builds mainly on the following others:
+- [graph-tool](graph-tool.skewed.de/) (for Stochastic Block Model inference)
+- [pandas](https://pandas.pydata.org/)
+- [spacy](https://spacy.io/) (for tokenization)
+- [gensim](https://radimrehurek.com/gensim/) (for ngram detection)
+- [bokeh](https://bokeh.org/) (for hierarchical block maps and other plots)
+- [lxml](https://lxml.de/) (for domain tables)
+- [matplotlib](https://matplotlib.org/) (for simple corpus statistics)
+
+With the exception of graph-tool, they'll be automatically handled by `pip`.
+
+## Basic usage
+
+```python
+from sashimi import GraphModels
+import pandas as pd
+
+# Let's instantiate a corpus with an explicit storage dir
+corpus = GraphModels(storage_dir="my_project")
+
+# Read a dataframe from a CSV file and load it into the corpus, giving it a name
+df = pd.read_csv("example_corpus.csv")
+corpus.load_data(df, name='example')
+
+# Take a look at what was loaded
+print(corpus.data)
+
+# For autoloading, store the data in JSON format under the project's storage dir
+corpus.store_data()
+```
+
+### Preparing the data
+
+#### Textual data
+For the typical usage with a textual corpus:
+```python
+# Set the data column labels for text sources
+corpus.text_sources = ["title", "body"]
+
+# Set up how to process text sources, for example:
+text_sources_args = dict(ngrams=3, language="en", stop_words=True)
+```
+The `language` is any valid `spacy` language, where `None` will use the English tokenizer with no stop_words. Our English tokenizer is slightly improved from spacy's original, in order to get ["hot-dog"] out of "hot-dog" (when spacy would split that), ["this", "that"] out of "this/that", and ["citation"] out of "citation[2,3]".
+
+#### Token data
+You may also directly use tokens that you've processed yourself, or from token data such as keywords, categories, or anything really, in addition or in place of textual data.
+```python
+# Set the data column labels for token sources
+corpus.token_sources = ["keyword", "category"]
+```
+
+Token data for a document is expected to be in the form of a list, containing strings or lists containing strings: `List[str | List[str]]`. If your data differs, you must adjust it before processing.
+
+#### Processing the data
+Once token and text sources are set up, you can process them all with:
+```python
+corpus.process_sources(**text_sources_args)
+```
+
+### Working with your corpus
+
+```python
+# Set data column labels
+corpus.col_title = "titles"  # document titles (required; if your corpus doesn't have canonical titles, be creative)
+corpus.col_time = "years"  # dates (optional)
+corpus.col_urls = "urls"  # may also be a list of columns, for multiple urls (optional)
+
+# Load a domain-topic model
+corpus.load_domain_topic_model()
+print(corpus.state)
+print(corpus.dblocks)
+print(corpus.tblocks)
+
+# Create an interactive hierarchical map
+# Output is a self-contained html+css+js+data document
+corpus.domain_map()
+
+# Create network representation for the first domain and topic levels, as pdf and graphml documents
+corpus.domain_network(doc_level=1, ter_level=1)
+
+# Create domain-topic tables for all domains at level 3
+if 3 in corpus.dblocks:
+    corpus.subxblocks_tables(xbtype="doc", xlevel=3, xb=None, ybtype="ter")
+
+# Store the current choices of corpus and model
+corpus.register_config("my_config.json")
+
+# To reload them in a future session
+from sashimi import GraphModels
+corpus = GraphModels('my_config.json')
+corpus.load_domain_topic_model()  # will load the previously calculated model
+corpus.load_domain_topic_model(load=False)  # will fit a new model
+print(corpus.list_blockstates())
+
+# Load a domain-chained model over the column "metadata_A"
+corpus.set_chain(prop='metadata_A'}
+corpus.load_domain_chained_model()
+print(corpus.list_chainedbstates())
+
+# Create interactive instruments for the chained dimension
+corpus.domain_map(chained=True)
+corpus.domain_network(doc_level=1, ter_level=None, ext_level=1)
+corpus.domain_network(doc_level=1, ter_level=1, ext_level=1)
+if 3 in corpus.dblocks:
+    corpus.subxblocks_tables(xbtype="doc", xlevel=3, xb=None, ybtype="ext")
+```
+
+<img alt="Domain-chained map" src="https://docs.cortext.net/wp-content/uploads/dcm-example-journals-chloroquine-.png" width="50%"><img alt="Domain-topic-chained network" src="https://docs.cortext.net/wp-content/uploads/Screenshot-from-2022-11-19-17-45-15.png" width="50%">
+
+## Advanced usages
+
+- The domain map document provides a "Help" tab explaining how to navigate and read it, which is also useful to understand the other interfaces.
+
+- Create filtered visualisations to show only a selected group of domains in maps and networks.
+
+- Perform selective chaining, whereby a domain-chanied model is fit by considering only a selected group of domains, instead of to the entire corpus, in order to understand the local insertion of metadata dimensions.
+
+- Calls to `Corpus.set_chain` may pass in the `matcher` parameter a path to a json file containing a dictionary. Nodes of the chained dimension will then correspond to the keys in the dictionary, and links will be established by searching for a key's value, as a regular expression, in the column passed as the first parameter.
+
+Development
+-----------
+
+This module provides four main classes:
+
+`class GraphModels` (user-facing class, inherits Corpus and Blocks)
+
+Provides Stochastic Block Models of corpora from their document-term and document-metadata graphs, yielding domain-topic and domain-chained models, respectively.
+
+`class Blocks`
+
+Provides interactive domain maps, networks, tables, and other interfaces.
+
+`class Corpus`
+
+Provides loading and preprocessing corpora, plus some descriptive statistics.
+
+`class Vectorology` [currently deprecated]
+
+Provides models of corpora using word embedding and produces reports, statistics and visualisations.
