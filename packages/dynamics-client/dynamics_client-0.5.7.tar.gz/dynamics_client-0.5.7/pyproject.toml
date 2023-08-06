@@ -1,0 +1,144 @@
+[tool.poetry]
+name = "dynamics-client"
+version = "0.5.7"
+description = "Client for making Web API request from a Microsoft Dynamics 365 Database."
+authors = [
+    "Matti Lamppu <lamppu.matti.akseli@gmail.com>",
+]
+packages = [
+    { include = "dynamics" },
+]
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/MrThearMan/dynamics-client/"
+repository = "https://github.com/MrThearMan/dynamics-client/"
+keywords = [
+    "Microsoft",
+    "Dynamics",
+    "client"
+]
+classifiers = [
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Intended Audience :: Developers",
+    "Natural Language :: English",
+]
+include = [
+    "README.md",
+    "LICENSE",
+]
+exclude = [
+    "tests",
+]
+
+[tool.poetry.urls]
+"Bug Tracker" = "https://github.com/MrThearMan/dynamics-client/issues"
+
+[tool.poetry.dependencies]
+python = ">=3.8,<4"
+oauthlib = ">=3.1.0"
+requests-oauthlib = ">=1.3.0"
+tzdata = ">=2021.5"
+"backports.zoneinfo" = { version = ">=0.2.1", python = "<3.9" }
+typing-extensions = { version = ">=4.0", python = "<3.9" }
+Django = { version = ">=3.2", optional = true }
+djangorestframework = { version = ">=3.12", optional = true }
+
+[tool.poetry.group.test.dependencies]
+pytest = "7.2.1"
+coverage = "6.5.0"
+pytest-asyncio = "0.20.3"
+pre-commit = "3.0.1"
+tox = "4.4.2"
+tox-gh-actions = "3.0.0"
+coveralls = "3.3.1"
+
+[tool.poetry.group.docs.dependencies]
+mkdocs = "1.4.2"
+pymdown-extensions = "9.9.2"
+mkdocs-mermaid2-plugin = "0.6.0"
+
+[tool.poetry.group.lint.dependencies]
+mypy = "0.991"
+
+[tool.poetry.extras]
+django = ["Django", "djangorestframework"]
+
+[tool.black]
+line-length = 120
+
+[tool.ruff]
+fix = true
+line-length = 120
+exclude = [
+    "tests/*",
+]
+select = [
+    "F",  # pyflakes
+    "E",  # pycodestyle errors
+    "I",  # isort
+    "S",  # flake8-bandit
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+    "T",  # flake8-print
+    "W",  # pycodestyle warnings
+]
+ignore = [
+]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = "True"
+warn_unused_configs = "True"
+
+[tool.coverage.run]
+relative_files = true
+
+[tool.coverage.report]
+omit = [
+    "tests/*",
+    "docs/*",
+    ".venv/*",
+    ".tox/*",
+]
+exclude_lines = [
+    "if TYPE_CHECKING:",
+    "except ImportError:",
+    "pragma: no cover",
+]
+
+[tool.pytest.ini_options]
+addopts = "-vv -s --log-cli-level=INFO"
+
+[tool.tox]
+legacy_tox_ini = """
+[tox]
+envlist = py{38, 39, 310, 311}
+isolated_build = true
+
+[gh-actions]
+python =
+    3.8: py38
+    3.9: py39
+    3.10: py310
+    3.11: py311
+
+[testenv]
+allowlist_externals =
+    poetry
+setenv =
+    PYTHONPATH = {toxinidir}
+commands =
+    poetry install
+    poetry run coverage run -m pytest -vv -s --log-cli-level=INFO
+"""
+
+[build-system]
+requires = ["poetry-core>=1.1.0"]
+build-backend = "poetry.core.masonry.api"
