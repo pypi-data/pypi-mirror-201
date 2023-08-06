@@ -1,0 +1,77 @@
+---
+# Copyright (c) Ansible Project
+# GNU General Public License v3.0+ (see LICENSES/GPL-3.0-or-later.txt or https://www.gnu.org/licenses/gpl-3.0.txt)
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+name: antsibull-build tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  # Run once per week (Monday at 04:00 UTC)
+  schedule:
+    - cron: '0 4 * * 1'
+
+jobs:
+  build:
+    name: 'Build Ansible community distribution (${{ matrix.name }})'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - name: Ansible 7 with default settings
+            options: '-e antsibull_ansible_version=7.99.0 -e antsibull_ansible_git_version=stable-2.14'
+            python: '3.9'
+            antsibull_changelog_ref: 0.14.0
+            antsibull_core_ref: stable-1
+          - name: Ansible 8 with ansible-core devel
+            options: '-e antsibull_ansible_version=8.99.0 -e antsibull_ansible_git_version=devel'
+            python: '3.11'
+            antsibull_changelog_ref: main
+            antsibull_core_ref: main
+
+    steps:
+      - name: Check out antsibull
+        uses: actions/checkout@v3
+        with:
+          path: antsibull
+
+      - name: Check out dependent project antsibull-changelog
+        uses: actions/checkout@v3
+        with:
+          repository: ansible-community/antsibull-changelog
+          path: antsibull-changelog
+          ref: ${{ matrix.antsibull_changelog_ref }}
+
+      - name: Check out dependent project antsibull-core
+        uses: actions/checkout@v3
+        with:
+          repository: ansible-community/antsibull-core
+          path: antsibull-core
+          ref: ${{ matrix.antsibull_core_ref }}
+
+      - name: Set up Python ${{ matrix.python }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python }}
+
+      # Use pip manually to ensure the correct Python is used
+      - name: Install nox
+        run: pip install --user -U nox
+
+      - name: "Test building a release: ${{ matrix.name }}"
+        run: |
+          OTHER_ANTSIBULL_MODE=local nox -e coverage_release -- ${{ matrix.options }}
+        working-directory: antsibull
+
+      - name: Report coverage
+        run: |
+          nox -v -e coverage
+        working-directory: antsibull
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          working-directory: antsibull
