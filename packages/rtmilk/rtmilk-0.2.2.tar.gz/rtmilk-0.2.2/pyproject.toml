@@ -1,0 +1,89 @@
+[tool.poetry]
+name = "rtmilk"
+version = "0.2.2"
+description = "RTM API wrapper"
+authors = ["Rehan Khwaja <rehan@khwaja.name>"]
+license = "MIT"
+homepage = "https://github.com/rkhwaja/rtmilk"
+keywords = ["RememberTheMilk"]
+readme = "README.md"
+classifiers = [
+	"License :: OSI Approved :: MIT License",
+	"Development Status :: 3 - Alpha",
+	"Intended Audience :: Developers",
+	"Programming Language :: Python :: 3.9",
+	"Programming Language :: Python :: 3.10",
+	"Programming Language :: Python :: 3.11"
+]
+
+[tool.poetry.dependencies]
+python = ">=3.9,<4"
+requests = ">=2.23.0"
+urllib3 = [
+	{ version = ">=1.26", python = ">=3.10,<4" }
+]
+pydantic = ">=1.8.1"
+aiohttp = ">=3.8.1"
+
+[tool.poetry.group.dev.dependencies]
+pytest = ">=7.1"
+pylint = ">=2.13.5"
+pylint-quotes = ">=0.2.1"
+pyperclip = ">=1.8.0"
+python-dateutil = ">=2.8.1"
+python-dotenv = ">=0.17.1"
+pytest-cov = ">=3"
+pytest-asyncio = ">=0.16.0"
+poethepoet = ">=0.16.4"
+
+[tool.poe.tasks]
+build = "poetry build --no-interaction"
+test = "pytest"
+lint = "pylint src/rtmilk tests --disable=fixme"
+
+[tool.poe.tasks.test-with-coverage]
+shell = """
+pytest --cov=src || exit 1
+coverage xml
+"""
+
+[tool.pylint.master]
+load-plugins = [
+	"pylint_quotes",
+	"pylint.extensions.code_style",
+	"pylint.extensions.confusing_elif",
+	"pylint.extensions.bad_builtin",
+	"pylint.extensions.bad_builtin",
+	"pylint.extensions.mccabe",
+	"pylint.extensions.check_elif",
+	"pylint.extensions.redefined_variable_type",
+	"pylint.extensions.overlapping_exceptions",
+	"pylint.extensions.empty_comment",
+	"pylint.extensions.set_membership",
+	"pylint.extensions.while_used",
+	]
+enable="useless-suppression"
+
+[tool.pylint.format]
+indent-string="\t"
+string-quote = "single-avoid-escape"
+
+[tool.pylint.messages_control]
+disable = [
+	"duplicate-code",
+	"invalid-name",
+	"line-too-long",
+	"logging-fstring-interpolation",
+	"missing-docstring",
+	"too-few-public-methods",
+	"too-many-arguments",
+	"too-many-public-methods",
+	"protected-access" # temporary until I figure out the privacy
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+
+[build-system]
+requires = ["poetry_core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
