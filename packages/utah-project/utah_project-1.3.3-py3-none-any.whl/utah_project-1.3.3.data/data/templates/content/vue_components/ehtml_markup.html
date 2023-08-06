@@ -1,0 +1,142 @@
+  <!--
+  =====================================================================================
+  EHTML Markup
+  =====================================================================================
+  -->
+  <script type="text/html" id="ehtml-markup-template">
+    <div class="field pt-3">
+        <label class="label">{% trans %}HTML Markup{% endtrans %}</label>
+        <div class="control">
+          <textarea class="textarea is-family-code" style="box-shadow: none;" rows="25" v-model="ehtml_doc.text" v-on:ondragover="dragover"> </textarea>
+        </div>
+      </div>
+  </script>
+
+
+  <script type="text/javascript">
+    const DOCUMENT_NOT_FOUND = {
+          'header' : "{% trans %}Dragging Error{% endtrans %}",
+          'body' : "{% trans %}The dropped document is no longer available in the source location{% endtrans %}",
+          'can_close':true,
+          'color' : "is-warning"
+    }
+
+
+    var EHTML_MARKUP_COMPONENT = {
+        template : "#ehtml-markup-template",
+        data() {
+            return {}
+        },
+        props: ['ehtml_doc'],
+        watch:{
+            ehtml_doc : {
+                deep: true, 
+                handler(){
+                    this.process_change()                  
+                }
+            }
+        },
+        mounted() {
+            this.drop_methods = {
+                htm:'drop_htm',
+                html:'drop_html',
+                jpg:'drop_img',
+                jpeg:'drop_img',
+                jfif:'drop_img',
+                png:'drop_img',
+                gif:'drop_img',
+                wav:'drop_audio',
+                mp3:'drop_audio'
+            }
+        },
+        methods : {
+            split_uri: (uri)=>{
+                var slash_loc=uri.lastIndexOf("/")
+                var dir =uri.slice(0, slash_loc)
+                var filename = uri.slice(slash_loc+1)
+                return {"dir":dir, "filename":filename}
+            },
+            dragover: (e)=>{
+                ev.preventDefault();
+            },
+            drop: function(){},
+            process_change: function() {
+                const myre = /\<\!\-\- sub\=\'(.*)\' \-\-\>/
+                var matches = this.ehtml_doc.text.match(myre)
+                if (matches != null) {
+                    var parsed_uri = this.parse_uri(matches[1])
+                    ext = parsed_uri.lcase_ext
+
+                    if (ext in this.drop_methods) {
+                        this[this.drop_methods[ext]](matches[0], matches[1])
+                    } else {
+                        this.replace_sub_tag(matches[0], "<a href='" + matches[1] + "' target='new'>" + parsed_uri.non_i18n_base_file_name + "</a>")
+                    }
+
+                }
+            },
+            drop_htm: function(sub_tag, uri) {
+                doc = this.ehtml_doc.get_root_folder().find_item_by_uri(uri, false)
+                if (doc != null) {
+                    doc.read(
+                        ()=>{
+                            this.replace_sub_tag(sub_tag, doc.text)
+                        },
+                        ( error_tag )=>{
+                            emit_remote_error( error_tag )
+                        }
+                    )
+                } else {
+                    emit_message( DOCUMENT_NOT_FOUND )
+                    this.replace_sub_tag(sub_tag, "")
+                }
+            },
+            drop_html: function(sub_tag, uri) {
+                doc = this.ehtml_doc.get_root_folder().find_item_by_uri(uri, false)
+                if (doc != null) {
+                    doc.read(
+                        ()=>{
+                            var new_tag = "<a href='" + uri + "' target='new'>" + doc.metadata.title + "</a>"                        
+                            this.replace_sub_tag(sub_tag, new_tag)
+                        },
+                        ( error_tag )=>{
+                            emit_remote_error( error_tag )
+                        }
+                    )
+                } else {
+                    emit_message( DOCUMENT_NOT_FOUND )
+                    this.replace_sub_tag(sub_tag, "")
+                }
+            },
+            drop_img: function(sub_tag, uri){
+                new_tag = "<img src='" + uri + "' />"
+                this.replace_sub_tag(sub_tag, new_tag)
+            },
+            drop_audio: function(sub_tag, uri){
+                new_tag = `
+<audio
+    controls
+    src='` + uri + `'>
+        <a href='` + uri + `'>
+            Download audio
+        </a>
+</audio>
+`
+                this.replace_sub_tag(sub_tag, new_tag)
+            },
+            replace_sub_tag : function(sub_tag, replacement_value){
+                this.ehtml_doc.text = this.ehtml_doc.text.replace(sub_tag, replacement_value)
+            },
+            parse_uri : (uri)=>{
+            ret_values = {}
+            const re = /^(.*)\/(.*?)(-((aa|ab|ae|af|ak|am|an|ar|as|av|ay|az|ba|be|bg|bi|bm|bn|bo|br|bs|ca|ce|ch|co|cr|cs|cu|cv|cy|da|de|dv|dz|ee|el|en|eo|es|et|eu|fa|ff|fi|fj|fo|fr|fy|ga|gd|gl|gn|gu|gv|ha|he|hi|ho|hr|ht|hu|hy|hz|ia|id|ig|ii|ik|io|is|it|iu|jv|ka|kg|ki|kj|kk|kl|km|kn|kr|kv|kw|ky|la|lb|lg|li|ln|lo|lt|lv|mg|mh|mi|mk|ml|mn|mr|mt|my|na|nb|nd|ne|ng|nl|nn|no|nr|nv|ny|oc|oj|om|or|os|pi|pl|ps|pt|qu|rm|rn|ro|ru|rw|sc|se|sg|si|sk|sl|sm|sn|so|sq|sr|ss|st|su|sv|sw|ta|te|th|ti|tk|tl|tn|to|tr|ts|tw|ty|uk|ur|ve|vi|vo|wa|wo|xh|yi|yo|za|zu)(_([A-Z]{2})(_(.*))?)?))?\.([\w]*)$/;
+            matches = uri.match(re)
+
+            ret_values["non_i18n_uri"] = matches[1] + "/" + matches[2] + "." + matches[10]
+            ret_values["lcase_ext"] = matches[10].toLowerCase()
+            ret_values["non_i18n_base_file_name"] = matches[2] + "." + matches[10]
+            return ret_values
+            }
+        }
+    }
+  </script>
