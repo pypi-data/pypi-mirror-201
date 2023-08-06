@@ -1,0 +1,27 @@
+{% load admin_urls %}
+<tr id="session_{{session.id}}" class="session {{row_cycle}} {{session.session_status}} {{ session.proc_status }}"
+    data-id="{{session.id}}" data-minkeobj-id="{{session.minkeobj_id}}" data-proc-status="{{session.proc_status}}"
+    data-msg-count="{{session.messages.all|length}}">
+    <td></td>
+    <td colspan="100">
+        {% if display_session_proc_info %}
+            <div class="session_proc_info">
+                <b{% if session.session_description %} title="{{session.session_description}}"{% endif %}>
+                    <a href="{% url 'admin:minke_minkesession_change' session.id %}">{{session.session_verbose_name}}</a>
+                </b> - [<span>{{session.proc_info}}</span>]
+                {% if display_messages %}{% include "minke/message_toggle.html" %}{% endif %}
+            </div>
+        {% endif %}
+        <ul class="messagelist {% if display_session_proc_info %}hide{% endif %}">
+        {% if display_messages %}
+            {% for msg in session.messages.all %}
+                <li class="{{msg.level}}">{{msg.html|safe}}</li>
+            {% endfor %}
+        {% elif display_commands %}
+            {% for cmd in session.commands.all %}
+                <li class="{{cmd.as_message.level}}">{{cmd.as_message.html|safe}}</li>
+            {% endfor %}
+        {% endif %}
+        </ul>
+    </td>
+</tr>

@@ -1,0 +1,40 @@
+{% extends "admin/base_site.html" %}
+
+{% block extrahead %}
+    {{ minke_form.media }}
+{% endblock %}
+
+{% block content %}
+<form action="" method="post">
+
+    {% csrf_token %}
+    {{ minke_form }}
+
+    {% if fabric_form %}
+        <fieldset><table>{{ fabric_form.as_table }}</table></fieldset>
+    {% endif %}
+
+    {% if session_form %}
+        <fieldset><table>{{ session_form }}</table></fieldset>
+    {% endif %}
+
+    <fieldset>
+        <input type="submit" name="run_sessions" class="default" style="float: none" value="Submit">
+        <a class="default" style="float: none" href="">Abbrechen</a>
+    </fieldset>
+
+    <fieldset><ul>
+        {% for object in objects %}
+            {% if object_list %}
+                <li>
+                    <input id="{{ object.pk }}" type="checkbox" name="_selected_action" value="{{ object.pk }}" checked>
+                    <label for="{{ object.pk }}">{{ object }}</label>
+                </li>
+            {% else %}
+                <input type="hidden" name="_selected_action" value="{{ object.pk }}">
+            {% endif %}
+        {% endfor %}
+    </ul></fieldset>
+
+</form>
+{% endblock %}
