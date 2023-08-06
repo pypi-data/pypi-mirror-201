@@ -1,0 +1,246 @@
+#!/usr/bin/python3
+
+import argparse
+import os
+import sys
+import timeit
+
+import pkg_resources
+from colorama import Fore, init
+
+from klongpy import KlongInterpreter
+
+
+"""
+
+    KlongPy REPL: See https://t3x.org/klong/klong-ref.txt.html for additional details.
+
+"""
+
+def sys_cmd_shell(klong, cmd):
+    """
+
+        ]! command                                               [Shell]
+
+        Pass the given command to the Unix shell.
+
+    """
+    os.system(cmd[2:].strip())
+    return None
+
+
+def sys_cmd_apropos(klong, cmd):
+    """
+
+        ]a topic                                               [Apropos]
+
+        ]htopic is short for help("topic"). In addition, ]hall will
+        list all available help texts. The "topic" must be an operator
+        symbol or operator name (e.g. :: or Define).
+
+    """
+    # TODO
+    return None
+
+
+def sys_cmd_help(klong, cmd):
+    """
+
+        ]h topic                                                  [Help]
+
+        ]htopic is short for help("topic"). In addition, ]hall will
+        list all available help texts. The "topic" must be an operator
+        symbol or operator name (e.g. :: or Define).
+
+    """
+    # TODO
+    return None
+
+
+def sys_cmd_dir(klong, cmd):
+    """
+
+        ]i dir                                               [Inventory]
+
+        List all *.kg files (Klong source programs) in the given
+        directory. When no directory is given, it defaults to the first
+        element of the KLONGPATH variable. The ]i command depends on a
+        Unix shell and the "ls" utility (it does "cd dir; ls *.kg").
+
+    """
+    cmd = cmd[2:].strip()
+    dir = cmd if cmd else (os.environ.get("KLONGPATH") or "./").split(":")[0]
+    os.system(f"cd {dir}; ls *.kg")
+    return None
+
+
+def sys_cmd_load(klong, cmd):
+    """
+
+        ]l file                                                   [Load]
+
+        ]lfile is short for .l("file").
+
+    """
+    klong(f'.l("{cmd[2:]}")')
+    return None
+
+
+def sys_cmd_exit(klong, cmd):
+    """
+
+        ]q                                                        [Exit]
+
+        ]q is short for .x(0). However, end-of-file (control-D on Unix)
+        typically also works.
+
+    """
+    print("bye!")
+    sys.exit(0)
+
+
+def sys_cmd_transcript(klong, cmd):
+    """
+        ]t file                                             [Transcript]
+
+        Start appending user input and computed values to the given file.
+        When no file is given, stop transcript. Input will be prefixed
+        with a TAB (HT) character in the transcript file.
+
+    """
+    # TODO
+    return None
+
+
+def sys_cmd_timeit(klong, cmd):
+    """
+        ]T <prog>
+        ]T:N <prog>
+
+        Time an klong expression for 1 or N iterations using the timeit facility.
+
+        As Klong manual shows, you can perform timing functions in Klong using the .pc() operator.
+
+        timeit::{[t0];t0::.pc();x@[];.pc()-t0}
+
+        and then use it for a nilad:
+
+        timeit({1+1})
+
+        For one iteration, it's possible this Klong timeit is more accurate than the native Python timeit due to overhead.
+
+        Note: Added in KlongPy.
+
+    """
+    n = int(cmd[3:cmd.index(" ")]) if cmd[2] == ":" else 1
+    return timeit.timeit(lambda k=klong,p=cmd[cmd.index(" "):]: k(p), number=n)
+
+
+def create_sys_cmd_functions():
+    def _get_name(s):
+        s = s.strip()
+        x = s.index(']')+1
+        return s[x:x+1]
+
+    registry = {}
+
+    m = sys.modules[__name__]
+    for x in filter(lambda n: n.startswith("sys_cmd_"), dir(m)):
+        fn = getattr(m,x)
+        name = _get_name(fn.__doc__)
+        registry[name] = fn
+
+    return registry
+
+
+success = lambda input: f"{Fore.GREEN}{input}"
+failure = lambda input: f"{Fore.RED}{input}"
+
+
+def repl_eval(klong, p):
+    try:
+        r = success(klong(p))
+    except Exception as e:
+        r = failure(f"Error: {e.args}")
+        import traceback
+        traceback.print_exc(e)
+    return r
+
+
+# https://dev.to/amal/building-the-python-repl-3468
+def repl(klong=None):
+
+    print()
+    print(f"{Fore.GREEN}Welcome to KlongPy REPL v{pkg_resources.get_distribution('klongpy').version}")
+    print(f"{Fore.BLUE}author: Brian Guarraci")
+    print(f"{Fore.BLUE}repo  : https://github.com/briangu/klongpy")
+    print(f"{Fore.YELLOW}crtl-d or ]q to quit")
+    print()
+
+    init(autoreset=True)
+
+    sys_cmds = create_sys_cmd_functions()
+
+    klong = klong or KlongInterpreter()
+    while True:
+        try:
+            s = input("?> ")
+            if len(s) == 0:
+                continue
+            if s.startswith("]"):
+                if s[1] in sys_cmds:
+                    r = sys_cmds[s[1]](klong, s)
+                else:
+                    print(f"unkown system command: ]{s[1]}")
+                    continue
+            else:
+                r = repl_eval(klong, s)
+            if r is not None:
+                print(r)
+        except EOFError:
+            print("\rbye!")
+            break
+        except KeyboardInterrupt:
+            print(failure("\nkg: error: interrupted"))
+        except Exception as e:
+            print(failure(f"Error: {e.args}"))
+            import traceback
+            traceback.print_exc(e)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        prog = 'KlongPy',
+        description = 'KlongPy REPL',
+        epilog = 'For help, go to https://github.com/briangu/klongpy"')
+    parser.add_argument('-e', '--expr', help='evaluate expression, no interactive mode')
+    parser.add_argument('-l', '--load', help='load program from file')
+    parser.add_argument('-p', '--run', help='run program from file')
+    parser.add_argument('-t', '--test', help='test program from file')
+
+    args = parser.parse_args()
+    if args.expr:
+        print(KlongInterpreter()(args.expr))
+        exit()
+
+    klong = KlongInterpreter()
+    if args.load:
+        print(f"Loading: {args.load}")
+        with open(args.load, "r") as f:
+            klong(f.read())
+        repl(klong)
+    elif args.run:
+        print(f"Running: {args.run}")
+        with open(args.run, "r") as f:
+            klong(f.read())
+    elif args.test:
+        print(f"Test: {args.test}")
+        with open(args.test, "r") as f:
+            for x in f.readlines():
+                x = x.strip()
+                if len(x) == 0 or x.startswith(":"):
+                    continue
+                print(x)
+                klong(x)
+    else:
+        repl()
