@@ -1,0 +1,99 @@
+import setuptools
+setuptools.setup(
+ name='TACalculator-v3',
+ version='0.2',
+ author="Tauras Aleksandravicius",
+ author_email="tauras.al@gmail.com",
+ description="Simple calculator, performing basic functions",
+ packages=setuptools.find_packages(),
+ classifiers=[
+ "Programming Language :: Python :: 3",
+ "Operating System :: OS Independent"],
+ long_description="""
+ 
+ 
+<h1><p style="font-family: 'Brush Script MT', cursive;">Hello!</h1></p>
+For the Module 1 Sprint 1 project I was supposed to create a Python package that is capable of conducting basic calculator-like functions, including:
+<li> Addition/ Subtraction;
+<li> Multiplication/ Division;
+<li> Taking (n) root of a number;
+<li> Resetting memory.
+
+
+<b>IMPORTANT note!</b> Calculator is capable of accepting both integers and float numbers.
+
+## How to use it?
+
+### 1. First of all, let's install the package. It can be accessed both - in your local machine and remote (like Google Colab)
+``` shell
+pip install TACalculator-v3
+```
+### 2. Import module "Calculator" from a package
+
+```python
+from file.calculator import Calculator
+```
+### 3. Create an instance of the Calculator class:
+
+```python
+calculator = Calculator()
+```
+
+*<b>IMPORTANT note</b>: By default calculator's memory is set to 0.0
+
+<h2>Known biases, possible areas for improvement:</h2>
+
+1. <b>Error handling and input validation.</b> It is expected that user will by himself handle possible Errors i. e. (division by Zero, math with string values, etc.)
+2. <b>Additional functionality.</b> Calculator can easily have more algebra functions.
+
+<h1> Main functions
+
+## Addition
+To add a value to the memory value, use the `add(value)` method. This will add 12.0 to the memory value and will return the new value.
+```python
+calculator.add(12.0)
+```
+
+
+## Substraction
+To subtract a value from the memory value, use the `subtract(value)` method. This will subtract 5.0 from the memory value and will return the new value.
+```python
+calculator.subtract(5.0)
+``` 
+
+
+## Multiplication
+To multiply the memory value by a value, use the `multiply(value)` method. This will multiply the memory value by 6.0 and will return the new value.
+```python
+calculator.multiply(6.0)
+``` 
+
+
+## Division
+To divide the memory value by a value, use the `divide(value)` method. This will divide the memory value by 2.0 and will return the new value.
+```python
+calculator.divide(2.0)
+``` 
+
+
+## Root
+To take the 1/nth root of the memory value, use the `root(value)` method. This will take the third level root of the memory value and will return the new value.
+```python
+calculator.root(3)
+```
+
+## Reset
+To reset the memory value to 0.0, use the `reset()` method. This will reset the memory value to 0.0 and will return the 0.0 value.
+```python   
+calculator.reset()
+```
+
+
+<h2> Thank you for you attention!
+
+I am open for a feedback!      
+ 
+ 
+ """,
+ long_description_content_type='text/markdown',
+)
