@@ -1,0 +1,130 @@
+#!/usr/bin/env python3
+
+import dataclasses
+import os
+import shutil
+import sys
+
+import yaml
+
+import gci.componentmodel as cm
+
+import ci.util
+
+own_dir = os.path.dirname(__file__)
+
+
+def component_archive_resource_add(argv):
+  subcmd = argv[0]
+  if not subcmd in ('resources', 'resource', 'res'):
+    delegate_to_component_cli()
+
+  # the only supported subcmd is `add` (also in original component-cli)
+  # -> delegate to component-cli if it is not at expected location
+  if not argv[1] == 'add':
+    delegate_to_component_cli()
+
+  component_descriptor_dir = argv[2]
+  try:
+    resources_file = argv[3]
+    if not os.path.isfile(resources_file):
+      resources_file = None
+  except IndexError:
+    resources_file = None
+
+  component_descriptor_file = os.path.join(component_descriptor_dir, 'component-descriptor.yaml')
+
+  if not os.path.isfile(component_descriptor_file):
+    print(f'ERROR: not an existing file: {component_descriptor_file=}')
+    exit(1)
+
+  template_vars = {}
+  saw_ddash = False
+  for v in argv[3:]:
+    if v == '--':
+      saw_ddash = True
+      continue
+    if not saw_ddash:
+      continue
+    k,v = v.split('=')
+    template_vars[k] = v
+
+  def iter_resources():
+    if resources_file:
+      with open(resources_file) as f:
+        raw = f.read()
+        for k,v in template_vars.items():
+          raw = raw.replace('${' + k + '}', v)
+
+        for parsed in yaml.safe_load_all(raw):
+          if 'resources' in parsed:
+            yield from parsed['resources']
+            continue
+          yield parsed
+
+    if not sys.stdin.isatty():
+      raw = sys.stdin.read()
+      for k,v in template_vars.items():
+        raw = raw.replace('${' + k + '}', v)
+
+      for parsed in yaml.safe_load_all(raw):
+        if 'resources' in parsed:
+          yield from parsed['resources']
+          continue
+        yield parsed
+
+  with open(component_descriptor_file) as f:
+    component_descriptor = cm.ComponentDescriptor.from_dict(yaml.safe_load(f))
+
+  component = component_descriptor.component
+
+  print(f'adding resources from {resources_file=} to {component_descriptor_file=}')
+
+  resources_len = len(component.resources)
+
+  def resource_id(resource: dict):
+    if dataclasses.is_dataclass(resource):
+      resource = dataclasses.asdict(resource, dict_factory=ci.util.dict_factory_enum_serialisiation)
+    return resource.get('name'), resource.get('version'), resource.get('type')
+
+  for resource in iter_resources():
+    rid = resource_id(resource)
+    # existing resources w/ same id are overwritten by newly added ones
+    component.resources = [
+      r for r in component.resources if not resource_id(r) == rid
+    ]
+    component.resources.append(resource)
+  added_resources_count = len(component.resources) - resources_len
+
+  with open(component_descriptor_file, 'w') as f:
+    yaml.dump(
+      data=dataclasses.asdict(component_descriptor),
+      stream=f,
+      Dumper=cm.EnumValueYamlDumper,
+    )
+
+  print(f'added {added_resources_count} resource(s)')
+
+
+def delegate_to_component_cli():
+  path = os.environ['PATH'].replace(own_dir, '')
+  component_cli = shutil.which('component-cli', path=path)
+
+  os.execv(component_cli, sys.argv)
+
+
+def main():
+  if os.environ.get('force_legacy_component_cli', False):
+    delegate_to_component_cli()
+
+  try:
+    cmd = sys.argv[1]
+    if cmd in ('component-archive', 'componentarchive', 'archive', 'ca'):
+      return component_archive_resource_add(sys.argv[2:])
+
+    delegate_to_component_cli()
+  except (KeyError, IndexError):
+    delegate_to_component_cli()
+
+if __name__ == '__main__':
+  main()
