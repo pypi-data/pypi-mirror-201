@@ -1,0 +1,109 @@
+## DonatelloPyzza
+
+DonatelloPyzza is a simple and educational game to help beginners learn Python in high school and university.
+
+A turtle can move through a grid and touch each cells until it finds the pizza.
+This game can be used at several levels:
+- for young beginners: they can hard-code a path to help the turtle find its pizza and small mazes.
+- for beginners: they can develop intuitive heuristics to find the pizza
+- for intermediate or advanced developers: they can develop a complex path finding method or AI-based solutions.
+
+
+![View of the game (please go to the homepage of the project to watch this gif)](https://github.com/MilowB/DonatelloPyzza/blob/master/views/example.gif)
+
+
+## Installation
+
+`pip install -r requirements.txt`
+
+`pip install donatellopyzza`
+
+
+## Getting started
+
+First, import the right modules to run the game:
+
+```python
+from donatellopyzza import Game
+from donatellopyzza import Action
+from donatellopyzza import Feedback
+from donatellopyzza import Maze
+```
+
+`Game` is a class that you will use to create a game instance.
+
+Let's create the game and its environment:
+
+```python
+# specify the name of the maze
+__ENVIRONMENT__ = "maze"
+# display the interface (or not)
+__GUI__ = True
+
+game = Game(__ENVIRONMENT__, __GUI__)
+# returns a turtle that execute actions on its environment
+turtle = game.start()
+```
+
+Once the game has started, you get a turtle instance which you can move around the board.
+To do this, the following instruction can be used:
+
+```python
+feedback = turtle.execute(Action.FORWARD)
+print(feedback)
+```
+
+You can use the feedback from the `execute()` method to see what happened after your action.
+
+## Learning the rules:  actions and feedbacks
+
+`Action` and `Feedback` define the different actions and feedbacks types. You can use the following actions in your code:
+
+    Action.MOVE_FORWARD -> make your turtle go one step forward
+    Action.TURN_RIGHT -> your turtle will turn on its right
+    Action.TURN_LEFT -> on its left
+    Action.TOUCH -> the turtle will touch the cell in front of it to know its type
+
+
+Depending on your action, the game can provide you one of the following feedback:
+
+    Feedback.COLLISION -> you just tried to walk in a wall !
+    Feedback.MOVED -> you successfully moved
+    Feedback.MOVED_ON_PIZZA -> your turtle is on the pizza (congratulation!)
+    Feedback.TOUCHED_WALL -> you just touched a wall
+    Feedback.TOUCHED_NOTHING -> the touched cell is empty (no wall, no pizza, you can walk on it)
+    Feedback.TOUCHED_PIZZA -> the turtle touched the pizza
+
+
+## Generating and save your own mazes
+
+`Maze` is a class used to generate and save new mazes. You can retrieve saved maze by their names as indicated in example files. A new maze is generated (and save) as follow:
+
+```python
+maze = Maze.create_maze(10, 10)
+fn = "test"
+maze.save(maze, filename=fn)
+```
+
+
+For more details, you can find several complete examples of the game loop in the `examples` folder on the github repository of this project.
+
+Have fun!
+
+
+## What's new
+
+- 2023-04-07 (v1.5)
+    Integration of a maze generator from Alexandru Văleanu (https://github.com/AlexandruValeanu/Mazify)
+- 2023-01-17 (v1.2)
+    Initial release
+
+
+## Roadmap
+
+- make possible to the user to select the difficulty its maze when generating it
+- make tutorials to help beginners use this package
+- make a more formal documentation
+- promote this game through a website
+- ~~GUI improvements~~
+- ~~add a gridworld generator~~
