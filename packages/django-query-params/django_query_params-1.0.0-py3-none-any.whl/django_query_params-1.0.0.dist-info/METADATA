@@ -1,0 +1,163 @@
+Metadata-Version: 2.1
+Name: django-query-params
+Version: 1.0.0
+Summary: A Django app providing template tags for query string management
+Home-page: https://github.com/hyperlocalhq/django-query-params
+Author: Aidas Bendoraitis
+Author-email: aidasbend@yahoo.com
+License: MIT license
+Keywords: query_params
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Framework :: Django
+Classifier: Framework :: Django :: 2.1
+Classifier: Framework :: Django :: 2.2
+Classifier: Framework :: Django :: 3.0
+Classifier: Framework :: Django :: 3.1
+Classifier: Framework :: Django :: 3.2
+Classifier: Framework :: Django :: 4.0
+Classifier: Framework :: Django :: 4.1
+Classifier: Framework :: Django :: 4.2
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Natural Language :: English
+Classifier: Programming Language :: JavaScript
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.4
+Classifier: Programming Language :: Python :: 3.5
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Description-Content-Type: text/markdown
+License-File: LICENSE.md
+License-File: AUTHORS.md
+Requires-Dist: Django (>=1.8)
+
+# django-query-params
+Django app providing template tags and JavaScript functions for query string management.
+
+## Template Tag Library
+
+To install the app, type:
+
+```bash
+(venv)$ pip install django-query-params
+```
+
+Then add `"query_params"` to the `INSTALLED_APPS` in the settings.
+
+To use the template tags in templates:
+
+```djangotemplate
+{% load query_params_tags %}
+
+{% modify_query ["only_query_string"] "param_to_remove" "another_param_to_remove" param_to_change="new-value" another_param_to_change="new-value" %}
+
+{% add_to_query ["only_query_string"] "param_to_remove" "another_param_to_remove" param_to_add="new-value" another_param_to_add="new-value" %}
+
+{% remove_from_query ["only_query_string"] "param_to_remove" another_param_to_remove="value" %}
+```
+
+## JavaScript Library
+
+```djangotemplate
+{% load static %}
+<script src="{% static 'query_params/js/query_params.js' %}"></script>
+
+<script>
+var url1 = modify_query(
+    location, 
+    ['param_to_remove', 'another_param_to_remove'], 
+    {
+        param_to_change: 'new-value',
+        another_param_to_change: 'new-value'
+    },
+    only_query_string=false
+);
+
+var url2 = add_to_query(
+    location,
+    ['param_to_remove', 'another_param_to_remove'],
+    {
+        param_to_add: 'new-value',
+        another_param_to_add: 'new-value'
+    },
+    only_query_string=false
+);
+
+var url3 = remove_from_query(
+    location,
+    ['param_to_remove'],
+    {
+        another_param_to_remove: 'value'
+    },
+    only_query_string=false
+);
+</script>
+```
+
+## Example
+
+Let's say the current URL is:  
+`https://example.com/posts/?page=2&sort=by-date&tag=environment&tag=sustainability`
+
+### modify_query
+
+```djangotemplate
+{% modify_query "page" tag="ecological" %}
+```
+
+will render:
+
+`/posts/?sort=by-date&amp;tag=ecological`
+
+and
+
+```djangotemplate
+{% modify_query "only_query_string" "page" tag="ecological" %}
+```
+
+will render:
+
+`?sort=by-date&amp;tag=ecological`
+
+### add_to_query
+
+```djangotemplate
+{% add_to_query "page" tag="ecological" %}
+```
+
+will render:
+
+`/posts/?sort=by-date&amp;tag=ecological&amp;tag=environment&amp;tag=sustainability`
+
+and
+
+```djangotemplate
+{% add_to_query "only_query_string" "page" tag="ecological" %}
+```
+
+will render:
+
+`?sort=by-date&amp;tag=ecological&amp;tag=environment&amp;tag=sustainability`
+
+### remove_from_query
+
+```djangotemplate
+{% remove_from_query "page" tag="environment" %}
+```
+
+will render:
+
+`/posts/?sort=by-date&amp;tag=sustainability`
+
+and
+
+```djangotemplate
+{% remove_from_query "only_query_string" "page" tag="environment" %}
+```
+
+will render:
+
+`?sort=by-date&amp;tag=sustainability`
