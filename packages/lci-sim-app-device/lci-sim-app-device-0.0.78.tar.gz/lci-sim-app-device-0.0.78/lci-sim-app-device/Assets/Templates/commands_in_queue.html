@@ -1,0 +1,74 @@
+{% include 'Includes/head.html' %}
+
+
+
+    <form class="form" method="post" enctype="multipart/form-data" autocomplete="off">
+        
+            
+        {% if added_command %}
+        <div class="alert alert-success">Command added to the queue: {{added_command}}</div>
+        {% endif %}
+
+        <label for="new_command">Add command</label>
+        <input 
+        type="text" 
+        name="new_command" 
+        id="new_command"
+        value=""
+        />
+    
+        <input type="submit" value="Save" name="Save" class="btn btn-block btn-primary" />
+    </form>
+
+    <br><hr><br>
+
+    <h3>Commands in queue (<span id="commands_count"></span>)</h3>
+    
+    
+
+    <div id="textareas" >
+        <textarea type="text" placeholder="Text" name="text" required style="height:60px">Wait...</textarea>
+    </div>
+
+
+    <script>
+
+        const textareas = document.getElementById("textareas");
+        const commands_count = document.getElementById("commands_count")
+        function getQueueCommands() {
+			try {
+				const req = new XMLHttpRequest();
+				req.addEventListener("load", function(){
+                    const d = JSON.parse(this.responseText);
+                    console.log(d)
+                    textareas.innerHTML = "";
+                    commands_count.innerHTML = d.length;
+                    d.forEach((v) => {
+                        const area = document.createElement("textarea");
+                        const texta = document.createTextNode(v);
+                        area.appendChild(texta)
+                        textareas.appendChild(area);
+                    })
+                });
+
+				req.onerror = function(e){
+				    textareas.innerHTML = "<b style='color:red'>Something went wrong</b>";
+                    commands_count.innerHTML = "?"
+				};
+
+				req.open("GET", '/debug/comands_in_queue/json');
+				req.send();
+			} catch(e) {
+				console.log(' catch:', e)
+                textareas.innerHTML = "<b style='color:red'>Something went wrong</b>";
+                commands_count.innerHTML = "?"
+				
+			} finally {
+				setTimeout(getQueueCommands, 777)
+			}
+		}
+
+        getQueueCommands()
+    </script>
+
+{% include 'Includes/footer.html' %}
