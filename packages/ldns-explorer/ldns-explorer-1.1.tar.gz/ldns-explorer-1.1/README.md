@@ -1,0 +1,58 @@
+# LDNS Explorer
+
+This explorer is executed on a client machine to measure performance implications
+of choosing a DNS resolver (“LDNS — Local Domain Name Server”) among various 
+alternatives including the ISP-provided resolver and 
+several public resolves, namely, Google, OpenDNS, 
+Cloudflare and Quad9.
+
+This work was supported in part by NSF through grant CNS-2219736
+## Installation
+
+Visit https://pypi.org/project/ldns-explorer/
+
+## Usage
+
+You can invoke the explorer anywhere by the following command. 
+
+```python
+python3 -m ldns-explorer
+```
+
+
+## Customized Test Case
+
+We support customized test domains and resolves beside our
+sample test cases.
+
+If you would like to add domains, please create a 
+txt file called `domains.txt` under the directory you invoke the 
+explorer.
+
+**The file structure is one domain per line.**
+
+`domains.txt`:
+```text
+example1.com
+example2.com
+```
+
+If you would like to add DNS resolvers, please create a 
+txt file called `resolvers.txt` under the directory you invoke the 
+explorer.
+
+**The file structure is one domain per line.**
+`resolvers.txt`:
+```text
+0.0.0.0
+1.1.1.1
+```
+
+
+## Clarification
+
+The explorer will send the result of the measurement to us. You can disable
+this functionality by typing `NO` when the script prompt up the choice. 
+
+
+
