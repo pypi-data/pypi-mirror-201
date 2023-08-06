@@ -1,0 +1,251 @@
+[tool.poetry]
+name = "qtgql"
+version = "0.116.1"
+packages = [{ include = "qtgql" }]
+description = "Qt framework for building graphql driven QML applications"
+authors = ["Nir <88795475+nrbnlulu@users.noreply.github.com>"]
+maintainers = ["Nir.J Benlulu <nrbnlulu@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.urls]
+"Homepage" = "https://github.com/nrbnlulu/qtgql"
+"Documentation" = "https://nrbnlulu.github.io/qtgql/"
+
+
+[tool.poetry.dependencies]
+python = ">=3.9,<3.12"
+PySide6 = "^6.4.2"
+attrs = "^22.2.0"
+# codegen
+graphql-core = {version = "<3.3.0", optional=true}
+jinja2 = {version = "^3.1.2", optional=true}
+typer = {extras = ["all"], version = "^0.7.0", optional=true}
+toml = {version = "^0.10.2", optional=true}
+typingref = "^0.100.0"
+
+
+
+[tool.poetry.group.dev.dependencies]
+pytest-qt = "^4.2.0"
+pytest-cov = "^4.0.0"
+aiohttp = {extras = ["speedups"], version = "^3.8.3"}
+
+faker = ">=15.3.4,<19.0.0"
+types-toml = "^0.10.8.1"
+# doc deps
+mkdocs-material = "^9.0.5"
+mike = "^1.1.2"
+markdown-include = "^0.8.0"
+mkdocstrings = {extras = ["python"], version = ">=0.19.1,<0.21.0"}
+pygments = "^2.14.0"
+mktestdocs = "^0.2.0"
+mypy = "^1.0.1"
+strawberry-graphql = ">=0.158.2,<0.180.0"
+
+
+[tool.poetry.extras]
+codegen = ["graphql-core", "jinja2", "typer", "toml"]
+
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+
+
+[tool.mypy]
+plugins = ['qtgql/ext/mypy_plugin.py']
+ignore_missing_imports = "True"
+exclude = "(?x)^(.*\\.jinja.py|)$"
+warn_no_return = "False"
+
+[tool.black]
+line-length = 100
+target-version = ['py310']
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | __pycached__
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[tool.ruff]
+line-length = 100
+select = ["ALL"]
+target-version = "py38"
+ignore = [
+    "I001", # isort, handled by pc-hook.
+    "TID252",
+    # we use asserts in tests and to hint mypy
+    "E501", # line too long, handled by black.
+    "S101",
+    "S102",
+    "S104",
+    "S324",
+    "EXE002",
+    # maybe we can enable this in future
+    # we'd want to have consistent docstrings in future
+    "D",
+    "ANN101", # missing annotation for self?
+    # definitely enable these, maybe not in tests
+    "ANN001",
+    "ANN002",
+    "ANN003",
+    "ANN102",
+    "ANN201",
+    "ANN202",
+    "ANN204",
+    "ANN205",
+    "ANN206",
+    "ANN401",
+    "PGH003",
+    "PGH004",
+    "RET504",
+    "RET505",
+    "RET506",
+    "RET507",
+    "BLE001",
+    "RET503",
+    "B008",
+    "N811",
+    "N804",
+    "N818",
+    # Variable `T` in function should be lowercase
+    # this seems a potential bug or opportunity for improvement in ruff
+    "N806",
+
+    # first argument should named self (found in tests)
+    "N805",
+
+    "N815",
+
+    # shadowing builtins
+    "A001",
+    "A002",
+    "A003",
+
+    "ARG001",
+    "ARG002",
+    "ARG003",
+    "ARG004",
+    "ARG005",
+    "FBT001",
+    "FBT002",
+    "FBT003",
+
+    "PT001",
+    "PT023",
+
+    # enable these, we have some in tests
+    "B006",
+    "PT004",
+    "PT007",
+    "PT011",
+    "PT012",
+    "PT015",
+    "PT017",
+    "C414",
+    "N802",
+
+    "SIM117",
+    "SIM102",
+
+    "F841",
+    "B027",
+    "B905",
+    "ISC001",
+
+    # same?
+    "S105",
+    "S106",
+
+    "DTZ003",
+    "DTZ005",
+
+    "RSE102",
+    "SLF001",
+
+    # in tests
+    "DTZ001",
+
+    "EM101",
+    "EM102",
+    "EM103",
+
+    "B904",
+    "B019",
+
+    "N801",
+    "N807",
+
+    # pandas
+    "PD",
+
+    # code complexity
+    "C",
+    "C901",
+
+    # trailing commas
+    "COM812",
+
+    "PLR",
+    "INP",
+    "TRY",
+    "SIM300",
+    "SIM114",
+    "DJ008",
+]
+fix = true
+src = ["qtgql", "tests"]
+[tool.ruff.flake8-annotations]
+suppress-none-returning = true
+
+[tool.ruff.pyupgrade]
+keep-runtime-typing = true
+
+
+[tool.pytest.ini_options]
+addopts = "--cov-config=pyproject.toml --ignore=qtgql/codegen/py/templates/"
+markers = [
+    "no_captcha: This test requires that `LOGIN_REQUIRE_CAPTCHA=False` on the server",
+]
+[tool.coverage.run]
+omit = ['test_*', 'tests/*', 'qtgql/ext/*', '**/*.jinja.py']
+relative_files = true
+
+[tool.coverage.report]
+show_missing = true
+exclude_lines = [
+  "pragma: no cover",
+  "def __repr__",
+  "def __str__",
+  "raise AssertionError",
+  "raise NotImplementedError",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+  "if typing.TYPE_CHECKING:"
+]
+
+[tool.qtgql]
+config = "tests.test_sample_ui.main:qtgqlconfig"
+
+
+[tool.autopub]
+git-username = "QtGqlBot"
+git-email = "bot@no.reply"
+project-name = "qtgql"
+append-github-contributor = true
+
+[tool.poetry.scripts]
+qtgql = "qtgql.codegen.cli:entrypoint"
