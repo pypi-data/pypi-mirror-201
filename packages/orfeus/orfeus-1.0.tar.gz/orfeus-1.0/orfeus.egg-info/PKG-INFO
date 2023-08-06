@@ -1,0 +1,180 @@
+Metadata-Version: 2.1
+Name: orfeus
+Version: 1.0
+Summary: ORFeus: alternative ORF predictor
+Author-email: "Mary O. Richardson" <maryrichardson@g.harvard.edu>
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+
+
+<p align="center"><img src="misc/logo.png" alt="ORFeus" width="600"></p>
+
+ORFeus is an ORF prediction tool designed to detect alternative translation
+events, including programmed ribosomal frameshifts, stop codon readthrough, and
+short upstream or downstream ORFs. It requires aligned ribosome profiling
+(ribo-seq) reads, reference transcript annotations, and a reference genome.
+ORFeus can be run on both bacterial and eukaryotic data.
+
+Note that high-resolution (even nucleotide-resolution) ribosome profiling data
+is ideal. The higher-resolution the data and the deeper the sequencing, the
+better predictions ORFeus will make.
+
+
+# Quick Start
+
+    orfeusbuild forward.wig reverse.wig genome.fa annotations.gtf
+    orfeusrun data.txt.gz parameters_h1.npy parameters_h0.npy
+
+
+# Overview
+
+ORFeus requires the following input files. (See [input files](#input-files) for
+details on preparing these to work with ORFeus, particularly the aligned
+ribo-seq reads file.)
+
+1. Aligned ribo-seq read counts (format: wiggle or bedgraph)
+2. Transcript annotations (format: gtf or gff)
+3. Genome (format: fasta)
+
+### Reasons to use ORFeus:
+  - You are interested in finding alternative translation events in an
+annotated species. (Run ORFeus and look at the top predictions.)
+  - You want to find changes in translation across multiple conditions or
+timepoints. (Run ORFeus separately on ribo-seq data from each condition and
+compare predictions.)
+
+### Reasons not to use ORFeus:
+  - You need a _de novo_ ORF caller for a novel genome. (ORFeus requires input
+transcript annotations.)
+  - You don't have high-resolution ribo-seq data. (ORFeus infers translation
+based on ribosome profiling reads.)
+
+
+ORFeus can predict the following types of canonical and alternative ORFs:
+
+<p align="center"><img src="misc/altorfs.png" alt="altorf types" width="400"></p>
+
+
+# Dependencies
+
+[Numpy](https://numpy.org/) \
+[Pandas](https://pandas.pydata.org/) \
+[Scipy](https://scipy.org/) \
+[Matplotlib](https://matplotlib.org/)
+
+We recommend installing [Anaconda](https://www.anaconda.com/), which is a
+Python distribution that comes with all of these packages.
+
+
+# Installation
+
+## Install from source
+
+    git clone https://github.com/morichardson/ORFeus
+
+
+# Input files
+
+
+## Transcript annotations
+
+The annotations file must be in [GTF or GFF
+format](http://genome.ucsc.edu/FAQ/FAQformat#format3).
+At minimum, the annotations file must contain the following columns
+(placeholder columns are not used by ORFeus and can be populated with any value,
+though the standard is `.`):
+  - `seqname`: name of the chromosome (note this must match exactly the `seqname` in the genome sequence file)
+  - `source`: placeholder
+  - `feature`: feature type (note only `five_prime_utr`, `exon`, and `three_prime_utr` features will be kept)
+  - `start`: first position of the feature, 1-indexed
+  - `end`: last position of the feature, 1-indexed
+  - `score`: placeholder
+  - `strand`: + (forward) or - (reverse)
+  - `frame`: placeholder
+  - `attribute`: semicolon-separated list with additional information (note only the info below will be kept)
+      - `transcript_id`
+      - `transcript_name`
+      - `transcript_biotype` (note only `"protein_coding"` features will be kept)
+
+Below is an example transcript from a GTF file that meets the minimum
+requirements. All placeholder fields have been populated with a period.
+
+    V	.	five_prime_utr	546794	546816	.	+	.	transcript_id "YER178W_mRNA"; transcript_name "PDA1"; transcript_biotype "protein_coding";
+    V	.	exon	        546817	548079	.	+	.	transcript_id "YER178W_mRNA"; transcript_name "PDA1"; transcript_biotype "protein_coding";
+    V	.	three_prime_utr	548080	548208	.	+	.	transcript_id "YER178W_mRNA"; transcript_name "PDA1"; transcript_biotype "protein_coding";
+
+
+## Genome sequence
+
+The genome sequence file must be in
+[FASTA format](https://blast.ncbi.nlm.nih.gov/doc/blast-topics/). There should
+be one sequence entry for each unique `seqname` (chromosome) in the annotations
+file.
+
+Below is an example FASTA file excerpt for the chromosome of the above
+example transcript. Note that the `seqname` matches the `seqname` column entries
+in the annotations example.
+
+    >V dna:chromosome chromosome:R64-1-1:V:1:576874:1 REF
+    CGTCTCCTCCAAGCCCTGTTGTCTCTTACCCGGATGTTCAACCAAAAGCTACTTACTACC
+    TTTATTTTATGTTTACTTTTTATAGATTGTCTTTTTATCCTACTCTTTCCCACTTGTCTC
+    TCGCTACTGCCGTGCAACAAACACTAAATCAAAACAGTGAAATACTACTACATCAAAACG
+    CATATTCCCTAGAAAAAAAAATTTCTTACAATATACTATACTACACAATACATAATCACT
+    ...
+
+
+## Aligned ribo-seq read counts
+
+The final aligned ribo-seq read counts must be in either
+[WIG format](http://genome.ucsc.edu/goldenPath/help/wiggle.html)
+or [BedGraph format](http://genome.ucsc.edu/goldenPath/help/bedgraph.html).
+The raw reads must be aligned and then the read ends should be offset to
+correspond to the P-site of the ribosome. The count of read ends at each
+position of the genome should be stored, with one file for the forward strand
+and one for the reverse strand.
+
+<p align="center"><img src="misc/riboseq.png" alt="altorf types" width="350"></p>
+
+### Align raw reads to genome
+
+Align raw ribo-seq reads to the genome. Filter out reads mapping to annotated
+ncRNA sequences. You should decide whether uniqely-mapping or multi-mapping
+is appropriate for your data set.
+
+Uniquely-mapping reads:  
+- filters out reads that map to repetitive regions (e.g. regions with repeated
+  sequences may appear as gaps in the read density,
+  even though they may actually be translated)
+- filters out reads that map to similar or related sequences (e.g. insertion
+  sequences that have multiple copies in the genome will have no reads,
+  even though they may actually be translated)
+
+Multi-mapping reads:
+- generates confounding signals from mis-mapped multi-mapping reads
+  (e.g. reads that were actually generated from one transcript also map to
+    another transcript, adding noise)
+- complicates interpretation of predictions (e.g. predictions of alternative
+  events may be due to reads from that transcript or another transcript)
+
+In some cases, you may want to run ORFeus twice:
+once on the uniquely-mapped reads and once on the multi-mapped reads. This
+will allow you to compare the predictions and determine which events
+may be artifacts of read mapping. Any predictions that differ between the two
+runs should be examined more closely, since they might arise from mapping
+artifacts.
+
+### Offset aligned reads to P-site
+
+Before passing the data to ORFeus, you need to offset the read ends so they
+align to a position within the P-site of the ribosome. This lets ORFeus infer
+the exact codon being translated for each read.
+
+You can determine the offset for each read length and export the resulting read
+counts using existing software packages like
+[Shoelaces](https://bitbucket.org/valenlab/shoelaces/src/master/) or using your
+own custom scripts.
+
+
+# Usage
+
+<p align="center"><img src="misc/overview.png" alt="altorf types" width="250"></p>
