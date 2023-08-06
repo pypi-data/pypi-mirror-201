@@ -1,0 +1,71 @@
+import subprocess
+from pathlib import Path
+import platform
+import os
+import re
+import psutil
+from zipfile import ZipFile
+
+HERE = Path(__file__).parent
+os.chdir(str(HERE))
+
+# Help Jupyter ignore other .jupyter config paths
+os.environ["JUPYTER_PREFER_ENVIRONMENT_OVER_USER"] = "1"
+
+# This setting appears to ignore explicit --config option as well
+# os.environ["JUPYTER_NO_CONFIG"] = "1"
+
+SYS = platform.uname().system
+if SYS == "Windows":
+    for z in HERE.glob("*.zip"):
+        ZipFile(z.name).extractall(z.stem)
+        z.unlink()
+else:
+    for z in HERE.glob("*.zip"):
+        subprocess.call(["unzip", str(z)])
+        z.unlink()
+
+def main():
+    os.chdir("notebooks")
+
+    # launch server in background
+    server = subprocess.Popen(
+        [{% for part in server_command %}'{{part}}',{% endfor %}],
+        shell= (SYS == "Windows"),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE
+    )
+
+    # Wait for server to start
+    l = str(server.stderr.readline())
+    while "http://localhost:" not in l:
+        if l != "b''":
+            print(l)
+        l = str(server.stderr.readline())
+
+    # Read the output from jupyter lab and parse out the url
+    url = re.findall("http://localhost:[a-z0-9:?/=]*", l)[0].strip()
+    token = url.split("token=")[1]
+    port = url.split("localhost:")[1].split("/lab")[0]
+    fname = "{{ filename }}"
+    url = f"http://localhost:{port}/lab/tree/{fname}?token={token}"
+    print(url)
+    os.environ["widgetron_url"] = url
+
+    # open UI
+    if SYS == "Darwin":
+        UI = ["open", "-W", str(HERE.absolute() / "widgetron.app"), "--env", f"widgetron_url={url}"]
+    if SYS == "Linux":
+        UI = [str(next(HERE.rglob("widgetron")).absolute()), "--no-sandbox"]
+    if SYS == "Windows":
+        UI = str(next(HERE.rglob("widgetron.exe")).absolute())
+    
+    subprocess.call(UI)
+
+    # when UI stops, kill jupyter lab
+    def kill(proc_pid):
+        process = psutil.Process(proc_pid)
+        for proc in process.children(recursive=True):
+            proc.kill()
+        process.kill()
+    kill(server.pid)
