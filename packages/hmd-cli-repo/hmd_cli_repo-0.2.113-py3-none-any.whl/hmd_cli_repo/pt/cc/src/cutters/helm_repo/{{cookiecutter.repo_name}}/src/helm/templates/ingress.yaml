@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: alb-ingress
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/subnets: {{ "{{" }} .Values.alb.public_subnet_1 {{ "}}" }},{{ "{{" }} .Values.alb.public_subnet_2 {{ "}}" }}
+    alb.ingress.kubernetes.io/certificate-arn: {{ "{{" }} .Values.alb.acm_arn {{ "}}" }}
+    alb.ingress.kubernetes.io/ssl-policy: {{ "{{" }} .Values.alb.ssl_policy {{ "}}" }}
+    alb.ingress.kubernetes.io/tags: repo_name={{ "{{" }} .Values.env.HMD_REPO_NAME {{ "}}" }},instance_name={{ "{{" }} .Values.env.HMD_INSTANCE_NAME {{ "}}" }},env={{ "{{" }} .Values.env.DD_ENV {{ "}}" }},service={{ "{{" }} .Values.env.DD_SERVICE {{ "}}" }},version={{ "{{" }} .Values.env.DD_VERSION {{ "}}" }}
+    external-dns.alpha.kubernetes.io/alias: "true"
+    alb.ingress.kubernetes.io/wafv2-acl-arn: {{ "{{" }} .Values.alb.wafv2_acl_arn {{ "}}" }}
+#    alb.ingress.kubernetes.io/shield-advanced-protection: "true"
+spec:
+  rules:
+    - host: {{ "{{" }} .Values.alb.hostname {{ "}}" }}
+      http:
+        paths:
+          - backend:
+              serviceName: echoserver
+              servicePort: 80
