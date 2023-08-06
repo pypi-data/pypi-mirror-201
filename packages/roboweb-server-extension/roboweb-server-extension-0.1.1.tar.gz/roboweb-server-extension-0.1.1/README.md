@@ -1,0 +1,1 @@
+A Jupyter Server Extension for ChatGPT
