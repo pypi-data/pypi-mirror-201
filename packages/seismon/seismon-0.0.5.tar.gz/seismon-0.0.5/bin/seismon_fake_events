@@ -1,0 +1,204 @@
+#!/usr/bin/python
+
+# Copyright (C) 2013 Michael Coughlin
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 3 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
+# Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+"""Earthquake xml file generator.
+
+This script generates earthquake xml files using notices from the
+internet and USGS PDL client.
+
+Comments should be e-mailed to michael.coughlin@ligo.org.
+
+"""
+
+import os, sys, glob, optparse, warnings, time, json
+
+if not os.getenv("DISPLAY", None):
+    import matplotlib
+    matplotlib.use("agg", warn=False)
+
+from datetime import datetime
+import numpy as np
+import subprocess
+from subprocess import Popen
+from lxml import etree
+
+#import lal.gpstime
+import astropy.time
+
+from seismon import (eqmon, utils)
+
+__author__ = "Michael Coughlin <michael.coughlin@ligo.org>"
+__version__ = 1.0
+__date__    = "9/22/2013"
+
+# =============================================================================
+#
+#                               DEFINITIONS
+#
+# =============================================================================
+
+def parse_commandline():
+    """@parse the options given on the command-line.
+    """
+    parser = optparse.OptionParser(usage=__doc__,version=__version__)
+
+    parser.add_option("-p", "--paramsFile", help="Seismon params file.",
+                      default ="/home/mcoughlin/Seismon/seismon/input/seismon_params_traveltimes.txt")
+
+    parser.add_option("-g", "--gps", help="Earthquake GPS Time.", default=1000000000,type=int)
+    parser.add_option("-m", "--magnitude", help="Earthquake magnitude.", default=9.0,type=float)
+    parser.add_option("-d", "--depth", help="Earthquake depth [km].", default=50.0,type=float)
+    parser.add_option("-l", "--latitude", help="Earthquake Latitude [km].", default=-70.7366,type=float)
+    parser.add_option("-n", "--longitude", help="Earthquake Longitude.", default=-30.2407,type=float)
+
+    parser.add_option("-v", "--verbose", action="store_true", default=False,
+                      help="Run verbosely. (Default: False)")
+
+    parser.add_option("--doFake",  action="store_true", default=False)
+
+    opts, args = parser.parse_args()
+
+    # show parameters
+    if opts.verbose:
+        print >> sys.stderr, ""
+        print >> sys.stderr, "running network_eqmon..."
+        print >> sys.stderr, "version: %s"%__version__
+        print >> sys.stderr, ""
+        print >> sys.stderr, "***************** PARAMETERS ********************"
+        for o in opts.__dict__.items():
+          print >> sys.stderr, o[0]+":"
+          print >> sys.stderr, o[1]
+        print >> sys.stderr, ""
+
+    return opts
+
+def params_struct(opts):
+    """@create params structure
+
+    @param opts
+        command line options
+    """
+
+    params = utils.readParamsFromFile(opts.paramsFile)
+    params["gps"] = opts.gps
+    params["magnitude"] = opts.magnitude
+    params["depth"] = opts.depth
+    params["latitude"] = opts.latitude
+    params["longitude"] = opts.longitude
+
+    params["doFake"] = opts.doFake
+    params["paramsFile"] = opts.paramsFile
+
+    return params
+
+def write_file(file,tree):
+    """@write eqmon file
+
+    @param file
+        eqmon file
+    @param tree
+        xml tree
+    """
+
+    f = open(file,'w+')
+    f.write('%s'%tree)
+    f.close()
+
+def write_info(file,attributeDic):
+    """@write eqmon file
+
+    @param file
+        eqmon file
+    @param attributeDic
+        eqmon structure
+    """
+
+    root = etree.Element('eqmon')
+    for key, value in attributeDic.items():
+        if not key == "traveltimes":
+            element = etree.SubElement(root,key)
+            element.text = str(value)
+    #element = etree.SubElement(root,'traveltimes')
+    #for key, value in attributeDic["traveltimes"].items():
+    #    subelement = etree.SubElement(element,key)
+    #    for category in value:
+    #        if category in ["Latitudes","Longitudes"]:
+    #            continue
+    #        subsubelement = etree.SubElement(subelement,category)
+    #        subsubelement.text = write_array(value[category])
+
+    
+    tree = etree.tostring(root, pretty_print=True)
+    write_file(file,tree)
+    #tree = etree.ElementTree(root)
+    #tree.write(file, pretty_print=True, xml_declaration=True)
+
+def write_array(array):
+    """@write array
+
+    @param array
+        write array of value
+    """
+    text = ' '.join([str(x) for x in array])
+    return text
+
+def fake_events(params):
+    """@write fake events
+
+    @param params
+        seismon params structure
+    """
+
+    attributeDic = eqmon.fakeeventread(params)
+    if not "GPS" in attributeDic:
+        return
+    if os.path.isfile(os.path.join(params["eventfilesLocation"],"fakepdl/%s/%s/%.0f/eqmon.xml"%(attributeDic["eventName"],attributeDic["eventName"][0:2],attributeDic["GPS"]))):
+        return
+
+    file = os.path.join(params["eventfilesLocation"],"fakepdl/%s/%s/%.0f/eqmon.xml"%(attributeDic["eventName"],attributeDic["eventName"][0:2],attributeDic["GPS"]))
+            
+    utils.mkdir(os.path.join(params["eventfilesLocation"],"fakepdl/%s/%s/%.0f/"%(attributeDic["eventName"],attributeDic["eventName"][0:2],attributeDic["GPS"])))
+    write_info(file,attributeDic)
+
+    print "%s added at "%attributeDic["eventName"], time.time(), ". %.3f seconds after event"%(attributeDic["SentGPS"] - attributeDic["GPS"])
+
+def run_traveltimes():
+    """@run traveltime calculator
+    """
+
+    warnings.filterwarnings("ignore")
+
+    # Parse command line
+    opts = parse_commandline()
+    # Parse command line
+    params = params_struct(opts)
+
+    if params["doFake"]:
+        print "Running Fake events..."
+        fake_events(params)
+
+# =============================================================================
+#
+#                                    MAIN
+#
+# =============================================================================
+
+if __name__=="__main__":
+
+    run_traveltimes()
+
