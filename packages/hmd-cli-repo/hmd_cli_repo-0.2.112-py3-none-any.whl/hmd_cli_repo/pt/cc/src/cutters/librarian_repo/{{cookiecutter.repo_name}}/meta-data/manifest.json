@@ -1,0 +1,97 @@
+{
+  "name": "{{ cookiecutter.project_name }}",
+  "description": "{{ cookiecutter.description }}",
+  "build": {
+    "pre_build_artifacts": [
+      [
+        "hmd-lang-librarian@0.1.16",
+        [
+          "src/docker/schemas/local",
+          "test/schemas/local"
+        ]
+      ],
+      [
+        "hmd-lang-<service_name>@<version>",
+        [
+          "src/docker/schemas/local",
+          "test/schemas/ms-<service_name>"
+        ]
+      ]
+    ],
+    "commands": [
+      [
+        "docker"
+      ],
+      [
+        "cdktf"
+      ]
+    ]
+  },
+  "deploy": {
+    "register_service": {
+      "http": true,
+      "lambda": true
+    },
+    "commands": [
+      [
+        "docker"
+      ],
+      [
+        "cdktf"
+      ]
+    ],
+    "dependencies": {
+      "logging": {
+        "repo_class_name": "hmd-inf-api-gateway",
+        "required": "true",
+        "version_spec": "~= 0.1"
+      },
+      "datadog-lambda": {
+        "repo_class_name": "hmd-inf-datadog-lambdas",
+        "required": "true",
+        "version_spec": "~= 0.1"
+      },
+      "base-vpc": {
+        "repo_class_name": "hmd-vpc",
+        "required": "true",
+        "version_spec": "~= 0.1"
+      },
+      "lib-repo": {
+        "repo_class_name": "hmd-inf-s3bucket",
+        "required": "true",
+        "version_spec": "~= 0.1"
+      },
+      "neptune-db": {
+        "instance_name": "global-graph",
+        "repo_class_name": "hmd-inf-neptune",
+        "required": "true",
+        "version_spec": "~= 0.1"
+      },
+      "ms-<service_name>": {
+        "instance_name": "ms-<service_name>",
+        "repo_class_name": "hmd-ms-<service>",
+        "required": "true",
+        "version_spec": "~= 0.1"
+      }
+    },
+    "default_configuration": {
+      "content_item_type_configs": [
+        "<your content item type configs>@0.1.3"
+      ],
+      "content_path_configs": {
+        "your_path": [
+          {
+            "path": "/<noun_type>@<attr>:<service>",
+            "relationships": [
+              "<rel_type>:<service>"
+            ]
+          }
+        ]
+      },
+      "operations_module": "hmd_ms_librarian.hmd_ms_librarian",
+      "schema_uri": [
+        "/schemas/local"
+      ]
+    }
+  }
+}
