@@ -1,0 +1,124 @@
+stages:
+- test
+- analyze
+- build
+- deploy
+
+########
+# Test #
+########
+.test: &test
+  stage: test
+  tags: [amd64]
+  before_script:
+  - apt-get update -qq
+  - apt-get install --no-install-recommends -y make python3 python3-aiohttp python3-jinja2 python3-pytest python3-requests python3-ruamel.yaml python3-zmq
+  script:
+  - make test
+  artifacts:
+    reports:
+      junit:
+      - lavacli.xml
+
+test-debian-10:
+  <<: *test
+  image: debian:buster
+test-debian-11:
+  <<: *test
+  image: debian:bullseye
+test-debian-12:
+  <<: *test
+  image: debian:bookworm
+test-ubuntu-20.04:
+  <<: *test
+  image: ubuntu:20.04
+test-ubuntu-22.04:
+  <<: *test
+  image: ubuntu:22.04
+
+###########
+# Analyze #
+###########
+pylint:
+  stage: analyze
+  image: hub.lavasoftware.org/lava/ci-images/amd64/analyze
+  tags: [amd64]
+  script:
+  - make pylint
+
+black:
+  stage: analyze
+  image: hub.lavasoftware.org/lava/ci-images/amd64/analyze
+  tags: [amd64]
+  script:
+  - make black
+
+coverage:
+  stage: analyze
+  image: debian:bullseye
+  tags: [amd64]
+  before_script:
+  - apt-get update -qq
+  - apt-get install --no-install-recommends -y make python3 python3-aiohttp python3-jinja2 python3-pytest python3-pytest-cov python3-requests python3-ruamel.yaml python3-zmq
+  coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
+  script:
+  - make coverage
+  #artifacts:
+  #  reports:
+  #    coverage_report:
+  #      coverage_format: cobertura
+  #      path: coverage.xml
+
+# static analysis with bandit
+include:
+  template: SAST.gitlab-ci.yml
+sast:
+  tags: [amd64-dind]
+  stage: analyze
+  variables:
+    DOCKER_DRIVER: overlay2
+    SAST_DEFAULT_ANALYZERS: "bandit"
+
+#########
+# Build #
+#########
+sdist:
+  stage: build
+  image: debian:bullseye
+  tags: [amd64]
+  before_script:
+  - apt-get update -qq
+  - apt-get install --no-install-recommends -y python3 python3-pytest-runner python3-setuptools
+  script:
+  - python3 setup.py sdist
+
+doc:
+  stage: build
+  image: debian:bullseye
+  tags: [amd64]
+  before_script:
+  - apt-get update -qq
+  - apt-get install --no-install-recommends -y make python3 python3-pytest-runner python3-setuptools python3-sphinx
+  script:
+  - make -C doc html
+  artifacts:
+    paths:
+    - doc/_build/html
+
+##########
+# Deploy #
+##########
+doc-deploy:
+  stage: deploy
+  tags: [deploy]
+  only:
+    refs:
+    - tags
+  dependencies:
+  - doc
+  script:
+  - mkdir -p ${HOME}/docs/lavacli
+  - rsync -av --delete doc/_build/html ${HOME}/docs/lavacli/
+  environment:
+    name: doc
+    url: https://docs.lavasoftware.org/lavacli
