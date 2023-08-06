@@ -1,0 +1,173 @@
+rules:
+  - id: symfony-route-php
+    pattern-either:
+      - pattern: new Symfony\Component\Routing\Route($PATH, ...)
+      - patterns:
+          - pattern: $ROUTES->add($NAME, $PATH, ...);
+          - pattern-inside: function (Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator $ROUTES) { ... }
+    message: Found Symfony route
+    metadata:
+      references:
+        - https://symfony.com/doc/current/routing.html
+        - https://symfony.com/doc/current/create_framework/routing.html
+        - https://symfony.com/doc/current/security.html
+        - https://symfony.com/doc/current/security/access_token.html
+      route-detect:
+        fill: grey
+    languages: [php]
+    severity: INFO
+  - id: symfony-route-yaml
+    pattern-either:
+      - pattern: |
+          $NAME:
+            ...
+            path: $PATH
+            ...
+            controller: $CONTROLLER
+            ...
+      - pattern: |
+          $NAME:
+            ...
+            path: $PATH
+            ...
+            defaults:
+              ...
+              _controller: $CONTROLLER
+              ...
+            ...
+    message: Found Symfony route
+    metadata:
+      references:
+        - https://symfony.com/doc/current/routing.html
+        - https://symfony.com/doc/current/create_framework/routing.html
+        - https://symfony.com/doc/current/security.html
+        - https://symfony.com/doc/current/security/access_token.html
+      route-detect:
+        fill: grey
+    languages: [yaml]
+    severity: INFO
+  - id: symfony-route-yaml-global-authenticated
+    pattern-either:
+      - patterns:
+          - pattern: |
+              security:
+                ...
+                firewalls:
+                  ...
+                  main:
+                    ...
+          - pattern-not: |
+              security:
+                ...
+                firewalls:
+                  ...
+                  main:
+                    ...
+                    pattern: ...
+                    ...
+      - pattern: |
+          security:
+            ...
+            firewalls:
+              ...
+              main:
+                ...
+                pattern: ^/
+    message: Found Symfony global authenticator
+    metadata:
+      references:
+        - https://symfony.com/doc/current/security.html#the-firewall
+      route-detect:
+        type: global
+        fill: green
+    paths:
+      include:
+        - "security.yaml"
+    languages: [yaml]
+    severity: INFO
+  - id: symfony-route-annotation-authorized
+    pattern-either:
+      - pattern: |
+          @Route(...)
+          ...
+          @IsGranted($...AUTHZ)
+      - pattern: |
+          @Route(...)
+          ...
+          @Security($...AUTHZ)
+    options:
+      generic_ellipsis_max_span: 1
+    message: Found authorized Symfony route
+    metadata:
+      references:
+        - https://symfony.com/doc/4.1/routing.html
+        - https://symfony.com/bundles/SensioFrameworkExtraBundle/current/annotations/security.html
+      route-detect:
+        fill: yellow
+    languages: [generic]
+    severity: INFO
+  - id: symfony-route-annotation-unauthorized
+    patterns:
+      - pattern: |
+          @Route(...)
+      - pattern-not-inside: |
+          @Route(...)
+          ...
+          @IsGranted(...)
+      - pattern-not-inside: |
+          @Route(...)
+          ...
+          @Security(...)
+    message: Found unauthorized Symfony route
+    metadata:
+      references:
+        - https://symfony.com/doc/4.1/routing.html
+        - https://symfony.com/bundles/SensioFrameworkExtraBundle/current/annotations/security.html
+      route-detect:
+        fill: red
+    languages: [generic]
+    severity: INFO
+  - id: symfony-route-attribute-authorized
+    pattern-either:
+      # https://github.com/returntocorp/semgrep/issues/7398
+      - pattern: |
+          #[Route(...)]
+          ...
+          #[IsGranted($...AUTHZ)]
+      - pattern: |
+          #[Route(...)]
+          ...
+          #[Security($...AUTHZ)]
+    options:
+      generic_ellipsis_max_span: 1
+    message: Found authorized Symfony route
+    metadata:
+      references:
+        - https://symfony.com/doc/4.1/routing.html
+        - https://symfony.com/bundles/SensioFrameworkExtraBundle/current/annotations/security.html
+      route-detect:
+        fill: yellow
+    languages: [generic]
+    severity: INFO
+  - id: symfony-route-attribute-unauthorized
+    patterns:
+      # https://github.com/returntocorp/semgrep/issues/7398
+      - pattern: |
+          #[Route(...)]
+      - pattern-not-inside: |
+          #[Route(...)]
+          ...
+          #[IsGranted(...)]
+      - pattern-not-inside: |
+          #[Route(...)]
+          ...
+          #[Security(...)]
+    message: Found unauthorized Symfony route
+    metadata:
+      references:
+        - https://symfony.com/doc/4.1/routing.html
+        - https://symfony.com/bundles/SensioFrameworkExtraBundle/current/annotations/security.html
+      route-detect:
+        fill: red
+    languages: [generic]
+    severity: INFO

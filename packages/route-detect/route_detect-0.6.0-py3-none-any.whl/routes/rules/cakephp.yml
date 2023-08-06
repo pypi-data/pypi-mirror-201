@@ -1,0 +1,59 @@
+rules:
+  - id: cakephp-route
+    patterns:
+      - pattern-inside: function (Cake\Routing\RouteBuilder $ROUTES) { ... };
+      - pattern-either:
+          - pattern: Croogo\Core\Router::build($ROUTES, $PATH, ...);
+          - patterns:
+              - pattern: $ROUTES->$METHOD($PATH, ...);
+              - metavariable-pattern:
+                  metavariable: $METHOD
+                  pattern-either:
+                    - pattern: connect
+                    - pattern: get
+                    - pattern: post
+                    - pattern: put
+                    - pattern: patch
+                    - pattern: delete
+                    - pattern: options
+                    - pattern: head
+                    - pattern: fallbacks
+    message: Found CakePHP route
+    metadata:
+      references:
+        - https://book.cakephp.org/4/en/development/routing.html
+        - https://book.cakephp.org/authentication/2/en/index.html
+        - https://book.cakephp.org/authentication/2/en/authenticators.html
+        - https://book.cakephp.org/authorization/2/en/index.html
+      route-detect:
+        fill: grey
+    languages: [php]
+    severity: INFO
+  - id: cakephp-route-global-authenticated
+    pattern-either:
+      - patterns:
+          - pattern-inside: class $APPLICATION extends Cake\Http\BaseApplication implements Authentication\AuthenticationServiceProviderInterface { ... }
+          - pattern-inside: public function middleware($MIDDLEWAREQUEUE) { ... }
+          - pattern-either:
+              - pattern: $MIDDLEWAREQUEUE-> ... ->add(new Authentication\Middleware\AuthenticationMiddleware($this))
+              - pattern: $MIDDLEWAREQUEUE-> ... ->push(new Authentication\Middleware\AuthenticationMiddleware($this))
+              - pattern: $MIDDLEWAREQUEUE-> ... ->prepend(new Authentication\Middleware\AuthenticationMiddleware($this))
+              - pattern: $MIDDLEWAREQUEUE-> ... ->insertAt(..., new Authentication\Middleware\AuthenticationMiddleware($this))
+              - pattern: $MIDDLEWAREQUEUE-> ... ->insertAfter(..., new Authentication\Middleware\AuthenticationMiddleware($this))
+              - pattern: $MIDDLEWAREQUEUE-> ... ->insertBefore(..., new Authentication\Middleware\AuthenticationMiddleware($this))
+      - patterns:
+          - pattern-inside: class $CONTROLLER extends Cake\Controller\Controller { ... }
+          - pattern-inside: public function initialize() { ... }
+          - pattern-either:
+              - pattern: $this->loadComponent('Auth', ...)
+    message: Found CakePHP global authenticator
+    metadata:
+      references:
+        - https://book.cakephp.org/authentication/2/en/index.html
+        - https://book.cakephp.org/3/en/controllers/components/authentication.html
+        - https://book.cakephp.org/authentication/1/en/migration-from-the-authcomponent.html
+      route-detect:
+        type: global
+        fill: green
+    languages: [php]
+    severity: INFO
