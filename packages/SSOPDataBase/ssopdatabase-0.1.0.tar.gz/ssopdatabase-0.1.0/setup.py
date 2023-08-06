@@ -1,0 +1,22 @@
+from setuptools import find_packages, setup
+setup(
+    name='SSOPDataBase',
+    packages=find_packages(),
+    #include=['gCentralComponentDB',
+    #                                'gBaseDB',
+    #                                'generalDBService',
+    #                                'sBessMeasurementDataDB',
+    #                                'sBessSetPointDataDB',
+    #                                'sMeasureDB',
+    #                                'sPVGeneratorData',
+    #                                'sPVGeneratorSetPoint',
+    #                                'sServiceArbitrage',
+    #                                'sServicePeakShaving',
+    #                                'sServiceSelfConsumption',
+    #                                ]),
+    install_requires=["flask","SQLAlchemy"],
+    version='0.1.0',
+    description='Data base and the functions realted to the data base',
+    author='Pedro Vila Luz',
+    license='IST',
+)
