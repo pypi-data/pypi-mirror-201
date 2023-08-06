@@ -1,0 +1,55 @@
+name: docs
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Use Conda
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          auto-update-conda: true
+          python-version: "3.8"
+          activate-environment: "test"
+
+      - name: Checkout MParT
+        uses: actions/checkout@v1
+
+      - uses: shrink/actions-docker-extract@v1
+        id: extract
+        with:
+          image: quay.io/measuretransport/mpart_examples:latest
+          path: /home/bayes/examples/python/.
+
+      - name: Move notebooks into documentation
+        run: |
+          mkdir ${{ github.workspace }}/docs/source/tutorials/python
+          cp ${{ steps.extract.outputs.destination }}/*.nbconvert.ipynb ${{ github.workspace }}/docs/source/tutorials/python/
+          for file in ${{ github.workspace }}/docs/source/tutorials/python/*.nbconvert.ipynb; do mv "${file}" "${file/nbconvert./}"; done
+
+      - name: Install sphinx extensions
+        shell: bash -l {0}
+        run: conda install -c conda-forge doxygen pygments sphinx sphinx-design breathe pydata-sphinx-theme nbsphinx jupytext pandoc ipykernel nbconvert
+
+      - name: Run CMake
+        shell: bash -l {0}
+        run: |
+          cd ${{ github.workspace }}
+          mkdir build && cd build
+          cmake -DKokkos_ENABLE_THREADS=ON -DKokkos_ENABLE_SERIAL=ON -DPYTHON_EXECUTABLE=`which python` -DMPART_BUILD_EXAMPLES=OFF ../
+
+      - name: Build Docs
+        shell: bash -l {0}
+        run: |
+           cd ${{ github.workspace }} && cd build
+           make sphinx
+
+      - name: Push to gh-pages
+        uses: peaceiris/actions-gh-pages@v3.6.1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: build/docs/sphinx/

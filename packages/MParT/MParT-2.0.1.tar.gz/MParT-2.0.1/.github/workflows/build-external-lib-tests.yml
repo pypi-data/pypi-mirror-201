@@ -1,0 +1,95 @@
+name: external-lib-tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request: {}
+
+env:
+  CONDA_CACHE_NUMBER: 0  # increase to reset cache manually
+
+jobs:
+  build-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Store Date
+        shell: bash -l {0}
+        run: echo "DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV
+
+      - name: Checkout MParT
+        uses: actions/checkout@v3
+        with:
+          path: mpart
+
+      - name: Use Conda
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          miniforge-variant: Mambaforge
+          miniforge-version: latest
+          activate-environment: test
+          use-mamba: true
+          auto-update-conda: true
+          python-version: "3.8"
+
+      - name: Cache Conda Deps
+        uses: actions/cache@v3
+        id: cache-conda
+        with:
+          path: /usr/share/miniconda3/envs/test
+          key: conda-cache-${{ hashFiles('mpart/.github/environment.yml') }}-${{ env.DATE }}-${{ env.CONDA_CACHE_NUMBER }}
+
+      - name: Cache Kokkos
+        uses: actions/cache@v3
+        id: cache-kokkos
+        with:
+          path: "${{ github.workspace }}/KOKKOS_INSTALL"
+          key: kokkos3.7.00
+
+      - if: ${{steps.cache-kokkos.outputs.cache-hit != 'true'}}
+        name: Checkout Kokkos
+        uses: actions/checkout@v3
+        with:
+          repository: kokkos/kokkos
+          path: kokkos
+          ref: '3.7.00'
+
+      - if: ${{steps.cache-kokkos.outputs.cache-hit != 'true'}}
+        name: Install Kokkos
+        run: |
+          cd $GITHUB_WORKSPACE/kokkos
+          mkdir build && cd build
+          cmake -DKokkos_ENABLE_THREADS=ON \
+                -DBUILD_SHARED_LIBS=ON     \
+                -DKokkos_ENABLE_SERIAL=ON  \
+                -DCMAKE_CXX_STANDARD=17    \
+                -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/KOKKOS_INSTALL/ \
+                ../
+          sudo make -j2 install
+
+      - name: Install Conda Dependencies
+        shell: bash -l {0}
+        run: conda env update -n test -f $GITHUB_WORKSPACE/mpart/.github/environment.yml
+        if: steps.cache-conda.outputs.cache-hit != 'true'
+
+      - name: Configure MParT
+        shell: bash -l {0}
+        run: |
+          cd $GITHUB_WORKSPACE/mpart
+          mkdir build && cd build
+          cmake -DKokkos_DIR=$GITHUB_WORKSPACE/KOKKOS_INSTALL/lib/cmake/Kokkos -DMPART_FETCH_DEPS=OFF ../
+
+      - name: Build MParT
+        shell: bash -l {0}
+        run: cd $GITHUB_WORKSPACE/mpart/build; make -j2
+
+      - name: Run Tests
+        shell: bash -l {0}
+        run: cd $GITHUB_WORKSPACE/mpart/build; ./RunTests --kokkos-threads=2 --reporter junit -o test-results-external.xml
+
+      - name: Publish Unit Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          check_name: "Test Results with Externally Built Libraries"
+          junit_files: ${{ github.workspace }}/mpart/build/test-results-external.xml
