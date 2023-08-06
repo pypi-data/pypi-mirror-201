@@ -1,0 +1,134 @@
+Metadata-Version: 2.1
+Name: zimran-events
+Version: 0.0.1
+Summary: The zimran-events provides amqp interface
+Author-email: Talgat Abdraimov <abdraimov.talga@gmail.com>
+License: MIT License
+        
+        Copyright (c) 2023 Talgat Abdraimov
+        
+        Permission is hereby granted, free of charge, to any person obtaining a copy
+        of this software and associated documentation files (the "Software"), to deal
+        in the Software without restriction, including without limitation the rights
+        to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+        copies of the Software, and to permit persons to whom the Software is
+        furnished to do so, subject to the following conditions:
+        
+        The above copyright notice and this permission notice shall be included in all
+        copies or substantial portions of the Software.
+        
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+        IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+        FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+        AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+        LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+        OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+        SOFTWARE.
+        
+Project-URL: homepage, https://github.com/zimran-tech/zimran-py-events
+Project-URL: repository, https://github.com/zimran-tech/zimran-py-events.git
+Project-URL: bugtracker, https://github.com/zimran-tech/zimran-py-events/issues
+Project-URL: changelog, https://github.com/zimran-tech/zimran-py-events/releases
+Classifier: Development Status :: 3 - Alpha
+Classifier: Environment :: Web Environment
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: aio-pika
+Requires-Dist: pika
+Provides-Extra: dev
+Requires-Dist: black ; extra == 'dev'
+Requires-Dist: pytest ; extra == 'dev'
+Requires-Dist: pytest-cov ; extra == 'dev'
+Requires-Dist: flake8 ; extra == 'dev'
+Requires-Dist: flake8-print ; extra == 'dev'
+Requires-Dist: flake8-multiline-containers ; extra == 'dev'
+Requires-Dist: flake8-builtins ; extra == 'dev'
+Requires-Dist: flake8-import-order ; extra == 'dev'
+Requires-Dist: flake8-commas ; extra == 'dev'
+Requires-Dist: flake8-quotes ; extra == 'dev'
+
+## zimran-contrib
+
+The `zimran-py-events` module provides AMQP interface
+
+## Installation
+
+```bash
+pip install zimran-events
+```
+
+## Usage example
+
+**Producer**
+
+```python
+
+from zimran.events import AsyncProducer
+
+producer = AsyncProducer(broker_url='')
+await producer.connect()
+
+# message publishing
+await producer.publish('some.event.routing', {'msg': 'hello, world'})
+```
+
+**Consumer**
+
+```python
+
+from zimran.events import Consumer
+from zimran.events.schemas import ExchangeScheme
+
+consumer = Consumer(service_name='my-service', broker_url='')
+consumer.add_event_handler(
+            name='routing-key',
+            handler=handler_func,
+            exchange=ExchangeScheme(
+                name='exchange-name',
+                type='exchange-type',
+                durable=True,
+            )
+           )
+
+# or
+
+from zimran.events import Consumer
+
+consumer = Consumer(service_name='my-service', broker_url='')
+
+@consumer.event_handler('routing-key')
+def handler_func(**kwargs):
+  ...
+
+```
+
+## Code
+
+The code and issue tracker are hosted on GitHub: <https://github.com/zimran-tech/zimran-py-events.git>
+
+## Features
+
+- AMQP interfaces
+
+### For contributors
+
+**Setting up development environment**
+
+Clone the project:
+
+```bash
+git clone https://github.com/zimran-tech/zimran-py-events.git
+cd zimran-py-events
+```
+
+Create a new virtualenv:
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
