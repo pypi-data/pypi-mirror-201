@@ -1,0 +1,11 @@
+from enum import Enum
+
+
+class AdminEditUserResponse400Error(str, Enum):
+    ERROR_FEATURE_NOT_AVAILABLE = "ERROR_FEATURE_NOT_AVAILABLE"
+    ERROR_REQUEST_BODY_VALIDATION = "ERROR_REQUEST_BODY_VALIDATION"
+    USER_ADMIN_CANNOT_DEACTIVATE_SELF = "USER_ADMIN_CANNOT_DEACTIVATE_SELF"
+    USER_ADMIN_UNKNOWN_USER = "USER_ADMIN_UNKNOWN_USER"
+
+    def __str__(self) -> str:
+        return str(self.value)
