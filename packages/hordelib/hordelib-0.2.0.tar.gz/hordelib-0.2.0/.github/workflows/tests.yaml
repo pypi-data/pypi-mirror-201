@@ -1,0 +1,28 @@
+name: Test Runner
+
+on: [push, pull_request]
+
+jobs:
+  build:
+
+    runs-on: self-hosted
+    env:
+      HORDELIB_TESTING: "no-cuda"
+    strategy:
+      matrix:
+        python: ["3.10"]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install tox and any other packages
+        run: pip install tox
+      - name: Run tox
+        run: tox -e tests
+      - uses: actions/upload-artifact@v3
+        with:
+          name: test-images
+          path: images/

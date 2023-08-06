@@ -1,0 +1,90 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hordelib"
+description = "A thin wrapper around ComfyUI to allow use by AI Horde."
+authors = [
+    {name = "Jug", email = "jugdev@proton.me"},
+    {name = "db0", email = "mail@dbzer0.com"},
+    {name = "tazlin", email = "tazlin.on.github@gmail.com"},
+]
+readme = "README.md"
+requires-python = ">=3.10,<3.11"
+license = { file="LICENSE" }
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU Affero General Public License v3",
+    "Operating System :: OS Independent",
+    "Development Status :: 2 - Pre-Alpha",
+]
+
+# Don't specify dynamic deps for tox, only for build
+#dynamic=["version"]
+dynamic=["version", "dependencies"]
+
+[project.urls]
+"Homepage" = "https://github.com/jug-dev/hordelib"
+"Bug Tracker" = "https://github.com/jug-dev/hordelib/issues"
+
+[tool.setuptools.dynamic]
+version = {attr = "hordelib.consts.VERSION"}
+dependencies = {file = ["requirements.txt"]}
+
+[tool.setuptools.packages.find]
+exclude = ["ComfyUI"]
+namespaces = false
+
+[options.index-client]
+extra-index-urls = ["https://download.pytorch.org/whl/cu117"]
+
+[tool.pytest.ini_options]
+addopts = [
+    "--import-mode=importlib",
+]
+
+[tool.black]
+exclude = '''
+/(
+    ComfyUI
+  | \.tox
+)/
+'''
+
+[tool.ruff] # XXX this isn't part of CI yet 
+line-length=100 # XXX is this length settled on?
+ignore=[
+    "E501", # XXX line too long (comments are the big offender right now)
+    "F401", # imported but unused
+] 
+select = [
+    "A",    # flake8-builtins
+    "I",    # isort 
+    # "S",    # Bandit
+    "F",    # pyflakes
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+
+
+    "YTT",  # flake8-2020
+    # "BLE",    # flake8-blind-except
+    # "B",    # flake8-bugbear
+    "COM",  # flake8-commas
+    "C4",   # flake8-comprehensions
+    # "G",    # flake8-logging-format
+    "INP",  # flake8-no-pep420
+    "PIE",  # flake8-pie
+    # "T20",  # flake8-print
+    # "UP",   # pyupgrade
+    "RSE",  # flake8-raise 
+    "RET",  # flake8-return
+    # "SLF",  # flake8-self
+    "SIM",  # flake8-simplify
+    "ARG",  # flake8-unused-arguments
+    # "TRY",  # tryceratops 
+    "RUF100"
+]
+
+[tool.ruff.per-file-ignores]
+"comfy_horde.py" = ["I001", "F401"]
