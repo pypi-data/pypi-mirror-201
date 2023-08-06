@@ -1,0 +1,89 @@
+Metadata-Version: 2.1
+Name: trojai-sdk
+Version: 0.2.3.4
+Summary: TrojAI provides the troj Python convenience package to allow users to integrate TrojAI adversarial protections and robustness metrics seamlessly into their AI development pipelines.
+Home-page: https://troj.ai
+Author: TrojAI
+Author-email: stan.petley@troj.ai
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.6
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+Requires-Dist: requests (>=2.25)
+Requires-Dist: urllib3 (>=1.26)
+Requires-Dist: numpy
+Requires-Dist: dataclasses-json
+Requires-Dist: dataclasses-jsonschema
+Requires-Dist: pytest
+Requires-Dist: python-hosts
+
+# trojai-sdk
+
+TrojAI's SDK and command line interface.
+
+
+## Utils
+```python
+from trojsdk.core import client_utils, data_utils
+```
+The client_utils provide and easy way to submit jobs to the cluster. It can be used programatically, or through the command line. The data_utils provide simple functions which can help to use the SDK's components.
+
+`python`
+```python
+# Submit a job using a provided config file
+job_handler = client_utils.submit_evaluation("path/to/config.json")
+
+# Check the status of the job. Alternatively, use 'kubectl describe pod <trojeval job>' within your terminal, with the context set to the cluster.
+job_handler.check_job_status()
+```
+`command line`
+```bash
+tsdk -c path/to/config.json
+```
+`python`
+```python
+# Use the load_json_from_disk function to recursively load JSON data from a file, and its json sub-files, which can be specified by a path string.
+config_dict = data_utils.load_json_from_disk("path/to/config.json")
+# Create the config object and retrieve the dict containing the docker_metadata if it is present within the config dict.
+config, docker_metadata = data_utils.config_from_dict(config_dict)
+
+```
+---
+
+## SDK Components
+
+
+### Config
+```python
+from trojsdk.config.nlp import NLPTrojConfig
+from trojsdk.config.tabular import TabularTrojConfig
+from trojsdk.config.vision import VisionTrojConfig
+
+from trojsdk.config.auth import TrojAuthConfig
+```
+For examples and explanations on configuring your config files, please visit our gitbook.
+<br/>[Intro to TrojAI](https://trojai.gitbook.io/trojai/)
+<br/>[NLP](https://trojai.gitbook.io/trojai/nlp/configuring-your-nlp-evaluation)
+<br/>[Tabular](https://trojai.gitbook.io/trojai/tabular/configuring-your-tabular-evaluation)
+
+
+### Client
+```python
+from trojsdk import TrojClient
+```
+
+```python
+# Load the json config file into a dictionary
+config_dict = data_utils.load_json_from_disk(Path("C:/Users/macjo/Downloads/tabular_SMOTETomek_logistic_base.json"))
+# Split the docker_metadata from the config dict, and create a config object file.
+config, docker_metadata = client_utils.config_from_dict(config_dict)
+
+# Create the client with its auth credentials and endpoint.
+client = TrojClient(auth_config=config.auth_config)
+# Post the job with the config object and docker information.
+res = client.post_job(config, docker_metadata)
+time.sleep(2) # It will take a couple seconds to submit the job.
+jobs = client.get_job_status(res["data"]["job_name"])
+```
