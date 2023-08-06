@@ -1,0 +1,370 @@
+gyxt:
+  # 全渠道
+  ec_all:
+    month:
+      select 
+        substring(pay_dt, 1, 6) as `data_date`,
+        sum(actual_amt) as `pay_amt`,
+        sum(product_pay_cnt) as `pay_cnt`
+      from 
+        dw.s_ec_sa_daily_sale_sum
+      where substring(pay_dt, 1, 6) <= '%s'
+      group by 
+        substring(pay_dt, 1, 6)
+      order by
+        substring(pay_dt, 1, 6)
+    day:
+      select 
+        pay_dt as `data_date`,
+        sum(actual_amt) as `pay_amt`,
+        sum(product_pay_cnt) as `pay_cnt`
+      from 
+        dw.s_ec_sa_daily_sale_sum
+      group by
+        pay_dt
+      order by
+        pay_dt
+  # 渠道
+  channel:
+    month:
+      select
+        substring(aa.pay_dt, 1, 6) as `data_date`,
+        cc.channel_cd as `platform_cd`,
+        sum(aa.actual_amt) as `pay_amt`,
+        sum(aa.product_pay_cnt) as `pay_cnt`
+      from 
+        dw.s_ec_sa_daily_sale_sum aa
+      left join 
+        (
+          select distinct 
+            channel_nam,channel_cd,shop_english_cd 
+          from 
+            dw.dim_ec_pub_customer_base_info
+        ) cc
+        on aa.shop_english_cd = cc.shop_english_cd
+      where substring(aa.pay_dt, 1, 6) <= '%s'
+      group by 
+        substring(aa.pay_dt, 1, 6), cc.channel_cd
+      order by 
+        substring(aa.pay_dt, 1, 6), cc.channel_cd
+    day:
+      select
+        aa.pay_dt as `data_date`,
+        cc.channel_cd as `platform_cd`,
+        sum(aa.actual_amt) as `pay_amt`,
+        sum(aa.product_pay_cnt) as `pay_cnt`
+      from 
+        dw.s_ec_sa_daily_sale_sum aa
+      left join 
+        (
+          select distinct 
+            channel_nam,channel_cd,shop_english_cd 
+          from 
+            dw.dim_ec_pub_customer_base_info
+        ) cc
+        on aa.shop_english_cd = cc.shop_english_cd
+      where aa.pay_dt <= '%s'
+      group by 
+        aa.pay_dt, cc.channel_cd
+      order by 
+        aa.pay_dt, cc.channel_cd
+  # 店铺，目前以2021年店铺全年销售额top50进行取数
+  shop:
+    month:
+      with t1 as (
+      select 
+        shop_english_cd
+      from 
+        (
+          select 
+            shop_english_cd,
+            rank() over(order by sum(actual_amt) desc) n
+          from 
+            dw.s_ec_sa_daily_sale_sum
+          where substring(pay_dt, 1, 6) <= '202112'
+            and substring(pay_dt, 1, 6) >= '202101'
+          group by shop_english_cd
+        ) sub
+      where sub.n <= 50
+      )
+      select 
+        substring(pay_dt, 1, 6) as `data_date`,
+        shop_english_cd,
+        sum(actual_amt) as `pay_amt`,
+        sum(product_pay_cnt) as `pay_cnt`
+      from 
+        dw.s_ec_sa_daily_sale_sum
+      where shop_english_cd in (select * from t1)
+        and substring(pay_dt, 1, 6) <= '%s'
+      group by 
+        substring(pay_dt, 1, 6), shop_english_cd
+      order by 
+        substring(pay_dt, 1, 6), shop_english_cd
+    day:
+      with t1 as (
+        select 
+          shop_english_cd
+        from 
+          (
+            select 
+              shop_english_cd,
+              rank() over(order by sum(actual_amt) desc) n
+            from 
+              dw.s_ec_sa_daily_sale_sum
+            where substring(pay_dt, 1, 6) <= '202112'
+              and substring(pay_dt, 1, 6) >= '202101'
+            group by 
+              shop_english_cd
+          ) sub
+        where sub.n <= 50
+        )
+        select 
+          pay_dt as `data_date`,
+          shop_english_cd,
+          sum(actual_amt) as `pay_amt`,
+          sum(product_pay_cnt) as `pay_cnt`
+        from 
+          dw.s_ec_sa_daily_sale_sum
+        where shop_english_cd in (select * from t1)
+          and pay_dt <= '%s'
+        group by 
+          pay_dt, shop_english_cd
+        order by 
+          pay_dt, shop_english_cd
+  # 2c店铺类目，目前以2021年店铺全年销售额top50进行取数
+  2c_ptype:
+    month:
+      with t1 as (
+        select 
+          shop_english_cd
+        from 
+          (
+            select shop_english_cd,
+            rank() over(order by sum(product_actual_amt) desc) n
+            from dw.s_ec_sa_after_convert_prod_sum
+            where substring(pay_dt, 1, 6) <= '202112'
+              and substring(pay_dt, 1, 6) >= '202101'
+            group by shop_english_cd
+          ) sub
+        where sub.n <= 50
+      ), t2 as (
+        select distinct 
+          product_code,
+          product_name,
+          category_first
+        from 
+          dw.dim_ec_oms_product_base         
+        where category_first not in ('106', '107', '108', '301', '302')
+          and is_frozen = '0'
+      )
+      select 
+        substring(aa.pay_dt, 1, 6) as `data_date`,
+        aa.shop_english_cd as `shop_english_cd`,
+        t2.category_first as `ptype_id`,
+        sum(product_actual_amt) as `pay_amt`,
+        sum(product_pay_cnt) as `pay_cnt`
+      from 
+        dw.s_ec_sa_after_convert_prod_sum aa
+      left join 
+        t2
+        on aa.product_cd = t2.product_code
+      where shop_english_cd in (select * from t1)
+        and substring(aa.pay_dt, 1, 6) <= '%s'
+      group by 
+        substring(aa.pay_dt, 1, 6), aa.shop_english_cd, t2.category_first
+      order by 
+        substring(aa.pay_dt, 1, 6), aa.shop_english_cd, t2.category_first
+    day:
+      with t1 as (
+        select 
+          shop_english_cd
+        from 
+          (
+            select 
+              shop_english_cd,
+              rank() over(order by sum(product_actual_amt) desc) n
+            from 
+              dw.s_ec_sa_after_convert_prod_sum
+            where substring(pay_dt, 1, 6) <= '202112'
+              and substring(pay_dt, 1, 6) >= '202101'
+            group by 
+              shop_english_cd
+          ) sub
+        where sub.n <= 50
+        ), t2 as (
+        select distinct 
+          product_code,
+          product_name,
+          category_first
+        from
+          dw.dim_ec_oms_product_base         
+        where category_first not in ('106', '107', '108', '301', '302')
+          and is_frozen = '0'
+        )
+      select
+        aa.pay_dt as `data_date`,
+        aa.shop_english_cd as `shop_english_cd`,
+        t2.category_first as `ptype_id`,
+        sum(aa.product_actual_amt) as `pay_amt`,
+        sum(aa.product_pay_cnt) as `pay_cnt`
+      from 
+        dw.s_ec_sa_after_convert_prod_sum aa
+      left join 
+        t2
+        on aa.product_cd = t2.product_code
+      where aa.shop_english_cd in (select * from t1)
+        and aa.pay_dt <= '%s'
+      group by 
+        aa.pay_dt, aa.shop_english_cd, t2.category_first
+      order by 
+        aa.pay_dt, aa.shop_english_cd, t2.category_first
+  # 2b店铺类目，目前以京东商城、天猫超市、苏宁易购三个店铺进行取数
+  2b_ptype:
+    month:
+      with t1 as (
+        select distinct 
+          product_code,
+          product_name,
+          category_first
+        from 
+          dw.dim_ec_oms_product_base
+        where category_first not in ('106', '107', '108', '301', '302')
+          and is_frozen = '0'
+      ) 
+      select 
+        substring(aa.data_dt, 1, 6) as `data_date`,
+        aa.shop_english_cd as `shop_english_cd`,
+        t1.category_first as `ptype_id`,
+        sum(aa.buy_cnt) as `pay_cnt`,
+        sum(aa.product_pay_amt) as `pay_amt`
+      from
+        dw.s_ec_sa_external_source_product_sum aa
+      left join t1
+        on aa.product_cd = t1.product_code
+      where aa.shop_nam in ('京东商城', '苏宁易购', '天猫超市')
+        and substring(aa.data_dt, 1, 6) <= '%s'
+      group by 
+        substring(aa.data_dt, 1, 6), aa.shop_english_cd, t1.category_first
+      order by 
+        substring(aa.data_dt, 1, 6), aa.shop_english_cd, t1.category_first
+    day:
+      with t1 as (
+        select distinct 
+          product_code,
+          product_name,
+          category_first
+        from 
+          dw.dim_ec_oms_product_base         
+        where category_first not in ('106', '107', '108', '301', '302')
+          and is_frozen = '0'
+        ) 
+      select 
+        aa.data_dt as `data_date`,
+        aa.shop_english_cd as `shop_english_cd`,
+        t1.category_first as `ptype_id`,
+        sum(aa.buy_cnt) as `pay_cnt`,
+        sum(aa.product_pay_amt) as `pay_amt`
+      from 
+        dw.s_ec_sa_external_source_product_sum aa
+      left join 
+        t1
+        on aa.product_cd = t1.product_code
+      where aa.shop_nam in ('京东商城', '苏宁易购', '天猫超市')
+        and aa.data_dt <= '%s'
+      group by 
+        aa.data_dt, aa.shop_english_cd, t1.category_first
+      order by 
+        aa.data_dt, aa.shop_english_cd, t1.category_first
+  # 2c店铺商品，目前以2021年店铺全年销售额top50进行取数
+  2c_goods:
+    month:
+      with t as (
+        select 
+          shop_english_cd
+        from (
+          select shop_english_cd,
+          rank() over(order by sum(product_actual_amt) desc) n
+          from dw.s_ec_sa_after_convert_prod_sum
+          where substring(pay_dt, 1, 6) <= '202112'
+            and substring(pay_dt, 1, 6) >= '202101'
+          group by shop_english_cd
+        ) sub
+      where sub.n <= 50
+      )
+      select 
+        substring(pay_dt, 1, 6) as `data_date`,
+        shop_english_cd as `shop_english_cd`,
+        product_cd,
+        sum(product_actual_amt) as `pay_amt`,
+        sum(product_pay_cnt) as `pay_cnt`
+      from 
+        dw.s_ec_sa_after_convert_prod_sum
+      where shop_english_cd in (select * from t)
+        and substring(pay_dt, 1, 6) <= '%s'
+      group by 
+        substring(pay_dt, 1, 6), shop_english_cd, product_cd
+      order by
+        substring(pay_dt, 1, 6), shop_english_cd, product_cd
+    day:
+      with t as (
+        select 
+          shop_english_cd
+        from 
+          (
+            select 
+              shop_english_cd,
+              rank() over(order by sum(product_actual_amt) desc) n
+            from 
+              dw.s_ec_sa_after_convert_prod_sum
+            where substring(pay_dt, 1, 6) <= '202112'
+              and substring(pay_dt, 1, 6) >= '202101'
+            group by 
+              shop_english_cd
+          ) sub
+      where sub.n <= 50
+      )
+      select pay_dt,
+        shop_english_cd,
+        product_cd,
+        sum(product_actual_amt) as `pay_amt`, 
+        sum(product_pay_cnt) as `pay_cnt`
+      from 
+        dw.s_ec_sa_after_convert_prod_sum
+      where shop_english_cd in (select * from t)
+        and pay_dt <= '%s'
+      group by 
+        pay_dt, shop_english_cd, product_cd
+      order by
+        pay_dt, shop_english_cd, product_cd
+  # 2b店铺商品，目前以京东商城、天猫超市、苏宁易购三个店铺进行取数
+  2b_goods:
+    month:
+      select 
+        substring(data_dt, 1, 6) as `data_date`, 
+        shop_english_cd, 
+        product_cd, 
+        sum(product_pay_amt) as `pay_amt`,
+        sum(buy_cnt) as `pay_cnt`
+      from 
+        dw.s_ec_sa_external_source_product_sum
+      where shop_nam in ('京东商城', '苏宁易购', '天猫超市')
+        and substring(data_dt, 1, 6) <= '%s'
+      group by 
+        substring(data_dt, 1, 6), shop_english_cd, product_cd
+      order by 
+        substring(data_dt, 1, 6), shop_english_cd, product_cd
+    day:
+      select 
+        data_dt as `data_date`, 
+        shop_english_cd, 
+        product_cd, 
+        sum(product_pay_amt) as `pay_amt`,
+        sum(buy_cnt) as `pay_cnt`
+      from 
+        dw.s_ec_sa_external_source_product_sum
+      where shop_nam in ('京东商城', '苏宁易购', '天猫超市')
+        and data_dt <= '%s'
+      group by 
+        data_dt, shop_english_cd, product_cd
+      order by 
+        data_dt, shop_english_cd, product_cd

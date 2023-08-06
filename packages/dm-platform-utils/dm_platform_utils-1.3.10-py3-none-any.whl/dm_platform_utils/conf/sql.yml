@@ -1,0 +1,343 @@
+gyxt_raw:
+  fifth_dim:
+    select 
+      data_id,
+      data_date,
+      date_type,
+      first_dim, 
+      second_dim, 
+      third_dim, 
+      fourth_dim,
+      fifth_dim,
+      true_pay_amt,
+      true_pay_cnt,
+      dim_level,
+      etl_datetime,
+      is_frozen
+    from 
+      dw.s_ec_dm_actual_sale_sum
+
+gyxt:
+  first_dim:
+    select
+      data_date,
+      first_dim,
+      second_dim,
+      third_dim,
+      fourth_dim,
+      fifth_dim,
+      true_pay_amt as `pay_amt`,
+      true_pay_cnt as `pay_cnt`
+    from 
+      pred_system.s_ec_dm_actual_sale_sum_new
+    where dim_level = '1'
+      and data_date < '%s'
+      and date_type = '%s'
+  second_dim:
+    select
+      data_date,
+      first_dim,
+      second_dim,
+      third_dim,
+      fourth_dim,
+      fifth_dim,
+      true_pay_amt as `pay_amt`,
+      true_pay_cnt as `pay_cnt`
+    from 
+      pred_system.s_ec_dm_actual_sale_sum_new
+    where dim_level = '2'
+      and data_date < '%s'
+      and date_type = '%s'
+  third_dim:
+    with t1 as (
+      select 
+        third_dim
+      from 
+        (
+          select 
+            third_dim,
+            rank() over(order by sum(true_pay_amt) desc) n
+          from
+            pred_system.s_ec_dm_actual_sale_sum_new
+          where dim_level = '3'
+            and data_date >= '%s'
+            and data_date <= '%s'
+          group by third_dim
+        ) sub
+      where sub.n <= 50
+    )
+    select 
+      data_date,
+      first_dim, 
+      second_dim, 
+      third_dim, 
+      fourth_dim,
+      fifth_dim,
+      true_pay_amt as `pay_amt`,
+      true_pay_cnt as `pay_cnt`
+    from 
+      pred_system.s_ec_dm_actual_sale_sum_new
+    where third_dim in (select third_dim from t1)
+      and dim_level = '3'
+      and data_date < '%s'
+      and date_type = '%s'
+  fourth_dim:
+    with t1 as (
+    select 
+      third_dim
+    from 
+      (
+        select 
+          third_dim,
+          rank() over(order by sum(true_pay_amt) desc) n
+        from
+          pred_system.s_ec_dm_actual_sale_sum_new
+        where dim_level = '3'
+          and data_date >= '%s'
+          and data_date <= '%s'
+        group by 
+          third_dim
+      ) sub
+      where sub.n <= 50
+    )
+    select 
+      data_date,
+      first_dim, 
+      second_dim, 
+      third_dim, 
+      fourth_dim,
+      fifth_dim,
+      true_pay_amt as `pay_amt`,
+      true_pay_cnt as `pay_cnt`
+    from 
+      pred_system.s_ec_dm_actual_sale_sum_new
+    where third_dim in (select third_dim from t1)
+      and dim_level = '4'
+      and data_date < '%s'
+      and date_type = '%s'
+      and fourth_dim not in ('106', '107', '108', '301', '302')
+  fifth_dim:
+    with t1 as (
+    select 
+      third_dim
+    from 
+      (
+        select 
+          third_dim,
+          rank() over(order by sum(true_pay_amt) desc) n
+        from
+          pred_system.s_ec_dm_actual_sale_sum_new
+        where dim_level = '3'
+          and data_date >= '%s'
+          and data_date <= '%s'
+        group by
+          third_dim
+      ) sub
+      where sub.n <= 50
+    )
+    select 
+      data_date,
+      first_dim, 
+      second_dim, 
+      third_dim, 
+      fourth_dim,
+      fifth_dim,
+      true_pay_amt as `pay_amt`,
+      true_pay_cnt as `pay_cnt`
+    from 
+      pred_system.s_ec_dm_actual_sale_sum_new
+    where third_dim in (select third_dim from t1)
+      and dim_level = '5'
+      and data_date < '%s'
+      and date_type = '%s'
+      and is_frozen = '0'
+      and fourth_dim not in ('106', '107', '108', '301', '302')
+
+smart_operation:
+  # 店铺（前端），销售额、买家数、新买家销售额、新买家数
+  shop_front:
+    month:
+      select 
+        '2' as `first_dim`, 
+        aa.source_id as `second_dim`, 
+        bb.shop_id_ec as `third_dim`, 
+        '88888888' as `fourth_dim`, 
+        '' as `fifth_dim`,
+        '1' as `clbr`,
+        aa.data_date, 
+        aa.date_type,
+        aa.pay_amt, 
+        aa.pay_byr_cnt, 
+        aa.new_byr_pay_amt, 
+        aa.pay_new_byr_cnt as `new_pay_byr_cnt`
+      from 
+        dw.fact_b2c_sycm_self_shop_analysis aa
+      left join 
+        default.o_domp_dim_shop_id_mapping bb
+        on aa.user_id = bb.shop_id_sycm
+      where aa.date_type = 'month'
+        and bb.shop_id_ec = '10001'
+        and aa.data_date <= '%s'
+      order by
+        aa.data_date
+    day:
+      select 
+        '2' as `first_dim`, 
+        aa.source_id as `second_dim`, 
+        bb.shop_id_ec as `third_dim`, 
+        '88888888' as `fourth_dim`, 
+        '' as `fifth_dim`,
+        '1' as `clbr`,
+        aa.data_date, 
+        aa.date_type,
+        aa.pay_amt, 
+        aa.pay_byr_cnt, 
+        aa.new_byr_pay_amt, 
+        aa.pay_new_byr_cnt as `new_pay_byr_cnt`
+      from 
+        dw.fact_b2c_sycm_self_shop_analysis aa
+      left join 
+        default.o_domp_dim_shop_id_mapping bb
+        on aa.user_id = bb.shop_id_sycm
+      where aa.date_type = 'day'
+        and bb.shop_id_ec = '10001'
+        and aa.data_date <= '%s'
+      order by
+        aa.data_date
+  # 店铺、类目后端口径
+  shop_back:
+    month:
+      select
+        '2' as `first_dim`,
+        aa.source_id as `second_dim`,
+        bb.shop_cd as `third_dim`,
+        '88888888' as `fourth_dim`,
+        '' as `fifth_dim`,
+        '2' as `clbr`,
+        aa.data_date,
+        aa.date_type,
+        round(cast(aa.settlement_amt as float), 2) as `pay_amt`
+      from 
+        dw.s_ec_retail_cost_shop_ptype_grp aa
+      left join 
+        dw.dim_ec_pub_shop_base bb 
+        on aa.shop_code = bb.shop_group_cd
+      where aa.date_type = 'month'
+        and bb.shop_cd = '10001'
+        and aa.ptype_id = '88888888'
+        and aa.data_date <= '%s'
+      order by
+        aa.data_date
+    day:
+      select
+        '2' as `first_dim`,
+        aa.source_id as `second_dim`,
+        bb.shop_cd as `third_dim`,
+        '88888888' as `fourth_dim`,
+        '' as `fifth_dim`,
+        '2' as `clbr`,
+        aa.data_date,
+        aa.date_type,
+        round(cast(aa.settlement_amt as float), 2) as `pay_amt`
+      from 
+        dw.s_ec_retail_cost_shop_ptype_grp aa
+      left join 
+        dw.dim_ec_pub_shop_base bb 
+        on aa.shop_code = bb.shop_group_cd
+      where aa.date_type = 'day'
+        and bb.shop_cd = '10001'
+        and aa.ptype_id = '88888888'
+        and aa.data_date <= '%s'
+      order by
+        aa.data_date
+  ptype_back:
+    get_month:
+      select
+        '2' as `first_dim`,
+        aa.source_id as `second_dim`,
+        bb.shop_cd as `third_dim`,
+        aa.ptype_id as `fourth_dim`,
+        '' as `fifth_dim`,
+        '2' as `clbr`,
+        aa.data_date,
+        aa.date_type,
+        round(cast(aa.settlement_amt as float), 2) as `pay_amt`
+      from
+        dw.s_ec_retail_cost_shop_ptype_grp aa
+      left join 
+        dw.dim_ec_pub_shop_base bb 
+        on aa.shop_code = bb.shop_group_cd
+      where aa.date_type = 'month'
+        and bb.shop_cd = '10001'
+        and aa.ptype_level = '3'
+        and aa.ptype_id is not null
+        and aa.data_date <= '%s'
+      order by
+        aa.data_date, aa.ptype_id
+  ptype_front:
+    month:
+      select 
+        '2' as `first_dim`,
+        aa.source_id as `second_dim`,
+        bb.shop_id_ec as `third_dim`,
+        aa.ptype_id as `fourth_dim`,
+        '' as `fifth_dim`,
+        '1' as `clbr`,
+        aa.data_date,
+        aa.date_type,
+        aa.pay_amt
+      from 
+        dw.s_sycm_shop_ptype_grp aa
+      left join 
+        default.o_domp_dim_shop_id_mapping bb
+        on aa.user_id = bb.shop_id_sycm
+      where aa.ptype_level = '3'
+        and bb.shop_id_ec = '10001'
+        and aa.date_type = 'month'
+        and aa.data_date <= '%s'
+      order by
+        aa.data_date, `fourth_dim`
+  # 会员前端口径
+  mbr_front:
+    month:
+      select
+        '2' as `first_dim`,
+        '0001' as `second_dim`,
+        bb.shop_id_sycm as `third_dim`,
+        '88888888' as `fourth_dim`,
+        '' as `fifth_dim`,
+        '1' as `clbr`,
+        aa.data_date,
+        aa.date_type,
+        aa.mbr_pay_amt,
+        aa.mbr_pay_pct
+      from 
+        dw.s_ec_co_oper_sycm_member_analysis_date_accum aa
+      left join
+        default.o_domp_dim_shop_id_mapping bb
+        on aa.user_id = bb.shop_id_sycm
+      where aa.date_type = 'month'
+        and bb.shop_id_ec = '10001'
+        and aa.data_date <= '%s'
+      order by
+        aa.data_date
+  # 用户后端口径，店铺销售额、店铺买家数、新买家销售额、新买家数
+  shop_user_back:
+    month:
+      select
+        '2' as `first_dim`,
+        '0001' as `second_dim`,
+        '10001' as `third_dim`,
+        '88888888' as `fourth_dim`,
+        '' as `fifth_dim`,
+        '2' as clbr,
+        replace(pay_m, '-', '') as `data_date`,
+        'month' as `date_type`,
+        shop_cus_cnt as `pay_byr_cnt`,
+        new_cus_amt as `new_byr_pay_amt`,
+        new_cus_cnt as `new_pay_byr_cnt`
+      from
+        dw.fact_ec_oms_buyer_tmall_m
+      where pay_m <= '%s'
+      order by
+        `data_date`
