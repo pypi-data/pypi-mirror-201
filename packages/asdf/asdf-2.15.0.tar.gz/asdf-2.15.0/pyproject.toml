@@ -1,0 +1,204 @@
+[project]
+name = "asdf"
+description = "Python implementation of the ASDF Standard"
+readme = 'README.rst'
+license = { file = 'LICENSE' }
+authors = [{ name = 'The ASDF Developers', email = 'help@stsci.edu' }]
+requires-python = '>=3.8'
+classifiers = [
+    "License :: OSI Approved :: BSD License",
+    'Programming Language :: Python',
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3.8',
+    'Programming Language :: Python :: 3.9',
+    'Programming Language :: Python :: 3.10',
+    'Programming Language :: Python :: 3.11',
+    'Development Status :: 5 - Production/Stable',
+]
+dynamic = [
+  'version',
+]
+dependencies = [
+  "asdf-standard>=1.0.1",
+  "asdf-transform-schemas>=0.3",
+  "asdf-unit-schemas>=0.1",
+  "importlib-metadata>=4.11.4",
+  'importlib_resources>=3; python_version < "3.9"',
+  "jmespath>=0.6.2",
+  "jsonschema<4.18,>=4.0.1", # jsonschema 4.18 contains incompatible changes: https://github.com/asdf-format/asdf/issues/1485
+  "numpy>=1.20",
+  'numpy<1.25,>=1.20; python_version < "3.9"',
+  "packaging>=19",
+  "pyyaml>=5.4.1",
+  "semantic_version>=2.8",
+]
+[project.optional-dependencies]
+all = [
+  "lz4>=0.10",
+]
+docs = [
+  "sphinx-asdf>=0.1.4",
+  'tomli; python_version < "3.11"',
+]
+tests = [
+  "astropy>=5.0.4",
+  "fsspec[http]>=2022.8.2",
+  "gwcs>=0.18.3",
+  "lz4>=0.10",
+  "psutil",
+  "pytest>=6",
+  "pytest-doctestplus",
+  "pytest-openfiles",
+  "pytest-remotedata",
+]
+[project.urls]
+'documentation' = 'https://asdf.readthedocs.io/en/stable'
+'repository' = 'https://github.com/asdf-format/asdf'
+'tracker' = 'https://github.com/asdf-format/asdf/issues'
+[project.entry-points]
+'asdf.extensions' = {asdf = 'asdf.core._integration:get_extensions'}
+'asdf.resource_mappings' = {asdf = 'asdf.core._integration:get_json_schema_resource_mappings'}
+asdf_extensions = {builtin = 'asdf.extension._legacy:BuiltinExtension'}
+console_scripts = {asdftool = 'asdf.commands.main:main'}
+pytest11 = {asdf_schema_tester = 'pytest_asdf.plugin'}
+
+[build-system]
+build-backend = 'setuptools.build_meta'
+requires = [
+  "setuptools>=60",
+  "setuptools_scm[toml]>=3.4",
+  "wheel",
+]
+
+[tool.setuptools.packages.find]
+include = ['asdf*', 'pytest_asdf*']
+
+[tool.setuptools.package-data]
+'asdf.commands.tests.data' = ["*"]
+'asdf.tags.core.tests.data' = ["*"]
+'asdf.tests.data' = ["*"]
+
+[tool.setuptools_scm]
+write_to = "asdf/_version.py"
+
+[tool.black]
+line-length = 120
+force-exclude = '''
+^/(
+  (
+      \.eggs
+    | \.git
+    | \.pytest_cache
+    | \.tox
+    | asdf/extern
+    | build
+    | dist
+  )/
+)
+'''
+
+[tool.pytest.ini_options]
+testpaths = ['asdf', 'docs']
+minversion = 4.6
+norecursedirs = ['build', 'docs/_build', 'docs/sphinxext']
+doctest_plus = 'enabled'
+remote_data_strict = true
+open_files_ignore = ['test.fits', 'asdf.fits']
+# The asdf.asdftypes module emits a warning on import,
+# which pytest trips over during collection:
+filterwarnings = [
+    'error',
+    'ignore:numpy.ndarray size changed:RuntimeWarning',
+]
+# Configuration for pytest-doctestplus
+text_file_format = 'rst'
+addopts = '--color=yes --doctest-rst'
+
+[tool.coverage.run]
+omit = [
+    'asdf/_astropy_init*',
+    'asdf/conftest*',
+    'asdf/cython_version*',
+    'asdf/setup_package*',
+    'asdf/*/setup_package*',
+    'asdf/*/*/setup_package*',
+    'asdf/testing/*',
+    'asdf/tests/*',
+    'asdf/*/tests/*',
+    'asdf/*/*/tests/*',
+    'asdf/version.*',
+    'asdf/compat*',
+    'asdf/extern*',
+    # And again for running against installed version
+    '*/asdf/_astropy_init*',
+    '*/asdf/conftest*',
+    '*/asdf/cython_version*',
+    '*/asdf/setup_package*',
+    '*/asdf/*/setup_package*',
+    '*/asdf/*/*/setup_package*',
+    '*/asdf/testing/*',
+    '*/asdf/tests/*',
+    '*/asdf/*/tests/*',
+    '*/asdf/*/*/tests/*',
+    '*/asdf/version.*',
+    '*/asdf/compat*',
+    '*/asdf/extern*',
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    # Have to re-enable the standard pragma
+    'pragma: no cover',
+    # Don't complain about packages we have installed
+    'except ImportError',
+    # Don't complain if tests don't hit assertions
+    'raise AssertionError',
+    'raise NotImplementedError',
+    # Don't complain about script hooks
+    'def main\(.*\):',
+    # Ignore branches that don't pertain to this version of Python
+    'pragma: py{ ignore_python_version }',
+]
+
+[tool.ruff]
+target-version = "py38"
+line-length = 120
+select = ["ALL"]
+extend-ignore = [
+    # Ignored check groups
+    "C90", # mccabe complexity
+    "D", # pydocstyle
+    "ANN", # flake8-annotations
+    "FBT", # flake8-boolean-trap
+    "ARG", # flake8-unused-arguments
+    "DTZ", # flake8-datetimez
+    "PTH", # flake8-use-pathlib
+    # Individually ignored checks
+    "B028",  # No explicit stacklevel argument
+    "PIE810", # Call `startswith` once with a `tuple`
+    "PLC1901", # compare-to-empty-string
+    "PLR0911", # Too many return statements
+    "PLR0912", # Too many branches
+    "PLR0913", # Too many arguments to function call
+    "PLR0915", # Too many statements
+    "PLR2004", # Magic value used in comparison
+    "SLF001", # Private member accessed
+    "TRY002", # Create your own exception
+    "TRY301", # Abstract raise to an inner function
+    "TRY400", # Use logging.exception instead of logging.error
+]
+extend-exclude = ["asdf/extern/*", "docs/*"]
+
+[tool.ruff.per-file-ignores]
+"test_*.py" = ["S101"]
+"asdf/_tests/_helpers.py" = ["S101"]
+"compatibility_tests/common.py" = ["S101"]
+
+[tool.flynt]
+exclude = ["asdf/extern/*"]
+
+[tool.codespell]
+skip="*.pdf,*.fits,*.asdf,.tox,asdf/extern,build,./tags,.git,docs/_build"
+ignore-words-list="""
+fo,
+"""
