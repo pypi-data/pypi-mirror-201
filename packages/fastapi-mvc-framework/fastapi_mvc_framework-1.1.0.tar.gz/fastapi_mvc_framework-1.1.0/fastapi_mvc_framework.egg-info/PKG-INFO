@@ -1,0 +1,95 @@
+Metadata-Version: 2.1
+Name: fastapi-mvc-framework
+Version: 1.1.0
+Summary: Simple and elegant use of FastApi in MVC mode
+Home-page: https://github.com/smjkzsl/fastapi_framework
+Author: Bruce chou
+Author-email: smjkzsl@gmail.com
+License: UNKNOWN
+Description: # fastapi_framework
+        A mvc framework used FastApi
+        Simple and elegant use of FastApi in MVC mode
+        
+        usage:
+        
+        
+        ```
+        
+        from fastapi_mvc_framework import api_router,api,Request,Response,BaseController,application,WebSocket,WebSocketDisconnect
+        import requests,openai,json
+        from typing import Dict
+        from fastapi_mvc_framework import Form
+         
+        @api_router(auth='public')
+        class TestController(BaseController):
+            _auth_url = '/user/login'
+         
+            @api.get("/user/login")
+            def login(self):
+                """:title Login"""
+                self.request.state.keep_flash = True
+                return self.view() 
+            
+            @api.post("/test/verity_user")
+            def verity_user(self,username: str = Form(), password: str = Form()): 
+                if username and password:
+                    #do veritied
+                    if username in ['bruce','alice'] and password:
+                        return self._verity_successed(username)
+                    else:
+                        return self._verity_error()
+                    
+                return self._verity_error()
+            
+            @api.get("/" )
+            def home(self,request:Request): 
+                '''
+                :title Home
+                '''
+                c = self.session.get('home',1)
+                c = c+1 
+                # #setting cookies   
+                # self.response.set_cookie('a',c) 
+                self.cookies["a"] = c
+                if c>10:
+                    del self.cookies["a"]
+                    c = 0
+                self.session['home'] = c
+                text = "Hello World! I'm in FastapiMvcFramework"
+                routers_map = application.routers_map
+                routers = application.routes
+                return self.view()
+            @api.get("/xml",auth='user')
+            def get_legacy_data(self):
+                """:title XML(Protected)"""
+        
+                data = """<?xml version="1.0"?>
+                <shampoo>
+                <Header>
+                    Apply shampoo here.
+                </Header>
+                <Body>
+                    You'll have to use soap here.
+                </Body>
+                </shampoo>
+                """
+                return self.view(content=data,media_type="application/xml")
+                return Response(content=data, media_type="application/xml")
+        
+             
+            @api.get("/chatgpt")
+            def chatgpt(self):
+                """
+                :title Chat
+                """
+                return self.view()
+        
+        
+        ```
+        
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
