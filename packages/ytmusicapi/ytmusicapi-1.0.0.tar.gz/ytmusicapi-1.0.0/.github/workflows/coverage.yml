@@ -1,0 +1,38 @@
+name: Code coverage
+
+on:
+  push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: Setup Python
+      uses: actions/setup-python@master
+      with:
+        python-version: 3.x
+    - name: create-json
+      uses: jsdaniell/create-json@v1.2.2
+      with:
+        name: "oauth.json"
+        dir: "tests/"
+        json: ${{ secrets.OAUTH_JSON }}
+    - name: Generate coverage report
+      env:
+        HEADERS_AUTH: ${{ secrets.HEADERS_AUTH }}
+        TEST_CFG: ${{ secrets.TEST_CFG }}
+      run: |
+        pip install -e .
+        pip install coverage
+        curl -o tests/test.mp3 https://www.kozco.com/tech/piano2-CoolEdit.mp3
+        cat <<< "$HEADERS_AUTH" > tests/headers_auth.json
+        cat <<< "$TEST_CFG" > tests/test.cfg
+        coverage run
+        coverage xml
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: coverage.xml
+        flags: unittests
+        fail_ci_if_error: true
