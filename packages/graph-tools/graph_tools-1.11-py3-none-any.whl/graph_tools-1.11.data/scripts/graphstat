@@ -1,0 +1,136 @@
+#!python
+#
+# Generate a graph and dump in standard output.
+# Copyright (c) 2023, Hiroyuki Ohsaki.
+# All rights reserved.
+#
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+# This program is contributed by Hal.
+
+import fileinput
+import os
+import statistics
+import sys
+
+from perlcompat import die, warn, getopts
+import graph_tools
+import tbdump
+
+def usage():
+    prog = os.path.basename(sys.argv[0])
+    import_fmts = '/'.join(graph_tools.IMPORT_FORMATS)
+    types = '/'.join(STAT_TBL.keys())
+    die(f"""\
+usage: {prog} [-vqdua] [-i format] [-t type[,type]] [file...]
+  -v              verbose mode (default)
+  -q              quiet mode
+  -d              directed graph
+  -u              undirected graph (default)
+  -a              display all vertex/edge measures
+  -i format       input graph format ({import_fmts})
+  -t type[,type]  specify statistic to display ({types})
+""")
+
+def degree_centrality(g):
+    vals = [(v, g.degree_centrality(v)) for v in g.vertices()]
+    return sorted(vals, key=lambda x: -x[1])
+
+def closeness_centrality(g):
+    vals = [(v, g.closeness_centrality(v)) for v in g.vertices()]
+    return sorted(vals, key=lambda x: -x[1])
+
+def eigenvector_centrality(g):
+    vals = [(v, g.eigenvector_centrality(v)) for v in g.vertices()]
+    return sorted(vals, key=lambda x: -x[1])
+
+def betweenness_cent(g):
+    vals = [(v, g.betweenness_cent(v)) for v in g.vertices()]
+    return sorted(vals, key=lambda x: -x[1])
+
+STAT_TBL = {
+    'nodes': lambda g: g.nvertices(),
+    'edges': lambda g: g.nedges(),
+    'avg_degree': lambda g: g.average_degree(),
+    'degree_stdev': lambda g: statistics.stdev(g.degrees()),
+    'min_degree': lambda g: min(g.degrees()),
+    'max_degree': lambda g: max(g.degrees()),
+    'directed': lambda g: g.is_directed(),
+    'connected': lambda g: g.is_connected(),
+    'clustering_coeff': lambda g: g.clustering_coefficient(),
+    'avg_path_length': lambda g: g.average_path_length(),
+    'avg_eccentricity': lambda g: statistics.mean(g.eccentricities()),
+    'radius': lambda g: min(g.eccentricities()),
+    'diameter': lambda g: max(g.eccentricities()),
+    'assortativity': lambda g: g.assortativity(),
+    'maximal_component': lambda g: len(g.maximal_component()),
+    'spectral_radius': lambda g: g.spectral_radius(),
+    'spectral_gap': lambda g: g.spectral_gap(),
+    'natural_connectivity': lambda g: g.natural_connectivity(),
+    'algebric_connectivity': lambda g: g.algebraic_connectivity(),
+    'effective_resistance': lambda g: g.effective_resistance(),
+    'spanning_tree_count': lambda g: g.spanning_tree_count(),
+    # 'degree_cent': degree_centrality,
+    # 'closeness_cent': closeness_centrality,
+    # 'eigenvector_cent': eigenvector_centrality,
+    # 'betweenness_cent': eigenvector_centrality,
+}
+
+def format_number(x):
+    if x is None:
+        return 'NaN'
+    return f'{x:g}'
+
+def print_number(x, label=None, verbose=False):
+    if verbose and label:
+        print(f'{label:21} ', end='')
+    print(format_number(x))
+
+def main():
+    opt = getopts('vqduai:t:') or usage()
+    verbose = False if opt.q else True
+    directed = False
+    if opt.d:
+        directed = True
+    import_fmt = opt.i if opt.i else 'dot'
+    stat_types = STAT_TBL.keys()
+    if opt.t:
+        stat_types = opt.t.split(',')
+
+    # Load graph.
+    g = graph_tools.Graph(directed=directed)
+    lines = []
+    for line in fileinput.input():
+        line = line.rstrip()
+        lines.append(line)
+    g.import_graph(import_fmt, lines)
+
+    # Display statistics.
+    for atype in stat_types:
+        func = STAT_TBL.get(atype, None)
+        if not func:
+            print(f"Unsupported statistic `{atype}'")
+            exit(1)
+        v = func(g)
+        if v is None:
+            continue
+        if type(v) == list:
+            for u, x in v:
+                print_number(x, f'{atype} {u}', verbose)
+        else:
+            print_number(v, atype, verbose)
+
+if __name__ == "__main__":
+    main()
