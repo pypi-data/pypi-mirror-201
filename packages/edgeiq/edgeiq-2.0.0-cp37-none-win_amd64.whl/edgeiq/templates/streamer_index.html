@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="dash-sub-title">
+      <h1><b>Hostname:</b> {{ hostname }}</h1>
+      <h2><b>edgeIQ:</b> {{ version }}</h2>
+      <h2 id="app-status"><b>Status:</b> Loading</h2>
+    </div>
+
+    <div class="card-deck">
+
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Output<div class="stop-button" id="stop-app" value=""></div></h5>
+          <div class="card-scroller">
+            <p id="streamer-text"></p>
+          </div>
+        </div>
+      </div>
+
+      <div style="width: 70%">
+        <img id="streamer-image" src="">
+      </div>
+
+    </div>
+{% endblock %}
+
+{% block script %}
+<script>
+  document.addEventListener("DOMContentLoaded", function(event) {
+    const image_elem = document.getElementById("streamer-image");
+    const text_elem = document.getElementById("streamer-text");
+    const status_elem = document.getElementById("app-status");
+    const stop_elem = document.getElementById("stop-app");
+
+    function setStatusStopped() {
+      running = false;
+      status_elem.innerHTML = "<b>Status:</b> Stopped";
+      stop_elem.style.opacity = 0.5;
+    }
+
+    var running = false;
+    const socket = io.connect('http://' + document.domain + ':' + location.port, {
+      reconnection: false,
+      transports: ["websocket"],
+    });
+
+    socket.on('connect', () => {
+      console.log('Connected');
+      running = true;
+    });
+
+    socket.on('disconnect', () => {
+      console.log('Disconnected');
+      setStatusStopped();
+    });
+
+    socket.on('connect_error', (error) => {
+      console.log('Connect error! ' + error);
+    });
+
+    socket.on('connect_timeout', (error) => {
+      console.log('Connect timeout! ' + error);
+    });
+
+    socket.on('error', (error) => {
+      console.log('Error! ' + error);
+    });
+
+    // Update image and text data based on incoming data messages
+    socket.on('streamer-data', (msg) => {
+      if (msg.type == 'content') {
+        if (running) {
+          image_elem.src = msg.image;
+          text_elem.innerHTML = msg.text;
+          status_elem.innerHTML = "<b>Status:</b> Running";
+        }
+      } else if (msg.type == 'cmd') {
+        console.log('Received cmd')
+        if (msg.cmd == 'stop') {
+          console.log('Received stop cmd')
+          socket.disconnect();
+          if (running) {
+            setStatusStopped();
+          }
+        }
+      }
+    });
+
+    // Send message to stop app when stop button is pressed
+    stop_elem.addEventListener("click", function() {
+      if (running) {
+        socket.emit('streamer-user', 'stop');
+        console.log('Sent stop msg');
+        socket.disconnect();
+        setStatusStopped();
+      }
+    });
+  });
+</script>
+{% endblock %}

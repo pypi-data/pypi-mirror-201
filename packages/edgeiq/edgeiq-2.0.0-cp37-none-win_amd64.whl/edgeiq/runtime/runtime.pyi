@@ -1,0 +1,6 @@
+import numpy as np
+from typing import Any
+
+class Runtime:
+    def set_input(self, image: np.ndarray) -> None: ...
+    def forward(self) -> Any: ...
