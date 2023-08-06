@@ -1,0 +1,62 @@
+# [Data directory]
+# Stores all dataset-related data (write-ahead logs, LSM files, metadata, etc.).
+# All workers concurrently share this directory but prefix their datasets with
+# a worker ID to avoid overlap.
+data_dir: data
+
+datasets:
+    # [Number of ingress workers]
+    # The number of workers to progress and fan out datasets.  Fanout is done in round-robin order based
+    # on the number of datasets, thus helping distribute datasets among workers evenly without bias or priority.
+    num_workers: 3
+    # [Ingress communication method]
+    # Method of communication between frontend daemon and workers.
+    # + "tcp" -- TCP loopback
+    # + "tcp_fast" -- TCP loopback with NO_DELAY (responsiveness = good for small and infrequent ingress, bad for heavy rates of ingress)
+    mode: tcp
+    buffers:
+        # [Insert buffer size]
+        # Number of entries buffered for single-row inserts before flushing automatically.
+        # (not applicable if using "pyperspaced" frontend)
+        insert: 100
+        # [Select buffer size]
+        # Number of entries buffered in a single message from a query against an in-memory ingress worker.
+        select: 100000
+        # [Freeze limit]
+        # Maximum number of rows stored in an in-memory dataset before conversion to disk.
+        freeze: 5000
+    # [Send acknowledgements]
+    # Force workers to acknowledge requests for non-query commands (e.g. insert, delete, etc.).
+    # Turning off acknowledgements can help speed up throughput of the ingress workers but at
+    # the expense of not knowing whether commands were successful.
+    send_acks: True
+    # [Flush write-ahead logs]
+    # Flushes each command to the write-ahead log after running.
+    # Turning this off can help with throughput but at the risk of losing durability with
+    # your data.
+    flush: True
+    # [Freeze interval time]
+    # Number of seconds on a non-busy interval to flush all in-memory contents to disk.
+    # A "non-busy interval" is defined as a consistent period of time where no other datasets
+    # are being frozen or have been frozen to disk.
+    # 'None' (without quotes) is a valid option to turn off periodic dataset freezing.
+    freeze_interval: 30
+
+storage:
+    compactor:
+        # [Compactor cycle time]
+        # Number of seconds to merge on-disk files for datasets together.
+        # Merging files can help make queries more responsive but require more disk activity.
+        # Choosing a higher cycle time for the storage compactor is preferred if you don't
+        # have large data ingresses on a consistent basis.
+        # Compaction cycles are carried out independently of in-memory or current disk
+        # operations.
+        cycle_secs: 15
+
+http:
+    # [HTTP frontend host]
+    # IP binding for the HTTP frontend listener to accept requests
+    host: "0.0.0.0"
+    # [HTTP frontend port]
+    # HTTP listener port for accepting requests
+    port: 8090
