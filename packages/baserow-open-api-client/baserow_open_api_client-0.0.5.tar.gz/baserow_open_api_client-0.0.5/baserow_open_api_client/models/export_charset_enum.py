@@ -1,0 +1,40 @@
+from enum import Enum
+
+
+class ExportCharsetEnum(str, Enum):
+    BIG5 = "big5"
+    EUC_JP = "euc-jp"
+    EUC_KR = "euc-kr"
+    GB18030 = "gb18030"
+    GBK = "gbk"
+    ISO_2022_JP = "iso-2022-jp"
+    ISO_8859_1 = "iso-8859-1"
+    ISO_8859_10 = "iso-8859-10"
+    ISO_8859_14 = "iso-8859-14"
+    ISO_8859_16 = "iso-8859-16"
+    ISO_8859_2 = "iso-8859-2"
+    ISO_8859_3 = "iso-8859-3"
+    ISO_8859_4 = "iso-8859-4"
+    ISO_8859_5 = "iso-8859-5"
+    ISO_8859_6 = "iso-8859-6"
+    ISO_8859_7 = "iso-8859-7"
+    ISO_8859_8 = "iso-8859-8"
+    KOI8_R = "koi8-r"
+    KOI8_U = "koi8-u"
+    MACINTOSH = "macintosh"
+    SHIFT_JIS = "shift-jis"
+    UTF_8 = "utf-8"
+    WINDOWS_1250 = "windows-1250"
+    WINDOWS_1251 = "windows-1251"
+    WINDOWS_1252 = "windows-1252"
+    WINDOWS_1253 = "windows-1253"
+    WINDOWS_1254 = "windows-1254"
+    WINDOWS_1255 = "windows-1255"
+    WINDOWS_1256 = "windows-1256"
+    WINDOWS_1257 = "windows-1257"
+    WINDOWS_1258 = "windows-1258"
+    WINDOWS_874 = "windows-874"
+    X_MAC_CYRILLIC = "x-mac-cyrillic"
+
+    def __str__(self) -> str:
+        return str(self.value)
