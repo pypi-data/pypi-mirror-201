@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>in2xl &mdash; in2xl 0.1.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            in2xl
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">in2xl</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">in2xl</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Module code</a></li>
+      <li class="breadcrumb-item active">in2xl</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for in2xl</h1><div class="highlight"><pre>
+<span></span><span class="c1"># in2xl.py</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span> <span class="nn">openpyxl.utils.dataframe</span> <span class="kn">import</span> <span class="n">dataframe_to_rows</span>
+<span class="kn">from</span> <span class="nn">xlsxwriter.utility</span> <span class="kn">import</span> <span class="n">xl_col_to_name</span> <span class="k">as</span> <span class="n">xl_name</span>
+<span class="kn">import</span> <span class="nn">ruamel.std.zipfile</span> <span class="k">as</span> <span class="nn">zipfile</span>
+<span class="kn">from</span> <span class="nn">lxml</span> <span class="kn">import</span> <span class="n">etree</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">numbers</span>
+<span class="kn">import</span> <span class="nn">decimal</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="n">XMAIN</span> <span class="o">=</span> <span class="s2">&quot;{http://schemas.openxmlformats.org/spreadsheetml/2006/main}&quot;</span>
+<span class="n">XREL</span> <span class="o">=</span> <span class="s1">&#39;{http://schemas.openxmlformats.org/officeDocument/2006/relationships}&#39;</span>
+<span class="n">XCHART</span> <span class="o">=</span> <span class="s1">&#39;{http://schemas.openxmlformats.org/drawingml/2006/chart}&#39;</span>
+<span class="n">XDSGN</span> <span class="o">=</span> <span class="s2">&quot;http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac&quot;</span>
+
+
+<div class="viewcode-block" id="Workbook"><a class="viewcode-back" href="../in2xl.html#in2xl.Workbook">[docs]</a><span class="k">class</span> <span class="nc">Workbook</span><span class="p">:</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The `Workbook` class represents an Excel workbook.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        xmain (str): A string representing the main namespace.</span>
+<span class="sd">        xrel (str): A string representing the relationship namespace.</span>
+<span class="sd">        xchart (str): A string representing the chart namespace.</span>
+<span class="sd">        xdsgn (str): A string representing the drawing namespace.</span>
+<span class="sd">        temp (str): A string representing the temporary path where the Excel workbook is copied.</span>
+<span class="sd">        wb (Element): An Element object representing the workbook.xml file.</span>
+<span class="sd">        wb_dict (dict): A dictionary of worksheet names and their corresponding filenames.</span>
+<span class="sd">        wb_id_dict (dict): A dictionary of worksheet names and their corresponding sheet Ids.</span>
+<span class="sd">        content (list): A list of all files and directories in the zip archive.</span>
+<span class="sd">        chart_dict (dict): A dictionary of worksheet names and the corresponding chart filenames.</span>
+<span class="sd">        wb_state (dict): A dictionary of worksheet names and their corresponding states (visible, hidden, etc.).</span>
+
+<span class="sd">    Methods:</span>
+<span class="sd">        __init__(self): Initializes a new instance of the `Workbook` class.</span>
+<span class="sd">        __worksheets(self): Extracts worksheet information from a given Excel file.</span>
+<span class="sd">        read_xlsx(self, path: str = None) -&gt; Worksheets: Reads an Excel workbook from the specified file path and returns an instance of Worksheets.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">xmain</span> <span class="o">=</span> <span class="n">XMAIN</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xrel</span> <span class="o">=</span> <span class="n">XREL</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xchart</span> <span class="o">=</span> <span class="n">XCHART</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xdsgn</span> <span class="o">=</span> <span class="n">XDSGN</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">temp</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wb</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wb_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wb_id_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">chart_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wb_state</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">__worksheets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method extracts worksheet information from a given Excel file.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            None</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            wb_dict (dict): A dictionary of worksheet names and their corresponding filenames.</span>
+<span class="sd">            wb_id_dict (dict): A dictionary of worksheet names and their corresponding sheet Ids.</span>
+<span class="sd">            wb (Element): An Element object representing the workbook.xml file.</span>
+<span class="sd">            content (list): A list of all files and directories in the zip archive.</span>
+<span class="sd">            chart_dict (dict): A dictionary of worksheet names and the corresponding chart filenames.</span>
+<span class="sd">            wb_state (dict): A dictionary of worksheet names and their corresponding states (visible, hidden, etc.).</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temp</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">myzip</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">myzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;xl/workbook.xml&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">myfile</span><span class="p">:</span>
+                <span class="n">wb</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">myfile</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+                <span class="n">content</span> <span class="o">=</span> <span class="n">myzip</span><span class="o">.</span><span class="n">namelist</span><span class="p">()</span>
+
+        <span class="n">wb_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">wb_id_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">wb_state</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">chart_dict</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># Extract information from the workbook.xml file</span>
+
+        <span class="k">for</span> <span class="n">sheets</span> <span class="ow">in</span> <span class="n">wb</span><span class="o">.</span><span class="n">iter</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">xmain</span><span class="si">}</span><span class="s1">sheets&#39;</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">sheets</span><span class="p">:</span>
+                <span class="n">wb_dict</span><span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="s1">&#39;sheet</span><span class="si">{no}</span><span class="s1">.xml&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">no</span><span class="o">=</span><span class="n">i</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">xrel</span><span class="si">}</span><span class="s1">id&#39;</span><span class="p">][</span><span class="mi">3</span><span class="p">:])</span>
+                <span class="n">wb_id_dict</span><span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">i</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;sheetId&#39;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="s1">&#39;state&#39;</span> <span class="ow">in</span> <span class="n">i</span><span class="o">.</span><span class="n">attrib</span><span class="p">:</span>
+                    <span class="n">wb_state</span><span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">i</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;state&#39;</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">wb_state</span><span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="s1">&#39;visible&#39;</span>
+
+        <span class="c1"># Check for charts</span>
+        <span class="n">charts</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">content</span> <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;xl/charts/chart&#39;</span><span class="p">)]</span>
+
+        <span class="k">if</span> <span class="n">charts</span><span class="p">:</span>
+            <span class="c1"># Extract chart information</span>
+            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">charts</span><span class="p">:</span>
+                <span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temp</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">myzip</span><span class="p">:</span>
+                    <span class="k">with</span> <span class="n">myzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">as</span> <span class="n">myfile</span><span class="p">:</span>
+                        <span class="n">chart</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">myfile</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+
+                <span class="n">__a__</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">items</span> <span class="ow">in</span> <span class="n">chart</span><span class="o">.</span><span class="n">iter</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">xchart</span><span class="si">}</span><span class="s1">f&#39;</span><span class="p">):</span>
+                    <span class="n">__a__</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">items</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">wb_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="fm">__contains__</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">):</span>
+                        <span class="n">j</span> <span class="o">=</span> <span class="n">i</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s2">&quot;&#39;&#39;&quot;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">j</span> <span class="o">=</span> <span class="n">i</span>
+                    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">j</span> <span class="ow">in</span> <span class="n">word</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">__a__</span><span class="p">):</span>
+                        <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">chart_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                            <span class="n">chart_dict</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="p">[</span><span class="n">c</span><span class="p">]</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">chart_dict</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">wb_dict</span><span class="p">,</span> <span class="n">wb_id_dict</span><span class="p">,</span> <span class="n">wb</span><span class="p">,</span> <span class="n">content</span><span class="p">,</span> <span class="n">chart_dict</span><span class="p">,</span> <span class="n">wb_state</span>
+
+<div class="viewcode-block" id="Workbook.read_xlsx"><a class="viewcode-back" href="../in2xl.html#in2xl.Workbook.read_xlsx">[docs]</a>    <span class="k">def</span> <span class="nf">read_xlsx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Worksheets</span><span class="p">:</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reads an Excel workbook from the specified file path and returns an instance of Worksheets.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path (str): The file path of the Excel workbook to read.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Worksheets: An instance of the Worksheets class that contains the data extracted from the workbook.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If the `path` argument is None.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Templatepath is missing&#39;</span><span class="p">)</span>
+
+        <span class="n">tpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">dtime</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">tfile</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;~</span><span class="si">{</span><span class="n">dtime</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="si">}</span><span class="s2">.zip&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">temp</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tpath</span><span class="p">,</span> <span class="n">tfile</span><span class="p">)</span>
+
+        <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">temp</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">wb_dict</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">wb_id_dict</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">wb</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chart_dict</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">wb_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__worksheets</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">Worksheets</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="Worksheets"><a class="viewcode-back" href="../in2xl.html#in2xl.Worksheets">[docs]</a><span class="k">class</span> <span class="nc">Worksheets</span><span class="p">():</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a collection of worksheets extracted from an Excel workbook.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        parent (object): The parent object.</span>
+<span class="sd">        key (str): The key for the current worksheet.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        temp (str): The path of the temporary file created to hold the Excel workbook data.</span>
+<span class="sd">        xmain (str): The XML namespace for main XML elements.</span>
+<span class="sd">        xdsgn (str): The XML namespace for design XML elements.</span>
+<span class="sd">        wb_dict (dict): A dictionary mapping worksheet names to their corresponding XML file names.</span>
+<span class="sd">        wb_id_dict (dict): A dictionary mapping worksheet names to their corresponding IDs.</span>
+<span class="sd">        wb (etree._Element): The XML tree representing the workbook.</span>
+<span class="sd">        wb_state (dict): A dictionary mapping worksheet names to their corresponding visibility states.</span>
+<span class="sd">        content (list): A list of the names of all files in the Excel workbook.</span>
+<span class="sd">        stree (None): A reference to the worksheet XML tree.</span>
+<span class="sd">        key (str): The name of the current worksheet.</span>
+<span class="sd">        _state (str): The visibility state of the current worksheet.</span>
+<span class="sd">        sheet (str): The name of the XML file that represents the current worksheet.</span>
+<span class="sd">        tree (None): A reference to the XML tree for the current worksheet.</span>
+<span class="sd">        never (bool): A flag that indicates whether the current worksheet has never been accessed.</span>
+<span class="sd">        check (tuple): A tuple of numeric types to check against for float values.</span>
+
+<span class="sd">    Methods:</span>
+<span class="sd">        __init__(self, parent=None, key=None): Initializes a new instance of the Worksheets class.</span>
+<span class="sd">        __getitem__(self, key): Retrieves a worksheet by name from the Excel workbook.</span>
+<span class="sd">        state(self) -&gt; str:  Returns/Sets the state of the worksheets object.</span>
+<span class="sd">        __change_dim(self, xml, row, column): Changes the dimensions of the specified cell range.</span>
+<span class="sd">        __change_xml(self, xml, row, column, value): Insert data into an XML sheet.</span>
+<span class="sd">        __change_strxml(self, value): Find, add or changes the value of a specified XML tag within the string table element</span>
+<span class="sd">        __create_SubEl(self, main, tag, attrib={}, text=None): Creates a new sub-element with the given tag and attributes under the specified main element.</span>
+<span class="sd">        __clean_formula(self): Removes any child elements with tag &#39;v&#39; under each &#39;f&#39; element in the XML tree of the class instance.</span>
+<span class="sd">        __get_strxml(self): Retrieves and parses the XML content from the &#39;xl/sharedStrings.xml&#39; file in the Excel workbook.</span>
+<span class="sd">        __get_xml(self): Reads the XML data for the current worksheet from the temporary file and stores it in `self.tree`.</span>
+<span class="sd">        __write_state(self, value): Update the state attribute of a sheet in the workbook.</span>
+<span class="sd">        __write_xml(self): This method writes the current XML tree to the corresponding worksheet file within the Excel workbook file.</span>
+<span class="sd">        __write_strxml(self): Write the shared strings XML to the temporary zip file.</span>
+<span class="sd">        close(self) -&gt; None: Close the workbook by removing the temporary file.</span>
+<span class="sd">        insert(self, data: Union(str, int, float, pd.DataFrame), row: int = 1, column: int = 1, axis: int = 0, header: bool = True, index: bool = False ) -&gt; None: Insert data into the worksheet. Convert the input data into an array and pass it to the XML converter.</span>
+<span class="sd">        save(self, path: str = None) -&gt; None: Saves the converted Excel file to the specified path</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">temp</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">temp</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xmain</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">xmain</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xdsgn</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">xdsgn</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wb_dict</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">wb_dict</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wb_id_dict</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">wb_id_dict</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wb</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">wb</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wb_state</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">wb_state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">content</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stree</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">key</span> <span class="o">=</span> <span class="n">key</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wb_state</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sheet</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wb_dict</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tree</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">never</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check</span> <span class="o">=</span> <span class="p">(</span><span class="n">numbers</span><span class="o">.</span><span class="n">Real</span><span class="p">,</span> <span class="n">decimal</span><span class="o">.</span><span class="n">Decimal</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">temp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;please choose a workbook first&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">wb_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">sl</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wb_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;the sheet [</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">] seems to be not included in this Excel workbook, possible sheets: </span><span class="si">{</span><span class="n">sl</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">state</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the current state of the worksheets object.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: The current state of the worksheets object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span>
+
+    <span class="nd">@state</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Worksheets</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the state of the worksheets object to the specified value.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            value (int): The new state value to set. Must be an integer within the range [0, 2].</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Worksheets: The updated Worksheets object.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If the input value is not an integer or is outside the allowed range.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Input is outside of the parameters. (0-2 expected, </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s1"> received)&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="o">=</span> <span class="s1">&#39;visible&#39;</span>
+        <span class="k">elif</span> <span class="n">value</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="o">=</span> <span class="s1">&#39;hidden&#39;</span>
+        <span class="k">elif</span> <span class="n">value</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="o">=</span> <span class="s1">&#39;veryHidden&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__write_state</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">__change_dim</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">column</span><span class="p">):</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Changes the dimensions of the specified cell range.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            xml (Element): The XML element to modify.</span>
+<span class="sd">            row (int): The row number of the cell range.</span>
+<span class="sd">            column (str): The column letter of the cell range.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Worksheets: The updated Worksheets object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">dimnav</span> <span class="o">=</span> <span class="n">xml</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;.//x:dimension&quot;</span><span class="p">,</span> <span class="n">namespaces</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">xmain</span><span class="si">}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="p">)})</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;([A-Z]+)(\d+)\:</span><span class="si">{1}</span><span class="s2">([A-Z]+)(\d+)&quot;</span><span class="p">,</span> <span class="n">dimnav</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;ref&#39;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+        <span class="n">fl</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([(</span><span class="nb">ord</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()[</span><span class="o">-</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">-</span><span class="mi">64</span><span class="p">)</span><span class="o">*</span><span class="mi">26</span><span class="o">**</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="mi">0</span><span class="p">]))])</span>
+        <span class="n">fn</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">sl</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([(</span><span class="nb">ord</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()[</span><span class="o">-</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">-</span><span class="mi">64</span><span class="p">)</span><span class="o">*</span><span class="mi">26</span><span class="o">**</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="mi">2</span><span class="p">]))])</span>
+        <span class="n">sn</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="mi">3</span><span class="p">])</span>
+
+        <span class="n">cl</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([(</span><span class="nb">ord</span><span class="p">(</span><span class="n">column</span><span class="o">.</span><span class="n">upper</span><span class="p">()[</span><span class="o">-</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">-</span><span class="mi">64</span><span class="p">)</span><span class="o">*</span><span class="mi">26</span><span class="o">**</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">column</span><span class="p">))])</span>
+
+        <span class="k">if</span> <span class="n">fl</span> <span class="o">&lt;</span> <span class="n">cl</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">elif</span> <span class="n">fl</span> <span class="o">==</span> <span class="n">cl</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">fn</span> <span class="o">&lt;=</span> <span class="n">row</span><span class="p">:</span>
+                <span class="k">pass</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">fn</span> <span class="o">=</span> <span class="n">row</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fl</span> <span class="o">=</span> <span class="n">cl</span>
+
+        <span class="k">if</span> <span class="n">sl</span> <span class="o">&gt;</span> <span class="n">cl</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">elif</span> <span class="n">sl</span> <span class="o">==</span> <span class="n">cl</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">sn</span> <span class="o">&gt;=</span> <span class="n">row</span><span class="p">:</span>
+                <span class="k">pass</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">sn</span> <span class="o">=</span> <span class="n">row</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sl</span> <span class="o">=</span> <span class="n">cl</span>
+
+        <span class="n">att</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">xl_name</span><span class="p">(</span><span class="n">fl</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="si">}{</span><span class="n">fn</span><span class="si">}</span><span class="s1">:</span><span class="si">{</span><span class="n">xl_name</span><span class="p">(</span><span class="n">sl</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="si">}{</span><span class="n">sn</span><span class="si">}</span><span class="s1">&#39;</span>
+
+        <span class="n">dimnav</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;ref&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">att</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">__change_xml</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">column</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Insert data into an XML sheet.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            xml (ElementTree.Element): The XML sheet to be modified.</span>
+<span class="sd">            row (int): The row number where the value will be inserted.</span>
+<span class="sd">            column (str): The column letter where the value will be inserted.</span>
+<span class="sd">            value (str or int): The value to be inserted.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            self: The modified XML sheet.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">ws_row</span> <span class="o">=</span> <span class="n">xml</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;./</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">xmain</span><span class="si">}</span><span class="s2">sheetData/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">xmain</span><span class="si">}</span><span class="s2">row/[@r=&#39;</span><span class="si">{</span><span class="n">row</span><span class="si">}</span><span class="s2">&#39;]&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">ws_row</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+
+            <span class="n">a_row</span> <span class="o">=</span> <span class="n">xml</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;.//x:row&quot;</span><span class="p">,</span> <span class="n">namespaces</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">xmain</span><span class="si">}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="p">)})</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">a_row</span><span class="p">:</span>
+
+                <span class="n">ws_main</span> <span class="o">=</span> <span class="n">xml</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;./</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">xmain</span><span class="si">}</span><span class="s2">sheetData&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__create_SubEl</span><span class="p">(</span><span class="n">ws_main</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">xmain</span><span class="si">}</span><span class="s1">row&#39;</span><span class="p">,</span> <span class="n">attrib</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;r&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">row</span><span class="p">),</span>
+                                                                         <span class="s1">&#39;spans&#39;</span><span class="p">:</span> <span class="s1">&#39;1:1&#39;</span><span class="p">,</span>
+                                                                         <span class="n">etree</span><span class="o">.</span><span class="n">QName</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xdsgn</span><span class="p">,</span> <span class="s1">&#39;dyDescent&#39;</span><span class="p">):</span> <span class="s1">&#39;0.25&#39;</span>
+                                                                         <span class="p">}</span>
+                                    <span class="p">)</span>
+                <span class="n">dimnav</span> <span class="o">=</span> <span class="n">xml</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;.//x:dimension&quot;</span><span class="p">,</span> <span class="n">namespaces</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">xmain</span><span class="si">}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="p">)})</span>
+                <span class="n">dimnav</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;ref&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">column</span><span class="si">}{</span><span class="n">row</span><span class="si">}</span><span class="s1">:</span><span class="si">{</span><span class="n">column</span><span class="si">}{</span><span class="n">row</span><span class="si">}</span><span class="s1">&#39;</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">__change_xml</span><span class="p">(</span><span class="n">xml</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">column</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+                <span class="k">return</span> <span class="bp">self</span>
+
+            <span class="n">srlist</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;r&#39;</span><span class="p">])</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">a_row</span><span class="p">]</span>
+            <span class="c1"># for i in a_row:</span>
+            <span class="c1">#    srlist.append(int(i.attrib[&#39;r&#39;]))</span>
+            <span class="n">min_n</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">srlist</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">row</span><span class="p">),</span> <span class="n">x</span><span class="p">))</span>
+            <span class="n">add_row</span> <span class="o">=</span> <span class="n">xml</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;.//x:row[@r=&#39;</span><span class="si">{</span><span class="n">min_n</span><span class="si">}</span><span class="s2">&#39;]&quot;</span><span class="p">,</span> <span class="n">namespaces</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">xmain</span><span class="si">}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="p">)})</span>
+            <span class="n">new_row</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">xmain</span><span class="si">}</span><span class="s1">row&#39;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">add_row</span><span class="o">.</span><span class="n">attrib</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">new_row</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">add_row</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">new_row</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;r&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">min_n</span> <span class="o">&gt;</span> <span class="n">row</span><span class="p">:</span>
+                <span class="n">add_row</span><span class="o">.</span><span class="n">addprevious</span><span class="p">(</span><span class="n">new_row</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">add_row</span><span class="o">.</span><span class="n">addnext</span><span class="p">(</span><span class="n">new_row</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">__change_dim</span><span class="p">(</span><span class="n">xml</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">column</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">__change_xml</span><span class="p">(</span><span class="n">xml</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">column</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="bp">self</span>
+
+        <span class="n">ws_column</span> <span class="o">=</span> <span class="n">ws_row</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;./</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">xmain</span><span class="si">}</span><span class="s2">c/[@r=&#39;</span><span class="si">{</span><span class="n">column</span><span class="si">}{</span><span class="n">row</span><span class="si">}</span><span class="s2">&#39;]&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">ws_column</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+
+            <span class="n">oc</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([(</span><span class="nb">ord</span><span class="p">(</span><span class="n">column</span><span class="o">.</span><span class="n">upper</span><span class="p">()[</span><span class="o">-</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">-</span><span class="mi">64</span><span class="p">)</span><span class="o">*</span><span class="mi">26</span><span class="o">**</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">column</span><span class="p">))])</span>
+            <span class="n">a_row</span> <span class="o">=</span> <span class="n">xml</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;.//x:row&quot;</span><span class="p">,</span> <span class="n">namespaces</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">xmain</span><span class="si">}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="p">)})</span>
+            <span class="n">rownav</span> <span class="o">=</span> <span class="n">xml</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;.//x:row[@r=&#39;</span><span class="si">{</span><span class="n">row</span><span class="si">}</span><span class="s2">&#39;]&quot;</span><span class="p">,</span> <span class="n">namespaces</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">xmain</span><span class="si">}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="p">)})</span>
+            <span class="n">allrow</span> <span class="o">=</span> <span class="n">rownav</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;.//x:c&quot;</span><span class="p">,</span> <span class="n">namespaces</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">xmain</span><span class="si">}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="p">)})</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">allrow</span><span class="p">:</span>
+
+                <span class="n">istext</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__change_strxml</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                    <span class="n">istext</span> <span class="o">=</span> <span class="s1">&#39; t=&quot;s&quot;&#39;</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">never</span> <span class="o">=</span> <span class="kc">False</span>
+
+                <span class="n">ws_row</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">etree</span><span class="o">.</span><span class="n">XML</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;&lt;c r=&quot;</span><span class="si">{</span><span class="n">column</span><span class="si">}{</span><span class="n">row</span><span class="si">}</span><span class="s1">&quot;</span><span class="si">{</span><span class="n">istext</span><span class="si">}</span><span class="s1">&gt;&lt;v&gt;</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s1">&lt;/v&gt;&lt;/c&gt;&#39;</span><span class="p">))</span>
+
+                <span class="k">return</span> <span class="bp">self</span>
+
+            <span class="n">c_vault</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">allrow</span><span class="p">:</span>
+                <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(^[A-Z]+)&quot;</span><span class="p">,</span> <span class="n">i</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;r&#39;</span><span class="p">],</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+                <span class="n">c_vault</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">sum</span><span class="p">([(</span><span class="nb">ord</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">()</span><span class="o">.</span><span class="n">upper</span><span class="p">()[</span><span class="o">-</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">-</span><span class="mi">64</span><span class="p">)</span><span class="o">*</span><span class="mi">26</span><span class="o">**</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">()))]))</span>
+
+            <span class="n">c_min</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">c_vault</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">oc</span><span class="p">),</span> <span class="n">x</span><span class="p">))</span>
+
+            <span class="n">add_c</span> <span class="o">=</span> <span class="n">rownav</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;.//x:c[@r=&#39;</span><span class="si">{</span><span class="n">xl_name</span><span class="p">(</span><span class="n">c_min</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="si">}{</span><span class="n">row</span><span class="si">}</span><span class="s2">&#39;]&quot;</span><span class="p">,</span> <span class="n">namespaces</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">xmain</span><span class="si">}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="p">)})</span>
+            <span class="n">new_c</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">xmain</span><span class="si">}</span><span class="s1">c&#39;</span><span class="p">)</span>
+            <span class="n">new_c</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;r&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">xl_name</span><span class="p">(</span><span class="n">oc</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="si">}{</span><span class="n">row</span><span class="si">}</span><span class="s1">&#39;</span>
+
+            <span class="k">if</span> <span class="n">c_min</span> <span class="o">&gt;</span> <span class="n">oc</span><span class="p">:</span>
+                <span class="n">add_c</span><span class="o">.</span><span class="n">addprevious</span><span class="p">(</span><span class="n">new_c</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">add_c</span><span class="o">.</span><span class="n">addnext</span><span class="p">(</span><span class="n">new_c</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">__change_dim</span><span class="p">(</span><span class="n">xml</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">column</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">__change_xml</span><span class="p">(</span><span class="n">xml</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">column</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="bp">self</span>
+
+        <span class="n">istext</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__change_strxml</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="n">istext</span> <span class="o">=</span> <span class="s1">&#39; t=&quot;s&quot;&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">never</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="n">ws_value</span> <span class="o">=</span> <span class="n">ws_column</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;./</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">xmain</span><span class="si">}</span><span class="s2">v&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">istext</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="s1">&#39;t&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ws_column</span><span class="o">.</span><span class="n">attrib</span><span class="p">):</span>
+            <span class="n">ws_column</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;t&#39;</span><span class="p">,</span> <span class="s2">&quot;s&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="p">(</span><span class="n">istext</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="s1">&#39;t&#39;</span> <span class="ow">in</span> <span class="n">ws_column</span><span class="o">.</span><span class="n">attrib</span><span class="p">):</span>
+            <span class="n">ws_column</span><span class="o">.</span><span class="n">attrib</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;t&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">ws_value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ws_column</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">etree</span><span class="o">.</span><span class="n">XML</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;&lt;v&gt;</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s1">&lt;/v&gt;&#39;</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">ws_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ws_value</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">__change_strxml</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find, add or changes the value of a specified XML tag within the string table element.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            value (str): The value to change the XML tag to.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            int: The index number of the updated XML tag within the string table element.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stree</span><span class="o">.</span><span class="n">xpath</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;.//x:t[text()=&quot;</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s1">&quot;]&#39;</span><span class="p">,</span> <span class="n">namespaces</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">xmain</span><span class="si">}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="p">)}):</span>
+            <span class="n">_full_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stree</span><span class="o">.</span><span class="n">xpath</span><span class="p">(</span><span class="s1">&#39;.//x:t&#39;</span><span class="p">,</span> <span class="n">namespaces</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">xmain</span><span class="si">}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="p">)})</span>
+            <span class="n">_count</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">_data</span> <span class="ow">in</span> <span class="n">_full_list</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">_data</span><span class="o">.</span><span class="n">text</span> <span class="o">==</span> <span class="n">value</span><span class="p">:</span>
+                    <span class="n">_number</span> <span class="o">=</span> <span class="n">_count</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">stree</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;count&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stree</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;count&#39;</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">_count</span> <span class="o">=</span> <span class="n">_count</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">root</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stree</span><span class="o">.</span><span class="n">getroottree</span><span class="p">()</span><span class="o">.</span><span class="n">getroot</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__create_SubEl</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">xmain</span><span class="si">}</span><span class="s1">si&#39;</span><span class="p">)</span>
+            <span class="n">sub_si</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stree</span><span class="o">.</span><span class="n">xpath</span><span class="p">(</span><span class="s2">&quot;.//x:si&quot;</span><span class="p">,</span> <span class="n">namespaces</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">xmain</span><span class="si">}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="p">)})[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__create_SubEl</span><span class="p">(</span><span class="n">sub_si</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">xmain</span><span class="si">}</span><span class="s1">t&#39;</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">value</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stree</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;count&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stree</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;count&#39;</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stree</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;uniqueCount&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stree</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;uniqueCount&#39;</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">_number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stree</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;uniqueCount&#39;</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span>
+
+        <span class="k">return</span> <span class="n">_number</span>
+
+    <span class="k">def</span> <span class="nf">__create_SubEl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">main</span><span class="p">,</span> <span class="n">tag</span><span class="p">,</span> <span class="n">attrib</span><span class="o">=</span><span class="p">{},</span> <span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a new sub-element with the given tag and attributes under the specified main element.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            main: The main element under which the sub-element will be created.</span>
+<span class="sd">            tag: The tag of the sub-element to be created.</span>
+<span class="sd">            attrib: A dictionary of attributes for the sub-element (optional).</span>
+<span class="sd">            text: The text content of the sub-element (optional).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The instance of the class.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">node</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">main</span><span class="p">,</span> <span class="n">tag</span><span class="p">,</span> <span class="n">attrib</span><span class="p">)</span>
+        <span class="n">node</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">text</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">__clean_formula</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Removes any child elements with tag &#39;v&#39; under each &#39;f&#39; element in the XML tree of the class instance.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">form_clean</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s1">&#39;.//x:f&#39;</span><span class="p">,</span> <span class="n">namespaces</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">xmain</span><span class="si">}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="p">)})</span>
+        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">form_clean</span><span class="p">:</span>
+            <span class="n">parent</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">getparent</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">parent</span><span class="o">.</span><span class="n">getchildren</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;</span><span class="si">{s}</span><span class="s1">v&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">s</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">xmain</span><span class="p">):</span>
+                    <span class="n">parent</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__get_strxml</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieves and parses the XML content from the &#39;xl/sharedStrings.xml&#39; file in the Excel workbook.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The instance of the class.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            KeyError: If &#39;xl/sharedStrings.xml&#39; file is not found in the Excel workbook.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temp</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">myzip</span><span class="p">:</span>
+                <span class="k">with</span> <span class="n">myzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;xl/sharedStrings.xml&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">myfile</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">stree</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">myfile</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+
+            <span class="n">zipfile</span><span class="o">.</span><span class="n">delete_from_zip_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temp</span><span class="p">,</span> <span class="n">file_names</span><span class="o">=</span><span class="s1">&#39;xl/sharedStrings.xml&#39;</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stree</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;&lt;sst xmlns=&quot;http://schemas.openxmlformats.org/spreadsheetml/2006/main&quot; count=&quot;0&quot; uniqueCount=&quot;0&quot;/&gt;&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">never</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temp</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">myzip</span><span class="p">:</span>
+                <span class="k">with</span> <span class="n">myzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;[Content_Types].xml&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">myfile</span><span class="p">:</span>
+                    <span class="n">cttree</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">myfile</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+
+            <span class="n">xct</span> <span class="o">=</span> <span class="s1">&#39;{http://schemas.openxmlformats.org/package/2006/content-types}&#39;</span>
+
+            <span class="n">ct_check</span> <span class="o">=</span> <span class="n">cttree</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;./</span><span class="si">{</span><span class="n">xct</span><span class="si">}</span><span class="s2">Override/[@PartName=&#39;/xl/sharedStrings.xml&#39;]&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">ct_check</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">zipfile</span><span class="o">.</span><span class="n">delete_from_zip_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temp</span><span class="p">,</span> <span class="n">file_names</span><span class="o">=</span><span class="s1">&#39;[Content_Types].xml&#39;</span><span class="p">)</span>
+
+                <span class="n">pre_ct</span> <span class="o">=</span> <span class="n">cttree</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;./</span><span class="si">{</span><span class="n">xct</span><span class="si">}</span><span class="s2">Override/[@PartName=&#39;/xl/styles.xml&#39;]&quot;</span><span class="p">)</span>
+                <span class="n">new_ct</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">xct</span><span class="si">}</span><span class="s1">Override&#39;</span><span class="p">)</span>
+                <span class="n">new_ct</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;ContentType&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml&quot;</span>
+                <span class="n">new_ct</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;PartName&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;/xl/sharedStrings.xml&quot;</span>
+
+                <span class="n">pre_ct</span><span class="o">.</span><span class="n">addnext</span><span class="p">(</span><span class="n">new_ct</span><span class="p">)</span>
+
+                <span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temp</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;a&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">myzip</span><span class="p">:</span>
+                    <span class="k">with</span> <span class="n">myzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;[Content_Types].xml&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">myfile</span><span class="p">:</span>
+                        <span class="n">myfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">etree</span><span class="o">.</span><span class="n">tostring</span><span class="p">(</span><span class="n">cttree</span><span class="p">))</span>
+
+            <span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temp</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">myzip</span><span class="p">:</span>
+                <span class="k">with</span> <span class="n">myzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;xl/_rels/workbook.xml.rels&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">myfile</span><span class="p">:</span>
+                    <span class="n">retree</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">myfile</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+
+            <span class="n">xre</span> <span class="o">=</span> <span class="s2">&quot;{http://schemas.openxmlformats.org/package/2006/relationships}&quot;</span>
+
+            <span class="n">re_check</span> <span class="o">=</span> <span class="n">retree</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;./</span><span class="si">{</span><span class="n">xre</span><span class="si">}</span><span class="s2">Relationship/[@Target=&#39;sharedStrings.xml&#39;]&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">re_check</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+
+                <span class="n">zipfile</span><span class="o">.</span><span class="n">delete_from_zip_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temp</span><span class="p">,</span> <span class="n">file_names</span><span class="o">=</span><span class="s1">&#39;xl/_rels/workbook.xml.rels&#39;</span><span class="p">)</span>
+
+                <span class="n">all_re</span> <span class="o">=</span> <span class="n">retree</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s1">&#39;.//x:Relationship&#39;</span><span class="p">,</span> <span class="n">namespaces</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">xre</span><span class="si">}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="p">)})</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">__create_SubEl</span><span class="p">(</span><span class="n">retree</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">xre</span><span class="si">}</span><span class="s1">Relationship&#39;</span><span class="p">,</span>
+                                    <span class="n">attrib</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;Target&#39;</span><span class="p">:</span> <span class="s2">&quot;sharedStrings.xml&quot;</span><span class="p">,</span>
+                                            <span class="s1">&#39;Type&#39;</span><span class="p">:</span> <span class="s2">&quot;http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings&quot;</span><span class="p">,</span>
+                                            <span class="s1">&#39;Id&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;rId</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">all_re</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span>
+                                            <span class="p">}</span>
+                                    <span class="p">)</span>
+
+                <span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temp</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;a&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">myzip</span><span class="p">:</span>
+                    <span class="k">with</span> <span class="n">myzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;xl/_rels/workbook.xml.rels&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">myfile</span><span class="p">:</span>
+                        <span class="n">myfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">etree</span><span class="o">.</span><span class="n">tostring</span><span class="p">(</span><span class="n">retree</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">__get_xml</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reads the XML data for the current worksheet from the temporary file and stores it in `self.tree`.</span>
+<span class="sd">        Then, it deletes the worksheet file from the temporary ZIP archive.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            self : Returns the instance of the `Excel` class after reading and storing the worksheet XML data.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temp</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">myzip</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">myzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;xl/worksheets/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sheet</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">myfile</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">tree</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">myfile</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+
+        <span class="n">zipfile</span><span class="o">.</span><span class="n">delete_from_zip_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temp</span><span class="p">,</span> <span class="n">file_names</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;xl/worksheets/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sheet</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">__write_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update the state attribute of a sheet in the workbook.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            value (str): The new state value for the sheet.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            self: The updated instance of the class.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            IndexError: If the sheet with the given name does not exist in the workbook.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># If the current state is the same as the new value, return the instance without modifying anything.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">wb_state</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">]</span> <span class="o">==</span> <span class="n">value</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span>
+
+        <span class="c1"># Delete the workbook.xml file from the zip file.</span>
+        <span class="n">zipfile</span><span class="o">.</span><span class="n">delete_from_zip_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temp</span><span class="p">,</span> <span class="n">file_names</span><span class="o">=</span><span class="s1">&#39;xl/workbook.xml&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Find the sheet node in the workbook with the given name.</span>
+        <span class="n">snode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wb</span><span class="o">.</span><span class="n">xpath</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;.//x:sheet[@name=&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="si">}</span><span class="s1">&quot;]&#39;</span><span class="p">,</span> <span class="n">namespaces</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">xmain</span><span class="si">}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="p">)})[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="s1">&#39;visible&#39;</span><span class="p">:</span>
+            <span class="n">snode</span><span class="o">.</span><span class="n">attrib</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;state&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">snode</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;state&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+        <span class="c1"># Write the updated workbook xml to the zip file.</span>
+        <span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temp</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;a&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">myzip</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">myzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;xl/workbook.xml&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">myfile</span><span class="p">:</span>
+                <span class="n">myfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">etree</span><span class="o">.</span><span class="n">tostring</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wb</span><span class="p">))</span>
+
+        <span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temp</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">myzip</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">myzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;xl/workbook.xml&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">myfile</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">wb</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">myfile</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+
+        <span class="n">wb_state</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">sheets</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">wb</span><span class="o">.</span><span class="n">iter</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">xmain</span><span class="si">}</span><span class="s1">sheets&#39;</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">sheets</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s1">&#39;state&#39;</span> <span class="ow">in</span> <span class="n">i</span><span class="o">.</span><span class="n">attrib</span><span class="p">:</span>
+                    <span class="n">wb_state</span><span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">i</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;state&#39;</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">wb_state</span><span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="s1">&#39;visible&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">wb_state</span> <span class="o">=</span> <span class="n">wb_state</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">__write_xml</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method writes the current XML tree to the corresponding worksheet file within the Excel workbook file.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Workbook: instance of the Workbook class.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temp</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;a&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">myzip</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">myzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;xl/worksheets/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sheet</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">myfile</span><span class="p">:</span>
+                <span class="n">myfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">etree</span><span class="o">.</span><span class="n">tostring</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">__write_strxml</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write the shared strings XML to the temporary zip file.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Workbook: instance of the Workbook class.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">never</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span>
+
+        <span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temp</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;a&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">myzip</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">myzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;xl/sharedStrings.xml&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">myfile</span><span class="p">:</span>
+                <span class="n">myfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">etree</span><span class="o">.</span><span class="n">tostring</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stree</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
+
+<div class="viewcode-block" id="Worksheets.close"><a class="viewcode-back" href="../in2xl.html#in2xl.Worksheets.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Close the workbook by removing the temporary file.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temp</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Worksheets.insert"><a class="viewcode-back" href="../in2xl.html#in2xl.Worksheets.insert">[docs]</a>    <span class="k">def</span> <span class="nf">insert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+               <span class="n">data</span><span class="p">:</span> <span class="n">Union</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">),</span>
+               <span class="n">row</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+               <span class="n">column</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+               <span class="n">axis</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+               <span class="n">header</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+               <span class="n">index</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+               <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Insert data into the worksheet. Convert the input data into an array and pass it to the XML converter.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data (Union[str, int, float, pd.DataFrame]): Data to be inserted.</span>
+<span class="sd">            row (int, optional): Row number where the data is to be inserted. Defaults to 1.</span>
+<span class="sd">            column (int, optional): Column number where the data is to be inserted. Defaults to 1.</span>
+<span class="sd">            axis (int, optional): 0 to insert data row-wise and 1 to insert data column-wise. Defaults to 0.</span>
+<span class="sd">            header (bool, optional): True to include headers in the data, False otherwise. Defaults to True.</span>
+<span class="sd">            index (bool, optional): True to include index in the data, False otherwise. Defaults to False.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">column</span> <span class="o">=</span> <span class="n">column</span> <span class="o">-</span> <span class="mi">1</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__get_xml</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__get_strxml</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+
+            <span class="n">dfr</span> <span class="o">=</span> <span class="n">dataframe_to_rows</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="n">header</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">index</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">axis</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">c_idx</span><span class="p">,</span> <span class="n">_column</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dfr</span><span class="p">,</span> <span class="n">column</span><span class="p">):</span>  <span class="c1"># (Startcolumn)</span>
+                    <span class="k">for</span> <span class="n">r_idx</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">_column</span><span class="p">,</span> <span class="n">row</span><span class="p">):</span>  <span class="c1"># (Startrow)</span>
+                        <span class="k">if</span> <span class="p">(</span><span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;nan&quot;</span><span class="p">):</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">__change_xml</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="p">,</span> <span class="n">r_idx</span><span class="p">,</span> <span class="n">xl_name</span><span class="p">(</span><span class="n">c_idx</span><span class="p">),</span> <span class="n">value</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="k">pass</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">r_idx</span><span class="p">,</span> <span class="n">_row</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dfr</span><span class="p">,</span> <span class="n">row</span><span class="p">):</span>  <span class="c1"># (Startrow)</span>
+                    <span class="k">for</span> <span class="n">c_idx</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">_row</span><span class="p">,</span> <span class="n">column</span><span class="p">):</span>  <span class="c1"># (Startcolumn)</span>
+                        <span class="k">if</span> <span class="p">(</span><span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;nan&quot;</span><span class="p">):</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">__change_xml</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="p">,</span> <span class="n">r_idx</span><span class="p">,</span> <span class="n">xl_name</span><span class="p">(</span><span class="n">c_idx</span><span class="p">),</span> <span class="n">value</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="k">pass</span>
+
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__change_xml</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tree</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">xl_name</span><span class="p">(</span><span class="n">column</span><span class="p">),</span> <span class="n">data</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__clean_formula</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__write_xml</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__write_strxml</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Worksheets.save"><a class="viewcode-back" href="../in2xl.html#in2xl.Worksheets.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Saves the converted Excel file to the specified path</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path (str): The file path of the Excel workbook to read.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If the `path` argument is None.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Output path is missing&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temp</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, David Herzog.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
