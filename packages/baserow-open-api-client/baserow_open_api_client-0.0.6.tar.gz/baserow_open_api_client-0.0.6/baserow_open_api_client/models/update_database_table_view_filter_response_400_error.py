@@ -1,0 +1,11 @@
+from enum import Enum
+
+
+class UpdateDatabaseTableViewFilterResponse400Error(str, Enum):
+    ERROR_FIELD_NOT_IN_TABLE = "ERROR_FIELD_NOT_IN_TABLE"
+    ERROR_USER_NOT_IN_GROUP = "ERROR_USER_NOT_IN_GROUP"
+    ERROR_VIEW_FILTER_NOT_SUPPORTED = "ERROR_VIEW_FILTER_NOT_SUPPORTED"
+    ERROR_VIEW_FILTER_TYPE_UNSUPPORTED_FIELD = "ERROR_VIEW_FILTER_TYPE_UNSUPPORTED_FIELD"
+
+    def __str__(self) -> str:
+        return str(self.value)

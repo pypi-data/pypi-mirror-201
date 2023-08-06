@@ -1,0 +1,10 @@
+from enum import Enum
+
+
+class UpdateTeamResponse400Error(str, Enum):
+    ERROR_SUBJECT_BAD_REQUEST = 'ERROR_SUBJECT_BAD_REQUEST"'
+    ERROR_TEAM_NAME_NOT_UNIQUE = "ERROR_TEAM_NAME_NOT_UNIQUE"
+    ERROR_USER_NOT_IN_GROUP = "ERROR_USER_NOT_IN_GROUP"
+
+    def __str__(self) -> str:
+        return str(self.value)
