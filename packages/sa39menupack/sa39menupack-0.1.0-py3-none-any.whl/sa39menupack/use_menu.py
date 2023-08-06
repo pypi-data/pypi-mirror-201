@@ -1,0 +1,13 @@
+from menu_selftest import menu
+
+
+def func_a():
+    return "A"
+
+
+def func_b():
+    return "B"
+
+
+return_value = menu(a=func_a, b=func_b)
+print(f"Result is {return_value}")
