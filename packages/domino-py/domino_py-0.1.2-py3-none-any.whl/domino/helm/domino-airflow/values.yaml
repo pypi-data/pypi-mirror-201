@@ -1,0 +1,32 @@
+# Default values for installing Domino Airflow in a K8s cluster
+
+# # Airflow services override
+airflow:
+  enabled: true
+  images:
+    useDefaultImageForMigration: false
+    airflow:
+      repository: taufferconsulting/flowui-airflow-base
+      tag: latest
+      pullPolicy: IfNotPresent
+
+  extraSecrets:
+    airflow-ssh-secret:
+      # github ssh private deploy key for workflow repository
+      data: |
+        gitSshKey: ~
+
+  config:
+    api:
+      auth_backends: airflow.api.auth.backend.basic_auth
+
+  # Git sync
+  dags:
+    gitSync:
+      enabled: true
+      wait: 60 # interval between git sync attempts in seconds
+      # Github workflows reposiory ssh path
+      repo: ~
+      branch: main
+      subPath: "workflows"
+      sshKeySecret: airflow-ssh-secret
