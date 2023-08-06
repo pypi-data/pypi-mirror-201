@@ -1,0 +1,1 @@
+import{a as r,f as s,w as e,g as n,o as l,j as o,u as a,bB as u,bC as _}from"./index-e7fdb3d4.js";import{u as p}from"./usePageTitle-df55e3a5.js";const C=r({__name:"WorkPoolCreate",setup(c){return p("Create Work Pool"),(f,m)=>{const t=n("p-layout-default");return l(),s(t,null,{header:e(()=>[o(a(u))]),default:e(()=>[o(a(_))]),_:1})}}});export{C as default};
