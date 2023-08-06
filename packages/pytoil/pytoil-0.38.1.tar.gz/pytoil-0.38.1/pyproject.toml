@@ -1,0 +1,253 @@
+[build-system]
+build-backend = "hatchling.build"
+requires = [
+  "hatchling",
+]
+
+[project]
+name = "pytoil"
+version = "0.38.1"
+description = "CLI to automate the development workflow."
+readme = "README.md"
+keywords = [
+  "automation",
+  "cli",
+  "developer-tools",
+  "python",
+]
+license = { text = "Apache Software License 2.0" }
+maintainers = [ { name = "Tom Fleet" }, { email = "tomfleet2018@gmail.com" } ]
+authors = [ { name = "Tom Fleet" }, { email = "tomfleet2018@gmail.com" } ]
+requires-python = ">=3.9"
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: Apache Software License",
+  "Natural Language :: English",
+  "Operating System :: MacOS :: MacOS X",
+  "Operating System :: POSIX :: Linux",
+  "Operating System :: Microsoft :: Windows",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Topic :: Software Development",
+  "Topic :: Utilities",
+  "Typing :: Typed",
+]
+dependencies = [
+  "click==8.1.3",
+  "cookiecutter==2.1.1",
+  "copier==7.0.1",
+  "httpx==0.23.3",
+  "humanize==4.6",
+  "pydantic==1.10.6",
+  "PyYAML==6",
+  "questionary==1.10",
+  "rich==13.3.3",
+  "rtoml==0.9",
+  "thefuzz[speedup]==0.19",
+  'typing_extensions==4.4; python_version <= "3.9"',
+  "virtualenv==20.21",
+]
+[project.urls]
+Documentation = "https://FollowTheProcess.github.io/pytoil/"
+Homepage = "https://github.com/FollowTheProcess/pytoil"
+Source = "https://github.com/FollowTheProcess/pytoil"
+[project.scripts]
+pytoil = "pytoil.cli.root:main"
+
+[tool.hatch.envs.default]
+# Include dev dependencies in the default environment
+description = """
+Default environment for development, contains everything
+you need to work on the project, installed by default.
+"""
+extra-dependencies = [
+  "covdefaults==2.3",
+  "coverage[toml]==7.2.2",
+  "freezegun==1.2.2",
+  "mkdocs==1.4.2",
+  "mkdocs-material==9.1.5",
+  "mypy==1.1.1",
+  "pre-commit==3.2",
+  "pytest==7.2.2",
+  "pytest-clarity==1.0.1",
+  "pytest-cov==4",
+  "pytest-httpx==0.21.3",
+  "pytest-mock==3.10",
+  "pytest-randomly==3.12",
+  "ruff==0.0.260",
+  "types-click==7.1.8",
+  "types-PyYAML==6.0.12.9",
+]
+
+[tool.hatch.envs.default.scripts]
+check = [
+  "pytest --cov ./src ./tests",
+  "pre-commit run --all-files",
+  "mypy",
+]
+
+[tool.hatch.envs.tests]
+template = "tests" # Don't inherit from default
+description = """
+Environment for running tests, contains only the
+test dependencies and installs the project.
+"""
+dependencies = [
+  "pytest",
+  "pytest-cov",
+  "pytest-mock",
+  "pytest-httpx",
+  "pytest-randomly",
+  "covdefaults",
+  "freezegun",
+  "coverage[toml]",
+]
+
+[tool.hatch.envs.tests.scripts]
+run = "pytest --cov ./src ./tests"
+
+cov = [
+  "run",
+  "coverage xml",
+]
+
+[tool.hatch.envs.lint]
+detached = true
+description = """
+Environment for running linters, contains only the linting
+dependencies and does not install the project.
+"""
+dependencies = [
+  "pre-commit",
+  "mypy",
+  "pydantic",
+  "types-PyYAML",
+]
+
+[tool.hatch.envs.lint.scripts]
+run = [
+  "pre-commit run --all-files",
+  "mypy",
+]
+
+[tool.hatch.envs.docs]
+detached = true
+description = """
+Environment for building and serving docs, contains only
+the docs dependencies and does not install the project.
+"""
+dependencies = [
+  "mkdocs",
+  "mkdocs-material",
+]
+
+[tool.hatch.envs.docs.scripts]
+build = "mkdocs build --clean"
+serve = "mkdocs serve"
+deploy = "mkdocs gh-deploy --force"
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = [ "-ra", "--strict-markers", "--strict-config" ]
+xfail_strict = true
+filterwarnings = [
+  "error",
+  "ignore::DeprecationWarning", # DeprecationWarning: read_binary is deprecated. Use files() instead. Comes from virtualenv
+]
+log_cli_level = "info"
+pythonpath = [ "src" ]
+testpaths = [ "tests" ]
+
+[tool.coverage.run]
+plugins = [ "covdefaults" ]
+omit = [
+  "src/pytoil/cli/*.py",
+  "src/pytoil/starters/base.py",
+  "src/pytoil/exceptions.py",
+]
+
+[tool.coverage.report]
+fail_under = 95
+exclude_lines = [ "def __repr__", "except ImportError" ]
+
+[tool.mypy]
+files = [ "**/*.py" ]
+python_version = "3.9"
+ignore_missing_imports = true
+strict = true
+pretty = true
+disallow_untyped_decorators = false
+plugins = "pydantic.mypy"
+show_error_codes = true
+warn_unreachable = true
+enable_error_code = [ "ignore-without-code", "redundant-expr", "truthy-bool" ]
+
+[tool.ruff]
+target-version = "py39"
+line-length = 120
+select = [
+  # https://github.com/charliermarsh/ruff#supported-rules
+  "E",   # Pycodestyle errors
+  "F",   # Pyflakes errors
+  "W",   # Pycodestyle warnings
+  "UP",  # All pyupgrade rules
+  "N",   # PEP8 naming
+  "I",   # Isort
+  "C90", # Complexity
+  "C4",  # Flake8 comprehensions
+  "ERA", # Commented out code
+  "B",   # Flake8 bugbear
+  "RUF", # Ruff specific rules
+  "YTT", # Flake8 2020
+  "ANN", # Type annotations
+  "BLE", # No blind excepts
+  "PIE", # Flake8 pie
+  "PT",  # Pytest style
+  "RET", # Function returns
+  "SIM", # Simplify
+  "ARG", # Unused arguments
+  "PTH", # Use pathlib over os.path
+  "PGH", # Pygrep hooks
+  "S",   # Bandit (security)
+  "A",   # Don't shadow builtins
+  "INP", # No implicit namespace packages (causes import errors)
+  "T20", # No print statements
+  "RSE", # When raising an exception chain, use from
+  "SLF", # Flake8-self, private member access
+  "TCH", # Stuff for typing is behind an if TYPE_CHECKING block
+]
+ignore = [
+  "ANN101", # Missing type annotation for self in method
+  "S105",   # Hardcoded passwords (lots of false positives)
+  "S106",   # Hardcoded passwords (again?)
+]
+
+[tool.ruff.mccabe]
+max-complexity = 15
+
+[tool.ruff.isort]
+required-imports = [ "from __future__ import annotations" ]
+
+[tool.ruff.per-file-ignores]
+"tests/**/*.py" = [
+  "ARG001", # Thinks pytest fixtures are unused arguments
+  "D104",   # Missing docstring in __init__.py in tests (which is fine)
+  "FBT001", # Tests are allowed positional bools (fixtures etc.)
+  "S101",   # Assert is allowed in tests (obviously)
+  "TCH",    # Tests will be run with dev dependencies so we don't care
+  "S",      # Security stuff in tests is fine
+  "SLF001", # Private member access in tests is fine
+]
+"conftest.py" = [
+  "TCH", # Conftest is only run for tests (with dev dependencies)
+]
+
+[tool.codespell]
+skip = "*.svg"
+ignore-words-list = "ines,Ines"
