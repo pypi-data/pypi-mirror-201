@@ -1,0 +1,85 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:monkey="http://namespaces.plone.org/monkey"
+    xmlns:five="http://namespaces.zope.org/five"
+    xmlns:i18n="http://namespaces.zope.org/i18n"
+    xmlns:zcml="http://namespaces.zope.org/zcml"
+    xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
+    i18n_domain="imio.dashboard">
+
+    <five:registerPackage package="." initialize=".initialize" />
+
+    <i18n:registerTranslations directory="locales" />
+
+    <include package="Products.CMFCore" file="permissions.zcml" />
+    <include package="collective.monkeypatcher" file="meta.zcml" />
+    <include package="collective.behavior.talcondition"/>
+    <include package="collective.compoundcriterion"/>
+    <include package="collective.documentgenerator"/>
+    <include package="collective.eeafaceted.collectionwidget"/>
+    <include package="collective.eeafaceted.z3ctable"/>
+    <include package="collective.js.iframeresizer"/>
+    <include package="imio.actionspanel"/>
+    <include package="imio.prettylink"/>
+
+    <include package=".browser" />
+    <include package=".content" />
+
+    <include file="columns.zcml" />
+
+    <genericsetup:registerProfile
+        name="default"
+        title="imio.dashboard"
+        directory="profiles/default"
+        description="Installs the imio.dashboard add-on."
+        provides="Products.GenericSetup.interfaces.EXTENSION"
+        />
+
+    <genericsetup:registerProfile
+        name="two_tables"
+        title="imio.dashboard demo of two tables"
+        directory="profiles/two_tables"
+        description="Installs the demo of two tables of imio.dashboard add-on."
+        provides="Products.GenericSetup.interfaces.EXTENSION"
+        />
+
+    <genericsetup:importStep
+        name="imiodashboard-postInstall"
+        title="imio.dashboard post_install import step"
+        description="Post install import step from imio.dashboard"
+        handler=".setuphandlers.post_install">
+    </genericsetup:importStep>
+
+    <permission
+        id="imio.dashboard.AddDashboardCollection"
+        title="imio.dashboard: Add DashboardCollection"
+        />
+
+    <adapter
+        for="plone.app.collection.interfaces.ICollection"
+        factory=".adapters.CustomViewFieldsVocabularyAdapter"
+        provides=".interfaces.ICustomViewFieldsVocabulary" />
+
+    <adapter
+        zcml:condition="installed collective.querynextprev"
+        name="current_criterion_provider"
+        for="eea.facetednavigation.subtypes.interfaces.IFacetedNavigable"
+        factory=".adapters.CurrentCriterionProvider"
+        provides="collective.querynextprev.interfaces.IAdditionalDataProvider" />
+
+    <!-- Vocabularies -->
+    <utility component=".vocabulary.ConditionAwareCollectionVocabularyFactory"
+             name="imio.dashboard.conditionawarecollectionvocabulary" />
+    <utility component=".vocabulary.CreatorsVocabularyFactory"
+             name="imio.dashboard.creatorsvocabulary" />
+    <utility component=".vocabulary.DashboardCategoryCollectionsVocabularyFactory"
+             name="imio.dashboard.collectionsvocabulary" />
+
+    <!-- Apply talcondition extender to the DashboardCollection -->
+    <class class="imio.dashboard.content.dashboardcollection.DashboardCollection">
+        <implements interface="collective.behavior.talcondition.interfaces.ITALConditionable" />
+    </class>
+
+    <include file="upgrades.zcml" />
+
+</configure>
