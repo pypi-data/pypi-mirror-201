@@ -1,0 +1,1 @@
+help = "VmHub service commands."

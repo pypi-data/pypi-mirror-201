@@ -1,0 +1,1 @@
+help = "LCM service commands."
