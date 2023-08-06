@@ -1,0 +1,2 @@
+The Postman SDK for Python is covered under [Postman EULA](https://www.postman.com/legal/terms/).
+Every file present under the installed package `postman-sdk` and imported package `postman_sdk` is covered by this License.
