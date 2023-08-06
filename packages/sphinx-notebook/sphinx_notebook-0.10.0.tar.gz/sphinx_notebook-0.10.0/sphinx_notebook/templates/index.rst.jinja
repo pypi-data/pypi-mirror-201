@@ -1,0 +1,48 @@
+===================
+{{ title }}
+===================
+
+{% set headers = (
+    '',
+    '========================================',
+    '----------------------------------------',
+    '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~',
+    '^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^'
+    )
+%}
+
+{% if header %}
+{{ header }}
+{% endif %}
+
+{% for node in nodes -%}
+
+{{ node.title }}
+{{ headers[node.depth] }}
+{{ node.header }}
+
+{% for cell in node| table_header %}
+{% if loop.first %}
+.. list-table::
+   :header-rows: 1
+
+   * - {{ cell }}
+{% else %}
+     - {{ cell }}
+{% endif %}
+{% else %}
+.. list-table::
+{# padding #}
+
+{%- endfor %}
+
+{% for row in node | table_body %}
+{% for cell in row %}
+{% if loop.first %}
+   * - {{ cell | format_rst }}
+{% else %}
+     - {{ cell | format_rst }}
+{% endif %}
+{% endfor %}
+{% endfor %}
+{% endfor %}
