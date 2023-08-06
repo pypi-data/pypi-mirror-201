@@ -1,0 +1,287 @@
+#!/usr/bin/env python
+from __future__ import print_function
+import collections
+import json
+import os
+import json
+import six
+
+from decipher.beacon import BeaconAPIException, api
+import getopt, sys
+
+W = sys.stdout.write
+
+
+def usage(err):
+    if err: print(err)
+    print("""Usage:
+ beacon [options] <verb> <resource> [arg=value...]
+Verb is one of:
+ get    -- list resources
+ post   -- create new resource
+ put    -- update existing resource
+ delete -- delete or retire existing resource
+ login  -- interactively define an API key and host
+ rekey  -- rekey your current secret key and update the config file
+ xt     -- command line crosstabs
+ eval   -- evaluate code in survey context
+
+Extra arguments are decoded as JSON objects/arrays if they start with { or [
+
+Options:
+ -v verbose (show headers sent & received))
+ -t display output as an aligned text table
+ -x display output as IBM JSON XML
+ -m do not run, but display the arguments for this call for meta-API input
+ -p display Python code required to make the call
+ -s <section> use a different section in the %s file than %r
+ -V <version> use a different API version
+ --batch <tab delimitered file> -- execute calls once for each entry in the file
+ --impersonate <email> -- execute calls as this user""" % (api.inifile, api.section))
+    sys.exit(1)
+
+def fatal(err):
+    print ("FATAL ERROR:", err, file=sys.stderr)
+    sys.exit(1)
+
+def dump(obj):
+    if isinstance(obj, (six.text_type, six.binary_type)):
+        return six.ensure_str(obj)
+    elif obj is None:
+        return ""
+    try:
+        import yaml
+        return yaml.safe_dump(obj).strip().replace('\n', ' ').rstrip(" .\n")
+    except ImportError:
+        return str(obj)
+
+
+def decode(name, v):
+    ":type v: str"
+    if v.startswith(('{', '[')):
+        if v.endswith(","):
+            v = "[%s]" % v.rstrip(",")
+        try:
+            return json.loads(v)
+        except ValueError as e:
+            print ("While decoding:\n%s\n" % v, file=sys.stderr)
+            print ("ERROR: Could not decode argument %s: %s" % (name ,e), file=sys.stderr)
+            raise SystemExit(1)
+    elif ',' in v:
+        return filter(None, v.split(','))
+    elif v.startswith('@'):
+        # read a file as input possibly converting
+        v = v[1:]
+        if '@' in v:             fname, format = v.rsplit('@', 1)
+        else:                    fname, format = v, None
+        try:
+            if format == 'json':
+                import csv
+                return list(csv.DictReader(open(fname), delimiter="\t", quotechar='"'))
+            elif format == 'yaml':
+                import yaml
+                return yaml.safe_load(open(fname))
+            elif format is None:
+                return open(fname).read()
+            elif format == '64':
+                return open(fname).read().encode("base64")
+            else:
+                return fatal("invalid file format %r" % format)
+        except IOError as e:
+            return fatal("could not open file %r specified as %r argument: %s" % (fname, name, e))
+
+
+    if v == 'null':
+        return None
+    try:
+        return int(v)
+    except ValueError:
+        pass
+    return v
+
+def parse_nested(args):
+    d = {}
+    for k, v in args.items():
+        put_target(d, k, decode(k,v))
+
+    return d
+
+def ensure_items(target, items):
+    while len(target) <= items:
+        target.append(None)
+
+def put_target(target, key, value):
+    # parse a single sequence of sub-key fragments
+    if '.' in key:
+        first, rest = key.split('.', 1)
+        # first fragment of rest is a digit, new item will be a list
+        rest1 = rest.split('.', 1)[0]
+        default = [] if rest1.isdigit() else {}
+        if isinstance(target, list):
+            ensure_items(target, int(first))
+            sub = target[int(first)] = target[int(first)] or {}
+            put_target(sub, rest, value)
+        else:
+            put_target(target.setdefault(first, default), rest, value)
+    else:
+        try:
+            key = int(key)
+        except ValueError:
+            target[key] = value
+        else:
+            ensure_items(target, key)
+            target[key] = value
+
+
+def main():
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "vmtpxs:V:", ["batch=", "impersonate="])
+    except getopt.GetoptError as err:
+        return usage(str(err))
+    format = showPythonCode = outputMeta = batchSource = None
+    for k,v in opts:
+        if k == '-v':
+            api.verbose = True
+        elif k == '-t':
+            format = 'text'
+        elif k == '-x':
+            api.xml = True
+        elif k == '-p':
+            showPythonCode = True
+        elif k == '-m':
+            outputMeta = True
+        elif k == '-s':
+            api.section = v
+        elif k == '-V':
+            api.version = int(v)
+        elif k == '--batch':
+            batchSource = v
+        elif k == '--impersonate':
+            api.impersonate= v
+
+    if args:
+        if args[0] == "login":
+            from decipher.commands import login
+            return login.login(api, args)
+        elif args[0] == "rekey":
+            from decipher.commands.rekey import rekey
+            return rekey (api, args)
+        elif args[0] == "xt":
+            from decipher.commands.xt import xt
+            return xt(api, args)
+        elif args[0] == "eval":
+            from decipher.commands.eval import eval
+            return eval(api, args)
+
+    if batchSource:
+        from decipher.commands.batch import batch
+        return batch(api, args, globals(), batchSource)
+
+    try:
+        (verb, resource), rest  = args[:2], args[2:]
+    except ValueError:
+        return usage("too few parameters")
+
+    verb = verb.lower()
+    if verb not in ('get', 'put', 'post', 'delete'):
+        return usage('invalid verb %r' % verb)
+
+    if resource.startswith("./") and os.environ.get('HERMES2_HOME'):
+        cwd = os.getcwd()
+        home = os.environ['HERMES2_HOME'] + '/'
+        if not cwd.startswith(home):
+            print ("To use relative paths, you must be in %s " % home, file=sys.stderr)
+            return 1
+        if not os.path.isfile("survey.xml"):
+            print ("No survey.xml in current directory", file=sys.stderr)
+            return 1
+        spath = cwd[len(home):]
+        resource = 'surveys/%s/%s' % (spath, resource[2:])
+
+
+    try:
+        args = dict(x.split('=', 1) for x in rest)
+    except ValueError:
+        print ("Unexpected argument format; arguments must have key=value format", file=sys.stderr)
+        raise SystemExit(1)
+
+    if verb != 'get':
+        args = parse_nested(args)
+        args.update(args.pop('', {}))
+
+    if showPythonCode:
+        sargs = ', '.join("%s=%s" % (k,json.dumps(v)) for k,v in args.items())
+        print ("""
+from decipher.beacon import api
+
+result = api.%s(%r, %s)
+print result
+""" % (verb, resource, sargs))
+        return
+
+    if outputMeta:
+        args['__meta'] = True
+
+    try:
+        res = getattr(api, verb)(resource, **args)
+    except BeaconAPIException as err:
+        print ("ERROR: %s" % err, file=sys.stderr)
+        if api.verbose:
+            print (err.body)
+        sys.exit(1)
+    if outputMeta:
+        print (json.dumps(res))
+        return
+
+    if isinstance(res, (list, dict)):
+        if format == 'text':
+            if not res:
+                print ("[no data]")
+            elif isinstance(res, dict):
+                items = sorted(res.items())
+                length = max(len(x) for x in res)
+                for k,v in items:
+                    print ("%*s: %s" % (length,  k, v))
+            else:
+                if isinstance(res, list) and isinstance(res[0], six.text_type):
+                    for x in res:
+                        six.print_(six.ensure_str(x, 'utf8', 'replace'))
+                    return
+                # find max length for each field
+                mlen = collections.defaultdict(int)
+                res = [{k: dump(v) for k,v in x.items()} for x in res]
+                for x in res:
+                    for k,v in x.items():
+                        mlen[k] = max(mlen[k], 2+len(str(v)))
+
+                order = sorted(res[0])
+                if "id" in order:
+                    order.remove("id")
+                    order.insert(0, "id")
+                order = [(x, min(30, max(2+len(x), mlen[x]))) for x in order]
+                print ()
+                for field, length in order:
+                    W(" %-*s |" % (length, field))
+                print ()
+                W('-' * (sum(3+x[1] for x in order)) + "\n")
+                for x in res:
+                    for field, length in order:
+                        if x[field].isdigit():
+                            W(" %*.*s |" % (length, length, x[field]))
+                        else:
+                            W(" %-*.*s |" % (length, length, x[field]))
+
+                    print ()
+                print ()
+        else:
+            print (json.dumps(res, indent=1))
+    else:
+        output = getattr(sys.stdout, 'buffer', sys.stdout)  # py3 accepts bytes on sys.stdout.buffer only
+        output.write(res)
+        if isinstance(res, six.text_type) and not res.endswith(("\r", "\n")) and sys.stdout.isatty():
+            sys.stdout.write("\n")
+
+if __name__ == '__main__':
+    main()
+
+
