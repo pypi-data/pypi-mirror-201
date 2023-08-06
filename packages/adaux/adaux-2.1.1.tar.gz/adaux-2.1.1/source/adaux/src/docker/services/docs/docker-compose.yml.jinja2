@@ -1,0 +1,13 @@
+version: '3.6'
+{% import "macros.jinja2" as x %}
+services:
+    {{ opts.service_name }}:
+        {{ x.include_docker_build(aux, opts, True) }}
+                PROJECT_DIR: .
+        {{ x.include_platform(aux) }}
+        image: {{ opts.image_name }}
+        environment:
+            - CI_JOB_TOKEN=$CI_JOB_TOKEN
+        volumes:
+            - {{ aux.payload.docker_settings.project_dir }}:/home/container/workdir:rw
+        working_dir: /home/container/workdir
