@@ -1,0 +1,41 @@
+{% extends midtpl %}
+
+{% block ppssauth_content %}
+{% set passwordexpire = request.ppssauthconf.passwordexpire %}
+<table class="table">
+	<thead>
+		<tr>
+			<th>{{_("Username", domain='ppss_auth')}}</th>
+			<th>{{_('Enabled', domain='ppss_auth')}}</th>
+			{% if passwordexpire %}
+				<th>{{_('Password expires', domain='ppss_auth')}}</th>
+			{% endif %}
+			<th>{{_('Last access', domain='ppss_auth')}}</th>
+			<th>{{_('Action', domain='ppss_auth')}}</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for e in elements %}
+			<tr>
+				<td>{{e.username}}</td>
+				<td>{{_("Yes", domain='ppss_auth') if e.enabled else _("No", domain='ppss_auth')}}</td>
+				{% if passwordexpire %}
+					<td>{{ e.passwordexpire.strftime( _('%m/%d/%Y', domain='ppss_auth') ) if e.passwordexpire else " - " }}</td>
+				{% endif %}
+				<td>{{e.lastlogin.strftime( _('%m/%d/%Y', domain='ppss_auth') ) if e.lastlogin else " - "}}</td>
+				<td>
+					<a class="btn btn-success" href="{{request.route_url('ppss:user:edit',elementid=e.id)}}">{{_('modify', domain='ppss_auth')}}</a><br/>
+
+				 </td>
+			</tr>
+		{% endfor %}
+
+	</tbody>
+
+
+</table>
+
+<div>
+	<a class="btn btn-success" href="{{request.route_url('ppss:user:edit',elementid = -1)}}">{{_('Add User', domain='ppss_auth')}}</a>
+</div>
+{% endblock ppssauth_content %}
