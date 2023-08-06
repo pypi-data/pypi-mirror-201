@@ -1,0 +1,82 @@
+name: CD
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - v*
+
+permissions:
+  contents: write
+
+jobs:
+  functional-latest:
+    uses: vmware/repository-service-tuf/.github/workflows/functional.yml@main
+    with:
+      worker_version: latest
+      api_version: latest
+      cli_version: dev
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: functional-latest
+    outputs:
+      release_id: ${{ steps.gh-release.outputs.id }}
+    steps:
+      - name: Checkout release tag
+        uses: actions/checkout@8f4b7f84864484a7bf31766abe9204da3cbe65b3
+        with:
+          ref: ${{ github.event.workflow_run.head_branch }}
+
+      - name: Set up Python
+        uses: actions/setup-python@d27e3f3d7c64b4bbf8e4abfb9b63b83e846e0435
+        with:
+          python-version: '3.x'
+
+      - name: Install build dependency
+        run: python3 -m pip install --upgrade pip build
+
+      - name: Build binary wheel and source tarball
+        run: python3 -m build --sdist --wheel --outdir dist/ .
+
+      - id: gh-release
+        name: Publish GitHub release candiate
+        uses: softprops/action-gh-release@de2c0eb89ae2a093876385947365aca7b0e5f844
+        with:
+          name: ${{ github.ref_name }}-rc
+          tag_name: ${{ github.ref }}
+          body: "Release waiting for review..."
+          files: dist/*
+
+      - name: Store build artifacts
+        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce
+        # NOTE: The GitHub release page contains the release artifacts too, but using
+        # GitHub upload/download actions seems robuster: there is no need to compute
+        # download URLs and tampering with artifacts between jobs is more limited.
+        with:
+          name: build-artifacts
+          path: dist
+
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    needs: build
+    environment: release
+    steps:
+      - name: Fetch build artifacts
+        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a
+        with:
+          name: build-artifacts
+          path: dist
+
+      - name: Finalize GitHub release
+        uses: actions/github-script@98814c53be79b1d30f795b907e553d8679345975
+        with:
+          script: |
+            await github.rest.repos.updateRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: '${{ needs.build.outputs.release_id }}',
+              name: '${{ github.ref_name }}',
+            })
