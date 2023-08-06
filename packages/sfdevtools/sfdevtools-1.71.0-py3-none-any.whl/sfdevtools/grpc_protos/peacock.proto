@@ -1,0 +1,126 @@
+
+syntax = "proto3";
+
+package peacock;
+
+// The greeting service definition.
+service Peacock {
+    // Unary - request and respond
+    rpc SaveFileToColud (SaveFileToColud_Msg) returns (NoneReply);
+    // magpie - start
+    rpc SaveRefDataPriceFromQC (SaveRefDataPriceFromQC_Msg) returns (NoneReply);
+    rpc SaveRefDataFromQC (SaveRefDataFromQC_Msg) returns (NoneReply);
+    // magpie - end
+    // tweety - start
+    rpc SaveStrategyConfig (SaveStrategyConfig_Msg) returns (SaveStrategyConfig_Reply);
+    rpc GetStrategyConfig (GetStrategyConfig_Msg) returns (GetStrategyConfig_Reply);
+    rpc RemoveStrategyConfig(RemoveStrategyConfig_Msg) returns (Dummy_Reply);
+    rpc RemoveOldConfig (RemoveOldConfig_Msg) returns (Dummy_Reply);
+    // tweety - end
+    // eagle - start
+    rpc GetDataByStrategyId (GetDataByStrategyId_Msg) returns (GetDataByStrategyId_Reply);
+    rpc GetBacktestWarmupData (GetBacktestWarmupData_Msg) returns (GetBacktestWarmupData_Reply);
+    rpc GetUSLEIData (GetUSLEIData_Msg) returns (GetUSLEIData_Reply);
+    // eagle - end
+    rpc HealthCheck (Ping) returns (Pong);
+}
+
+// eagle - start
+message GetDataByStrategyId_Msg {
+    string strategy_id = 1;
+}
+
+message GetDataByStrategyId_Reply {
+    repeated string cfg = 1;
+    repeated string ci = 2;
+    string si = 3;
+    string ord_snap = 4;
+    string ord_hist = 5;
+    string trd = 6;
+    string price = 7;
+}
+
+message GetBacktestWarmupData_Msg {
+    string strategy_id = 1;
+    string msg_id = 2;
+    int32 msg_type = 3;
+    int32 fid_num = 4;
+}
+
+message GetBacktestWarmupData_Reply {
+    string data = 1;
+}
+
+message GetUSLEIData_Msg {
+    int32 lookback_month = 1;
+}
+message GetUSLEIData_Reply {
+    map<string, string> us_lei_data_map = 1;
+}
+
+// eagle - end
+
+// tweety - start
+message RemoveStrategyConfig_Msg {
+    string strategy_name = 1;
+    bool is_live = 2;
+    repeated string strategy_id_list = 3;
+}
+
+message RemoveOldConfig_Msg {
+    int32 days = 1;
+}
+
+message Dummy_Reply {
+    string dummy = 1;
+}
+
+message GetStrategyConfig_Msg {
+    string strategy_name = 1;
+    bool is_live = 2;
+}
+
+message GetStrategyConfig_Reply {
+    string status = 1;
+    repeated string cfg_list = 2;
+}
+
+message SaveStrategyConfig_Msg {
+    string strategy_config = 1;
+}
+
+message SaveStrategyConfig_Reply {
+    string status = 1;
+}
+// tweety - end
+
+message SaveFileToColud_Msg {
+    string file_name = 1;
+    string file_content = 2;
+}
+
+// magpie - start
+message SaveRefDataPriceFromQC_Msg {
+    string file_name = 1;
+    string file_content = 2;
+    string action_mode = 3;
+}
+
+message SaveRefDataFromQC_Msg {
+    string file_name = 1;
+    string file_content = 2;
+    string action_mode = 3;
+}
+// magpie - end
+
+message NoneReply {
+    string reply = 1;
+}
+
+message Ping {
+    string message = 1;
+}
+
+message Pong {
+    string message = 1;
+}
