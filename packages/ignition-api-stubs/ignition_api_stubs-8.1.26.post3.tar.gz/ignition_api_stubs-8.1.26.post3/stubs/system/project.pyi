@@ -1,0 +1,6 @@
+from typing import List
+
+from dev.thecesrom.helper.types import AnyStr
+
+def getProjectName() -> AnyStr: ...
+def getProjectNames() -> List[AnyStr]: ...
