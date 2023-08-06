@@ -1,0 +1,1050 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!--
+##
+##  This file is part of the pyFormex project.
+##  pyFormex is a tool for generating, manipulating and transforming 3D
+##  geometrical models by sequences of mathematical operations.
+##  Home page: http://pyformex.org
+##  Project page:  http://savannah.nongnu.org/projects/pyformex/
+##  Copyright (C) Benedict Verhegghe (benedict.verhegghe@ugent.be)
+##  Distributed under the GNU General Public License version 3 or later.
+##
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see http://www.gnu.org/licenses/.
+##
+-->
+    <title>lib.nurbs_e &#8212; pyFormex 3.3 documentation</title>
+
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pyformex.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+<link rel="icon" type="image/png" href="../../_static/pyformex_fav.png" />
+
+  </head><body>
+
+<div class="header">
+  <a href="http://pyformex.org">
+  <img src="../../_static/scallop_dome_small.png" alt="scallop dome" border="0" hspace="20" vspace="12" align="left" />
+  <img src="../../_static/pyformex-logo-2.png" alt="pyformex logo" border="0" hspace="10" vspace="8" align="left" />
+  </a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">lib.nurbs_e</a></li--> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<!-- PYFORMEX_SIDEBAR_LOGO -->
+<!-- PYFORMEX_WEBSITE_SIDEBAR_TOP -->
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for lib.nurbs_e</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1">##</span>
+<span class="c1">##  SPDX-FileCopyrightText: © 2007-2023 Benedict Verhegghe &lt;bverheg@gmail.com&gt;</span>
+<span class="c1">##  SPDX-License-Identifier: GPL-3.0-or-later</span>
+<span class="c1">##</span>
+<span class="c1">##  This file is part of pyFormex 3.3  (Sun Mar 26 20:16:15 CEST 2023)</span>
+<span class="c1">##  pyFormex is a tool for generating, manipulating and transforming 3D</span>
+<span class="c1">##  geometrical models by sequences of mathematical operations.</span>
+<span class="c1">##  Home page: https://pyformex.org</span>
+<span class="c1">##  Project page: https://savannah.nongnu.org/projects/pyformex/</span>
+<span class="c1">##  Development: https://gitlab.com/bverheg/pyformex</span>
+<span class="c1">##  Distributed under the GNU General Public License version 3 or later.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is free software: you can redistribute it and/or modify</span>
+<span class="c1">##  it under the terms of the GNU General Public License as published by</span>
+<span class="c1">##  the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1">##  (at your option) any later version.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is distributed in the hope that it will be useful,</span>
+<span class="c1">##  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1">##  GNU General Public License for more details.</span>
+<span class="c1">##</span>
+<span class="c1">##  You should have received a copy of the GNU General Public License</span>
+<span class="c1">##  along with this program.  If not, see http://www.gnu.org/licenses/.</span>
+<span class="c1">##</span>
+<span class="c1">#</span>
+<span class="sd">&quot;&quot;&quot;Python equivalents of the functions in lib.nurbs_c</span>
+
+<span class="sd">The functions in this module should be exact emulations of the</span>
+<span class="sd">external functions in the compiled library. Currently however this</span>
+<span class="sd">module only contains a few of the functions in lib.nurbs_c, making</span>
+<span class="sd">nurbs functionality in pyFormex currently only available when using</span>
+<span class="sd">the compiled lib.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="c1"># There should be no other imports here but numpy</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="c1"># And Set the version from pyformexld be defined</span>
+<span class="kn">import</span> <span class="nn">pyformex</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="n">pyformex</span><span class="o">.</span><span class="n">__version__</span>
+<span class="n">_accelerated</span> <span class="o">=</span> <span class="kc">False</span>
+
+<span class="c1"># Since binomial is already defined in curve, we can just import it here.</span>
+<span class="kn">from</span> <span class="nn">pyformex.curve</span> <span class="kn">import</span> <span class="n">binomial</span>   <span class="c1">#  this is math.comb</span>
+
+
+<div class="viewcode-block" id="length"><a class="viewcode-back" href="../../ref/lib.nurbs_e.html#lib.nurbs_e.length">[docs]</a><span class="k">def</span> <span class="nf">length</span><span class="p">(</span><span class="n">A</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return the length of an ndim vector.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">A</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="bernstein"><a class="viewcode-back" href="../../ref/lib.nurbs_e.html#lib.nurbs_e.bernstein">[docs]</a><span class="k">def</span> <span class="nf">bernstein</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">u</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Compute the value of the Bernstein polynomial B(i,n) at u.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    i: int</span>
+<span class="sd">        The index of the polynomial</span>
+<span class="sd">    n: int</span>
+<span class="sd">        The degree of the polynomial</span>
+<span class="sd">    u: float</span>
+<span class="sd">        The parametric value where the polynomial is evaluated</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        The value of the i-th Bernstein polynomials of degree n at parameter</span>
+<span class="sd">        value u.</span>
+
+<span class="sd">    &gt;&gt;&gt; bernstein(2, 5, 0.4)</span>
+<span class="sd">    0.3456</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># THIS IS NOT OPTIMIZED !</span>
+    <span class="k">return</span> <span class="n">allBernstein</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">u</span><span class="p">)[</span><span class="n">i</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="allBernstein"><a class="viewcode-back" href="../../ref/lib.nurbs_e.html#lib.nurbs_e.allBernstein">[docs]</a><span class="k">def</span> <span class="nf">allBernstein</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">u</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Compute the value of all n-th degree Bernstein polynomials.</span>
+
+<span class="sd">    Parameters:</span>
+
+<span class="sd">    - `n`: int, degree of the polynomials</span>
+<span class="sd">    - `u`: float, parametric value where the polynomials are evaluated</span>
+
+<span class="sd">    Returns: an (n+1,) shaped float array with the value of all n-th</span>
+<span class="sd">    degree Bernstein polynomials B(i,n) at parameter value u.</span>
+
+<span class="sd">    Algorithm A1.3 from &#39;The NURBS Book&#39; p20.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># THIS IS NOT OPTIMIZED FOR PYTHON.</span>
+    <span class="n">B</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">B</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="n">u1</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">-</span><span class="n">u</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">saved</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">j</span><span class="p">):</span>
+            <span class="n">temp</span> <span class="o">=</span> <span class="n">B</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+            <span class="n">B</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">saved</span> <span class="o">+</span> <span class="n">u1</span><span class="o">*</span><span class="n">temp</span>
+            <span class="n">saved</span> <span class="o">=</span> <span class="n">u</span> <span class="o">*</span> <span class="n">temp</span>
+        <span class="n">B</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">saved</span>
+    <span class="k">return</span> <span class="n">B</span></div>
+
+
+<div class="viewcode-block" id="find_span"><a class="viewcode-back" href="../../ref/lib.nurbs_e.html#lib.nurbs_e.find_span">[docs]</a><span class="k">def</span> <span class="nf">find_span</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Find the knot span index of the parametric point u.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    U: float array (m+1,)</span>
+<span class="sd">        The non-descending knot sequence: U[0] .. U[m]</span>
+<span class="sd">    u: float</span>
+<span class="sd">        The parametric value U[0] &lt;= u &lt;= U[m] for which to find the span</span>
+<span class="sd">    p: int</span>
+<span class="sd">        The degree of the B-spline basis functions</span>
+<span class="sd">    n: int</span>
+<span class="sd">        The number of control points - 1 = m - p - 1</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    int</span>
+<span class="sd">       The index of the knot span.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Algorithm A2.1 from &#39;The NURBS Book&#39; p.68.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">u</span> <span class="o">==</span> <span class="n">U</span><span class="p">[</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">]:</span>  <span class="c1"># special case</span>
+        <span class="k">return</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+
+    <span class="c1"># do binary search</span>
+    <span class="n">low</span> <span class="o">=</span> <span class="n">p</span>
+    <span class="n">high</span> <span class="o">=</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">mid</span> <span class="o">=</span> <span class="p">(</span><span class="n">low</span> <span class="o">+</span> <span class="n">high</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+    <span class="n">cnt</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">while</span> <span class="n">u</span> <span class="o">&lt;</span> <span class="n">U</span><span class="p">[</span><span class="n">mid</span><span class="p">]</span> <span class="ow">or</span> <span class="n">u</span> <span class="o">&gt;=</span> <span class="n">U</span><span class="p">[</span><span class="n">mid</span><span class="o">+</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">u</span> <span class="o">&lt;</span> <span class="n">U</span><span class="p">[</span><span class="n">mid</span><span class="p">]:</span>
+            <span class="n">high</span> <span class="o">=</span> <span class="n">mid</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">low</span> <span class="o">=</span> <span class="n">mid</span>
+        <span class="n">mid</span> <span class="o">=</span> <span class="p">(</span><span class="n">low</span> <span class="o">+</span> <span class="n">high</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+        <span class="n">cnt</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">cnt</span> <span class="o">&gt;</span> <span class="mi">20</span><span class="p">:</span>
+            <span class="k">break</span>
+    <span class="k">return</span> <span class="n">mid</span></div>
+
+
+<div class="viewcode-block" id="basis_funs"><a class="viewcode-back" href="../../ref/lib.nurbs_e.html#lib.nurbs_e.basis_funs">[docs]</a><span class="k">def</span> <span class="nf">basis_funs</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Compute the nonvanishing B-spline basis functions for index span i.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    U: float array (m+1,)</span>
+<span class="sd">        The knot sequence: U[0] .. U[m], non-descending.</span>
+<span class="sd">    u: float</span>
+<span class="sd">        The parametric value U[0] &lt;= u &lt;= U[m] where to compute the functions.</span>
+<span class="sd">    p: int</span>
+<span class="sd">        Degree of the B-spline basis functions</span>
+<span class="sd">    i: int</span>
+<span class="sd">        Index of the knot span for value u (from find_span())</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float array (p+1)</span>
+<span class="sd">        The (p+1) values of nonzero basis functions at u.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Algorithm A2.2 from &#39;The NURBS Book&#39; p.70.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">p</span><span class="o">+</span><span class="mi">1</span><span class="p">,))</span>  <span class="c1"># return array</span>
+    <span class="n">left</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">p</span><span class="o">+</span><span class="mi">1</span><span class="p">,))</span>  <span class="c1"># workspace</span>
+    <span class="n">right</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">p</span><span class="o">+</span><span class="mi">1</span><span class="p">,))</span>  <span class="c1"># workspace</span>
+
+    <span class="n">N</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">p</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">left</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>  <span class="o">=</span> <span class="n">u</span> <span class="o">-</span> <span class="n">U</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="o">-</span><span class="n">j</span><span class="p">]</span>
+        <span class="n">right</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">U</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="n">u</span>
+        <span class="n">saved</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">j</span><span class="p">):</span>
+            <span class="n">temp</span> <span class="o">=</span> <span class="n">N</span><span class="p">[</span><span class="n">r</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">right</span><span class="p">[</span><span class="n">r</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">left</span><span class="p">[</span><span class="n">j</span><span class="o">-</span><span class="n">r</span><span class="p">])</span>
+            <span class="n">N</span><span class="p">[</span><span class="n">r</span><span class="p">]</span> <span class="o">=</span> <span class="n">saved</span> <span class="o">+</span> <span class="n">right</span><span class="p">[</span><span class="n">r</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">temp</span>
+            <span class="n">saved</span> <span class="o">=</span> <span class="n">left</span><span class="p">[</span><span class="n">j</span><span class="o">-</span><span class="n">r</span><span class="p">]</span> <span class="o">*</span> <span class="n">temp</span>
+        <span class="n">N</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">saved</span>
+    <span class="k">return</span> <span class="n">N</span></div>
+
+
+<div class="viewcode-block" id="basis_derivs"><a class="viewcode-back" href="../../ref/lib.nurbs_e.html#lib.nurbs_e.basis_derivs">[docs]</a><span class="k">def</span> <span class="nf">basis_derivs</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Compute the nonvanishing B-spline basis functions and derivatives.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    U: float array (m+1,)</span>
+<span class="sd">        The knot sequence: U[0] .. U[m], non-descending.</span>
+<span class="sd">    u: float</span>
+<span class="sd">        The parametric value U[0] &lt;= u &lt;= U[m] where to compute the functions.</span>
+<span class="sd">    p: int</span>
+<span class="sd">        Degree of the B-spline basis functions</span>
+<span class="sd">    i: int</span>
+<span class="sd">        Index of the knot span for value u (from find_span())</span>
+<span class="sd">    n: int</span>
+<span class="sd">        Number of derivatives to compute (n &lt;= p)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float array (n+1, p+1)</span>
+<span class="sd">        The (n+1, p+1) values of the nonzero basis functions and their first n</span>
+<span class="sd">        derivatives at u</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Algorithm A2.3 from &#39;The NURBS Book&#39; p.72.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dN</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">p</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>  <span class="c1"># return array</span>
+    <span class="c1"># workspaces</span>
+    <span class="n">ndu</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">p</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">p</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">p</span><span class="o">+</span><span class="mi">1</span><span class="p">),))</span>
+    <span class="n">left</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">p</span><span class="o">+</span><span class="mi">1</span><span class="p">,))</span>
+    <span class="n">right</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">p</span><span class="o">+</span><span class="mi">1</span><span class="p">,))</span>
+
+    <span class="n">ndu</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">p</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">left</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">u</span> <span class="o">-</span> <span class="n">U</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="o">-</span><span class="n">j</span><span class="p">]</span>
+        <span class="n">right</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">U</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="n">j</span><span class="p">]</span><span class="o">-</span><span class="n">u</span>
+        <span class="n">saved</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">j</span><span class="p">):</span>
+            <span class="c1"># Lower triangle</span>
+            <span class="n">ndu</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">r</span><span class="p">]</span> <span class="o">=</span> <span class="n">right</span><span class="p">[</span><span class="n">r</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">left</span><span class="p">[</span><span class="n">j</span><span class="o">-</span><span class="n">r</span><span class="p">]</span>
+            <span class="n">temp</span> <span class="o">=</span> <span class="n">ndu</span><span class="p">[</span><span class="n">r</span><span class="p">][</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="n">ndu</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">r</span><span class="p">]</span>
+            <span class="c1"># Upper Triangle</span>
+            <span class="n">ndu</span><span class="p">[</span><span class="n">r</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">saved</span> <span class="o">+</span> <span class="n">right</span><span class="p">[</span><span class="n">r</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">temp</span>
+            <span class="n">saved</span> <span class="o">=</span> <span class="n">left</span><span class="p">[</span><span class="n">j</span><span class="o">-</span><span class="n">r</span><span class="p">]</span><span class="o">*</span><span class="n">temp</span>
+        <span class="n">ndu</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">saved</span>
+    <span class="c1"># Load the basis functions</span>
+    <span class="n">dN</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">ndu</span><span class="p">[:,</span><span class="n">p</span><span class="p">]</span>
+
+    <span class="c1"># Compute the derivatives (Eq. 2.9)</span>
+    <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">p</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>   <span class="c1"># Loop over function index</span>
+        <span class="n">s1</span><span class="p">,</span> <span class="n">s2</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">p</span><span class="o">+</span><span class="mi">1</span>     <span class="c1"># Alternate rows in array a</span>
+        <span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="c1"># Loop to compute kth derivative</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+            <span class="n">der</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="n">rk</span> <span class="o">=</span> <span class="n">r</span><span class="o">-</span><span class="n">k</span><span class="p">;</span>  <span class="n">pk</span> <span class="o">=</span> <span class="n">p</span><span class="o">-</span><span class="n">k</span>
+            <span class="k">if</span> <span class="n">r</span> <span class="o">&gt;=</span> <span class="n">k</span><span class="p">:</span>
+                <span class="n">a</span><span class="p">[</span><span class="n">s2</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="n">s1</span><span class="p">]</span> <span class="o">/</span> <span class="n">ndu</span><span class="p">[</span><span class="n">pk</span><span class="o">+</span><span class="mi">1</span><span class="p">][</span><span class="n">rk</span><span class="p">]</span>
+                <span class="n">der</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="n">s2</span><span class="p">]</span> <span class="o">*</span> <span class="n">ndu</span><span class="p">[</span><span class="n">rk</span><span class="p">][</span><span class="n">pk</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">rk</span> <span class="o">&gt;=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="n">j1</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">j1</span> <span class="o">=</span> <span class="o">-</span><span class="n">rk</span>
+            <span class="k">if</span> <span class="n">r</span><span class="o">-</span><span class="mi">1</span> <span class="o">&lt;=</span> <span class="n">pk</span><span class="p">:</span>
+                <span class="n">j2</span> <span class="o">=</span> <span class="n">k</span><span class="o">-</span><span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">j2</span> <span class="o">=</span> <span class="n">p</span><span class="o">-</span><span class="n">r</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">j1</span><span class="p">,</span> <span class="n">j2</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+                <span class="n">a</span><span class="p">[</span><span class="n">s2</span><span class="o">+</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="n">s1</span><span class="o">+</span><span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="n">a</span><span class="p">[</span><span class="n">s1</span><span class="o">+</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="n">ndu</span><span class="p">[</span><span class="n">pk</span><span class="o">+</span><span class="mi">1</span><span class="p">][</span><span class="n">rk</span><span class="o">+</span><span class="n">j</span><span class="p">]</span>
+                <span class="n">der</span> <span class="o">+=</span> <span class="n">a</span><span class="p">[</span><span class="n">s2</span><span class="o">+</span><span class="n">j</span><span class="p">]</span> <span class="o">*</span> <span class="n">ndu</span><span class="p">[</span><span class="n">rk</span><span class="o">+</span><span class="n">j</span><span class="p">][</span><span class="n">pk</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">r</span> <span class="o">&lt;=</span> <span class="n">pk</span><span class="p">:</span>
+                <span class="n">a</span><span class="p">[</span><span class="n">s2</span><span class="o">+</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">a</span><span class="p">[</span><span class="n">s1</span><span class="o">+</span><span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">ndu</span><span class="p">[</span><span class="n">pk</span><span class="o">+</span><span class="mi">1</span><span class="p">][</span><span class="n">r</span><span class="p">]</span>
+                <span class="n">der</span> <span class="o">+=</span> <span class="n">a</span><span class="p">[</span><span class="n">s2</span><span class="o">+</span><span class="n">k</span><span class="p">]</span> <span class="o">*</span> <span class="n">ndu</span><span class="p">[</span><span class="n">r</span><span class="p">][</span><span class="n">pk</span><span class="p">]</span>
+            <span class="n">dN</span><span class="p">[</span><span class="n">k</span><span class="p">,</span><span class="n">r</span><span class="p">]</span> <span class="o">=</span> <span class="n">der</span>
+            <span class="n">s1</span><span class="p">,</span> <span class="n">s2</span> <span class="o">=</span> <span class="n">s2</span><span class="p">,</span> <span class="n">s1</span>  <span class="c1"># Switch rows</span>
+
+    <span class="c1"># Multiply by the correct factors</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">p</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">dN</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">*=</span> <span class="n">r</span>
+        <span class="n">r</span> <span class="o">*=</span> <span class="p">(</span><span class="n">p</span><span class="o">-</span><span class="n">k</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dN</span></div>
+
+
+<span class="c1"># TODO: def basisFuns</span>
+<span class="c1"># TODO: def basisDerivs ipv basis_derivs</span>
+<span class="c1"># TODO: def curvePoints</span>
+<span class="c1"># TODO: def curveDerivs</span>
+<span class="c1"># TODO: def curveDecompose</span>
+<span class="c1"># TODO: def curveKnotRefine</span>
+<span class="c1"># TODO: def curveKnotRemove</span>
+
+<div class="viewcode-block" id="curveDegreeElevate"><a class="viewcode-back" href="../../ref/lib.nurbs_e.html#lib.nurbs_e.curveDegreeElevate">[docs]</a><span class="k">def</span> <span class="nf">curveDegreeElevate</span><span class="p">(</span><span class="n">Pw</span><span class="p">,</span> <span class="n">U</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Elevate the degree of the Nurbs curve.</span>
+
+<span class="sd">    Parameters:</span>
+
+<span class="sd">    - `Pw`: float array (nk,nd): nk=n+1 control points</span>
+<span class="sd">    - `U`: int array(nu): nu=m+1 knot values</span>
+<span class="sd">    - `t`: int: how much to elevate the degree</span>
+
+<span class="sd">    Returns a tuple:</span>
+
+<span class="sd">    - `Qw`: nh+1 new control points</span>
+<span class="sd">    - `Uh`: mh+1 new knot values</span>
+<span class="sd">    - `nh`: highest control point index</span>
+<span class="sd">    - `mh`: highest knot index</span>
+
+<span class="sd">    This is based on algorithm A5.9 from &#39;The NURBS Book&#39; pg206.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">nk</span><span class="p">,</span> <span class="n">nd</span> <span class="o">=</span> <span class="n">Pw</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">nk</span><span class="o">-</span><span class="mi">1</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">U</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">m</span><span class="o">-</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span>
+    <span class="c1"># Workspace for return arrays</span>
+    <span class="n">Uh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">U</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">t</span><span class="o">+</span><span class="mi">1</span><span class="p">)))</span>
+    <span class="n">Qw</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Pw</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">t</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="n">nd</span><span class="p">))</span>
+    <span class="c1"># Workspaces</span>
+    <span class="n">bezalfs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">p</span><span class="o">+</span><span class="n">t</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">p</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+    <span class="n">bpts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">p</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">nd</span><span class="p">))</span>
+    <span class="n">ebpts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">p</span><span class="o">+</span><span class="n">t</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">nd</span><span class="p">))</span>
+    <span class="n">Nextbpts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">p</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">nd</span><span class="p">))</span>
+    <span class="n">alfs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">p</span><span class="o">-</span><span class="mi">1</span><span class="p">,))</span>
+
+    <span class="n">ph</span> <span class="o">=</span> <span class="n">p</span><span class="o">+</span><span class="n">t</span>
+    <span class="n">ph2</span> <span class="o">=</span> <span class="n">ph</span><span class="o">//</span><span class="mi">2</span>
+
+    <span class="c1"># Compute Bezier degree elevation coefficients</span>
+    <span class="n">bezalfs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">bezalfs</span><span class="p">[</span><span class="n">ph</span><span class="p">,</span> <span class="n">p</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">ph2</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">inv</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">binomial</span><span class="p">(</span><span class="n">ph</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+        <span class="n">mpi</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="o">-</span><span class="n">t</span><span class="p">),</span> <span class="n">mpi</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+            <span class="n">bezalfs</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">inv</span> <span class="o">*</span> <span class="n">binomial</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span> <span class="o">*</span> <span class="n">binomial</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">i</span><span class="o">-</span><span class="n">j</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ph2</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">ph</span><span class="p">):</span>
+        <span class="n">mpi</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="o">-</span><span class="n">t</span><span class="p">),</span> <span class="n">mpi</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+            <span class="n">bezalfs</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">bezalfs</span><span class="p">[</span><span class="n">ph</span><span class="o">-</span><span class="n">i</span><span class="p">,</span> <span class="n">p</span><span class="o">-</span><span class="n">j</span><span class="p">]</span>
+<span class="c1">#    print(&quot;bezalfs:&quot;,bezalfs)</span>
+
+    <span class="n">mh</span> <span class="o">=</span> <span class="n">ph</span>
+    <span class="n">kind</span> <span class="o">=</span> <span class="n">ph</span><span class="o">+</span><span class="mi">1</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">p</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="n">p</span><span class="o">+</span><span class="mi">1</span>
+    <span class="n">cind</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">ua</span> <span class="o">=</span> <span class="n">U</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">Qw</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">Pw</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ph</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">Uh</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">ua</span>
+    <span class="c1"># Initialize first Bezier segment</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">p</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">bpts</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">Pw</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+<span class="c1">#    print(&quot;bpts =\n%s&quot; % bpts[:p+1])</span>
+
+    <span class="c1"># Big loop thru knot vector</span>
+    <span class="k">while</span> <span class="n">b</span> <span class="o">&lt;</span> <span class="n">m</span><span class="p">:</span>
+<span class="c1">#        print(&quot;Big loop b = %s &lt; m = %s&quot; % (b,m))</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="n">b</span>
+        <span class="k">while</span> <span class="n">b</span> <span class="o">&lt;</span> <span class="n">m</span> <span class="ow">and</span> <span class="n">U</span><span class="p">[</span><span class="n">b</span><span class="p">]</span> <span class="o">==</span> <span class="n">U</span><span class="p">[</span><span class="n">b</span><span class="o">+</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="n">b</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="n">mul</span> <span class="o">=</span> <span class="n">b</span><span class="o">-</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span>
+        <span class="n">mh</span> <span class="o">+=</span> <span class="n">mul</span><span class="o">+</span><span class="n">t</span>
+        <span class="n">ub</span> <span class="o">=</span> <span class="n">U</span><span class="p">[</span><span class="n">b</span><span class="p">]</span>
+        <span class="n">oldr</span> <span class="o">=</span> <span class="n">r</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">p</span><span class="o">-</span><span class="n">mul</span>
+
+        <span class="c1"># Insert knot ub r times</span>
+        <span class="n">lbz</span> <span class="o">=</span> <span class="p">(</span><span class="n">oldr</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span> <span class="k">if</span> <span class="n">oldr</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">1</span>
+        <span class="n">rbz</span> <span class="o">=</span> <span class="n">ph</span><span class="o">-</span><span class="p">(</span><span class="n">r</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span> <span class="k">if</span> <span class="n">r</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">ph</span>
+
+        <span class="k">if</span> <span class="n">r</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># Insert knot to get Bezier segment</span>
+            <span class="n">numer</span> <span class="o">=</span> <span class="n">ub</span><span class="o">-</span><span class="n">ua</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+                <span class="n">alfs</span><span class="p">[</span><span class="n">k</span><span class="o">-</span><span class="n">mul</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">numer</span> <span class="o">/</span> <span class="p">(</span><span class="n">U</span><span class="p">[</span><span class="n">a</span><span class="o">+</span><span class="n">k</span><span class="p">]</span> <span class="o">-</span> <span class="n">ua</span><span class="p">)</span>
+<span class="c1">#            print(&quot;alfs = %s&quot; % alfs[:p])</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">r</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+                <span class="n">save</span> <span class="o">=</span> <span class="n">r</span><span class="o">-</span><span class="n">j</span>
+                <span class="n">s</span> <span class="o">=</span> <span class="n">mul</span><span class="o">+</span><span class="n">j</span>
+                <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">s</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+                    <span class="n">bpts</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">alfs</span><span class="p">[</span><span class="n">k</span><span class="o">-</span><span class="n">s</span><span class="p">]</span><span class="o">*</span><span class="n">bpts</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">alfs</span><span class="p">[</span><span class="n">k</span><span class="o">-</span><span class="n">s</span><span class="p">])</span><span class="o">*</span><span class="n">bpts</span><span class="p">[</span><span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">Nextbpts</span><span class="p">[</span><span class="n">save</span><span class="p">]</span> <span class="o">=</span> <span class="n">bpts</span><span class="p">[</span><span class="n">p</span><span class="p">]</span>
+<span class="c1">#                print(&quot;Nextbpts %s = %s&quot; %(save,Nextbpts[save]))</span>
+<span class="c1">#            print(&quot;bpts =\n%s&quot; % bpts[:p+1])</span>
+
+        <span class="c1"># Degree elevate Bezier</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lbz</span><span class="p">,</span> <span class="n">ph</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+            <span class="c1"># Only points lbz..ph are used below</span>
+            <span class="n">ebpts</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="n">mpi</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="o">-</span><span class="n">t</span><span class="p">),</span> <span class="n">mpi</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+                <span class="n">ebpts</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="n">bezalfs</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span><span class="o">*</span><span class="n">bpts</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+<span class="c1">#        print(&quot;ebpts =\n%s&quot; % ebpts[lbz:ph+1])</span>
+
+        <span class="k">if</span> <span class="n">oldr</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="c1"># Must remove knot U[a] oldr times</span>
+            <span class="n">first</span> <span class="o">=</span> <span class="n">kind</span><span class="o">-</span><span class="mi">2</span>
+            <span class="n">last</span> <span class="o">=</span> <span class="n">kind</span>
+            <span class="n">den</span> <span class="o">=</span> <span class="n">ub</span><span class="o">-</span><span class="n">ua</span>
+            <span class="n">bet</span> <span class="o">=</span> <span class="p">(</span><span class="n">ub</span><span class="o">-</span><span class="n">Uh</span><span class="p">[</span><span class="n">kind</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="n">den</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">tr</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">oldr</span><span class="p">):</span>
+                <span class="c1"># Knot removal loop</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="n">first</span>
+                <span class="n">j</span> <span class="o">=</span> <span class="n">last</span>
+                <span class="n">kj</span> <span class="o">=</span> <span class="n">j</span><span class="o">-</span><span class="n">kind</span><span class="o">+</span><span class="mi">1</span>
+                <span class="k">while</span> <span class="n">j</span><span class="o">-</span><span class="n">i</span> <span class="o">&gt;</span> <span class="n">tr</span><span class="p">:</span>
+                    <span class="c1"># Compute new control points</span>
+                    <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">cind</span><span class="p">:</span>
+                        <span class="n">alf</span> <span class="o">=</span> <span class="p">(</span><span class="n">ub</span><span class="o">-</span><span class="n">Uh</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">ua</span><span class="o">-</span><span class="n">Uh</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                        <span class="n">Qw</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">alf</span><span class="o">*</span><span class="n">Qw</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">alf</span><span class="p">)</span><span class="o">*</span><span class="n">Qw</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">j</span> <span class="o">&gt;=</span> <span class="n">lbz</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">j</span><span class="o">-</span><span class="n">tr</span> <span class="o">&lt;=</span> <span class="n">kind</span><span class="o">-</span><span class="n">ph</span><span class="o">+</span><span class="n">oldr</span><span class="p">:</span>
+                            <span class="n">gam</span> <span class="o">=</span> <span class="p">(</span><span class="n">ub</span><span class="o">-</span><span class="n">Uh</span><span class="p">[</span><span class="n">j</span><span class="o">-</span><span class="n">tr</span><span class="p">])</span> <span class="o">/</span> <span class="n">den</span>
+                            <span class="n">ebpts</span><span class="p">[</span><span class="n">kj</span><span class="p">]</span> <span class="o">=</span> <span class="n">gam</span><span class="o">*</span><span class="n">ebpts</span><span class="p">[</span><span class="n">kj</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">gam</span><span class="p">)</span><span class="o">*</span><span class="n">ebpts</span><span class="p">[</span><span class="n">kj</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">ebpts</span><span class="p">[</span><span class="n">kj</span><span class="p">]</span> <span class="o">=</span> <span class="n">bet</span><span class="o">*</span><span class="n">ebpts</span><span class="p">[</span><span class="n">kj</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">bet</span><span class="p">)</span><span class="o">*</span><span class="n">ebpts</span><span class="p">[</span><span class="n">kj</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">j</span> <span class="o">-=</span> <span class="mi">1</span>
+                    <span class="n">kj</span> <span class="o">-=</span> <span class="mi">1</span>
+                <span class="n">first</span> <span class="o">-=</span> <span class="mi">1</span>
+                <span class="n">last</span> <span class="o">+=</span><span class="mi">1</span>
+
+        <span class="k">if</span> <span class="n">a</span> <span class="o">!=</span> <span class="n">p</span><span class="p">:</span>
+            <span class="c1"># Load the knot ua</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ph</span><span class="o">-</span><span class="n">oldr</span><span class="p">):</span>
+                <span class="n">Uh</span><span class="p">[</span><span class="n">kind</span><span class="p">]</span> <span class="o">=</span> <span class="n">ua</span>
+                <span class="n">kind</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lbz</span><span class="p">,</span> <span class="n">rbz</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+            <span class="c1"># Load control points into Qw</span>
+            <span class="n">Qw</span><span class="p">[</span><span class="n">cind</span><span class="p">]</span> <span class="o">=</span> <span class="n">ebpts</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+            <span class="n">cind</span> <span class="o">+=</span> <span class="mi">1</span>
+<span class="c1">#        print(Qw[:cind])</span>
+
+<span class="c1">#        print(&quot;Now b=%s, m=%s&quot; % (b,m))</span>
+        <span class="k">if</span> <span class="n">b</span> <span class="o">&lt;</span> <span class="n">m</span><span class="p">:</span>
+            <span class="c1"># Set up for next passcthru loop</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">r</span><span class="p">):</span>
+                <span class="n">bpts</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">Nextbpts</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">p</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+                <span class="n">bpts</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">Pw</span><span class="p">[</span><span class="n">b</span><span class="o">-</span><span class="n">p</span><span class="o">+</span><span class="n">j</span><span class="p">]</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="n">b</span>
+            <span class="n">b</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">ua</span> <span class="o">=</span> <span class="n">ub</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># End knot</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ph</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+                <span class="n">Uh</span><span class="p">[</span><span class="n">kind</span><span class="o">+</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">ub</span>
+
+    <span class="n">nh</span> <span class="o">=</span> <span class="n">mh</span> <span class="o">-</span> <span class="n">ph</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">Uh</span> <span class="o">=</span> <span class="n">Uh</span><span class="p">[:</span><span class="n">mh</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">Qw</span> <span class="o">=</span> <span class="n">Qw</span><span class="p">[:</span><span class="n">nh</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">Pw</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">Uh</span><span class="p">),</span> <span class="n">nh</span><span class="p">,</span> <span class="n">mh</span></div>
+
+
+<div class="viewcode-block" id="BezDegreeReduce"><a class="viewcode-back" href="../../ref/lib.nurbs_e.html#lib.nurbs_e.BezDegreeReduce">[docs]</a><span class="k">def</span> <span class="nf">BezDegreeReduce</span><span class="p">(</span><span class="n">Q</span><span class="p">,</span> <span class="n">return_errfunc</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Degree reduce a Bezier curve.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    Q: float array (nk, nd)</span>
+<span class="sd">        The control points of a Bezier curve of degree p = nk-1</span>
+<span class="sd">    return_errfunc: bool</span>
+<span class="sd">        If True, also returns a function to evaluate the error along</span>
+<span class="sd">        the parametric values.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    P: float array (nk-1, nd)</span>
+<span class="sd">        The control points of a Bezier curve of degree p-1 that is as</span>
+<span class="sd">        close as possible to the original curve.</span>
+<span class="sd">    maxerr: float</span>
+<span class="sd">        An upper bound on the error introduced by the degree reduction.</span>
+<span class="sd">    errfunc: function</span>
+<span class="sd">        A callable to evaluate the error as function of the parameter u.</span>
+<span class="sd">        Only returned if return_errfunc is True.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Based on The NURBS Book 5.6.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">nk</span><span class="p">,</span> <span class="n">nd</span> <span class="o">=</span> <span class="n">Q</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">nk</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="p">(</span><span class="n">p</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+    <span class="n">alfs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">/</span> <span class="n">p</span>
+    <span class="n">P</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">p</span><span class="p">,</span> <span class="n">nd</span><span class="p">))</span>
+    <span class="n">P</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">Q</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">r</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">P</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">Q</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">alfs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="n">P</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">alfs</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+    <span class="n">P</span><span class="p">[</span><span class="n">p</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">Q</span><span class="p">[</span><span class="n">p</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">p</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">P</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">Q</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">alfs</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="n">P</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="n">alfs</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">p</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">PrR</span> <span class="o">=</span> <span class="p">(</span><span class="n">Q</span><span class="p">[</span><span class="n">r</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">alfs</span><span class="p">[</span><span class="n">r</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span><span class="o">*</span><span class="n">P</span><span class="p">[</span><span class="n">r</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="n">alfs</span><span class="p">[</span><span class="n">r</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">Err</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">alfs</span><span class="p">[</span><span class="n">r</span><span class="p">])</span> <span class="o">*</span> <span class="n">length</span><span class="p">(</span><span class="n">P</span><span class="p">[</span><span class="n">r</span><span class="p">]</span> <span class="o">-</span> <span class="n">PrR</span><span class="p">)</span>
+        <span class="n">P</span><span class="p">[</span><span class="n">r</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">P</span><span class="p">[</span><span class="n">r</span><span class="p">]</span> <span class="o">+</span> <span class="n">PrR</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">Err</span> <span class="o">=</span> <span class="n">length</span><span class="p">(</span><span class="n">Q</span><span class="p">[</span><span class="n">r</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">P</span><span class="p">[</span><span class="n">r</span><span class="p">]</span><span class="o">+</span><span class="n">P</span><span class="p">[</span><span class="n">r</span><span class="o">+</span><span class="mi">1</span><span class="p">]))</span>
+
+    <span class="c1"># Max error</span>
+    <span class="c1"># Note that maximum of Bernstein polynom (i,p) is at i/p</span>
+    <span class="k">if</span> <span class="n">p</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">errfunc</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">u</span><span class="p">:</span> <span class="n">Err</span> <span class="o">*</span> <span class="n">bernstein</span><span class="p">(</span><span class="n">r</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span>
+        <span class="c1"># Note that maximum of Bernstein polynom (i,p) is at i/p</span>
+        <span class="n">maxerr</span> <span class="o">=</span> <span class="n">errfunc</span><span class="p">((</span><span class="n">r</span><span class="o">+</span><span class="mf">1.</span><span class="p">)</span><span class="o">/</span><span class="n">p</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">errfunc</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">u</span><span class="p">:</span> <span class="n">Err</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="n">bernstein</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span> <span class="o">-</span> <span class="n">bernstein</span><span class="p">(</span><span class="n">r</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">u</span><span class="p">))</span>
+        <span class="c1"># We guess that maximum is close to middle of r/p and r+1/p</span>
+        <span class="n">maxerr</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">errfunc</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">r</span><span class="p">)</span><span class="o">/</span><span class="n">p</span><span class="p">),</span> <span class="n">errfunc</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">r</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="n">p</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">return_errfunc</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">P</span><span class="p">,</span> <span class="n">maxerr</span><span class="p">,</span> <span class="n">errfunc</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">P</span><span class="p">,</span> <span class="n">maxerr</span></div>
+
+
+<span class="c1">#from pyformex.plugins.nurbs import *</span>
+<div class="viewcode-block" id="curveDegreeReduce"><a class="viewcode-back" href="../../ref/lib.nurbs_e.html#lib.nurbs_e.curveDegreeReduce">[docs]</a><span class="k">def</span> <span class="nf">curveDegreeReduce</span><span class="p">(</span><span class="n">Qw</span><span class="p">,</span> <span class="n">U</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Reduce the degree of the Nurbs curve.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    Qw: float array (nc, nd)</span>
+<span class="sd">        The nc control points of the Nurbs curve</span>
+<span class="sd">    U: float array (nu)</span>
+<span class="sd">        The nu knot values of the Nurbs curve</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Pw: float array (nctrl, nd)</span>
+<span class="sd">        The new control points</span>
+<span class="sd">    U: float array (nknots)</span>
+<span class="sd">        The new knot vector</span>
+<span class="sd">    err: float array (nerr)</span>
+<span class="sd">        The error vector</span>
+
+<span class="sd">    This is algorithm A5.11 from &#39;The NURBS Book&#39; pg223.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">nc</span><span class="p">,</span> <span class="n">nd</span> <span class="o">=</span> <span class="n">Qw</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">nc</span><span class="o">-</span><span class="mi">1</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">U</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">m</span><span class="o">-</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span>
+    <span class="c1">#print(&quot;Reduce degree of curve from %s to %s&quot; % (p, p-1))</span>
+    <span class="c1"># Workspace for return arrays</span>
+    <span class="n">Uh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2</span><span class="o">*</span><span class="n">m</span><span class="o">+</span><span class="mi">1</span><span class="p">,))</span>
+    <span class="n">Pw</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2</span><span class="o">*</span><span class="n">nc</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">nd</span><span class="p">))</span>
+    <span class="c1"># Set up workspaces</span>
+    <span class="n">bpts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">p</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">nd</span><span class="p">))</span>  <span class="c1"># Bezier control points of current segment</span>
+    <span class="n">Nextbpts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">p</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">nd</span><span class="p">))</span>  <span class="c1"># leftmost control points of next Bezier segment</span>
+    <span class="n">rbpts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">p</span><span class="p">,</span> <span class="n">nd</span><span class="p">))</span>  <span class="c1"># degree reduced Bezier control points</span>
+    <span class="n">alfs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">p</span><span class="o">-</span><span class="mi">1</span><span class="p">,))</span>  <span class="c1"># knot insertion alphas</span>
+    <span class="n">err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">m</span><span class="p">,))</span>  <span class="c1"># error vector</span>
+
+    <span class="c1"># Initialize some variables</span>
+    <span class="n">ph</span> <span class="o">=</span> <span class="n">p</span><span class="o">-</span><span class="mi">1</span>
+    <span class="n">mh</span> <span class="o">=</span> <span class="n">ph</span>
+    <span class="n">kind</span> <span class="o">=</span> <span class="n">ph</span><span class="o">+</span><span class="mi">1</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">p</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="n">p</span><span class="o">+</span><span class="mi">1</span>
+    <span class="n">cind</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">mult</span> <span class="o">=</span> <span class="n">p</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">n</span><span class="o">+</span><span class="n">p</span><span class="o">+</span><span class="mi">1</span>
+    <span class="n">Pw</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">Qw</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">Uh</span><span class="p">[:</span><span class="n">ph</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">U</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># Compute left end of knot vector</span>
+    <span class="n">bpts</span><span class="p">[:</span><span class="n">p</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">Qw</span><span class="p">[:</span><span class="n">p</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># Initialize first Bezier segment</span>
+    <span class="c1"># error vector is initialized</span>
+    <span class="c1">#print(&quot;Initial Uh&quot;)</span>
+    <span class="c1">#print(Uh[:ph+1])</span>
+     <span class="c1"># Loop through the knot vector</span>
+    <span class="k">while</span> <span class="n">b</span> <span class="o">&lt;</span> <span class="n">m</span><span class="p">:</span>
+        <span class="c1"># Compute knot multiplicity</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="n">b</span>
+        <span class="k">while</span> <span class="n">b</span> <span class="o">&lt;</span> <span class="n">m</span> <span class="ow">and</span> <span class="n">U</span><span class="p">[</span><span class="n">b</span><span class="p">]</span> <span class="o">==</span> <span class="n">U</span><span class="p">[</span><span class="n">b</span><span class="o">+</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="n">b</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="n">mult</span> <span class="o">=</span> <span class="n">b</span><span class="o">-</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span>
+        <span class="n">mh</span> <span class="o">+=</span> <span class="n">mult</span><span class="o">-</span><span class="mi">1</span>
+        <span class="c1">#print(&quot;Big loop b=%s &lt; m=%s (mult=%s, mh=%s, )&quot; % (b, m, mult, mh))</span>
+        <span class="c1">#print(&quot;a=%s;b=%s;u[a]..u[b]=%s&quot; % (a, b, U[a:b+1]))</span>
+        <span class="c1">#print(&quot;Segment bpts\n&quot;, bpts)</span>
+        <span class="n">oldr</span> <span class="o">=</span> <span class="n">r</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">p</span><span class="o">-</span><span class="n">mult</span>
+        <span class="n">lbz</span> <span class="o">=</span> <span class="p">(</span><span class="n">oldr</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span> <span class="k">if</span> <span class="n">oldr</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">1</span>
+        <span class="c1">#print(&quot;oldr=%s; r=%s; lbz=%s&quot; % (oldr, r, lbz))</span>
+
+        <span class="c1"># Insert knot U[b] r times</span>
+        <span class="k">if</span> <span class="n">r</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># Insert knot to get Bezier segment</span>
+            <span class="c1">#print(&quot;Insert knot %s %s times&quot; % (U[b], r))</span>
+            <span class="n">numer</span> <span class="o">=</span> <span class="n">U</span><span class="p">[</span><span class="n">b</span><span class="p">]</span><span class="o">-</span><span class="n">U</span><span class="p">[</span><span class="n">a</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">mult</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+                <span class="n">alfs</span><span class="p">[</span><span class="n">k</span><span class="o">-</span><span class="n">mult</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">numer</span> <span class="o">/</span> <span class="p">(</span><span class="n">U</span><span class="p">[</span><span class="n">a</span><span class="o">+</span><span class="n">k</span><span class="p">]</span> <span class="o">-</span> <span class="n">U</span><span class="p">[</span><span class="n">a</span><span class="p">])</span>
+            <span class="c1">#print(&quot;alfs = %s&quot; % alfs[:p])</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">r</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+                <span class="n">save</span> <span class="o">=</span> <span class="n">r</span><span class="o">-</span><span class="n">j</span>
+                <span class="n">s</span> <span class="o">=</span> <span class="n">mult</span><span class="o">+</span><span class="n">j</span>
+                <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">s</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+                    <span class="n">bpts</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">alfs</span><span class="p">[</span><span class="n">k</span><span class="o">-</span><span class="n">s</span><span class="p">]</span><span class="o">*</span><span class="n">bpts</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">alfs</span><span class="p">[</span><span class="n">k</span><span class="o">-</span><span class="n">s</span><span class="p">])</span><span class="o">*</span><span class="n">bpts</span><span class="p">[</span><span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">Nextbpts</span><span class="p">[</span><span class="n">save</span><span class="p">]</span> <span class="o">=</span> <span class="n">bpts</span><span class="p">[</span><span class="n">p</span><span class="p">]</span>
+                <span class="c1">#print(&quot;Nextbpts %s = %s&quot; %(save, Nextbpts[save]))</span>
+
+        <span class="c1"># Degree reduce Bezier segment</span>
+        <span class="c1"># if debug:</span>
+        <span class="c1">#     print(&quot;Bezier segment degree reduction&quot;)</span>
+        <span class="c1">#     print(&quot;bpts =\n&quot;, bpts)</span>
+        <span class="c1">#     drawCtrlPts(bpts, color=magenta, marksize=8)</span>
+        <span class="n">rbpts</span><span class="p">,</span> <span class="n">maxErr</span> <span class="o">=</span> <span class="n">BezDegreeReduce</span><span class="p">(</span><span class="n">bpts</span><span class="p">)</span>
+        <span class="c1"># if debug:</span>
+        <span class="c1">#     print(f&quot;Reduced ctrl points: {rbpts.shape}\n&quot;, rbpts[:p])</span>
+        <span class="c1">#     print(&quot;Degree reduce error = %s&quot;%maxErr)</span>
+        <span class="c1">#     drawCtrlPts(rbpts, color=cyan, marksize=8, linewidth=1, scurve=True)</span>
+        <span class="n">err</span><span class="p">[</span><span class="n">a</span><span class="p">]</span> <span class="o">+=</span> <span class="n">maxErr</span>
+        <span class="k">if</span> <span class="n">err</span><span class="p">[</span><span class="n">a</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">tol</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Curve not degree reducible&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>  <span class="c1"># Curve not degree reducible</span>
+
+        <span class="k">if</span> <span class="n">oldr</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1">#print(&quot;Remove knot %s %s times&quot; % (U[a], oldr))</span>
+            <span class="n">first</span> <span class="o">=</span> <span class="n">kind</span>
+            <span class="n">last</span> <span class="o">=</span> <span class="n">kind</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">oldr</span><span class="p">):</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="n">first</span>
+                <span class="n">j</span> <span class="o">=</span> <span class="n">last</span>
+                <span class="n">kj</span> <span class="o">=</span> <span class="n">j</span><span class="o">-</span><span class="n">kind</span>
+                <span class="k">while</span> <span class="n">j</span><span class="o">-</span><span class="n">i</span> <span class="o">&gt;</span> <span class="n">k</span><span class="p">:</span>
+                    <span class="n">alfa</span> <span class="o">=</span> <span class="p">(</span><span class="n">U</span><span class="p">[</span><span class="n">a</span><span class="p">]</span><span class="o">-</span><span class="n">Uh</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">U</span><span class="p">[</span><span class="n">b</span><span class="p">]</span><span class="o">-</span><span class="n">Uh</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="n">beta</span> <span class="o">=</span> <span class="p">(</span><span class="n">U</span><span class="p">[</span><span class="n">a</span><span class="p">]</span><span class="o">-</span><span class="n">Uh</span><span class="p">[</span><span class="n">j</span><span class="o">-</span><span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">U</span><span class="p">[</span><span class="n">b</span><span class="p">]</span><span class="o">-</span><span class="n">Uh</span><span class="p">[</span><span class="n">j</span><span class="o">-</span><span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="n">Pw</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">Pw</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">alfa</span><span class="p">)</span><span class="o">*</span><span class="n">Pw</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span> <span class="o">/</span> <span class="n">alfa</span>
+                    <span class="n">rbpts</span><span class="p">[</span><span class="n">kj</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">rbpts</span><span class="p">[</span><span class="n">kj</span><span class="p">]</span> <span class="o">-</span> <span class="n">beta</span><span class="o">*</span><span class="n">rbpts</span><span class="p">[</span><span class="n">kj</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span><span class="o">/</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">beta</span><span class="p">)</span>
+                    <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">j</span> <span class="o">-=</span> <span class="mi">1</span>
+                    <span class="n">kj</span> <span class="o">-=</span> <span class="mi">1</span>
+
+                <span class="c1"># Compute knot removal error bounds (Br)</span>
+                <span class="k">if</span> <span class="n">j</span><span class="o">-</span><span class="n">i</span> <span class="o">&lt;</span> <span class="n">k</span><span class="p">:</span>
+                    <span class="n">Br</span> <span class="o">=</span> <span class="n">length</span><span class="p">(</span><span class="n">Pw</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">rbpts</span><span class="p">[</span><span class="n">kj</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">delta</span> <span class="o">=</span> <span class="p">(</span><span class="n">U</span><span class="p">[</span><span class="n">a</span><span class="p">]</span><span class="o">-</span><span class="n">Uh</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">U</span><span class="p">[</span><span class="n">b</span><span class="p">]</span><span class="o">-</span><span class="n">Uh</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="n">A</span> <span class="o">=</span> <span class="n">delta</span><span class="o">*</span><span class="n">rbpts</span><span class="p">[</span><span class="n">kj</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">delta</span><span class="p">)</span><span class="o">*</span><span class="n">Pw</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+                    <span class="n">Br</span> <span class="o">=</span> <span class="n">length</span><span class="p">(</span><span class="n">Pw</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">A</span><span class="p">)</span>
+                <span class="c1">#print(&quot;Knot removal error = %s&quot; % Br)</span>
+                <span class="c1"># Update the error vector</span>
+                <span class="n">K</span> <span class="o">=</span> <span class="n">a</span><span class="o">+</span><span class="n">oldr</span><span class="o">-</span><span class="n">k</span>
+                <span class="n">q</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">p</span><span class="o">-</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span>
+                <span class="n">L</span> <span class="o">=</span> <span class="n">K</span><span class="o">-</span><span class="n">q</span>
+                <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">L</span><span class="p">,</span> <span class="n">a</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>  <span class="c1"># These knot spans were affected</span>
+                    <span class="n">err</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">+=</span> <span class="n">Br</span>
+                    <span class="k">if</span> <span class="n">err</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">tol</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Curve not degree reducible&quot;</span><span class="p">)</span>
+
+                <span class="n">first</span> <span class="o">-=</span> <span class="mi">1</span>
+                <span class="n">last</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="n">cind</span> <span class="o">=</span> <span class="n">i</span><span class="o">-</span><span class="mi">1</span>
+
+        <span class="c1"># Load knot vector and control points</span>
+        <span class="k">if</span> <span class="n">a</span> <span class="o">!=</span> <span class="n">p</span><span class="p">:</span>
+            <span class="c1"># Load the knot U[a]</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ph</span><span class="o">-</span><span class="n">oldr</span><span class="p">):</span>
+                <span class="c1">#print(&quot;Load the knot ua=%s in Uh[%s]&quot; % (U[a], kind))</span>
+                <span class="n">Uh</span><span class="p">[</span><span class="n">kind</span><span class="p">]</span> <span class="o">=</span> <span class="n">U</span><span class="p">[</span><span class="n">a</span><span class="p">]</span>
+                <span class="n">kind</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lbz</span><span class="p">,</span> <span class="n">ph</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+            <span class="c1"># Load control points into Pw</span>
+            <span class="c1">#print(&quot;Load control point %s from rbpts %s = %s&quot; % (cind, i, rbpts[i]))</span>
+            <span class="n">Pw</span><span class="p">[</span><span class="n">cind</span><span class="p">]</span> <span class="o">=</span> <span class="n">rbpts</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">cind</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">b</span> <span class="o">&lt;</span> <span class="n">m</span><span class="p">:</span>
+            <span class="c1"># Set up for next pass thru loop</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">r</span><span class="p">):</span>
+                <span class="n">bpts</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">Nextbpts</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">p</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+                <span class="n">bpts</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">Qw</span><span class="p">[</span><span class="n">b</span><span class="o">-</span><span class="n">p</span><span class="o">+</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="n">b</span>
+            <span class="n">b</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># End knot</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ph</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+                <span class="n">Uh</span><span class="p">[</span><span class="n">kind</span><span class="o">+</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">U</span><span class="p">[</span><span class="n">b</span><span class="p">]</span>
+
+        <span class="c1"># if debug:</span>
+        <span class="c1">#     pause()</span>
+
+    <span class="n">nh</span> <span class="o">=</span> <span class="n">mh</span> <span class="o">-</span> <span class="n">ph</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">Uh</span> <span class="o">=</span> <span class="n">Uh</span><span class="p">[:</span><span class="n">mh</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">Pw</span> <span class="o">=</span> <span class="n">Pw</span><span class="p">[:</span><span class="n">nh</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">Pw</span><span class="p">,</span> <span class="n">Uh</span><span class="p">,</span> <span class="n">err</span></div>
+
+
+<div class="viewcode-block" id="curveUnclamp"><a class="viewcode-back" href="../../ref/lib.nurbs_e.html#lib.nurbs_e.curveUnclamp">[docs]</a><span class="k">def</span> <span class="nf">curveUnclamp</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">U</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Unclamp a clamped curve.</span>
+
+<span class="sd">    Input: P,U</span>
+<span class="sd">    Output: P,U</span>
+
+<span class="sd">    Note: this changes P and U inplace.</span>
+
+<span class="sd">    Based on algorithm A12.1 of The NURBS Book.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">P</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">U</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">m</span> <span class="o">-</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="c1"># Unclamp at left end</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
+        <span class="n">U</span><span class="p">[</span><span class="n">p</span><span class="o">-</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">U</span><span class="p">[</span><span class="n">p</span><span class="o">-</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="n">U</span><span class="p">[</span><span class="n">n</span><span class="o">-</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">U</span><span class="p">[</span><span class="n">n</span><span class="o">-</span><span class="n">i</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">p</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="k">break</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="n">p</span><span class="o">-</span><span class="mi">1</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+            <span class="n">alfa</span> <span class="o">=</span> <span class="p">(</span><span class="n">U</span><span class="p">[</span><span class="n">p</span><span class="p">]</span><span class="o">-</span><span class="n">U</span><span class="p">[</span><span class="n">k</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">U</span><span class="p">[</span><span class="n">p</span><span class="o">+</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">U</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+            <span class="n">P</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">P</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="n">alfa</span><span class="o">*</span><span class="n">P</span><span class="p">[</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">alfa</span><span class="p">)</span>
+            <span class="n">k</span> <span class="o">-=</span> <span class="mi">1</span>
+    <span class="c1"># Unclamp at right end</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
+        <span class="n">U</span><span class="p">[</span><span class="n">n</span><span class="o">+</span><span class="n">i</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">U</span><span class="p">[</span><span class="n">n</span><span class="o">+</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">U</span><span class="p">[</span><span class="n">p</span><span class="o">+</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">U</span><span class="p">[</span><span class="n">p</span><span class="o">+</span><span class="n">i</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">p</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="k">break</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+            <span class="n">alfa</span> <span class="o">=</span> <span class="p">(</span><span class="n">U</span><span class="p">[</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">U</span><span class="p">[</span><span class="n">n</span><span class="o">-</span><span class="n">j</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">U</span><span class="p">[</span><span class="n">n</span><span class="o">-</span><span class="n">j</span><span class="o">+</span><span class="n">i</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span><span class="o">-</span><span class="n">U</span><span class="p">[</span><span class="n">n</span><span class="o">-</span><span class="n">j</span><span class="p">])</span>
+            <span class="n">P</span><span class="p">[</span><span class="n">n</span><span class="o">-</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">P</span><span class="p">[</span><span class="n">n</span><span class="o">-</span><span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">alfa</span><span class="p">)</span><span class="o">*</span><span class="n">P</span><span class="p">[</span><span class="n">n</span><span class="o">-</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="n">alfa</span>
+    <span class="k">return</span> <span class="n">P</span><span class="p">,</span> <span class="n">U</span></div>
+
+
+<div class="viewcode-block" id="curveGlobalInterpolationMatrix"><a class="viewcode-back" href="../../ref/lib.nurbs_e.html#lib.nurbs_e.curveGlobalInterpolationMatrix">[docs]</a><span class="k">def</span> <span class="nf">curveGlobalInterpolationMatrix</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">t0</span><span class="p">,</span> <span class="n">t1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Compute the global curve interpolation matrix.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    u: float array (nc)</span>
+<span class="sd">        The parameter values at the nc points Q to be interpolated</span>
+<span class="sd">    p: int</span>
+<span class="sd">        The degree of the B-spline to construct.</span>
+<span class="sd">    t0: 0 | 1</span>
+<span class="sd">        1 if the tangent at the start of the curve is specified</span>
+<span class="sd">    t1: 0 | 1</span>
+<span class="sd">        1 if the tangent at the end of the curve is specified</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    U: float array (nU)</span>
+<span class="sd">        The knot sequence, with nU = nu + p + 1, nu = nc + t0 + t1</span>
+<span class="sd">    A: float array (nu, nu)</span>
+<span class="sd">        The coefficient matrix for the interpolation. The control points P</span>
+<span class="sd">        can be found by solving the system of linear equations: A * P = Q.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    :func:`plugins.nurbs.globalInterpolationCurve`: the normal way to use this</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Modified algorithm A9.1 from &#39;The NURBS Book&#39; p.369.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">nc</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">nu</span> <span class="o">=</span> <span class="n">nc</span> <span class="o">+</span> <span class="n">t0</span> <span class="o">+</span> <span class="n">t1</span>
+    <span class="n">nU</span> <span class="o">=</span> <span class="n">nu</span> <span class="o">+</span> <span class="n">p</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">nu</span> <span class="o">+</span> <span class="n">p</span><span class="p">;</span>
+    <span class="c1"># Compute the knot vector U by averaging (9.8)</span>
+    <span class="n">U</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">nU</span><span class="p">)</span>
+    <span class="n">U</span><span class="p">[</span><span class="n">m</span><span class="o">-</span><span class="n">p</span><span class="p">:]</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">t0</span><span class="p">,</span> <span class="n">nc</span><span class="o">-</span><span class="n">p</span><span class="o">+</span><span class="n">t1</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">j</span><span class="p">,</span> <span class="n">j</span><span class="o">+</span><span class="n">p</span><span class="p">):</span>
+            <span class="n">U</span><span class="p">[</span><span class="n">j</span><span class="o">+</span><span class="n">p</span><span class="o">+</span><span class="n">t0</span><span class="p">]</span> <span class="o">+=</span> <span class="n">u</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">U</span><span class="p">[</span><span class="n">j</span><span class="o">+</span><span class="n">p</span><span class="o">+</span><span class="n">t0</span><span class="p">]</span> <span class="o">/=</span> <span class="n">p</span>
+    <span class="c1"># Set up coefficient matrix A</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nu</span><span class="p">,</span><span class="n">nu</span><span class="p">))</span>
+    <span class="n">A</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">A</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="k">if</span> <span class="n">t0</span><span class="p">:</span>
+        <span class="n">A</span><span class="p">[</span><span class="mi">1</span><span class="p">,:</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span>
+    <span class="k">if</span> <span class="n">t1</span><span class="p">:</span>
+        <span class="n">A</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="o">-</span><span class="mi">2</span><span class="p">:]</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nc</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">find_span</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">u</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">p</span><span class="p">,</span> <span class="n">nu</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">A</span><span class="p">[</span><span class="n">t0</span><span class="o">+</span><span class="n">i</span><span class="p">,</span> <span class="n">s</span><span class="o">-</span><span class="n">p</span><span class="p">:</span><span class="n">s</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">basis_funs</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">u</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">p</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">U</span><span class="p">,</span> <span class="n">A</span></div>
+
+
+<span class="c1"># TODO: merge with curveGlobalInterpolationMatrix</span>
+<span class="c1"># TODO: implement in nurbs_c</span>
+<div class="viewcode-block" id="curveGlobalInterpolationMatrix2"><a class="viewcode-back" href="../../ref/lib.nurbs_e.html#lib.nurbs_e.curveGlobalInterpolationMatrix2">[docs]</a><span class="k">def</span> <span class="nf">curveGlobalInterpolationMatrix2</span><span class="p">(</span><span class="n">Q</span><span class="p">,</span> <span class="n">D</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Compute the global curve interpolation matrix for all tangents given.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    Q: float array (nc)</span>
+<span class="sd">    D: float array(nc)</span>
+<span class="sd">    u: float array (nc)</span>
+<span class="sd">        The parameter values at the nc points Q to be interpolated</span>
+<span class="sd">    p: 2 | 3</span>
+<span class="sd">        The degree of the B-spline to construct.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    U: float array (nU)</span>
+<span class="sd">        The knot sequence, with nU = 2*nc + p + 1</span>
+<span class="sd">    A: float array (2*nc, 2*nc)</span>
+<span class="sd">        The coefficient matrix for the interpolation.</span>
+<span class="sd">        The control points P can be found by solving the system of linear</span>
+<span class="sd">        equations: A * P = Q.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    :func:`plugins.nurbs.globalInterpolationCurve`: the normal way to use this</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Modified algorithm A9.1 from &#39;The NURBS Book&#39; p.369.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">nc</span><span class="p">,</span> <span class="n">nd</span> <span class="o">=</span> <span class="n">Q</span><span class="o">.</span><span class="n">shape</span>
+    <span class="k">if</span> <span class="n">D</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">Q</span><span class="o">.</span><span class="n">shape</span> <span class="ow">or</span> <span class="n">u</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">nc</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Incompatible shapes of Q, D, u&quot;</span><span class="p">)</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">nc</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">nvar</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">nc</span>
+    <span class="n">nU</span> <span class="o">=</span> <span class="n">nvar</span> <span class="o">+</span> <span class="n">p</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">nvar</span> <span class="o">+</span> <span class="n">p</span><span class="p">;</span>
+    <span class="c1"># Knot vector U</span>
+    <span class="n">U</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">nU</span><span class="p">)</span>
+    <span class="n">U</span><span class="p">[</span><span class="n">m</span><span class="o">-</span><span class="n">p</span><span class="p">:]</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="k">if</span> <span class="n">p</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">U</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="n">nU</span><span class="o">-</span><span class="mi">2</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">u</span>
+        <span class="n">U</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="n">nU</span><span class="o">-</span><span class="mi">2</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">u</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">u</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="k">elif</span> <span class="n">p</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="n">U</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="n">u</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">U</span><span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="n">u</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">U</span><span class="p">[</span><span class="mi">5</span><span class="p">:</span><span class="n">nU</span><span class="o">-</span><span class="mi">5</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">u</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">u</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mi">3</span>
+        <span class="n">U</span><span class="p">[</span><span class="mi">6</span><span class="p">:</span><span class="n">nU</span><span class="o">-</span><span class="mi">4</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">u</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">u</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mi">3</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Degree should be 2 or 3&quot;</span><span class="p">)</span>
+    <span class="c1"># Coefficient matrix A</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nvar</span><span class="p">,</span><span class="n">nvar</span><span class="p">))</span>
+    <span class="n">A</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">A</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="n">A</span><span class="p">[</span><span class="mi">1</span><span class="p">,:</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span>
+    <span class="n">A</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">2</span><span class="p">:]</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nc</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">find_span</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">u</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">p</span><span class="p">,</span> <span class="n">nvar</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">fd</span> <span class="o">=</span> <span class="n">basis_derivs</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">u</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">p</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># function values and 1st derivs</span>
+        <span class="n">A</span><span class="p">[</span><span class="mi">2</span><span class="o">*</span><span class="n">i</span><span class="p">,</span> <span class="n">s</span><span class="o">-</span><span class="n">p</span><span class="p">:</span><span class="n">s</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">fd</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">A</span><span class="p">[</span><span class="mi">2</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">s</span><span class="o">-</span><span class="n">p</span><span class="p">:</span><span class="n">s</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">fd</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="c1"># Right hand sides R</span>
+    <span class="n">R</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">nvar</span><span class="p">,</span> <span class="n">nd</span><span class="p">))</span>
+    <span class="n">R</span><span class="p">[::</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">Q</span>
+    <span class="n">R</span><span class="p">[</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">D</span>
+    <span class="n">R</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*=</span> <span class="n">U</span><span class="p">[</span><span class="n">p</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="mi">3</span>
+    <span class="n">R</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*=</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">U</span><span class="p">[</span><span class="o">-</span><span class="p">(</span><span class="n">p</span><span class="o">+</span><span class="mi">2</span><span class="p">)])</span> <span class="o">/</span> <span class="mi">3</span>
+    <span class="k">return</span> <span class="n">U</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">R</span></div>
+
+
+<div class="viewcode-block" id="cubicSplineInterpolation"><a class="viewcode-back" href="../../ref/lib.nurbs_e.html#lib.nurbs_e.cubicSplineInterpolation">[docs]</a><span class="k">def</span> <span class="nf">cubicSplineInterpolation</span><span class="p">(</span><span class="n">Q</span><span class="p">,</span> <span class="n">t0</span><span class="p">,</span> <span class="n">t1</span><span class="p">,</span> <span class="n">U</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Compute the control points of a cubic spline interpolate.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    Q: float array (nc, 3)</span>
+<span class="sd">        The nc points where the curve should pass through.</span>
+<span class="sd">    t0: float array (3,)</span>
+<span class="sd">        The tangent to the curve at the start point Q[0]</span>
+<span class="sd">    t1: float array (3,)</span>
+<span class="sd">        The tangent to the curve at the end point Q[nc-1]</span>
+<span class="sd">    U: float array (nc+6,)</span>
+<span class="sd">        The clamped knot vector: 3 zeros, the nc parameter values for</span>
+<span class="sd">        the points, 3 ones.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float array (nc+2, 3)</span>
+<span class="sd">        The control points of the curve. With the given knots they</span>
+<span class="sd">        will create a 3-rd degree NURBS curve that passes through the points Q</span>
+<span class="sd">        and has derivatives t0 and t1 at its end.</span>
+
+<span class="sd">    Based on algorithm A9.2 of &#39;The Nurbs Book&#39;, p. 373</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Initialize</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">Q</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">P</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">n</span><span class="o">+</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+    <span class="n">dd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">,),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>  <span class="c1"># workspace</span>
+    <span class="n">P</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">Q</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">P</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">P</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">U</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">/</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">t0</span>
+    <span class="n">P</span><span class="p">[</span><span class="n">n</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">Q</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+    <span class="n">P</span><span class="p">[</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">P</span><span class="p">[</span><span class="n">n</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">U</span><span class="p">[</span><span class="n">n</span><span class="o">+</span><span class="mi">2</span><span class="p">])</span> <span class="o">/</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">t1</span>
+    <span class="n">abc</span> <span class="o">=</span> <span class="n">basis_funs</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">U</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+    <span class="n">den</span> <span class="o">=</span> <span class="n">abc</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">P</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span><span class="p">(</span><span class="n">Q</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">abc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">P</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="n">den</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="n">dd</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">abc</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">/</span><span class="n">den</span>
+        <span class="n">abc</span> <span class="o">=</span> <span class="n">basis_funs</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">U</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">2</span><span class="p">],</span> <span class="mi">3</span><span class="p">,</span> <span class="n">i</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">den</span> <span class="o">=</span> <span class="n">abc</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">abc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">dd</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">P</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">Q</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">abc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">P</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="n">den</span>
+    <span class="n">dd</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">abc</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">/</span><span class="n">den</span>
+    <span class="n">abc</span> <span class="o">=</span> <span class="n">basis_funs</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">U</span><span class="p">[</span><span class="n">n</span><span class="o">+</span><span class="mi">2</span><span class="p">],</span> <span class="mi">3</span><span class="p">,</span> <span class="n">n</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">den</span> <span class="o">=</span> <span class="n">abc</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">abc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">dd</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+    <span class="n">P</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">Q</span><span class="p">[</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">abc</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="n">P</span><span class="p">[</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">abc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">P</span><span class="p">[</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="n">den</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">P</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">P</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">dd</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">P</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">P</span></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__draw__&#39;</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">pyformex.plugins.nurbs</span> <span class="kn">import</span> <span class="n">NurbsCurve</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="n">NurbsCurve</span><span class="p">([</span>
+        <span class="p">[</span><span class="mf">6.2</span><span class="p">,</span> <span class="o">-</span><span class="mf">7.3</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">4.5</span><span class="p">,</span> <span class="o">-</span><span class="mf">6.7</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">4.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">5.2</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">4.9</span><span class="p">,</span> <span class="o">-</span><span class="mf">3.5</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">7.6</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.5</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">10.3</span><span class="p">,</span> <span class="o">-</span><span class="mf">3.3</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">11.2</span><span class="p">,</span> <span class="o">-</span><span class="mf">5.0</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">10.7</span><span class="p">,</span> <span class="o">-</span><span class="mf">6.7</span><span class="p">],</span>
+        <span class="p">[</span><span class="mf">9.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">7.5</span><span class="p">],</span>
+        <span class="p">],</span> <span class="n">degree</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">knots</span><span class="o">=</span>
+        <span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mf">3.</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mf">3.</span><span class="p">,</span> <span class="mi">2</span><span class="o">/</span><span class="mf">3.</span><span class="p">,</span> <span class="mi">2</span><span class="o">/</span><span class="mf">3.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">])</span>
+    <span class="n">clear</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">drawNurbs</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">black</span><span class="p">):</span>
+        <span class="n">draw</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+        <span class="n">draw</span><span class="p">(</span><span class="n">N</span><span class="o">.</span><span class="n">knotPoints</span><span class="p">(),</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">marksize</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">N</span><span class="o">.</span><span class="n">coords</span><span class="o">.</span><span class="n">toCoords</span><span class="p">()</span>
+        <span class="n">draw</span><span class="p">(</span><span class="n">PolyLine</span><span class="p">(</span><span class="n">X</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+        <span class="n">draw</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+        <span class="n">drawNumbers</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+    <span class="n">drawNurbs</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">red</span><span class="p">)</span>
+    <span class="n">P4</span><span class="p">,</span> <span class="n">U</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">curveDegreeReduce</span><span class="p">(</span><span class="n">N</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="n">N</span><span class="o">.</span><span class="n">knots</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">P4</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">U</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Maximum error </span><span class="si">{</span><span class="n">err</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="n">NurbsCurve</span><span class="p">(</span><span class="n">control</span><span class="o">=</span><span class="n">P4</span><span class="p">,</span> <span class="n">knots</span><span class="o">=</span><span class="n">U</span><span class="p">)</span>
+    <span class="n">drawNurbs</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">black</span><span class="p">)</span>
+
+<span class="c1"># End</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">lib.nurbs_e</a></li--> 
+      </ul>
+    </div>
+    <div class="footer">
+    <span class="left">
+        &copy; Copyright 2004-2023, Benedict Verhegghe.
+    </span>
+      Last updated on Mar 27, 2023.
+    <span class="right">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.4.3.
+    </span>
+    </div>
+  </body>
+</html>

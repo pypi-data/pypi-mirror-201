@@ -1,0 +1,467 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!--
+##
+##  This file is part of the pyFormex project.
+##  pyFormex is a tool for generating, manipulating and transforming 3D
+##  geometrical models by sequences of mathematical operations.
+##  Home page: http://pyformex.org
+##  Project page:  http://savannah.nongnu.org/projects/pyformex/
+##  Copyright (C) Benedict Verhegghe (benedict.verhegghe@ugent.be)
+##  Distributed under the GNU General Public License version 3 or later.
+##
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see http://www.gnu.org/licenses/.
+##
+-->
+    <title>opengl.renderer &#8212; pyFormex 3.3 documentation</title>
+
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pyformex.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+<link rel="icon" type="image/png" href="../../_static/pyformex_fav.png" />
+
+  </head><body>
+
+<div class="header">
+  <a href="http://pyformex.org">
+  <img src="../../_static/scallop_dome_small.png" alt="scallop dome" border="0" hspace="20" vspace="12" align="left" />
+  <img src="../../_static/pyformex-logo-2.png" alt="pyformex logo" border="0" hspace="10" vspace="8" align="left" />
+  </a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">opengl.renderer</a></li--> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<!-- PYFORMEX_SIDEBAR_LOGO -->
+<!-- PYFORMEX_WEBSITE_SIDEBAR_TOP -->
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for opengl.renderer</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1">##</span>
+<span class="c1">##  SPDX-FileCopyrightText: © 2007-2023 Benedict Verhegghe &lt;bverheg@gmail.com&gt;</span>
+<span class="c1">##  SPDX-License-Identifier: GPL-3.0-or-later</span>
+<span class="c1">##</span>
+<span class="c1">##  This file is part of pyFormex 3.3  (Sun Mar 26 20:16:15 CEST 2023)</span>
+<span class="c1">##  pyFormex is a tool for generating, manipulating and transforming 3D</span>
+<span class="c1">##  geometrical models by sequences of mathematical operations.</span>
+<span class="c1">##  Home page: https://pyformex.org</span>
+<span class="c1">##  Project page: https://savannah.nongnu.org/projects/pyformex/</span>
+<span class="c1">##  Development: https://gitlab.com/bverheg/pyformex</span>
+<span class="c1">##  Distributed under the GNU General Public License version 3 or later.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is free software: you can redistribute it and/or modify</span>
+<span class="c1">##  it under the terms of the GNU General Public License as published by</span>
+<span class="c1">##  the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1">##  (at your option) any later version.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is distributed in the hope that it will be useful,</span>
+<span class="c1">##  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1">##  GNU General Public License for more details.</span>
+<span class="c1">##</span>
+<span class="c1">##  You should have received a copy of the GNU General Public License</span>
+<span class="c1">##  along with this program.  If not, see http://www.gnu.org/licenses/.</span>
+<span class="c1">##</span>
+<span class="sd">&quot;&quot;&quot;opengl/renderer.py</span>
+
+<span class="sd">Python OpenGL framework for pyFormex</span>
+
+<span class="sd">This OpenGL framework is intended to replace (in due time)</span>
+<span class="sd">the current OpenGL framework in pyFormex.</span>
+
+<span class="sd">(C) 2013 Benedict Verhegghe and the pyFormex project.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">import</span> <span class="nn">pyformex</span> <span class="k">as</span> <span class="nn">pf</span>
+<span class="kn">from</span> <span class="nn">pyformex.attributes</span> <span class="kn">import</span> <span class="n">Attributes</span>
+<span class="kn">from</span> <span class="nn">.matrix</span> <span class="kn">import</span> <span class="n">Matrix4</span>
+<span class="kn">from</span> <span class="nn">.camera</span> <span class="kn">import</span> <span class="n">orthogonal_matrix</span>
+<span class="kn">from</span> <span class="nn">.gl</span> <span class="kn">import</span> <span class="n">GL</span>
+
+<span class="k">if</span> <span class="ow">not</span> <span class="n">pf</span><span class="o">.</span><span class="n">sphinx</span> <span class="ow">and</span> <span class="n">pf</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">gl3</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">opengl3.shader</span> <span class="kn">import</span> <span class="n">Shader</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">.shader</span> <span class="kn">import</span> <span class="n">Shader</span>
+
+
+<span class="k">class</span> <span class="nc">Renderer</span><span class="p">():</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">canvas</span><span class="p">,</span> <span class="n">shader</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span> <span class="o">=</span> <span class="n">canvas</span>
+        <span class="k">if</span> <span class="n">shader</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">shader</span> <span class="o">=</span> <span class="n">Shader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shader</span> <span class="o">=</span> <span class="n">shader</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">camera</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">camera</span>
+
+
+    <span class="k">def</span> <span class="nf">loadLightProfile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">lightprof</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">lightprof</span>
+        <span class="n">mat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">material</span>
+        <span class="n">lights</span> <span class="o">=</span> <span class="p">[</span><span class="n">light</span> <span class="k">for</span> <span class="n">light</span> <span class="ow">in</span> <span class="n">lightprof</span><span class="o">.</span><span class="n">lights</span> <span class="k">if</span> <span class="n">light</span><span class="o">.</span><span class="n">enabled</span><span class="p">]</span>
+        <span class="n">nlights</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">lights</span><span class="p">)</span>
+        <span class="n">ambient</span> <span class="o">=</span> <span class="n">lightprof</span><span class="o">.</span><span class="n">ambient</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>  <span class="c1"># global ambient</span>
+        <span class="k">for</span> <span class="n">light</span> <span class="ow">in</span> <span class="n">lights</span><span class="p">:</span>
+            <span class="n">ambient</span> <span class="o">+=</span> <span class="n">light</span><span class="o">.</span><span class="n">ambient</span>
+        <span class="n">ambient</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">ambient</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">)</span>  <span class="c1"># clip, OpenGL does anyways</span>
+        <span class="n">diffuse</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">light</span><span class="o">.</span><span class="n">diffuse</span> <span class="k">for</span> <span class="n">light</span> <span class="ow">in</span> <span class="n">lights</span><span class="p">])</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+        <span class="n">specular</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">light</span><span class="o">.</span><span class="n">specular</span> <span class="k">for</span> <span class="n">light</span> <span class="ow">in</span> <span class="n">lights</span><span class="p">])</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+        <span class="n">position</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">light</span><span class="o">.</span><span class="n">position</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span> <span class="k">for</span> <span class="n">light</span> <span class="ow">in</span> <span class="n">lights</span><span class="p">])</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+        <span class="n">settings</span> <span class="o">=</span> <span class="n">Attributes</span><span class="p">({</span>
+            <span class="s1">&#39;nlights&#39;</span><span class="p">:</span> <span class="n">nlights</span><span class="p">,</span>
+            <span class="s1">&#39;ambicolor&#39;</span><span class="p">:</span> <span class="n">ambient</span><span class="p">,</span>
+            <span class="s1">&#39;diffcolor&#39;</span><span class="p">:</span> <span class="n">diffuse</span><span class="p">,</span>
+            <span class="s1">&#39;speccolor&#39;</span><span class="p">:</span> <span class="n">specular</span><span class="p">,</span>
+            <span class="s1">&#39;lightdir&#39;</span><span class="p">:</span> <span class="n">position</span><span class="p">,</span>
+            <span class="s1">&#39;ambient&#39;</span><span class="p">:</span> <span class="n">mat</span><span class="o">.</span><span class="n">ambient</span><span class="p">,</span>
+            <span class="s1">&#39;diffuse&#39;</span><span class="p">:</span> <span class="n">mat</span><span class="o">.</span><span class="n">diffuse</span><span class="p">,</span>
+            <span class="s1">&#39;specular&#39;</span><span class="p">:</span> <span class="n">mat</span><span class="o">.</span><span class="n">specular</span><span class="p">,</span>
+            <span class="s1">&#39;shininess&#39;</span><span class="p">:</span> <span class="n">mat</span><span class="o">.</span><span class="n">shininess</span><span class="p">,</span>
+            <span class="s1">&#39;alphablend&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">alphablend</span><span class="p">,</span>
+            <span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">transparency</span><span class="p">,</span>
+            <span class="s1">&#39;bkalpha&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">transparency</span><span class="p">,</span>
+            <span class="p">})</span>
+        <span class="c1">#if pf.options.gl3:</span>
+            <span class="c1">#print(&quot;LIGHT PROFILE to shader: %s&quot; % settings)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shader</span><span class="o">.</span><span class="n">loadUniforms</span><span class="p">(</span><span class="n">settings</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">setDefaults</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the GL context and the shader uniforms to default values.&quot;&quot;&quot;</span>
+        <span class="n">GL</span><span class="o">.</span><span class="n">glLineWidth</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">linewidth</span><span class="p">)</span>
+        <span class="c1"># Enable setting pointsize in the shader</span>
+        <span class="c1"># Maybe we should do pointsize with gl context?</span>
+        <span class="n">GL</span><span class="o">.</span><span class="n">glEnable</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_VERTEX_PROGRAM_POINT_SIZE</span><span class="p">)</span>
+        <span class="c1"># NEXT, the shader uniforms</span>
+        <span class="c1"># When all attribute names are correct, this could be done with a</span>
+        <span class="c1"># single statement like</span>
+        <span class="c1">#   self.shader.loadUniforms(self.canvas.settings)</span>
+        <span class="c1">#</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shader</span><span class="o">.</span><span class="n">uniformInt</span><span class="p">(</span><span class="s1">&#39;highlight&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shader</span><span class="o">.</span><span class="n">uniformFloat</span><span class="p">(</span><span class="s1">&#39;lighting&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">lighting</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shader</span><span class="o">.</span><span class="n">uniformInt</span><span class="p">(</span><span class="s1">&#39;useObjectColor&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shader</span><span class="o">.</span><span class="n">uniformInt</span><span class="p">(</span><span class="s1">&#39;rgbamode&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shader</span><span class="o">.</span><span class="n">uniformVec3</span><span class="p">(</span><span class="s1">&#39;objectColor&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">fgcolor</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shader</span><span class="o">.</span><span class="n">uniformVec3</span><span class="p">(</span><span class="s1">&#39;objectBkColor&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">fgcolor</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shader</span><span class="o">.</span><span class="n">uniformVec3</span><span class="p">(</span><span class="s1">&#39;highlightColor&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">slcolor</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shader</span><span class="o">.</span><span class="n">uniformFloat</span><span class="p">(</span><span class="s1">&#39;pointsize&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">pointsize</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loadLightProfile</span><span class="p">()</span>
+
+
+    <span class="k">def</span> <span class="nf">renderObjects</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">objects</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Render a list of objects&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">objects</span><span class="p">:</span>
+            <span class="n">GL</span><span class="o">.</span><span class="n">glDepthFunc</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_LESS</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setDefaults</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">trl</span> <span class="ow">or</span> <span class="n">obj</span><span class="o">.</span><span class="n">rot</span> <span class="ow">or</span> <span class="n">obj</span><span class="o">.</span><span class="n">trl0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">loadMatrices</span><span class="p">(</span><span class="n">rot</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">rot</span><span class="p">,</span> <span class="n">trl</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">trl</span><span class="p">,</span> <span class="n">trl0</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">trl0</span><span class="p">)</span>
+            <span class="n">obj</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">trl</span> <span class="ow">or</span> <span class="n">obj</span><span class="o">.</span><span class="n">rot</span> <span class="ow">or</span> <span class="n">obj</span><span class="o">.</span><span class="n">trl0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">loadMatrices</span><span class="p">()</span>
+
+
+    <span class="k">def</span> <span class="nf">pickObjects</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">objects</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Render a list of objects for picking&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">objects</span><span class="p">:</span>
+            <span class="n">GL</span><span class="o">.</span><span class="n">glDepthFunc</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_LESS</span><span class="p">)</span>
+            <span class="c1">#self.setDefaults()</span>
+            <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">trl</span> <span class="ow">or</span> <span class="n">obj</span><span class="o">.</span><span class="n">rot</span> <span class="ow">or</span> <span class="n">obj</span><span class="o">.</span><span class="n">trl0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">loadMatrices</span><span class="p">(</span><span class="n">rot</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">rot</span><span class="p">,</span> <span class="n">trl</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">trl</span><span class="p">,</span> <span class="n">trl0</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">trl0</span><span class="p">)</span>
+            <span class="n">obj</span><span class="o">.</span><span class="n">renderpick</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">trl</span> <span class="ow">or</span> <span class="n">obj</span><span class="o">.</span><span class="n">rot</span> <span class="ow">or</span> <span class="n">obj</span><span class="o">.</span><span class="n">trl0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">loadMatrices</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">loadMatrices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rot</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">trl</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">trl0</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Load the rendering matrices.</span>
+
+<span class="sd">        rot, trl, trl0 are additional rotation, translation and</span>
+<span class="sd">        pre-translation for the object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Get the current modelview*projection matrix</span>
+        <span class="n">modelview</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">modelview</span>
+        <span class="k">if</span> <span class="n">trl0</span><span class="p">:</span>
+            <span class="n">modelview</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">trl0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">rot</span><span class="p">:</span>
+            <span class="n">modelview</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">rot</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">trl</span><span class="p">:</span>
+            <span class="n">modelview</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">trl</span><span class="p">)</span>
+        <span class="n">projection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">projection</span>
+        <span class="n">transinv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">modelview</span><span class="o">.</span><span class="n">transinv</span><span class="p">()</span><span class="o">.</span><span class="n">rot</span>
+
+        <span class="c1"># Propagate the matrices to the uniforms of the shader</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shader</span><span class="o">.</span><span class="n">uniformMat4</span><span class="p">(</span><span class="s1">&#39;modelview&#39;</span><span class="p">,</span> <span class="n">modelview</span><span class="o">.</span><span class="n">gl</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shader</span><span class="o">.</span><span class="n">uniformMat4</span><span class="p">(</span><span class="s1">&#39;projection&#39;</span><span class="p">,</span> <span class="n">projection</span><span class="o">.</span><span class="n">gl</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shader</span><span class="o">.</span><span class="n">uniformMat3</span><span class="p">(</span><span class="s1">&#39;normalstransform&#39;</span><span class="p">,</span> <span class="n">transinv</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">))</span>
+
+
+    <span class="k">def</span> <span class="nf">render3D</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">actors</span><span class="p">,</span> <span class="n">picking</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Render the 3D actors in the scene.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">actors</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Get the current modelview*projection matrix</span>
+        <span class="n">modelview</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">modelview</span>
+        <span class="n">projection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">projection</span>
+        <span class="n">transinv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">modelview</span><span class="o">.</span><span class="n">transinv</span><span class="p">()</span><span class="o">.</span><span class="n">rot</span>
+
+        <span class="c1"># Propagate the matrices to the uniforms of the shader</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shader</span><span class="o">.</span><span class="n">uniformMat4</span><span class="p">(</span><span class="s1">&#39;modelview&#39;</span><span class="p">,</span> <span class="n">modelview</span><span class="o">.</span><span class="n">gl</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shader</span><span class="o">.</span><span class="n">uniformMat4</span><span class="p">(</span><span class="s1">&#39;projection&#39;</span><span class="p">,</span> <span class="n">projection</span><span class="o">.</span><span class="n">gl</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shader</span><span class="o">.</span><span class="n">uniformMat3</span><span class="p">(</span><span class="s1">&#39;normalstransform&#39;</span><span class="p">,</span> <span class="n">transinv</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">))</span>
+
+        <span class="c1"># sort actors in back and front, and select visible</span>
+        <span class="n">actors</span> <span class="o">=</span> <span class="n">back</span><span class="p">(</span><span class="n">actors</span><span class="p">)</span> <span class="o">+</span> <span class="n">front</span><span class="p">(</span><span class="n">actors</span><span class="p">)</span>
+        <span class="n">actors</span> <span class="o">=</span>  <span class="p">[</span><span class="n">o</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">actors</span> <span class="k">if</span> <span class="n">o</span><span class="o">.</span><span class="n">visible</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">False</span><span class="p">]</span>
+
+        <span class="n">GL</span><span class="o">.</span><span class="n">glEnable</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_DEPTH_TEST</span><span class="p">)</span>
+        <span class="n">GL</span><span class="o">.</span><span class="n">glDepthMask</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_TRUE</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">picking</span><span class="p">:</span>
+            <span class="c1"># render with pickColor</span>
+            <span class="n">actors</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">actors</span> <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">pickable</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pickObjects</span><span class="p">(</span><span class="n">actors</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">alphablend</span><span class="p">:</span>
+            <span class="c1"># opaque: all actors in order of creation</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">renderObjects</span><span class="p">(</span><span class="n">actors</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># alphablend: optimize drawing order</span>
+            <span class="n">opaque</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">actors</span> <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">opak</span><span class="p">]</span>
+            <span class="n">transp</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">actors</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">a</span><span class="o">.</span><span class="n">opak</span><span class="p">]</span>
+
+            <span class="c1"># First render the opaque objects</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">renderObjects</span><span class="p">(</span><span class="n">opaque</span><span class="p">)</span>
+
+            <span class="c1"># Then the transparent ones</span>
+            <span class="c1"># Disable writing to the depth buffer</span>
+            <span class="c1"># as everything behind the transparent object</span>
+            <span class="c1"># also needs to be drawn</span>
+            <span class="n">GL</span><span class="o">.</span><span class="n">glDepthMask</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_FALSE</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;render/transp_nocull&#39;</span><span class="p">]:</span>
+                <span class="n">GL</span><span class="o">.</span><span class="n">glDisable</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_CULL_FACE</span><span class="p">)</span>
+
+            <span class="n">GL</span><span class="o">.</span><span class="n">glEnable</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_BLEND</span><span class="p">)</span>
+            <span class="n">GL</span><span class="o">.</span><span class="n">glBlendEquation</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_FUNC_ADD</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;render/alphablend&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;mult&#39;</span><span class="p">:</span>
+                <span class="n">GL</span><span class="o">.</span><span class="n">glBlendFunc</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_ZERO</span><span class="p">,</span> <span class="n">GL</span><span class="o">.</span><span class="n">GL_SRC_COLOR</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;render/alphablend&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;add&#39;</span><span class="p">:</span>
+                <span class="n">GL</span><span class="o">.</span><span class="n">glBlendFunc</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_ONE</span><span class="p">,</span> <span class="n">GL</span><span class="o">.</span><span class="n">GL_ONE</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;render/alphablend&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;trad1&#39;</span><span class="p">:</span>
+                <span class="n">GL</span><span class="o">.</span><span class="n">glBlendFunc</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_SRC_ALPHA</span><span class="p">,</span> <span class="n">GL</span><span class="o">.</span><span class="n">GL_ONE</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">GL</span><span class="o">.</span><span class="n">glBlendFunc</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_SRC_ALPHA</span><span class="p">,</span> <span class="n">GL</span><span class="o">.</span><span class="n">GL_ONE_MINUS_SRC_ALPHA</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">renderObjects</span><span class="p">(</span><span class="n">transp</span><span class="p">)</span>
+            <span class="n">GL</span><span class="o">.</span><span class="n">glDisable</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_BLEND</span><span class="p">)</span>
+
+        <span class="n">GL</span><span class="o">.</span><span class="n">glDepthMask</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_TRUE</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">render2D</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">actors</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Render 2D decorations.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">actors</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="c1"># Set modelview/projection</span>
+        <span class="n">modelview</span> <span class="o">=</span> <span class="n">Matrix4</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shader</span><span class="o">.</span><span class="n">uniformMat4</span><span class="p">(</span><span class="s1">&#39;modelview&#39;</span><span class="p">,</span> <span class="n">modelview</span><span class="o">.</span><span class="n">gl</span><span class="p">())</span>
+
+        <span class="n">left</span> <span class="o">=</span> <span class="mf">0.</span>  <span class="c1"># -0.5</span>
+        <span class="n">right</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">width</span><span class="p">())</span>  <span class="c1"># -0.5</span>
+        <span class="n">bottom</span> <span class="o">=</span> <span class="mf">0.</span>  <span class="c1"># -0.5</span>
+        <span class="n">top</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">height</span><span class="p">())</span>  <span class="c1"># -0.5</span>
+        <span class="n">near</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.</span>
+        <span class="n">far</span> <span class="o">=</span> <span class="mf">1.</span>
+        <span class="n">projection</span> <span class="o">=</span> <span class="n">orthogonal_matrix</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">bottom</span><span class="p">,</span> <span class="n">top</span><span class="p">,</span> <span class="n">near</span><span class="p">,</span> <span class="n">far</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shader</span><span class="o">.</span><span class="n">uniformMat4</span><span class="p">(</span><span class="s1">&#39;projection&#39;</span><span class="p">,</span> <span class="n">projection</span><span class="o">.</span><span class="n">gl</span><span class="p">())</span>
+
+        <span class="n">GL</span><span class="o">.</span><span class="n">glDisable</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_DEPTH_TEST</span><span class="p">)</span>
+        <span class="n">GL</span><span class="o">.</span><span class="n">glDisable</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_CULL_FACE</span><span class="p">)</span>
+        <span class="n">GL</span><span class="o">.</span><span class="n">glDepthMask</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_FALSE</span><span class="p">)</span>
+
+        <span class="c1"># ALPHABLEND</span>
+        <span class="c1">#</span>
+        <span class="c1"># We need blending for text rendering!</span>
+        <span class="c1">#</span>
+        <span class="c1"># 2D actors are by default opak!</span>
+        <span class="n">opaque</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">actors</span> <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">opak</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">a</span><span class="o">.</span><span class="n">opak</span><span class="p">]</span>
+        <span class="n">transp</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">actors</span> <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">opak</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">]</span>
+
+        <span class="c1"># First render the opaque objects</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">renderObjects</span><span class="p">(</span><span class="n">opaque</span><span class="p">)</span>
+
+        <span class="c1"># Then the transparent ones</span>
+        <span class="c1"># Disable writing to the depth buffer</span>
+        <span class="c1"># as everything behind the transparent object</span>
+        <span class="c1"># also needs to be drawn</span>
+        <span class="c1"># TODO: put this in a function enableDepth(depthmode)</span>
+        <span class="c1">#   as it is also used in render3D</span>
+        <span class="n">GL</span><span class="o">.</span><span class="n">glEnable</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_BLEND</span><span class="p">)</span>
+        <span class="n">GL</span><span class="o">.</span><span class="n">glBlendEquation</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_FUNC_ADD</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;render/textblend&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;mult&#39;</span><span class="p">:</span>
+            <span class="n">GL</span><span class="o">.</span><span class="n">glBlendFunc</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_ZERO</span><span class="p">,</span> <span class="n">GL</span><span class="o">.</span><span class="n">GL_SRC_COLOR</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;render/textblend&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;add&#39;</span><span class="p">:</span>
+            <span class="n">GL</span><span class="o">.</span><span class="n">glBlendFunc</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_ONE</span><span class="p">,</span> <span class="n">GL</span><span class="o">.</span><span class="n">GL_ONE</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;render/textblend&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;trad1&#39;</span><span class="p">:</span>
+            <span class="n">GL</span><span class="o">.</span><span class="n">glBlendFunc</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_SRC_ALPHA</span><span class="p">,</span> <span class="n">GL</span><span class="o">.</span><span class="n">GL_ONE</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;render/textblend&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;zero&#39;</span><span class="p">:</span>
+            <span class="n">GL</span><span class="o">.</span><span class="n">glBlendFunc</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_SRC_ALPHA</span><span class="p">,</span> <span class="n">GL</span><span class="o">.</span><span class="n">GL_ZERO</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+             <span class="n">GL</span><span class="o">.</span><span class="n">glBlendFunc</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_SRC_ALPHA</span><span class="p">,</span> <span class="n">GL</span><span class="o">.</span><span class="n">GL_ONE_MINUS_SRC_ALPHA</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">renderObjects</span><span class="p">(</span><span class="n">transp</span><span class="p">)</span>
+        <span class="n">GL</span><span class="o">.</span><span class="n">glDisable</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_BLEND</span><span class="p">)</span>
+        <span class="n">GL</span><span class="o">.</span><span class="n">glDepthMask</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_TRUE</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">renderBG</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">actors</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Render 2D background actors.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">actors</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="c1">#print(&quot;Render %s backgrounds&quot; % len(actors))</span>
+
+        <span class="c1"># Set modelview/projection</span>
+        <span class="n">modelview</span> <span class="o">=</span> <span class="n">projection</span> <span class="o">=</span> <span class="n">Matrix4</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">shader</span><span class="o">.</span><span class="n">uniformMat4</span><span class="p">(</span><span class="s1">&#39;modelview&#39;</span><span class="p">,</span> <span class="n">modelview</span><span class="o">.</span><span class="n">gl</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shader</span><span class="o">.</span><span class="n">uniformMat4</span><span class="p">(</span><span class="s1">&#39;projection&#39;</span><span class="p">,</span> <span class="n">projection</span><span class="o">.</span><span class="n">gl</span><span class="p">())</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">zoom_2D</span><span class="p">()</span>  <span class="c1"># should be combined with above</span>
+
+        <span class="c1"># in clip space</span>
+        <span class="n">GL</span><span class="o">.</span><span class="n">glDisable</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_DEPTH_TEST</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">renderObjects</span><span class="p">(</span><span class="n">actors</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">render</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scene</span><span class="p">,</span> <span class="n">picking</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Render the geometry for the scene.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shader</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">picking</span><span class="o">=</span><span class="n">picking</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">picking</span><span class="p">:</span>
+                <span class="c1"># can only pick from actors</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">render3D</span><span class="p">(</span><span class="n">scene</span><span class="o">.</span><span class="n">actors</span><span class="p">,</span> <span class="n">picking</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># The back backgrounds</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">renderBG</span><span class="p">(</span><span class="n">back</span><span class="p">(</span><span class="n">scene</span><span class="o">.</span><span class="n">backgrounds</span><span class="p">))</span>
+                <span class="c1"># The 2D back decorations</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">render2D</span><span class="p">(</span><span class="n">back</span><span class="p">(</span><span class="n">scene</span><span class="o">.</span><span class="n">decorations</span> <span class="o">+</span> <span class="n">scene</span><span class="o">.</span><span class="n">annot2d</span><span class="p">))</span>
+                <span class="c1"># The 3D stuff</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">render3D</span><span class="p">(</span><span class="n">scene</span><span class="o">.</span><span class="n">actors</span> <span class="o">+</span> <span class="n">scene</span><span class="o">.</span><span class="n">annot3d</span><span class="p">,</span> <span class="n">picking</span><span class="p">)</span>
+                <span class="c1"># The 2D front decorations</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">render2D</span><span class="p">(</span><span class="n">front</span><span class="p">(</span><span class="n">scene</span><span class="o">.</span><span class="n">annot2d</span> <span class="o">+</span> <span class="n">scene</span><span class="o">.</span><span class="n">decorations</span><span class="p">))</span>
+                <span class="c1"># The front backgrounds</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">renderBG</span><span class="p">(</span><span class="n">front</span><span class="p">(</span><span class="n">scene</span><span class="o">.</span><span class="n">backgrounds</span><span class="p">))</span>
+
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">shader</span><span class="o">.</span><span class="n">unbind</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="front"><a class="viewcode-back" href="../../ref/opengl.renderer.html#opengl.renderer.front">[docs]</a><span class="k">def</span> <span class="nf">front</span><span class="p">(</span><span class="n">actorlist</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return the actors from the list that have ontop=True&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">actorlist</span> <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">ontop</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="back"><a class="viewcode-back" href="../../ref/opengl.renderer.html#opengl.renderer.back">[docs]</a><span class="k">def</span> <span class="nf">back</span><span class="p">(</span><span class="n">actorlist</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return the actors from the list that have ontop=False&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">actorlist</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">a</span><span class="o">.</span><span class="n">ontop</span><span class="p">]</span></div>
+
+
+<span class="c1"># End</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">opengl.renderer</a></li--> 
+      </ul>
+    </div>
+    <div class="footer">
+    <span class="left">
+        &copy; Copyright 2004-2023, Benedict Verhegghe.
+    </span>
+      Last updated on Mar 27, 2023.
+    <span class="right">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.4.3.
+    </span>
+    </div>
+  </body>
+</html>

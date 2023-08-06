@@ -1,0 +1,531 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!--
+##
+##  This file is part of the pyFormex project.
+##  pyFormex is a tool for generating, manipulating and transforming 3D
+##  geometrical models by sequences of mathematical operations.
+##  Home page: http://pyformex.org
+##  Project page:  http://savannah.nongnu.org/projects/pyformex/
+##  Copyright (C) Benedict Verhegghe (benedict.verhegghe@ugent.be)
+##  Distributed under the GNU General Public License version 3 or later.
+##
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see http://www.gnu.org/licenses/.
+##
+-->
+    <title>pyFormex scripting &#8212; pyFormex 3.3 documentation</title>
+
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pyformex.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Input Dialogs" href="input-dialogs.html" />
+    <link rel="prev" title="The Graphical User Interface" href="gui.html" />
+<link rel="icon" type="image/png" href="_static/pyformex_fav.png" />
+
+  </head><body>
+
+<div class="header">
+  <a href="http://pyformex.org">
+  <img src="_static/scallop_dome_small.png" alt="scallop dome" border="0" hspace="20" vspace="12" align="left" />
+  <img src="_static/pyformex-logo-2.png" alt="pyformex logo" border="0" hspace="10" vspace="8" align="left" />
+  </a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="input-dialogs.html" title="Input Dialogs"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="gui.html" title="The Graphical User Interface"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="user-guide.html" accesskey="U">pyFormex user guide</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">pyFormex scripting</a></li--> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<!-- PYFORMEX_SIDEBAR_LOGO -->
+<!-- PYFORMEX_WEBSITE_SIDEBAR_TOP -->
+
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">pyFormex scripting</a><ul>
+<li><a class="reference internal" href="#scripts">Scripts</a></li>
+<li><a class="reference internal" href="#apps">Apps</a></li>
+<li><a class="reference internal" href="#how-to-choose-between-script-or-app">How to choose between script or app</a></li>
+<li><a class="reference internal" href="#problems-with-apps">Problems with apps</a></li>
+<li><a class="reference internal" href="#environment-for-scripts-apps">Environment for scripts/apps</a></li>
+<li><a class="reference internal" href="#common-script-app-template">Common script/app template</a></li>
+<li><a class="reference internal" href="#convert-a-script-to-an-app">Convert a script to an app</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="gui.html"
+                        title="previous chapter">The Graphical User Interface</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="input-dialogs.html"
+                        title="next chapter">Input Dialogs</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="pyformex-scripting">
+<span id="sec-scripting"></span><h1>pyFormex scripting<a class="headerlink" href="#pyformex-scripting" title="Permalink to this headline">¶</a></h1>
+<p>While the pyFormex GUI provides some means for creating and transforming
+geometry, its main purpose and major strength is the powerful scripting
+language. It offers you unlimited possibilities to do whatever you want and
+to automize the creation of geometry up to an unmatched level.</p>
+<p>Currently pyFormex provides two mechanisms to execute user applications: as a
+<em>script</em>, or as an <em>app</em>. The main menu bar of the GUI offers two menus
+reflecting this. While there are good reasons (of both historical and technical
+nature) for having these two mechanisms, the fist time user will probably
+not be interested in studying the precise details of the differences between
+the two models. It suffices to know that the script model is well suited for
+small, quick applications, e.g. often used to test out some ideas.
+As your application grows larger and larger, you will gain more from the <em>app</em>
+model. Both require that the source file(s) be correctly formatted Python
+scripts. By obeing some simple code structuring rules, it is even possible
+to write source files that can be executed under either of the two models.
+The pyFormex template script as well as the many examples coming with
+pyFormex show how to do it.</p>
+<div class="section" id="scripts">
+<h2>Scripts<a class="headerlink" href="#scripts" title="Permalink to this headline">¶</a></h2>
+<p>A pyFormex <em>script</em> is a simple Python source script in a file (with ‘.py’
+extension), which can be located anywhere on the filesystem. The script is
+executed inside pyFormex with an <code class="docutils literal notranslate"><span class="pre">exec</span></code> statement. pyFormex provides a
+collection of global variables to these scripts: the globals of module
+<code class="docutils literal notranslate"><span class="pre">gui.draw</span></code> if the script is executed with the GUI, or those from the
+module <code class="docutils literal notranslate"><span class="pre">script</span></code> if pyformex was started with <code class="docutils literal notranslate"><span class="pre">--nogui</span></code>. Also, the
+global variable <code class="docutils literal notranslate"><span class="pre">__name__</span></code> is set to either ‘draw’ or ‘script’, accordingly.
+The automatic inclusion of globals has the advantage that the first time user
+has a lot of functionality without having to know what he needs to import.</p>
+<p>Every time the script is executed (e.g. using the start or rerun button),
+the full source code is read, interpreted, and executed. This means that
+changes made to the source file will become directly available. But it also
+means that the source file has to be present. You can not run a script from
+a compiled (<code class="docutils literal notranslate"><span class="pre">.pyc</span></code>) file.</p>
+</div>
+<div class="section" id="apps">
+<h2>Apps<a class="headerlink" href="#apps" title="Permalink to this headline">¶</a></h2>
+<p>A pyFormex <em>app</em> is a Python module. It is usually provided as a Python
+source file (<code class="docutils literal notranslate"><span class="pre">.py</span></code>), but it can also be a compiled (<code class="docutils literal notranslate"><span class="pre">.pyc</span></code>) file.
+The app module is loaded with the <code class="docutils literal notranslate"><span class="pre">import</span></code> statement. To allow this, the
+file should be placed in a directory containing an ‘__init__.py’ file (marking
+it as a Python package directory) and the directory should be on the pyFormex
+search path for modules (which can be configured from the GUI App menu).</p>
+<p>In order to be executable from the GUI, an app module should contain a
+function named ‘run’.
+When the application is started for the first time (in a session), the module
+is loaded and its ‘run’ function is executed. Each following execution will just
+execute the ‘run’ function again.</p>
+<p>When loading a module from source code, it gets compiled to byte code
+which is saved as a <code class="docutils literal notranslate"><span class="pre">.pyc</span></code> file for faster loading next time. The
+module is kept in memory until explicitely removed or reloaded
+(another <code class="docutils literal notranslate"><span class="pre">import</span></code> does not have any effect).  During the loading of
+a module, executable code placed in the outer scope of the module is
+executed. Since this will only happen on first execution of the app,
+the outer level should be seen as initialization code for your
+application.</p>
+<p>The ‘run’ function defines what the application needs to
+perform. It can be executed over and over by pushing the ‘PLAY’ button.
+Making changes to the app source code will not have any effect, because
+the module loaded in memory is not changed.
+If you need the module to be reloaded and the initialization code to be rerun
+use the ‘RERUN’ button: this will reload the module and execute ‘run’.</p>
+</div>
+<div class="section" id="how-to-choose-between-script-or-app">
+<h2>How to choose between script or app<a class="headerlink" href="#how-to-choose-between-script-or-app" title="Permalink to this headline">¶</a></h2>
+<p>Both scripts and apps have their pros and cons. We list some of them below</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 49%" />
+<col style="width: 51%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p>Script</p></td>
+<td><p>App</p></td>
+</tr>
+<tr class="row-even"><td><ul class="simple">
+<li><p>Only source code (.py)</p></li>
+</ul>
+</td>
+<td><ul class="simple">
+<li><p>Source code (.py) or compiled (.pyc)</p></li>
+</ul>
+</td>
+</tr>
+<tr class="row-odd"><td><p>? Read and compiled on every run</p></td>
+<td><p>? Read and compiled once per session
+or when explicitely requested,
+run many times unchanged</p></td>
+</tr>
+<tr class="row-even"><td><p>Can only import functionality from
+a script structured as a module.</p></td>
+<td><p>Direct import from any other app.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Attributes need to be searched and
+decoded from the soure text</p></td>
+<td><p>The module can have any attributes</p></td>
+</tr>
+<tr class="row-even"><td><p>A script can not execute another</p></td>
+<td><p>One app can import and run another</p></td>
+</tr>
+<tr class="row-odd"><td><p>It is impossible to run multiple
+scripts in parallel.</p></td>
+<td><p>It <strong>might</strong> become possible to run
+multiple applications in parallel,
+e.g. in different viewports.</p></td>
+</tr>
+<tr class="row-even"><td><p>Global variables of all scripts
+occupy single scope</p></td>
+<td><p>Each app has its own globals</p></td>
+</tr>
+<tr class="row-odd"><td><p>Scripts and plugins are two
+different things.</p></td>
+<td><p>Apps and plugins (menus or not) are
+both just normal Python modules.</p></td>
+</tr>
+<tr class="row-even"><td><p>Exit requires special function</p></td>
+<td><p>Exit with the normal return statement</p></td>
+</tr>
+<tr class="row-odd"><td><p>Canvas settings are global to all
+scripts</p></td>
+<td><p>Canvas settings <strong>could</strong> be made
+local to applications</p></td>
+</tr>
+<tr class="row-even"><td><p>Data persistence requires export to
+the pyFormex GUI dict PF and reload</p></td>
+<td><p>Data persistence between invokations
+is automatic (for module globals)</p></td>
+</tr>
+</tbody>
+</table>
+<p>In favor of <em>script</em>:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 49%" />
+<col style="width: 51%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p>Script</p></td>
+<td><p>App</p></td>
+</tr>
+<tr class="row-even"><td><p>Default set of globals provided</p></td>
+<td><p>Everything needs to be imported
+(can be limited to 1 extra line)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Globals of previous scripts are
+accessible (may be unwanted)
+(IS THIS STILL TRUE?)</p></td>
+<td><p>Communication between scripts needs
+explicit exports (but is more sound)</p></td>
+</tr>
+<tr class="row-even"><td><p>Users are used to it since longtime</p></td>
+<td><p>The difference is not large though.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Can be located anywhere.</p></td>
+<td><p>Have to be under sys.path (can be
+configured and expanded).</p></td>
+</tr>
+<tr class="row-even"><td><p>Can easily execute a small piece of
+Python code, not even in a file, eg
+ToolsMenu: Execute pyFormex command</p></td>
+<td><p>We may have to keep a basic script
+exec functionality next to the app
+framework</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="problems-with-apps">
+<h2>Problems with apps<a class="headerlink" href="#problems-with-apps" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Apps with syntax errors can not be loaded nor run. Exceptions raised
+during application load are filtered out by default. Setting the
+configuration variable ‘raiseapploadexc’ to True will make such errors
+be shown.</p></li>
+<li><p>Apps creating a permanent (non-blocking, modeless) dialog can currently
+not be rerun (reload and run). We could add such facility if we use
+a default attribute name, e.g. _dialog. Reloading would then close the
+dialog, and running would reopen it.</p></li>
+</ul>
+</div>
+<div class="section" id="environment-for-scripts-apps">
+<h2>Environment for scripts/apps<a class="headerlink" href="#environment-for-scripts-apps" title="Permalink to this headline">¶</a></h2>
+<p>When executing a script or an app, there are a lot of identifiers already
+defined. This is what we call the pyFormex core language. Historically,
+this included a huge number of definitions in the global namespace, but
+the intention is to cut this down in future, so using specific imports is
+highly recommended.</p>
+</div>
+<div class="section" id="common-script-app-template">
+<h2>Common script/app template<a class="headerlink" href="#common-script-app-template" title="Permalink to this headline">¶</a></h2>
+<p>The template below is a common structure that allows this source to be used both
+as a script or as an app, and with almost identical behavior.</p>
+<blockquote>
+<div><div class="highlight-default notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;pyFormex Script/App Template</span>
+
+<span class="sd">Copyright 2022 Benedict Verhegghe (bverheg@gmail.com)</span>
+<span class="sd">Distributed under the GNU General Public License version 3 or later.</span>
+
+<span class="sd">Your source file should start with a docstring like this.</span>
+<span class="sd">The first line should hold a short description of the file&#39;s purpose.</span>
+<span class="sd">This is followed by a blank line and one or more lines with a more</span>
+<span class="sd">comprehensive explanation of the script&#39;s purpose.</span>
+
+<span class="sd">If you want to distribute your script/app, you should insert the</span>
+<span class="sd">name of the copyright holder and license near the start of this file.</span>
+<span class="sd">Make sure that you (the copyright holder) have the intention/right to</span>
+<span class="sd">distribute the software under the specified copyright license (GPL3 or later).</span>
+
+<span class="sd">This is a template file to show the general layout of a pyFormex</span>
+<span class="sd">script or app.</span>
+
+<span class="sd">A pyFormex script is just any simple Python source code file with</span>
+<span class="sd">extension &#39;.py&#39; and is fully read and execution at once.</span>
+
+<span class="sd">A pyFormex app can be a &#39;.py&#39; of &#39;.pyc&#39; file, and should define a function</span>
+<span class="sd">&#39;run()&#39; to be executed by pyFormex. Also, the app should import anything that</span>
+<span class="sd">it needs.</span>
+
+<span class="sd">This template is a common structure that allows the file to be used both as</span>
+<span class="sd">a script or as an app, with almost identical behavior.</span>
+
+<span class="sd">For more details, see the user guide under the `Scripting` section.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># The pyFormex modeling language is defined by everything in</span>
+<span class="c1"># the gui.draw module (if you use the GUI). For execution without</span>
+<span class="c1"># the GUI, you should import from pyformex.script instead.</span>
+<span class="kn">from</span> <span class="nn">pyformex.gui.draw</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="c1"># Definitions</span>
+<span class="k">def</span> <span class="nf">run</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Main function.</span>
+
+<span class="sd">    This is executed when you run the app.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;This is the pyFormex script/app template&quot;</span><span class="p">)</span>
+
+<span class="c1"># Code in the outer scope:</span>
+<span class="c1"># - for an app, this is only executed on loading (module initialization).</span>
+<span class="c1"># - for a script, this is executed on each run.</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;This is the initialization code of the pyFormex template script/app&quot;</span><span class="p">)</span>
+
+<span class="c1"># The following is to make script and app behavior alike</span>
+<span class="c1"># When executing a script in GUI mode, the global variable __name__ is set</span>
+<span class="c1"># to &#39;__draw__&#39;, thus the run method defined above will be executed.</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__draw__&#39;</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Running as a script&quot;</span><span class="p">)</span>
+    <span class="n">run</span><span class="p">()</span>
+
+
+<span class="c1"># End</span>
+</pre></div>
+</td></tr></table></div>
+</div></blockquote>
+<p>The script/app source starts by preference with a docstring, consisting of a
+short first line, then a blank line and one or more lines explaining the
+intention and working of the script/app.</p>
+</div>
+<div class="section" id="convert-a-script-to-an-app">
+<h2>Convert a script to an app<a class="headerlink" href="#convert-a-script-to-an-app" title="Permalink to this headline">¶</a></h2>
+<p>The following steps will convert most pyFormex scripts into an equivalent app:</p>
+<ul>
+<li><p>Put all the script code (except initial imports) into a function named ‘run’.</p></li>
+<li><p>Replace all lines:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">exit</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>with:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">return</span>
+</pre></div>
+</div>
+</li>
+<li><p>Add a line on top to import everyhing from the gui.draw module:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">gui.draw</span> <span class="kn">import</span> <span class="o">*</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<p>If you want the app to still be executable as a script, add the following
+at the bottom:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;draw&quot;</span>
+    <span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>If your app/script should work both with or without the pyFormex GUI,
+use this structure:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pyformex</span> <span class="k">as</span> <span class="nn">pf</span>
+<span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="p">:</span>
+   <span class="kn">from</span> <span class="nn">gui.draw</span> <span class="kn">import</span> <span class="o">*</span>
+   <span class="o">&lt;</span> <span class="n">DEFINITIONS</span> <span class="n">FOR</span> <span class="n">GUI</span> <span class="n">VERSION</span> <span class="o">&gt;</span>
+<span class="k">else</span><span class="p">:</span>
+   <span class="kn">from</span> <span class="nn">gui.script</span> <span class="kn">import</span> <span class="o">*</span>
+   <span class="o">&lt;</span> <span class="n">DEFINITIONS</span> <span class="n">FOR</span> <span class="n">NONGUI</span> <span class="n">VERSION</span> <span class="o">&gt;</span>
+
+<span class="o">&lt;</span> <span class="n">COMMON</span> <span class="n">DEFINITIONS</span> <span class="n">FOR</span> <span class="n">BOTH</span> <span class="n">CASES</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>Of course, when your definitions become long it may be better to put them in
+separate files:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pyformex</span> <span class="k">as</span> <span class="nn">pf</span>
+<span class="k">if</span> <span class="n">pg</span><span class="o">.</span><span class="n">GUI</span><span class="p">:</span>
+   <span class="kn">import</span> <span class="nn">myapp_gui</span>
+<span class="k">else</span><span class="p">:</span>
+   <span class="kn">import</span> <span class="nn">myapp_nongui</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="input-dialogs.html" title="Input Dialogs"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="gui.html" title="The Graphical User Interface"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="user-guide.html" >pyFormex user guide</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">pyFormex scripting</a></li--> 
+      </ul>
+    </div>
+    <div class="footer">
+    <span class="left">
+        &copy; Copyright 2004-2023, Benedict Verhegghe.
+    </span>
+      Last updated on Mar 27, 2023.
+    <span class="right">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.4.3.
+    </span>
+    </div>
+  </body>
+</html>

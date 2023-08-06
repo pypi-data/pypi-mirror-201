@@ -1,0 +1,448 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!--
+##
+##  This file is part of the pyFormex project.
+##  pyFormex is a tool for generating, manipulating and transforming 3D
+##  geometrical models by sequences of mathematical operations.
+##  Home page: http://pyformex.org
+##  Project page:  http://savannah.nongnu.org/projects/pyformex/
+##  Copyright (C) Benedict Verhegghe (benedict.verhegghe@ugent.be)
+##  Distributed under the GNU General Public License version 3 or later.
+##
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see http://www.gnu.org/licenses/.
+##
+-->
+    <title>plugins.gts_itf &#8212; pyFormex 3.3 documentation</title>
+
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pyformex.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+<link rel="icon" type="image/png" href="../../_static/pyformex_fav.png" />
+
+  </head><body>
+
+<div class="header">
+  <a href="http://pyformex.org">
+  <img src="../../_static/scallop_dome_small.png" alt="scallop dome" border="0" hspace="20" vspace="12" align="left" />
+  <img src="../../_static/pyformex-logo-2.png" alt="pyformex logo" border="0" hspace="10" vspace="8" align="left" />
+  </a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">plugins.gts_itf</a></li--> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<!-- PYFORMEX_SIDEBAR_LOGO -->
+<!-- PYFORMEX_WEBSITE_SIDEBAR_TOP -->
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for plugins.gts_itf</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1">##</span>
+<span class="c1">##  SPDX-FileCopyrightText: © 2007-2023 Benedict Verhegghe &lt;bverheg@gmail.com&gt;</span>
+<span class="c1">##  SPDX-License-Identifier: GPL-3.0-or-later</span>
+<span class="c1">##</span>
+<span class="c1">##  This file is part of pyFormex 3.3  (Sun Mar 26 20:16:15 CEST 2023)</span>
+<span class="c1">##  pyFormex is a tool for generating, manipulating and transforming 3D</span>
+<span class="c1">##  geometrical models by sequences of mathematical operations.</span>
+<span class="c1">##  Home page: https://pyformex.org</span>
+<span class="c1">##  Project page: https://savannah.nongnu.org/projects/pyformex/</span>
+<span class="c1">##  Development: https://gitlab.com/bverheg/pyformex</span>
+<span class="c1">##  Distributed under the GNU General Public License version 3 or later.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is free software: you can redistribute it and/or modify</span>
+<span class="c1">##  it under the terms of the GNU General Public License as published by</span>
+<span class="c1">##  the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1">##  (at your option) any later version.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is distributed in the hope that it will be useful,</span>
+<span class="c1">##  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1">##  GNU General Public License for more details.</span>
+<span class="c1">##</span>
+<span class="c1">##  You should have received a copy of the GNU General Public License</span>
+<span class="c1">##  along with this program.  If not, see http://www.gnu.org/licenses/.</span>
+<span class="c1">##</span>
+<span class="sd">&quot;&quot;&quot;Operations on triangulated surfaces using GTS functions.</span>
+
+<span class="sd">This module provides access to GTS from inside pyFormex.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="kn">import</span> <span class="nn">pyformex</span> <span class="k">as</span> <span class="nn">pf</span>
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">arraytools</span> <span class="k">as</span> <span class="n">at</span>
+<span class="kn">from</span> <span class="nn">pyformex.path</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">pyformex.coords</span> <span class="kn">import</span> <span class="n">Coords</span><span class="p">,</span> <span class="n">bboxIntersection</span>
+<span class="kn">from</span> <span class="nn">pyformex.formex</span> <span class="kn">import</span> <span class="n">Formex</span>
+<span class="kn">from</span> <span class="nn">pyformex.mesh</span> <span class="kn">import</span> <span class="n">Mesh</span>
+<span class="kn">from</span> <span class="nn">pyformex.multi</span> <span class="kn">import</span> <span class="n">multitask</span>
+
+<span class="c1">#</span>
+<span class="c1"># gts commands used:</span>
+<span class="c1">#   in Debian package: stl2gts gts2stl gtscheck</span>
+<span class="c1">#   not in Debian package: gtssplit gtscoarsen gtsrefine gtssmooth gtsinside</span>
+<span class="c1">#</span>
+
+<div class="viewcode-block" id="read_intersectioncurve"><a class="viewcode-back" href="../../ref/plugins.gts_itf.html#plugins.gts_itf.read_intersectioncurve">[docs]</a><span class="k">def</span> <span class="nf">read_intersectioncurve</span><span class="p">(</span><span class="n">fn</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read the intersection curve of a boolean operation</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fn: :term:`path_like`</span>
+<span class="sd">        The name of a file containing an intersection curve produced</span>
+<span class="sd">        by :func:`gtsset`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Mesh</span>
+<span class="sd">        A Mesh of eltype Line2 containing the line segments on the</span>
+<span class="sd">        intersection curve.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^VECT 1 2 0 2 0 (?P&lt;data&gt;.*)$&quot;</span><span class="p">)</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">open</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">):</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">RE</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+            <span class="n">r</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">))</span>
+    <span class="n">nelems</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">r</span><span class="p">),</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Formex</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">toMesh</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="gtsset"><a class="viewcode-back" href="../../ref/plugins.gts_itf.html#plugins.gts_itf.gtsset">[docs]</a><span class="k">def</span> <span class="nf">gtsset</span><span class="p">(</span><span class="n">surf1</span><span class="p">,</span> <span class="n">surf2</span><span class="p">,</span> <span class="n">op</span><span class="p">,</span> <span class="n">filt</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">ext</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">curve</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+           <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Perform boolean/intersection methods on TriSurfaces.</span>
+
+<span class="sd">    Boolean operations between two surfaces are a basic operation in</span>
+<span class="sd">    free surface modeling. Both surfaces should be closed orientable</span>
+<span class="sd">    non-intersecting manifolds. This means they represent an enclosed</span>
+<span class="sd">    volume. :meth:`TriSurface.check` can be used to find out if the</span>
+<span class="sd">    surface is ok.</span>
+
+<span class="sd">    The boolean operations are set operations on the enclosed volumes:</span>
+<span class="sd">    union(&#39;+&#39;), difference(&#39;-&#39;) or intersection(&#39;*&#39;).</span>
+
+<span class="sd">    This uses the external program ``gtsset`` to do the actual computation.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    surf1: TriSurface</span>
+<span class="sd">        The first TriSurface (should be a closed orientable</span>
+<span class="sd">        non-intersecting manifold).</span>
+<span class="sd">    surf2: TriSurface</span>
+<span class="sd">        The second TriSurface (should be a closed orientable</span>
+<span class="sd">        non-intersecting manifold).</span>
+<span class="sd">    op: &#39;+&#39;, &#39;-&#39;, &#39;*&#39; or &#39;a&#39;</span>
+<span class="sd">        The boolean operation to perform: union(&#39;+&#39;), difference(&#39;-&#39;)</span>
+<span class="sd">        or intersection(&#39;*&#39;), or &#39;a&#39; to compute all parts of the intersection,</span>
+<span class="sd">        allowing to compose different results.</span>
+<span class="sd">    filt: str</span>
+<span class="sd">        A filter command to be executed on the gtsset output. The string</span>
+<span class="sd">        should start with a &#39;|&#39;, and the filter will be run as a pipe</span>
+<span class="sd">        on the gtsset output and should produce the filtered output on</span>
+<span class="sd">        stdout.</span>
+<span class="sd">    ext: str</span>
+<span class="sd">        The extension to be added on the ``result`` file.</span>
+<span class="sd">    curve: bool</span>
+<span class="sd">        If True, an intersection curve is computed, else a new surface.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    TriSurface | dict | Mesh | None:</span>
+
+<span class="sd">        - if curve is False and op is one of &#39;+&#39;, &#39;-&#39; or &#39;\*&#39;: the resulting</span>
+<span class="sd">          TriSurface;</span>
+<span class="sd">        - if curve is False and op is &#39;a&#39;: a dict with four keys, each having</span>
+<span class="sd">          a TriSurface as value:</span>
+
+<span class="sd">          - &#39;s1in2&#39;: the part of surf1 that is inside surf2,</span>
+<span class="sd">          - &#39;s1out2&#39;: the part of surf1 that is outside surf2,</span>
+<span class="sd">          - &#39;s2in1&#39;: the part of surf2 that is inside surf1,</span>
+<span class="sd">          - &#39;s2out1&#39;: the part of surf2 that is outside surf1;</span>
+
+<span class="sd">        - if curve is True: a Mesh of eltype Line2, containing the intersection</span>
+<span class="sd">          curve(s);</span>
+<span class="sd">        - if surf1 and surf2 do not intersect: None.</span>
+
+<span class="sd">    Note</span>
+<span class="sd">    ----</span>
+<span class="sd">    The prefered way to invoke this function is by usint the :class:`TriSurface`</span>
+<span class="sd">    methods: :meth:`TriSurface.gts_set`, :meth:`TriSurface.boolean and</span>
+<span class="sd">    :meth:`TriSurface.intersection`.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">utils</span><span class="o">.</span><span class="n">External</span><span class="o">.</span><span class="n">require</span><span class="p">(</span><span class="s1">&#39;gts-extra&#39;</span><span class="p">)</span>
+
+    <span class="c1"># import here to avoid circular import</span>
+    <span class="kn">from</span> <span class="nn">pyformex.trisurface</span> <span class="kn">import</span> <span class="n">TriSurface</span>
+    <span class="n">op</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;+&#39;</span><span class="p">:</span> <span class="s1">&#39;union&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;-&#39;</span><span class="p">:</span> <span class="s1">&#39;diff&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;*&#39;</span><span class="p">:</span> <span class="s1">&#39;inter&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;a&#39;</span><span class="p">:</span> <span class="s1">&#39;all&#39;</span><span class="p">,</span>
+    <span class="p">}[</span><span class="n">op</span><span class="p">]</span>
+    <span class="n">options</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">curve</span><span class="p">:</span>
+        <span class="n">options</span> <span class="o">+=</span> <span class="s1">&#39;-i&#39;</span>
+    <span class="k">if</span> <span class="n">check</span><span class="p">:</span>
+        <span class="n">options</span> <span class="o">+=</span> <span class="s1">&#39; -s&#39;</span>
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="n">options</span> <span class="o">+=</span> <span class="s1">&#39; -v&#39;</span>
+    <span class="k">with</span> <span class="n">utils</span><span class="o">.</span><span class="n">TempDir</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmpdir</span><span class="p">:</span>
+        <span class="n">tmp</span> <span class="o">=</span> <span class="n">tmpdir</span> <span class="o">/</span> <span class="s1">&#39;surface1.gts&#39;</span>
+        <span class="n">tmp1</span> <span class="o">=</span> <span class="n">tmpdir</span> <span class="o">/</span> <span class="s1">&#39;surface2.gts&#39;</span>
+        <span class="n">tmp2</span> <span class="o">=</span> <span class="n">tmpdir</span> <span class="o">/</span> <span class="p">(</span><span class="s1">&#39;result&#39;</span><span class="o">+</span><span class="n">ext</span><span class="p">)</span>
+        <span class="c1">#print(&quot;Writing temp file %s&quot; % tmp)</span>
+        <span class="n">surf1</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="s1">&#39;gts&#39;</span><span class="p">)</span>
+        <span class="c1">#print(&quot;Writing temp file %s&quot; % tmp1)</span>
+        <span class="n">surf2</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">tmp1</span><span class="p">,</span> <span class="s1">&#39;gts&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Performing boolean operation </span><span class="si">{</span><span class="n">op</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;cd </span><span class="si">{</span><span class="n">tmpdir</span><span class="si">}</span><span class="s2"> &amp;&amp; gtsset </span><span class="si">{</span><span class="n">options</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">op</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">tmp</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">tmp1</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">filt</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">P</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">system</span><span class="p">(</span>
+            <span class="n">cmd</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="nb">open</span><span class="p">(</span><span class="n">tmp2</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">),</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">P</span><span class="o">.</span><span class="n">returncode</span> <span class="ow">or</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">P</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">P</span><span class="o">.</span><span class="n">returncode</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">P</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;The boolean procedure didn&#39;t return any results.&quot;&quot;&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">curve</span><span class="p">:</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">read_intersectioncurve</span><span class="p">(</span><span class="n">tmp2</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">op</span><span class="o">==</span><span class="s1">&#39;all&#39;</span><span class="p">:</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;s1in2&#39;</span><span class="p">,</span> <span class="s1">&#39;s1out2&#39;</span><span class="p">,</span> <span class="s1">&#39;s2in1&#39;</span><span class="p">,</span> <span class="s1">&#39;s2out1&#39;</span><span class="p">]:</span>
+                <span class="n">res</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">TriSurface</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">tmpdir</span> <span class="o">/</span> <span class="p">(</span><span class="n">k</span><span class="o">+</span><span class="s1">&#39;.gts&#39;</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">TriSurface</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">tmp2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">res</span></div>
+
+
+<div class="viewcode-block" id="gtsinside"><a class="viewcode-back" href="../../ref/plugins.gts_itf.html#plugins.gts_itf.gtsinside">[docs]</a><span class="k">def</span> <span class="nf">gtsinside</span><span class="p">(</span><span class="n">surf</span><span class="p">,</span> <span class="n">pts</span><span class="p">,</span> <span class="nb">dir</span><span class="p">,</span> <span class="n">keep</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Test whether points are inside a closed surface.</span>
+
+<span class="sd">    This tests whether a point is inside a closed surface</span>
+<span class="sd">    by shooting a ray from the point in a certain direction</span>
+<span class="sd">    and tests whether the number of intersections with the surface</span>
+<span class="sd">    is odd (inside) or even (outside). Shooting directions are</span>
+<span class="sd">    limited to one of the global axes directions.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    surf: TriSurface</span>
+<span class="sd">        The TriSurface (should be a closed orientable</span>
+<span class="sd">        non-intersecting manifold).</span>
+<span class="sd">    pts: :term:`coords_like`</span>
+<span class="sd">        A Coords with shape (npts, 3)</span>
+<span class="sd">    dir: int</span>
+<span class="sd">        The global axis that will be used as shooting direction.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    array</span>
+<span class="sd">        An int array with the indices of the points that are inside the surface.</span>
+
+<span class="sd">    Note</span>
+<span class="sd">    ----</span>
+<span class="sd">    This function is not intended to be used directly.</span>
+<span class="sd">    False negatives or positives may occur when the ray passes precisely</span>
+<span class="sd">    through the edge of triangles. Use :func:`inside` instead.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># roll, because the external always shoots in x-direction</span>
+    <span class="n">S</span> <span class="o">=</span> <span class="n">surf</span><span class="o">.</span><span class="n">rollAxes</span><span class="p">(</span><span class="nb">dir</span><span class="p">)</span>
+    <span class="n">P</span> <span class="o">=</span> <span class="n">pts</span><span class="o">.</span><span class="n">rollAxes</span><span class="p">(</span><span class="nb">dir</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">utils</span><span class="o">.</span><span class="n">TempDir</span><span class="p">(</span><span class="n">keep</span><span class="o">=</span><span class="n">keep</span><span class="p">)</span> <span class="k">as</span> <span class="n">tmpdir</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">keep</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Using temp dir </span><span class="si">{</span><span class="n">tmpdir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">tmp0</span> <span class="o">=</span> <span class="n">tmpdir</span> <span class="o">/</span> <span class="s1">&#39;surface.gts&#39;</span>
+        <span class="n">tmp1</span> <span class="o">=</span> <span class="n">tmpdir</span> <span class="o">/</span> <span class="s1">&#39;points.dta&#39;</span>
+        <span class="n">tmp2</span> <span class="o">=</span> <span class="n">tmpdir</span> <span class="o">/</span> <span class="s1">&#39;result.out&#39;</span>
+        <span class="n">tmp3</span> <span class="o">=</span> <span class="n">tmpdir</span> <span class="o">/</span> <span class="s1">&#39;result.stderr&#39;</span>
+        <span class="c1">#print(&quot;Writing temp file %s&quot; % tmp0)</span>
+        <span class="n">S</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">tmp0</span><span class="p">,</span> <span class="s1">&#39;gts&#39;</span><span class="p">)</span>
+        <span class="c1">#print(&quot;Writing temp file %s&quot; % tmp1)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">tmp1</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">P</span><span class="o">.</span><span class="n">tofile</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%f</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="c1">#print(&quot;Performing inside testing&quot;)</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="s2">&quot;gtsinside </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">tmp0</span><span class="p">,</span> <span class="n">tmp1</span><span class="p">)</span>
+        <span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">process</span>
+        <span class="n">P</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="nb">open</span><span class="p">(</span><span class="n">tmp2</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">),</span> <span class="n">stderr</span><span class="o">=</span><span class="nb">open</span><span class="p">(</span><span class="n">tmp3</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">P</span><span class="o">.</span><span class="n">returncode</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;An error occurred during the testing.</span><span class="se">\n</span><span class="s2">See file </span><span class="si">%s</span><span class="s2"> for more details.&quot;</span> <span class="o">%</span> <span class="n">tmp2</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">P</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="c1">#print(&quot;Reading results from %s&quot; % tmp2)</span>
+        <span class="n">ind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">tmp2</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">at</span><span class="o">.</span><span class="n">Int</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ind</span></div>
+
+
+<div class="viewcode-block" id="inside"><a class="viewcode-back" href="../../ref/plugins.gts_itf.html#plugins.gts_itf.inside">[docs]</a><span class="k">def</span> <span class="nf">inside</span><span class="p">(</span><span class="n">surf</span><span class="p">,</span> <span class="n">pts</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">,</span> <span class="n">multi</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">keep</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Test which of the points pts are inside the surface.</span>
+
+<span class="sd">    This uses the ray shooting technique of gtsinside, but avoids (most of)</span>
+<span class="sd">    the false negatives/positives. It does this by shooting</span>
+<span class="sd">    in three directions (the three global axis directions) and returning</span>
+<span class="sd">    the majority vote of the three outcomes.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    surf: TriSurface</span>
+<span class="sd">        The TriSurface (should be a closed orientable</span>
+<span class="sd">        non-intersecting manifold).</span>
+<span class="sd">    pts: :term:`coords_like`</span>
+<span class="sd">        A Coords with shape (npts, 3) or Formex with shape (npts, 1, 3).</span>
+<span class="sd">    atol: float</span>
+<span class="sd">        Tolerance used in restricting the points set to the surface&#39;s</span>
+<span class="sd">        bounding box.</span>
+<span class="sd">    multi: bool</span>
+<span class="sd">        If True (default), rund the three shooting directions n parallel.</span>
+<span class="sd">        This reduces the total processing time.</span>
+<span class="sd">    keep: bool</span>
+<span class="sd">        If True, the temporary directory with intermediate results is</span>
+<span class="sd">        not erased. This may be useful for debugging purposes.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    array:</span>
+<span class="sd">        An int array with the indices of the points that are</span>
+<span class="sd">        inside the surface.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    TriSurface.inside: the prefered way to call this function</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">utils</span><span class="o">.</span><span class="n">External</span><span class="o">.</span><span class="n">require</span><span class="p">(</span><span class="s1">&#39;gts-extra&#39;</span><span class="p">)</span>
+
+    <span class="c1"># We use a Formex so that we can use the prop for keeping the indices</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pts</span><span class="p">,</span> <span class="n">Formex</span><span class="p">):</span>
+        <span class="n">pts</span> <span class="o">=</span> <span class="n">Formex</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">atol</span> <span class="o">==</span> <span class="s1">&#39;auto&#39;</span><span class="p">:</span>
+        <span class="n">atol</span> <span class="o">=</span> <span class="n">pts</span><span class="o">.</span><span class="n">dsize</span><span class="p">()</span><span class="o">*</span><span class="mf">0.001</span>
+
+    <span class="c1"># determine bbox of common space of surface and points</span>
+    <span class="n">bb</span> <span class="o">=</span> <span class="n">bboxIntersection</span><span class="p">(</span><span class="n">surf</span><span class="p">,</span> <span class="n">pts</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">bb</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="c1"># No bbox intersection: no points inside</span>
+        <span class="k">return</span> <span class="n">array</span><span class="p">([],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">Int</span><span class="p">)</span>
+
+    <span class="c1"># Limit the points to the common part</span>
+    <span class="c1"># Add point numbers as property, to allow return of original numbers</span>
+    <span class="n">pts</span><span class="o">.</span><span class="n">setProp</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">pts</span><span class="o">.</span><span class="n">nelems</span><span class="p">()))</span>
+    <span class="n">pts</span> <span class="o">=</span> <span class="n">pts</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">pts</span><span class="o">.</span><span class="n">testBbox</span><span class="p">(</span><span class="n">bb</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">))</span>
+    <span class="c1">#print(f&quot;Clipped points: {pts.prop}&quot;)</span>
+
+    <span class="n">ins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="n">pts</span><span class="o">.</span><span class="n">nelems</span><span class="p">()),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">multi</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+            <span class="c1">#dirs = np.roll(np.arange(3), -i)[1:]</span>
+            <span class="c1"># clip the surface perpendicular to the shooting direction</span>
+            <span class="c1"># !! gtsinside seems to fail sometimes when using clipping</span>
+            <span class="c1">#S = surf  # .clip(testBbox(surf,bb,dirs=dirs,atol=atol),compact=False)</span>
+            <span class="c1"># find inside points shooting in direction i</span>
+            <span class="n">ok</span> <span class="o">=</span> <span class="n">gtsinside</span><span class="p">(</span><span class="n">surf</span><span class="p">,</span> <span class="n">pts</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+<span class="c1">#                           tmpdir = None if tmpdir is None else</span>
+<span class="c1">#                           Path(tmpdir)/f&quot;gtsinside-{i}&quot;)</span>
+            <span class="n">ins</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">ok</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">tasks</span> <span class="o">=</span> <span class="p">[(</span><span class="n">gtsinside</span><span class="p">,</span> <span class="p">(</span><span class="n">surf</span><span class="p">,</span> <span class="n">pts</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
+        <span class="n">ind</span> <span class="o">=</span> <span class="n">multitask</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">_async</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+            <span class="n">ins</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">ind</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="n">ok</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ins</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">pts</span><span class="o">.</span><span class="n">prop</span><span class="p">[</span><span class="n">ok</span><span class="p">]</span></div>
+
+
+<span class="c1"># End</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">plugins.gts_itf</a></li--> 
+      </ul>
+    </div>
+    <div class="footer">
+    <span class="left">
+        &copy; Copyright 2004-2023, Benedict Verhegghe.
+    </span>
+      Last updated on Mar 27, 2023.
+    <span class="right">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.4.3.
+    </span>
+    </div>
+  </body>
+</html>

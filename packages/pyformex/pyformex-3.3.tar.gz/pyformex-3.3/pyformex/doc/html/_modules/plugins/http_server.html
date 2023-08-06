@@ -1,0 +1,331 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!--
+##
+##  This file is part of the pyFormex project.
+##  pyFormex is a tool for generating, manipulating and transforming 3D
+##  geometrical models by sequences of mathematical operations.
+##  Home page: http://pyformex.org
+##  Project page:  http://savannah.nongnu.org/projects/pyformex/
+##  Copyright (C) Benedict Verhegghe (benedict.verhegghe@ugent.be)
+##  Distributed under the GNU General Public License version 3 or later.
+##
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see http://www.gnu.org/licenses/.
+##
+-->
+    <title>plugins.http_server &#8212; pyFormex 3.3 documentation</title>
+
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pyformex.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+<link rel="icon" type="image/png" href="../../_static/pyformex_fav.png" />
+
+  </head><body>
+
+<div class="header">
+  <a href="http://pyformex.org">
+  <img src="../../_static/scallop_dome_small.png" alt="scallop dome" border="0" hspace="20" vspace="12" align="left" />
+  <img src="../../_static/pyformex-logo-2.png" alt="pyformex logo" border="0" hspace="10" vspace="8" align="left" />
+  </a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">plugins.http_server</a></li--> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<!-- PYFORMEX_SIDEBAR_LOGO -->
+<!-- PYFORMEX_WEBSITE_SIDEBAR_TOP -->
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for plugins.http_server</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1">##</span>
+<span class="c1">##  SPDX-FileCopyrightText: © 2007-2023 Benedict Verhegghe &lt;bverheg@gmail.com&gt;</span>
+<span class="c1">##  SPDX-License-Identifier: GPL-3.0-or-later</span>
+<span class="c1">##</span>
+<span class="c1">##  This file is part of pyFormex 3.3  (Sun Mar 26 20:16:15 CEST 2023)</span>
+<span class="c1">##  pyFormex is a tool for generating, manipulating and transforming 3D</span>
+<span class="c1">##  geometrical models by sequences of mathematical operations.</span>
+<span class="c1">##  Home page: https://pyformex.org</span>
+<span class="c1">##  Project page: https://savannah.nongnu.org/projects/pyformex/</span>
+<span class="c1">##  Development: https://gitlab.com/bverheg/pyformex</span>
+<span class="c1">##  Distributed under the GNU General Public License version 3 or later.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is free software: you can redistribute it and/or modify</span>
+<span class="c1">##  it under the terms of the GNU General Public License as published by</span>
+<span class="c1">##  the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1">##  (at your option) any later version.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is distributed in the hope that it will be useful,</span>
+<span class="c1">##  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1">##  GNU General Public License for more details.</span>
+<span class="c1">##</span>
+<span class="c1">##  You should have received a copy of the GNU General Public License</span>
+<span class="c1">##  along with this program.  If not, see http://www.gnu.org/licenses/.</span>
+<span class="c1">##</span>
+<span class="sd">&quot;&quot;&quot;Local http server and html file viewer</span>
+
+<span class="sd">This module provides functionality to view a local html file in the</span>
+<span class="sd">browser using the &#39;http:&#39; transport mechanism instead of &#39;file:&#39;.</span>
+<span class="sd">It was created to allow viewing WebGL models from a local directory.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">pyformex</span> <span class="k">as</span> <span class="nn">pf</span>
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">pyformex.path</span> <span class="kn">import</span> <span class="n">Path</span>
+
+
+<div class="viewcode-block" id="HttpServer"><a class="viewcode-back" href="../../ref/plugins.http_server.html#plugins.http_server.HttpServer">[docs]</a><span class="k">class</span> <span class="nc">HttpServer</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;A specialized http server to serve local files.</span>
+
+<span class="sd">    This server is intended to serve local files to a browser.</span>
+<span class="sd">    It is meant as a replacement for the &#39;file:&#39; transport mechanism.</span>
+<span class="sd">    For security reasons modern browsers often do not allow to include</span>
+<span class="sd">    files (especially script types) from another origin. With the file:</span>
+<span class="sd">    protocol any other file, even in the same directory, may be considered</span>
+<span class="sd">    as a foreign origin. A CORS error is raised in such cases.</span>
+
+<span class="sd">    The solution is to use a local http server and access the files over</span>
+<span class="sd">    &#39;http:&#39; protocol. The HttpServer is very lightweight class which can</span>
+<span class="sd">    serve a directory and all its files and subdirectories to the local</span>
+<span class="sd">    machine. It is not intended to be exposed directly to the network.</span>
+<span class="sd">    It uses the :class:`http.server` from the Python standard library.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path: :term:`path_like`</span>
+<span class="sd">        The path of the local directory to be served. The user should have</span>
+<span class="sd">        read access to this directory.</span>
+<span class="sd">    port: int | None</span>
+<span class="sd">        The TCP port on which the server will be listening. This should be</span>
+<span class="sd">        an unused port number in the high rang (&gt;= 1024). If not provided,</span>
+<span class="sd">        a random free port number will be used.</span>
+
+
+<span class="sd">    Every successfully created HttpServer is registered by adding it to the</span>
+<span class="sd">    list HttpServer._servers. When pyFormex exits, all these servers will be</span>
+<span class="sd">    topped. The user can stop a server at any time though. If you want a</span>
+<span class="sd">    server to continue after pyFormex exits, remove it from the list. The</span>
+<span class="sd">    following attributes of the HttpServer provide useful information:</span>
+
+<span class="sd">    path: :class:`Path`</span>
+<span class="sd">        The path of the directory with accessible files.</span>
+<span class="sd">    port: int:</span>
+<span class="sd">        The port number on which the server is listening.</span>
+<span class="sd">        In your browser, use ``http://localhost:PORT/SOMEFILE`` to</span>
+<span class="sd">        view the contents of SOMEFILE.</span>
+<span class="sd">    P: :class:`subprocess.Popen`</span>
+<span class="sd">        The Popen instance of the running server.</span>
+<span class="sd">        Its attribute P.pid gives the process id of the server.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_servers</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># registers the instances</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize the HttpServer&quot;&quot;&quot;</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;path should be a directory&quot;</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">port</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">port</span> <span class="o">=</span> <span class="n">get_free_socket</span><span class="p">()</span>
+        <span class="n">P</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;python3 -m http.server </span><span class="si">{</span><span class="n">port</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">P</span><span class="o">.</span><span class="n">poll</span><span class="p">()</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># The server is running</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Created new HttpServer serving </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  running as pid </span><span class="si">{</span><span class="n">P</span><span class="o">.</span><span class="n">pid</span><span class="si">}</span><span class="s2"> on port </span><span class="si">{</span><span class="n">port</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">HttpServer</span><span class="o">.</span><span class="n">_servers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed creating HttpServer for </span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="n">port</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">P</span> <span class="o">=</span> <span class="n">P</span>
+
+
+<div class="viewcode-block" id="HttpServer.stop"><a class="viewcode-back" href="../../ref/plugins.http_server.html#plugins.http_server.HttpServer.stop">[docs]</a>    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Stop a HttpServer&quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Stopping HttpServer pid </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">P</span><span class="o">.</span><span class="n">pid</span><span class="si">}</span><span class="s2"> on port </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">P</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">P</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">P</span><span class="o">.</span><span class="n">pid</span><span class="p">)</span>
+        <span class="n">P</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;waiting&quot;</span><span class="p">)</span>
+            <span class="n">P</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">TimeoutExpired</span><span class="p">:</span>
+            <span class="n">P</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">P</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">TimeoutExpired</span><span class="p">:</span>
+                <span class="k">pass</span>
+        <span class="n">HttpServer</span><span class="o">.</span><span class="n">_servers</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">P</span></div>
+
+
+<div class="viewcode-block" id="HttpServer.stop_all"><a class="viewcode-back" href="../../ref/plugins.http_server.html#plugins.http_server.HttpServer.stop_all">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">stop_all</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Stop all running servers&quot;&quot;&quot;</span>
+        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_servers</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_servers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="HttpServer.connect"><a class="viewcode-back" href="../../ref/plugins.http_server.html#plugins.http_server.HttpServer.connect">[docs]</a>    <span class="k">def</span> <span class="nf">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">browser</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Show an url in the browser.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        url: :term:`path_like`</span>
+<span class="sd">            The path of the file to be shown in the browser. The path</span>
+<span class="sd">            is relative to the served directory path.</span>
+<span class="sd">            An empty string or a single &#39;/&#39; will serve the directory</span>
+<span class="sd">            itself, showing the contents of the directory.</span>
+<span class="sd">        browser: str</span>
+<span class="sd">            The name of the browser command. If not provided, the value</span>
+<span class="sd">            from the settings is used. It can be configured in the</span>
+<span class="sd">            Settings menu.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">P</span><span class="o">.</span><span class="n">poll</span><span class="p">()</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">utils</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;browser&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> localhost:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                         <span class="n">wait</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;HttpServer on port </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="si">}</span><span class="s2"> showing url </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">utils</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;The HttpServer has stopped&quot;</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="get_free_socket"><a class="viewcode-back" href="../../ref/plugins.http_server.html#plugins.http_server.get_free_socket">[docs]</a><span class="k">def</span> <span class="nf">get_free_socket</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Find and return a random free port number.</span>
+
+<span class="sd">    A random free port number in the upper range 1024-65535 is found.</span>
+<span class="sd">    The port is immediately bound with the reuse option set.</span>
+<span class="sd">    This avoids a race condition (where another process could bind to</span>
+<span class="sd">    the port before we had the change to do so) while still keeping</span>
+<span class="sd">    the port bindable for our purpose.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">socket</span>
+    <span class="n">sock</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">()</span>
+    <span class="n">sock</span><span class="o">.</span><span class="n">bind</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="n">sock</span><span class="o">.</span><span class="n">setsockopt</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">SOL_SOCKET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SO_REUSEADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">sock</span><span class="o">.</span><span class="n">getsockname</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="showHtml"><a class="viewcode-back" href="../../ref/plugins.http_server.html#plugins.http_server.showHtml">[docs]</a><span class="k">def</span> <span class="nf">showHtml</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Show a local .html file in the browser.</span>
+
+<span class="sd">    Creates a local web server (:class:`HttpServer`) to serve an html file</span>
+<span class="sd">    over the http: protocol to a browser on the local machine.</span>
+<span class="sd">    The browser command is configurable in the settings.</span>
+
+<span class="sd">    This is a convenient wrapper function if you have a single file to</span>
+<span class="sd">    show. If you need to show multiple files from the same directory, you</span>
+<span class="sd">    may want to create a single :class:`HttpServer` for the directory and\           use multiple calls to its :meth:`~HttpServer.connect` method.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path: :term:`path_like`</span>
+<span class="sd">        The path of the file to be displayed. This should normally be a</span>
+<span class="sd">        file with suffix ``.html``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">parent</span>
+    <span class="n">HttpServer</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
+
+
+<span class="k">if</span> <span class="ow">not</span> <span class="n">pf</span><span class="o">.</span><span class="n">sphinx</span><span class="p">:</span>
+    <span class="c1"># Make sure we stop all servers on exit</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">onExit</span><span class="p">(</span><span class="n">HttpServer</span><span class="o">.</span><span class="n">stop_all</span><span class="p">)</span>
+
+
+<span class="c1"># End</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">plugins.http_server</a></li--> 
+      </ul>
+    </div>
+    <div class="footer">
+    <span class="left">
+        &copy; Copyright 2004-2023, Benedict Verhegghe.
+    </span>
+      Last updated on Mar 27, 2023.
+    <span class="right">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.4.3.
+    </span>
+    </div>
+  </body>
+</html>

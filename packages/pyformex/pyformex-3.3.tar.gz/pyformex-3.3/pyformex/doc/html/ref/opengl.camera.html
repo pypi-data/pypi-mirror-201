@@ -1,0 +1,788 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!--
+##
+##  This file is part of the pyFormex project.
+##  pyFormex is a tool for generating, manipulating and transforming 3D
+##  geometrical models by sequences of mathematical operations.
+##  Home page: http://pyformex.org
+##  Project page:  http://savannah.nongnu.org/projects/pyformex/
+##  Copyright (C) Benedict Verhegghe (benedict.verhegghe@ugent.be)
+##  Distributed under the GNU General Public License version 3 or later.
+##
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see http://www.gnu.org/licenses/.
+##
+-->
+    <title>98. opengl.camera — OpenGL camera handling &#8212; pyFormex 3.3 documentation</title>
+
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pyformex.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="99. opengl.canvas — This implements an OpenGL drawing widget for painting 3D scenes." href="opengl.canvas.html" />
+    <link rel="prev" title="97. opengl.actors — OpenGL Actors." href="opengl.actors.html" />
+<link rel="icon" type="image/png" href="../_static/pyformex_fav.png" />
+
+  </head><body>
+
+<div class="header">
+  <a href="http://pyformex.org">
+  <img src="../_static/scallop_dome_small.png" alt="scallop dome" border="0" hspace="20" vspace="12" align="left" />
+  <img src="../_static/pyformex-logo-2.png" alt="pyformex logo" border="0" hspace="10" vspace="8" align="left" />
+  </a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="opengl.canvas.html" title="99. opengl.canvas — This implements an OpenGL drawing widget for painting 3D scenes."
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="opengl.actors.html" title="97. opengl.actors — OpenGL Actors."
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../refman.html" accesskey="U">pyFormex reference manual</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href=""><span class="section-number">98. </span><code class="xref py py-mod docutils literal notranslate"><span class="pre">opengl.camera</span></code> — OpenGL camera handling</a></li--> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<!-- PYFORMEX_SIDEBAR_LOGO -->
+<!-- PYFORMEX_WEBSITE_SIDEBAR_TOP -->
+
+  <h3><a href="../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">98. <code class="xref py py-mod docutils literal notranslate"><span class="pre">opengl.camera</span></code> — OpenGL camera handling</a><ul>
+<li><a class="reference internal" href="#classes-defined-in-module-opengl-camera">98.1. Classes defined in module opengl.camera</a></li>
+<li><a class="reference internal" href="#functions-defined-in-module-opengl-camera">98.2. Functions defined in module opengl.camera</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="opengl.actors.html"
+                        title="previous chapter"><span class="section-number">97. </span><code class="xref py py-mod docutils literal notranslate"><span class="pre">opengl.actors</span></code> — OpenGL Actors.</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="opengl.canvas.html"
+                        title="next chapter"><span class="section-number">99. </span><code class="xref py py-mod docutils literal notranslate"><span class="pre">opengl.canvas</span></code> — This implements an OpenGL drawing widget for painting 3D scenes.</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-opengl.camera">
+<span id="opengl-camera-opengl-camera-handling"></span><span id="sec-ref-opengl-camera"></span><h1><span class="section-number">98. </span><a class="reference internal" href="#module-opengl.camera" title="opengl.camera: OpenGL camera handling"><code class="xref py py-mod docutils literal notranslate"><span class="pre">opengl.camera</span></code></a> — OpenGL camera handling<a class="headerlink" href="#module-opengl.camera" title="Permalink to this headline">¶</a></h1>
+<p>Part of the Python OpenGL framework for pyFormex</p>
+<div class="section" id="classes-defined-in-module-opengl-camera">
+<h2><span class="section-number">98.1. </span>Classes defined in module opengl.camera<a class="headerlink" href="#classes-defined-in-module-opengl-camera" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="opengl.camera.Camera">
+<em class="property">class </em><code class="sig-prename descclassname">opengl.camera.</code><code class="sig-name descname">Camera</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">focus</span><span class="o">=</span><span class="default_value">(0.0, 0.0, 0.0)</span></em>, <em class="sig-param"><span class="n">angles</span><span class="o">=</span><span class="default_value">(0.0, 0.0, 0.0)</span></em>, <em class="sig-param"><span class="n">dist</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">fovy</span><span class="o">=</span><span class="default_value">45.0</span></em>, <em class="sig-param"><span class="n">aspect</span><span class="o">=</span><span class="default_value">1.3333333333333333</span></em>, <em class="sig-param"><span class="n">clip</span><span class="o">=</span><span class="default_value">(0.01, 100.0)</span></em>, <em class="sig-param"><span class="n">perspective</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">area</span><span class="o">=</span><span class="default_value">(0.0, 0.0, 1.0, 1.0)</span></em>, <em class="sig-param"><span class="n">lockedview</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">lockedlens</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">locked</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">keep_aspect</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">tracking</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opengl/camera.html#Camera"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opengl.camera.Camera" title="Permalink to this definition">¶</a></dt>
+<dd><p>A camera for 3D model rendering.</p>
+<p>The Camera class holds all the camera parameters related to the
+rendering of a 3D scene onto a 2D canvas. These includes parameters
+related to camera position and orientation, as well as lens related
+parameters (opening angle, front and back clipping planes).
+The class provides the required matrices to transform the 3D world
+coordinates to 2D canvas coordinates, as well as a wealth of methods
+to change the camera settings in a convenient way so as to simulate
+smooth camera manipulation.</p>
+<p>The basic theory of camera handling and 3D rendering can be found in
+a lot of places on the internet, especially in OpenGL related places.
+However, while the pyFormex rendering engine is based on OpenGL,
+the way it stores and handles the camera parameters is more sophisticated
+than what is usually found in popular tutorials on OpenGL rendering.
+Therefore we give here a extensive description of how the pyFormex
+camera handling and 3D to 2D coordinate transformation works.</p>
+<p>Camera position and orientation:</p>
+<blockquote>
+<div><p>The camera viewing line is defined by two points: the position of
+the camera and the center of the scene the camera is looking at.
+We use the center of the scene as the origin of a local coordinate
+system to define the camera position. For convenience, this could be
+stored in spherical coordinates, as a distance value and two angles:
+longitude and latitude. Furthermore, the camera can also rotate around
+its viewing line. We can define this by a third angle, the twist.
+From these four values, the needed translation vector and rotation
+matrix for the scene rendering may be calculated.</p>
+<p>Inversely however, we can not compute a unique set of angles from
+a given rotation matrix (this is known as ‘gimball lock’).
+As a result, continuous (smooth) camera rotation by e.g. mouse control
+requires that the camera orientation be stored as the full rotation
+matrix, rather than as three angles. Therefore we store the camera
+position and orientation as follows:</p>
+<ul class="simple">
+<li><p><cite>ctr</cite>: <cite>[ x,y,z ]</cite> : the reference point of the camera:
+this is always a point on the viewing axis. Usually, it is set to
+the center of the scene you are looking at.</p></li>
+<li><p><cite>dist</cite>: distance of the camera to the reference point.</p></li>
+<li><p><cite>rot</cite>: a 3x3 rotation matrix, rotating the global coordinate system
+thus that the z-direction is oriented from center to camera.</p></li>
+</ul>
+<p>These values have influence on the Modelview matrix.</p>
+</div></blockquote>
+<p>Camera lens settings:</p>
+<blockquote>
+<div><p>The lens parameters define the volume that is seen by the camera.
+It is described by the following parameters:</p>
+<ul class="simple">
+<li><p><cite>fovy</cite>: the vertical lens opening angle (Field Of View Y),</p></li>
+<li><p><cite>aspect</cite>: the aspect ratio (width/height) of the lens. The product
+<cite>fovy * aspect</cite> is the horizontal field of view.</p></li>
+<li><p><cite>near, far</cite>: the position of the front and back clipping planes.
+They are given as distances from the camera and should both be
+strictly positive. Anything that is closer to the camera than
+the <cite>near</cite> plane or further away than the <cite>far</cite> plane, will not be
+shown on the canvas.</p></li>
+</ul>
+<p>Camera methods that change these values will not directly change
+the Modelview matrix. The <a class="reference internal" href="#opengl.camera.Camera.loadModelview" title="opengl.camera.Camera.loadModelview"><code class="xref py py-meth docutils literal notranslate"><span class="pre">loadModelview()</span></code></a> method has to be called
+explicitely to make the settings active.</p>
+<p>These values have influence on the Projection matrix.</p>
+</div></blockquote>
+<p>Methods that change the camera position, orientation or lens parameters
+will not directly change the related Modelview or Projection matrix.
+They will just flag a change in the camera settings. The changes are
+only activated by a call to the <a class="reference internal" href="#opengl.camera.Camera.loadModelview" title="opengl.camera.Camera.loadModelview"><code class="xref py py-meth docutils literal notranslate"><span class="pre">loadModelview()</span></code></a> or
+<a class="reference internal" href="#opengl.camera.Camera.loadProjection" title="opengl.camera.Camera.loadProjection"><code class="xref py py-meth docutils literal notranslate"><span class="pre">loadProjection()</span></code></a> method, which will test the flags to see whether
+the corresponding matrix needs a rebuild.</p>
+<p>The default camera is at distance 1.0 of the center point [0.,0.,0.] and
+looking in the -z direction.
+Near and far clipping planes are by default set to 0.1, resp 10 times
+the camera distance.</p>
+<p>Properties:</p>
+<ul class="simple">
+<li><p><cite>modelview</cite>: Matrix4: the OpenGL Modelview transformation matrix</p></li>
+<li><p><cite>projection</cite>: Matrix4: the OpenGL Projection transformation matrix</p></li>
+</ul>
+<dl class="py method">
+<dt id="opengl.camera.Camera.settings">
+<code class="sig-name descname">settings</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opengl/camera.html#Camera.settings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opengl.camera.Camera.settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dict with all camera settings</p>
+<p>This dict contains all data that allow save and restore
+of the camera to exactly the same settings (on the same
+size of Canvas).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="opengl.camera.Camera.modelview">
+<em class="property">property </em><code class="sig-name descname">modelview</code><a class="headerlink" href="#opengl.camera.Camera.modelview" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the current modelview matrix.</p>
+<p>This will recompute the modelview matrix if any camera position
+parameters have changed.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="opengl.camera.Camera.projection">
+<em class="property">property </em><code class="sig-name descname">projection</code><a class="headerlink" href="#opengl.camera.Camera.projection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the current projection matrix.</p>
+<p>This will recompute the projection matrix if any camera lens
+parameters have changed.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="opengl.camera.Camera.viewport">
+<em class="property">property </em><code class="sig-name descname">viewport</code><a class="headerlink" href="#opengl.camera.Camera.viewport" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the camera viewport.</p>
+<p>This property can not be changed directly.
+It should be changed by resizing the parent canvas.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="opengl.camera.Camera.focus">
+<em class="property">property </em><code class="sig-name descname">focus</code><a class="headerlink" href="#opengl.camera.Camera.focus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the camera reference point (the focus point).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="opengl.camera.Camera.dist">
+<em class="property">property </em><code class="sig-name descname">dist</code><a class="headerlink" href="#opengl.camera.Camera.dist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the camera distance.</p>
+<p>The camera distance is the distance between the camera eye and
+the camera focus point.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="opengl.camera.Camera.perspective">
+<em class="property">property </em><code class="sig-name descname">perspective</code><a class="headerlink" href="#opengl.camera.Camera.perspective" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the perspecive flag.</p>
+<p>If the perspective flag is True, the camera uses a perspective
+projection. If it is False, the camera uses orthogonal projection.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="opengl.camera.Camera.rot">
+<em class="property">property </em><code class="sig-name descname">rot</code><a class="headerlink" href="#opengl.camera.Camera.rot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the camera rotation matrix.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="opengl.camera.Camera.angles">
+<em class="property">property </em><code class="sig-name descname">angles</code><a class="headerlink" href="#opengl.camera.Camera.angles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the camera angles.</p>
+<p>Returns a tuple (longitude, latitude, twist) in local camera axes.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="opengl.camera.Camera.upvector">
+<em class="property">property </em><code class="sig-name descname">upvector</code><a class="headerlink" href="#opengl.camera.Camera.upvector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the camera up vector</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="opengl.camera.Camera.axis">
+<em class="property">property </em><code class="sig-name descname">axis</code><a class="headerlink" href="#opengl.camera.Camera.axis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a unit vector along the camera axis.</p>
+<p>The camera axis points from the focus towards the camera.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="opengl.camera.Camera.coordsys">
+<code class="sig-name descname">coordsys</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">origin</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opengl/camera.html#Camera.coordsys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opengl.camera.Camera.coordsys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a coordinate system bound to the camera axes.</p>
+<p>The z-axis is the camera axis, the y-axis is the camera upvector,
+The x-axis is the vector product y * z.
+If no origin is specified, it is set to the camera.focus.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="opengl.camera.Camera.setAngles">
+<code class="sig-name descname">setAngles</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">angles</span></em>, <em class="sig-param"><span class="n">axes</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opengl/camera.html#Camera.setAngles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opengl.camera.Camera.setAngles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the rotation angles.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>angles</strong> (<em>tuple of floats</em>) – A tuple of three angles (long,lat,twist) in degrees.
+A value None is also accepted, but has no effect.</p></li>
+<li><p><strong>axes</strong> (<em>if specified</em><em>, </em><em>any number of rotations can be applied.</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="opengl.camera.Camera.eye">
+<em class="property">property </em><code class="sig-name descname">eye</code><a class="headerlink" href="#opengl.camera.Camera.eye" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the position of the camera.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="opengl.camera.Camera.lock">
+<code class="sig-name descname">lock</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">view</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">lens</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opengl/camera.html#Camera.lock"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opengl.camera.Camera.lock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Lock/unlock a camera.</p>
+<p>When a camera is locked, its position and lens parameters can not be
+changed.
+This can e.g. be used in multiple viewports layouts to create fixed
+views from different angles.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="opengl.camera.Camera.report">
+<code class="sig-name descname">report</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opengl/camera.html#Camera.report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opengl.camera.Camera.report" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a report of the current camera settings.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="opengl.camera.Camera.dolly">
+<code class="sig-name descname">dolly</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">val</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opengl/camera.html#Camera.dolly"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opengl.camera.Camera.dolly" title="Permalink to this definition">¶</a></dt>
+<dd><p>Move the camera eye towards/away from the scene center.</p>
+<p>This has the effect of zooming. A value &gt; 1 zooms out,
+a value &lt; 1 zooms in. The resulting enlargement of the view
+will approximately be 1/val.
+A zero value will move the camera to the center of the scene.
+The front and back clipping planes may need adjustment after
+a dolly operation.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="opengl.camera.Camera.pan">
+<code class="sig-name descname">pan</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">val</span></em>, <em class="sig-param"><span class="n">axis</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opengl/camera.html#Camera.pan"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opengl.camera.Camera.pan" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rotate the camera around axis through its eye.</p>
+<p>The camera is rotated around an axis through the eye point.
+For axes 0 and 1, this will move the focus, creating a panning
+effect. The default axis is parallel to the y-axis, resulting in
+horizontal panning. For vertical panning (axis=1) a convenience
+alias tilt is created.
+For axis = 2 the operation is equivalent to the rotate operation.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="opengl.camera.Camera.tilt">
+<code class="sig-name descname">tilt</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">val</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opengl/camera.html#Camera.tilt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opengl.camera.Camera.tilt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rotate the camera up/down around its own horizontal axis.</p>
+<p>The camera is rotated around and perpendicular to the plane of the
+y-axis and the viewing axis. This has the effect of a vertical pan.
+A positive value tilts the camera up, shifting the scene down.
+The value is specified in degrees.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="opengl.camera.Camera.move">
+<code class="sig-name descname">move</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dx</span></em>, <em class="sig-param"><span class="n">dy</span></em>, <em class="sig-param"><span class="n">dz</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opengl/camera.html#Camera.move"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opengl.camera.Camera.move" title="Permalink to this definition">¶</a></dt>
+<dd><p>Move the camera over translation (dx,dy,dz) in global coordinates.</p>
+<p>The focus of the camera is moved over the specified translation
+vector. This has the effect of moving the scene in opposite direction.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="opengl.camera.Camera.setLens">
+<code class="sig-name descname">setLens</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fovy</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">aspect</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opengl/camera.html#Camera.setLens"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opengl.camera.Camera.setLens" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the field of view of the camera.</p>
+<p>We set the field of view by the vertical opening angle fovy
+and the aspect ratio (width/height) of the viewing volume.
+A parameter that is not specified is left unchanged.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="opengl.camera.Camera.resetArea">
+<code class="sig-name descname">resetArea</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opengl/camera.html#Camera.resetArea"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opengl.camera.Camera.resetArea" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set maximal camera area.</p>
+<p>Resets the camera window area to its maximum values corresponding
+to the fovy setting, symmetrical about the camera axes.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="opengl.camera.Camera.setArea">
+<code class="sig-name descname">setArea</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">hmin</span></em>, <em class="sig-param"><span class="n">vmin</span></em>, <em class="sig-param"><span class="n">hmax</span></em>, <em class="sig-param"><span class="n">vmax</span></em>, <em class="sig-param"><span class="n">relative</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">focus</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">center</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">clip</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opengl/camera.html#Camera.setArea"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opengl.camera.Camera.setArea" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the viewable area of the camera.</p>
+<p>Note: Use relative=False and clip=False if you want to set the zoom
+exactly as in previously recorded values.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="opengl.camera.Camera.zoomArea">
+<code class="sig-name descname">zoomArea</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">val</span><span class="o">=</span><span class="default_value">0.5</span></em>, <em class="sig-param"><span class="n">area</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opengl/camera.html#Camera.zoomArea"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opengl.camera.Camera.zoomArea" title="Permalink to this definition">¶</a></dt>
+<dd><p>Zoom in/out by shrinking/enlarging the camera view area.</p>
+<p>The zoom factor is relative to the current setting.
+Values smaller than 1.0 zoom in, larger values zoom out.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="opengl.camera.Camera.transArea">
+<code class="sig-name descname">transArea</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dx</span></em>, <em class="sig-param"><span class="n">dy</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opengl/camera.html#Camera.transArea"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opengl.camera.Camera.transArea" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pan by moving the camera area.</p>
+<p>dx and dy are relative movements in fractions of the
+current area size.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="opengl.camera.Camera.setClip">
+<code class="sig-name descname">setClip</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">near</span></em>, <em class="sig-param"><span class="n">far</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opengl/camera.html#Camera.setClip"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opengl.camera.Camera.setClip" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the near and far clipping planes</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="opengl.camera.Camera.setTracking">
+<code class="sig-name descname">setTracking</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">onoff</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opengl/camera.html#Camera.setTracking"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opengl.camera.Camera.setTracking" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enable/disable coordinate tracking using the camera</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="opengl.camera.Camera.setProjection">
+<code class="sig-name descname">setProjection</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opengl/camera.html#Camera.setProjection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opengl.camera.Camera.setProjection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the projection matrix.</p>
+<p>This computes and sets the camera’s projection matrix, depending
+on the current camera settings. The projection can either be
+an orthogonal or a perspective one.</p>
+<p>The computed matrix is saved as the camera’s projection matrix,
+and the lensChanged attribute is set to False.</p>
+<p>The matrix can be retrieved from the projection attribute,
+and can be loaded in the GL context with loadProjection().</p>
+<p>This function does nothing if the camera is locked.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="opengl.camera.Camera.loadProjection">
+<code class="sig-name descname">loadProjection</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opengl/camera.html#Camera.loadProjection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opengl.camera.Camera.loadProjection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load the Projection matrix.</p>
+<p>If lens parameters of the camera have been changed, the current
+Projection matrix is rebuild.
+Then, the current Projection matrix of the camera is loaded into the
+OpenGL engine.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="opengl.camera.Camera.pickMatrix">
+<code class="sig-name descname">pickMatrix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">rect</span></em>, <em class="sig-param"><span class="n">viewport</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opengl/camera.html#Camera.pickMatrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opengl.camera.Camera.pickMatrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a picking matrix.</p>
+<p>The picking matrix confines the scope of the normalized device
+coordinates to a rectangular subregion of the camera viewport.
+This means that values in the range -1 to +1 are inside the
+rectangle.</p>
+<p>Parameters:</p>
+<ul class="simple">
+<li><p><cite>rect</cite>: a tuple of 4 floats (x,y,w,h) defining the picking region
+center (x,y) and size (w,h)</p></li>
+<li><p><cite>viewport</cite>: a tuple of 4 int values (xmin,ymin,xmax,ymax) defining
+the size of the viewport. This is normally left unspecified and
+set to the camera viewport.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt id="opengl.camera.Camera.eyeToClip">
+<code class="sig-name descname">eyeToClip</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opengl/camera.html#Camera.eyeToClip"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opengl.camera.Camera.eyeToClip" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transform a vertex from eye to clip coordinates.</p>
+<p>This transforms the vertex using the current Projection matrix.</p>
+<p>It is equivalent with multiplying the homogeneous
+coordinates with the Projection matrix, but is done here
+in an optimized way.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="opengl.camera.Camera.clipToEye">
+<code class="sig-name descname">clipToEye</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opengl/camera.html#Camera.clipToEye"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opengl.camera.Camera.clipToEye" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transform a vertex from clip to eye coordinates.</p>
+<p>This transforms the vertex using the inverse of the
+current Projection matrix.</p>
+<p>It is equivalent with multiplying the homogeneous
+coordinates with the inverse Projection matrix, but is done
+here in an optimized way.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="opengl.camera.Camera.lookAt">
+<code class="sig-name descname">lookAt</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">focus</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">eye</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">up</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opengl/camera.html#Camera.lookAt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opengl.camera.Camera.lookAt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the Modelview matrix to look at the specified focus point.</p>
+<p>The Modelview matrix is set with the camera positioned at eye
+and looking at the focus points, while the camera up vector is
+in the plane of the camera axis (focus-eye) and the specified
+up vector.</p>
+<p>If any of the arguments is left unspecified, the current value
+will be used.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="opengl.camera.Camera.rotate">
+<code class="sig-name descname">rotate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">val</span></em>, <em class="sig-param"><span class="n">vx</span></em>, <em class="sig-param"><span class="n">vy</span></em>, <em class="sig-param"><span class="n">vz</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opengl/camera.html#Camera.rotate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opengl.camera.Camera.rotate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rotate the camera around current camera axes.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="opengl.camera.Camera.setModelview">
+<code class="sig-name descname">setModelview</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">m</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">angles</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opengl/camera.html#Camera.setModelview"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opengl.camera.Camera.setModelview" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the Modelview matrix.</p>
+<p>The Modelview matrix can be set from one of the following sources:</p>
+<ul class="simple">
+<li><p>if <cite>mat</cite> is specified, it is a 4x4 matrix with a valuable
+Modelview transformation. It will be set as the current camera
+Modelview matrix.</p></li>
+<li><p>else, if <cite>angles</cite> is specified, it is a sequence of tuples
+(angle, axis) each of which define a rotation of the camera
+around an axis through the focus point.
+The camera Modelview matrix is set from the current camera focus,
+the current camera distance, and the specified angles/axes.
+This option is typically used to change the viewing direction
+of the camera, while keeping the focus point and camera distance.</p></li>
+<li><p>else, if the viewChanged flags is set, the camera Modelview
+matrix is set from the current camera focus, the current camera
+distance, and the current camera rotation matrix.
+This option is typically used after changing the camera focus
+point and/or distance, while keeping the current viewing angles.</p></li>
+<li><p>else, the current Modelview matrix remains unchanged.</p></li>
+</ul>
+<p>In all cases, if a modelview callback was set, it is called,
+and the viewChanged flag is cleared.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="opengl.camera.Camera.loadModelview">
+<code class="sig-name descname">loadModelview</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opengl/camera.html#Camera.loadModelview"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opengl.camera.Camera.loadModelview" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load the Modelview matrix.</p>
+<p>If camera positioning parameters have been changed, the current
+Modelview matrix is rebuild.
+Then, the current Modelview matrix of the camera is loaded into the
+OpenGL engine.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="opengl.camera.Camera.toEye">
+<code class="sig-name descname">toEye</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opengl/camera.html#Camera.toEye"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opengl.camera.Camera.toEye" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transform a vertex from world to eye coordinates.</p>
+<p>This transforms the vertex using the current Modelview matrix.</p>
+<p>It is equivalent with multiplying the homogeneous
+coordinates with the Modelview matrix, but is done here
+in an optimized way.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="opengl.camera.Camera.toWorld">
+<code class="sig-name descname">toWorld</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opengl/camera.html#Camera.toWorld"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opengl.camera.Camera.toWorld" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transform a vertex from eye to world coordinates.</p>
+<p>This transforms the vertex using the inverse of the
+current Modelview matrix.</p>
+<p>It is equivalent with multiplying the homogeneous
+coordinates with the inverse Modelview matrix, but is done
+here in an optimized way.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="opengl.camera.Camera.toWindow">
+<code class="sig-name descname">toWindow</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opengl/camera.html#Camera.toWindow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opengl.camera.Camera.toWindow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert normalized device coordinates to window coordinates</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="opengl.camera.Camera.fromWindow">
+<code class="sig-name descname">fromWindow</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opengl/camera.html#Camera.fromWindow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opengl.camera.Camera.fromWindow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert window coordinates to  normalized device coordinates</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="opengl.camera.Camera.toNDC">
+<code class="sig-name descname">toNDC</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">rect</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opengl/camera.html#Camera.toNDC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opengl.camera.Camera.toNDC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert world coordinates to normalized device coordinates.</p>
+<p>The normalized device coordinates (NDC) have x and y values
+in the range -1 to +1 for points that are falling within the
+visible region of the camera.</p>
+<p>Parameters:</p>
+<ul class="simple">
+<li><p><cite>x</cite>: Coords with the world coordinates to be converted</p></li>
+<li><p><cite>rect</cite>: optional, a tuple of 4 values (x,y,w,h) specifying
+a rectangular subregion of the camera’s viewport. The default
+is the full camera viewport.</p></li>
+</ul>
+<p>The return value is a Coords. The z-coordinate provides
+depth information.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="opengl.camera.Camera.toNDC1">
+<code class="sig-name descname">toNDC1</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">rect</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opengl/camera.html#Camera.toNDC1"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opengl.camera.Camera.toNDC1" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is like toNDC without the perspective divide</p>
+<p>This function is useful to compute the vertex position of a
+3D point as computed by the vertex shader.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="opengl.camera.Camera.project">
+<code class="sig-name descname">project</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opengl/camera.html#Camera.project"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opengl.camera.Camera.project" title="Permalink to this definition">¶</a></dt>
+<dd><p>Map the world coordinates (x,y,z) to window coordinates.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="opengl.camera.Camera.unproject">
+<code class="sig-name descname">unproject</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">ndc</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opengl/camera.html#Camera.unproject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opengl.camera.Camera.unproject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Map the window coordinates x to object coordinates.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="opengl.camera.Camera.inside">
+<code class="sig-name descname">inside</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">rect</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">return_depth</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opengl/camera.html#Camera.inside"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opengl.camera.Camera.inside" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test if points are visible in the camera.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<a class="reference internal" href="../glossary.html#term-array_like"><span class="xref std std-term">array_like</span></a>) – Array (npts, 3) with coordinates of 3D points.</p></li>
+<li><p><strong>rect</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.11)"><em>tuple</em></a><em>, </em><em>optional</em>) – A tuple of 4 values (x,y,w,h) specifying a rectangular subregion
+of the camera’s viewport. Default is the full camera viewport.</p></li>
+<li><p><strong>return_depth</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – If True, also returns the the z-depth of the points.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>inside</strong> (<em>bool array</em>) – An array with value 1 (True) for the points that
+are projected inside the rectangular area of the camera.</p></li>
+<li><p><strong>depth</strong> (<em>float array (npts,)</em>) – The z-depth value of the points. Only returned if
+<cite>return_depth</cite> is True.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="opengl.camera.Camera.loadConfig">
+<code class="sig-name descname">loadConfig</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opengl/camera.html#Camera.loadConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opengl.camera.Camera.loadConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load the camera settings from a dict</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="opengl.camera.Camera.save">
+<code class="sig-name descname">save</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opengl/camera.html#Camera.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opengl.camera.Camera.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the camera settings to file</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="opengl.camera.Camera.load">
+<code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opengl/camera.html#Camera.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opengl.camera.Camera.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load the camera settings from file</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="functions-defined-in-module-opengl-camera">
+<h2><span class="section-number">98.2. </span>Functions defined in module opengl.camera<a class="headerlink" href="#functions-defined-in-module-opengl-camera" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="opengl.camera.normalize">
+<code class="sig-prename descclassname">opengl.camera.</code><code class="sig-name descname">normalize</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">w</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opengl/camera.html#normalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opengl.camera.normalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalize coordinates inside a window.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<a class="reference internal" href="../glossary.html#term-array_like"><span class="xref std std-term">array_like</span></a>) – An (np,nc) array with coordinates.</p></li>
+<li><p><strong>w</strong> (<a class="reference internal" href="../glossary.html#term-array_like"><span class="xref std std-term">array_like</span></a>) – A (2,nc) array with minimal coordinates and width of the window
+that will be mapped on the range -1..1.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>array</em> – The (np, nc) normalized coordinates. The input values are linearly
+remapped thus that w[0] maps onto [-1]*nc and w[0]+w[1] maps onto
+[+1]*nc.</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#opengl.camera.denormalize" title="opengl.camera.denormalize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">denormalize</span></code></a></dt><dd><p>the inverse transformation</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">normalize</span><span class="p">([(</span><span class="mi">2</span><span class="p">,</span><span class="mi">4</span><span class="p">),</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">7</span><span class="p">),</span> <span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mi">10</span><span class="p">)],</span> <span class="p">[(</span><span class="mi">2</span><span class="p">,</span><span class="mi">4</span><span class="p">),</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">6</span><span class="p">)])</span>
+<span class="go">array([[-1., -1.],</span>
+<span class="go">       [ 0.,  0.],</span>
+<span class="go">       [ 1.,  1.]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="opengl.camera.denormalize">
+<code class="sig-prename descclassname">opengl.camera.</code><code class="sig-name descname">denormalize</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">w</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opengl/camera.html#denormalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opengl.camera.denormalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Map normalized coordinates to fit a window</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<a class="reference internal" href="../glossary.html#term-array_like"><span class="xref std std-term">array_like</span></a>) – An (np,nc) array with normalized coordinates.</p></li>
+<li><p><strong>w</strong> (<a class="reference internal" href="../glossary.html#term-array_like"><span class="xref std std-term">array_like</span></a>) – A (2,nc) array with minimal coordinates and width of the window
+that will be mapped on the range -1..1.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>array</em> – The (np, nc) normalized coordinates. The input values are linearly
+remapped thus that values -1 become w[0] and values +1 become
+w[0]+w[1].</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#opengl.camera.normalize" title="opengl.camera.normalize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalize</span></code></a></dt><dd><p>the inverse transformation</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">denormalize</span><span class="p">([(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)],</span> <span class="p">[(</span><span class="mi">2</span><span class="p">,</span><span class="mi">4</span><span class="p">),</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">6</span><span class="p">)])</span>
+<span class="go">array([[ 2.,  4.],</span>
+<span class="go">       [ 4.,  7.],</span>
+<span class="go">       [ 6., 10.]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="opengl.camera.perspective_matrix">
+<code class="sig-prename descclassname">opengl.camera.</code><code class="sig-name descname">perspective_matrix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">left</span></em>, <em class="sig-param"><span class="n">right</span></em>, <em class="sig-param"><span class="n">bottom</span></em>, <em class="sig-param"><span class="n">top</span></em>, <em class="sig-param"><span class="n">near</span></em>, <em class="sig-param"><span class="n">far</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opengl/camera.html#perspective_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opengl.camera.perspective_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a perspective Projection matrix.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="opengl.camera.orthogonal_matrix">
+<code class="sig-prename descclassname">opengl.camera.</code><code class="sig-name descname">orthogonal_matrix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">left</span></em>, <em class="sig-param"><span class="n">right</span></em>, <em class="sig-param"><span class="n">bottom</span></em>, <em class="sig-param"><span class="n">top</span></em>, <em class="sig-param"><span class="n">near</span></em>, <em class="sig-param"><span class="n">far</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opengl/camera.html#orthogonal_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opengl.camera.orthogonal_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create an orthogonal Projection matrix.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="opengl.camera.pick_matrix">
+<code class="sig-prename descclassname">opengl.camera.</code><code class="sig-name descname">pick_matrix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">y</span></em>, <em class="sig-param"><span class="n">w</span></em>, <em class="sig-param"><span class="n">h</span></em>, <em class="sig-param"><span class="n">viewport</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/opengl/camera.html#pick_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opengl.camera.pick_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a pick Projection matrix</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="opengl.canvas.html" title="99. opengl.canvas — This implements an OpenGL drawing widget for painting 3D scenes."
+             >next</a> |</li>
+        <li class="right" >
+          <a href="opengl.actors.html" title="97. opengl.actors — OpenGL Actors."
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../refman.html" >pyFormex reference manual</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href=""><span class="section-number">98. </span><code class="xref py py-mod docutils literal notranslate"><span class="pre">opengl.camera</span></code> — OpenGL camera handling</a></li--> 
+      </ul>
+    </div>
+    <div class="footer">
+    <span class="left">
+        &copy; Copyright 2004-2023, Benedict Verhegghe.
+    </span>
+      Last updated on Mar 27, 2023.
+    <span class="right">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.4.3.
+    </span>
+    </div>
+  </body>
+</html>

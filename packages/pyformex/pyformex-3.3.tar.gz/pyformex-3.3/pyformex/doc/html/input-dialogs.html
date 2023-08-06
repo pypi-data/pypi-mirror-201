@@ -1,0 +1,450 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!--
+##
+##  This file is part of the pyFormex project.
+##  pyFormex is a tool for generating, manipulating and transforming 3D
+##  geometrical models by sequences of mathematical operations.
+##  Home page: http://pyformex.org
+##  Project page:  http://savannah.nongnu.org/projects/pyformex/
+##  Copyright (C) Benedict Verhegghe (benedict.verhegghe@ugent.be)
+##  Distributed under the GNU General Public License version 3 or later.
+##
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see http://www.gnu.org/licenses/.
+##
+-->
+    <title>Input Dialogs &#8212; pyFormex 3.3 documentation</title>
+
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pyformex.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Modeling Geometry with pyFormex" href="geometry.html" />
+    <link rel="prev" title="pyFormex scripting" href="scripting.html" />
+<link rel="icon" type="image/png" href="_static/pyformex_fav.png" />
+
+  </head><body>
+
+<div class="header">
+  <a href="http://pyformex.org">
+  <img src="_static/scallop_dome_small.png" alt="scallop dome" border="0" hspace="20" vspace="12" align="left" />
+  <img src="_static/pyformex-logo-2.png" alt="pyformex logo" border="0" hspace="10" vspace="8" align="left" />
+  </a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="geometry.html" title="Modeling Geometry with pyFormex"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="scripting.html" title="pyFormex scripting"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="user-guide.html" accesskey="U">pyFormex user guide</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">Input Dialogs</a></li--> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<!-- PYFORMEX_SIDEBAR_LOGO -->
+<!-- PYFORMEX_WEBSITE_SIDEBAR_TOP -->
+
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Input Dialogs</a><ul>
+<li><a class="reference internal" href="#modal-dialogs">Modal Dialogs</a><ul>
+<li><a class="reference internal" href="#a-simple-dialog">A simple dialog</a></li>
+<li><a class="reference internal" href="#convenience-functions">Convenience functions</a></li>
+<li><a class="reference internal" href="#input-validation">Input validation</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#modeless-dialogs">Modeless Dialogs</a></li>
+<li><a class="reference internal" href="#dialog-class">Dialog class</a></li>
+<li><a class="reference internal" href="#input-items">Input Items</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="scripting.html"
+                        title="previous chapter">pyFormex scripting</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="geometry.html"
+                        title="next chapter">Modeling Geometry with pyFormex</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="input-dialogs">
+<span id="sec-input-dialogs"></span><h1>Input Dialogs<a class="headerlink" href="#input-dialogs" title="Permalink to this headline">¶</a></h1>
+<p>From the beginning pyFormex was intended as a framework for creating parametric
+models. This means that some parameter values need to be fed to the models to
+instantiate them. Often it is more appropriate to ask these values interactively
+from the user, rather than hardcoding them into a script.</p>
+<p>The pyFormex user has full access to the Qt framework on which the
+GUI was built. Therefore he can built input dialogs as complex and
+powerful as he can imagine. However, directly dealing with the
+Qt libraries requires some skills and, for simple input widgets,
+more effort than needed.</p>
+<p>Therefore pyFormex has a very powerful but still easy to use system for
+the creation of such dialogs. This document lays out the basic ideas of
+the dialog creation and use. The examples named in parentheses are
+available from the pyFormex menu Script-&gt;Scripts-&gt;userguide.</p>
+<div class="section" id="modal-dialogs">
+<span id="sec-modal-dialogs"></span><h2>Modal Dialogs<a class="headerlink" href="#modal-dialogs" title="Permalink to this headline">¶</a></h2>
+<p>A modal dialog shows an input dialog to let the user enter some value(s),
+and blocks all other user interaction with the application until the user
+either accepts valid input or cancels (and rejects) the input. This is the
+typical operation when the program needs some data from the user in order
+to continue.</p>
+<div class="section" id="a-simple-dialog">
+<h3>A simple dialog<a class="headerlink" href="#a-simple-dialog" title="Permalink to this headline">¶</a></h3>
+<p>In many cases we can just make use of the <a class="reference internal" href="ref/gui.draw.html#gui.draw.askItems" title="gui.draw.askItems"><code class="xref py py-func docutils literal notranslate"><span class="pre">gui.draw.askItems()</span></code></a>
+function.  Here’s a simple example (dialog1):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Simple input dialog</span>
+
+<span class="sd">Creates an (nrows, ncols) array filled with numbers from arange(nrows*ncols).</span>
+<span class="sd">The values nrows and ncols are asked from the user.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">res</span> <span class="o">=</span> <span class="n">askItems</span><span class="p">([</span>
+    <span class="nb">dict</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;nrows&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">3</span><span class="p">),</span>
+    <span class="nb">dict</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;ncols&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">6</span><span class="p">),</span>
+<span class="p">])</span>
+<span class="k">if</span> <span class="n">res</span><span class="p">:</span>
+    <span class="n">nrows</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;nrows&#39;</span><span class="p">]</span>
+    <span class="n">ncols</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;ncols&#39;</span><span class="p">]</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nrows</span><span class="o">*</span><span class="n">ncols</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">nrows</span><span class="p">,</span><span class="n">ncols</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The askItems function takes a list of input items as its first (and only
+required) argument. Each input item is a dict where the keys have predefined
+meanings. There are many optional keys, but at least the name and value keys
+should be present. The whole dict should be acceptable as keyword arguments
+for the <a class="reference internal" href="ref/gui.widgets.html#gui.widgets.InputItem" title="gui.widgets.InputItem"><code class="xref py py-class docutils literal notranslate"><span class="pre">gui.widgets.InputItem</span></code></a> class. See <a class="reference internal" href="#sec-input-items"><span class="std std-ref">Input Items</span></a>
+for more details.</p>
+<p>The name specifies the key in the result dict that will contain the value
+entered by the user. The value is the initial value that will be displayed
+when the dialog is first shown.
+The value also serves in simple cases to identify the type
+of the result: thus a str, int, float given as value will automatically
+require that the same type is returned. If you want to get an integer back
+as a string, you should specify: <code class="docutils literal notranslate"><span class="pre">value='3'</span></code>.</p>
+<p>The askItems function constructs a dialog, displays it to the user:</p>
+<div class="figure align-default">
+<img alt="_images/dialog1.png" src="_images/dialog1.png" />
+</div>
+<p>It then lets the user interact with the dialog until he either accepts
+or rejects the input data. Accepting the data is done by clicking the OK
+button or pressing the ENTER key. The data can be rejected by pushing the
+CANCEL button or hitting the ESC key.
+The dialog created by askItems is a modal one, meaning that all interaction
+with the rest of the pyFormex interface is blocked until the user either
+accepts or rejects the data. When the results are accepted or rejected, the
+dialog is closed and the user can again interact with other pyFormex
+windows. In <a class="reference internal" href="#sec-modeless-dialogs"><span class="std std-ref">Modeless Dialogs</span></a> we describe how to create Dialogs
+that can stay open and allow the user to interact with other windows.</p>
+<p>The return value of askItems is always a dict.  If the user accepts
+the data, the dict contains a value for each of the items specified,
+with the name of the item as key.  The value will be of the type
+implied by or specified in the input item. If the user rejects the
+data, it will be an empty dict. It is good practice to always test the
+result to see if it contains values, as is done in the example above.</p>
+<p>If you run this example and accept the default values, you will see this
+printed:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span> <span class="mi">0</span>  <span class="mi">1</span>  <span class="mi">2</span>  <span class="mi">3</span>  <span class="mi">4</span>  <span class="mi">5</span><span class="p">]</span>
+ <span class="p">[</span> <span class="mi">6</span>  <span class="mi">7</span>  <span class="mi">8</span>  <span class="mi">9</span> <span class="mi">10</span> <span class="mi">11</span><span class="p">]</span>
+ <span class="p">[</span><span class="mi">12</span> <span class="mi">13</span> <span class="mi">14</span> <span class="mi">15</span> <span class="mi">16</span> <span class="mi">17</span><span class="p">]]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="convenience-functions">
+<h3>Convenience functions<a class="headerlink" href="#convenience-functions" title="Permalink to this headline">¶</a></h3>
+<p>To avoid excessive typing and to make the structure of the dialog creating
+source more clear, pyFormex offers some convenient shorthand functions:
+_I, _G, _C and _T. We will use these abundantly in this user guide.</p>
+<p>The most important is <code class="docutils literal notranslate"><span class="pre">_I</span></code>, which creates a single input item, accepting
+the name and value as positional arguments.
+We will study this function in more detail in <a class="reference internal" href="#sec-input-items"><span class="std std-ref">Input Items</span></a>.
+Using the <code class="docutils literal notranslate"><span class="pre">_I</span></code> function, we can simplify the dialog1 script to (dialog2):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Simple input dialog</span>
+
+<span class="sd">The same dialog as dialog1, but using the _I function to construct</span>
+<span class="sd">the items, and globals().update to set the results in global variables.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">res</span> <span class="o">=</span> <span class="n">askItems</span><span class="p">([</span>
+    <span class="n">_I</span><span class="p">(</span><span class="s1">&#39;nrows&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+    <span class="n">_I</span><span class="p">(</span><span class="s1">&#39;ncols&#39;</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span>
+<span class="p">])</span>
+<span class="k">if</span> <span class="n">res</span><span class="p">:</span>
+    <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nrows</span><span class="o">*</span><span class="n">ncols</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">nrows</span><span class="p">,</span><span class="n">ncols</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The <code class="code docutils literal notranslate"><span class="pre">globals().update(res)</span></code> is a convenient shortcut to convert
+all the values returned from the dialog to global variables. Of course
+this only works if all the field names are valid Python variable names.
+It is only recommended in small and simple scripts, where you can easily
+avoid name clashes in the global name space.</p>
+</div>
+<div class="section" id="input-validation">
+<h3>Input validation<a class="headerlink" href="#input-validation" title="Permalink to this headline">¶</a></h3>
+<p>When an input item uses a string editing field as interactor, it is
+usually not possible to type anything that would obviously lead to
+an invalid value. For example, the integer input fields in the above
+example will not allow you to enter a non-digit (except for the minus sign).</p>
+<p>It is however still possible to have an invalid value in the
+edit field. You can for example delete the input field contents: this has
+to be possible in order to replace a value with another one. But the empty
+string is not a valid integer. If this value would be accepted, the
+remainder of the script would fail.</p>
+<p>There are often more restrictions needed on the input values to
+guarantee a proper operation. For example, in the dialog2 above,
+it is possible to enter negative integers. If you only enter one negative
+value, the script will still continue normally, producing an empty array.
+If you enter both values negative though, the script exits with an
+exception traceback. We could test the values nrows and ncols in the script,
+and only proceed if the values are not negative. But pyFormex dialogs offer
+a better way: specify the value bounds on the input item, and let the
+pyFormex GUI handle the validation (dialog3):</p>
+<div class="highlight-default notranslate" id="script-dialog3"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Simple input dialog</span>
+
+<span class="sd">Similar dialog as dialog2, but with limits on the input values,</span>
+<span class="sd">more explicative labels, and a function to print the array.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="k">def</span> <span class="nf">print_array</span><span class="p">(</span><span class="n">nrows</span><span class="p">,</span> <span class="n">ncols</span><span class="p">):</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nrows</span><span class="o">*</span><span class="n">ncols</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">nrows</span><span class="p">,</span><span class="n">ncols</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+
+<span class="n">res</span> <span class="o">=</span> <span class="n">askItems</span><span class="p">([</span>
+    <span class="n">_I</span><span class="p">(</span><span class="s1">&#39;nrows&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s1">&#39;Number of rows&#39;</span><span class="p">),</span>
+    <span class="n">_I</span><span class="p">(</span><span class="s1">&#39;ncols&#39;</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s1">&#39;Number of columns&#39;</span><span class="p">),</span>
+<span class="p">])</span>
+<span class="k">if</span> <span class="n">res</span><span class="p">:</span>
+    <span class="n">print_array</span><span class="p">(</span><span class="o">**</span><span class="n">res</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The min and max values specify the lowest and highest acceptable int value
+for the field. For nrows, we accept any non-negative value. For ncols, we
+restrict the values to the range 2..10. The <em>text</em> option in the input items
+specifies the label displayed before the field. If <em>text</em> is not provided,
+the field name is used instead, as in the previous dialogs. A final change
+is that we use a <code class="docutils literal notranslate"><span class="pre">print_array</span></code> function to create and print the array.
+By using the same argument names as the field names, we can easily process
+the dialog results by unpacking them with <code class="code docutils literal notranslate"><span class="pre">**res</span></code>.</p>
+<p>The dialog now looks like this:</p>
+<div class="figure align-default">
+<img alt="_images/dialog3.png" src="_images/dialog3.png" />
+</div>
+<p>While it is now impossible to enter negative values, specifying bounds
+still leaves possibilities for intermediate invalid values. Take the
+case of ncols, which specifies the range 2..10 as valid: it is possible
+to enter a single <code class="docutils literal notranslate"><span class="pre">1</span></code> in the field, since that could be the first digit of
+the valid number 10. Again, if this value would be accepted, an
+invalid value would be produced.</p>
+<p>The problem of intermediate invalid values is handled by pyFormex Dialogs as
+follows: when the user performs an action to accept the dialog (pressing OK
+or hitting ENTER), a validation of all data is performed, and if any fields
+hold invalid data, these fields are flagged and the data is not accepted:</p>
+<div class="figure align-default">
+<img alt="_images/dialog3_2.png" src="_images/dialog3_2.png" />
+</div>
+<p>Hovering the mouse over the red invalid button will pop up a tip with the
+reason:</p>
+<div class="figure align-default">
+<img alt="_images/dialog3_3.png" src="_images/dialog3_3.png" />
+</div>
+<p>Then the user interaction continues until all data are valid and accepted,
+or the data are rejected.</p>
+</div>
+</div>
+<div class="section" id="modeless-dialogs">
+<span id="sec-modeless-dialogs"></span><h2>Modeless Dialogs<a class="headerlink" href="#modeless-dialogs" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference internal" href="#sec-modal-dialogs"><span class="std std-ref">Modal Dialogs</span></a> are a good solution when some information from the
+user is required to continue. But there are cases where we want to construct
+a dialog that stays open while allowing to further interact with the other
+windows. Such modeless dialogs need to be handled somewhat differently.
+The system can not wait for results. Instead you will have to define actions
+that are to be executed when activated, usually by clicking some button.</p>
+<p>Here is the above dialog3 converted to a modeless dialog (dialog4):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Simple input dialog</span>
+
+<span class="sd">A modeless dialog with the same input items as dialog3</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="k">def</span> <span class="nf">print_array</span><span class="p">(</span><span class="n">nrows</span><span class="p">,</span> <span class="n">ncols</span><span class="p">):</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nrows</span><span class="o">*</span><span class="n">ncols</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">nrows</span><span class="p">,</span><span class="n">ncols</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">show</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">dialog</span><span class="o">.</span><span class="n">validate</span><span class="p">():</span>
+        <span class="n">create_array</span><span class="p">(</span><span class="o">**</span><span class="n">dialog</span><span class="o">.</span><span class="n">results</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">close</span><span class="p">():</span>
+    <span class="n">dialog</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+<span class="n">dialog</span> <span class="o">=</span> <span class="n">Dialog</span><span class="p">([</span>
+    <span class="n">_I</span><span class="p">(</span><span class="s1">&#39;nrows&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s1">&#39;Number of rows&#39;</span><span class="p">),</span>
+    <span class="n">_I</span><span class="p">(</span><span class="s1">&#39;ncols&#39;</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s1">&#39;Number of columns&#39;</span><span class="p">),</span>
+    <span class="p">],</span> <span class="n">actions</span><span class="o">=</span><span class="p">[(</span><span class="s1">&#39;Close&#39;</span><span class="p">,</span> <span class="n">close</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;Show&#39;</span><span class="p">,</span> <span class="n">show</span><span class="p">)])</span>
+<span class="n">dialog</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The first function, <code class="docutils literal notranslate"><span class="pre">create_array</span></code>, is the same as before
+The next two functions are the actions that we want to be provided
+by the dialog: <code class="docutils literal notranslate"><span class="pre">show</span></code> creates and prints the array with the current
+input data; <code class="docutils literal notranslate"><span class="pre">close</span></code> just closes the dialog. The <code class="docutils literal notranslate"><span class="pre">show</span></code> function is
+important here: it first validates the current input data. If these are
+valid, they become available in a dict attribute <code class="docutils literal notranslate"><span class="pre">results</span></code> of the
+dialog, so we can use that directly to proceed with our purpose.</p>
+<p>Finally, we construct the Dialog. Its first argument specifies the input
+items. This is exactly the same as the argument of
+<code class="docutils literal notranslate"><span class="pre">askItems</span></code> in <a class="reference internal" href="#script-dialog3">script_dialog3</a>.
+But we have a second keyword argument defining the actions to appear in the
+dialog. This is a list of tuples defining pushbuttons (actually it is the
+input for a <code class="xref py py-class docutils literal notranslate"><span class="pre">ButtonBox</span></code> constructor.
+Each button is defined by a tuple of a string and a function.
+The string is the text shown on the button. The function should
+take no arguments and will be executed when the button is pressed.</p>
+<p>Now you can repeatedly change the input fields and click the <code class="docutils literal notranslate"><span class="pre">Show</span></code>
+button and see an array printed with the specified size. And when you’re
+done, click <code class="docutils literal notranslate"><span class="pre">Close</span></code> to close the window.</p>
+</div>
+<div class="section" id="dialog-class">
+<span id="sec-dialog-class"></span><h2>Dialog class<a class="headerlink" href="#dialog-class" title="Permalink to this headline">¶</a></h2>
+<p>The Dialog class is the most important class in pyFormex for constructing
+user input dialogs. It is very versatile and dialogs can range from very
+simple to extremely comprehensive. In this user guide we will describe the
+most commonly used features. See the <a class="reference internal" href="refman.html"><span class="doc">pyFormex reference manual</span></a> for a full description.</p>
+<p>Here is an example that is slightly more complex than the previous (dialog5):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Simple input dialog</span>
+
+<span class="sd">A modeless dialog with the same input items as dialog3</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="k">def</span> <span class="nf">create_grid</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">nrows</span><span class="p">,</span> <span class="n">ncols</span><span class="p">,</span> <span class="n">shear</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">custom</span><span class="p">):</span>
+    <span class="n">F</span> <span class="o">=</span> <span class="n">Formex</span><span class="p">(</span><span class="n">base</span><span class="p">)</span><span class="o">.</span><span class="n">replic2</span><span class="p">(</span><span class="n">ncols</span><span class="p">,</span> <span class="n">nrows</span><span class="p">)</span><span class="o">.</span><span class="n">shear</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">shear</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">color</span> <span class="o">==</span> <span class="s1">&#39;index&#39;</span><span class="p">:</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="n">arange</span><span class="p">(</span><span class="n">nrows</span><span class="o">*</span><span class="n">ncols</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">color</span> <span class="o">==</span> <span class="s1">&#39;custom&#39;</span><span class="p">:</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="n">custom</span>
+    <span class="n">F</span><span class="o">.</span><span class="n">attrib</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">F</span>
+
+<span class="k">def</span> <span class="nf">show</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">dialog</span><span class="o">.</span><span class="n">validate</span><span class="p">():</span>
+        <span class="n">F</span> <span class="o">=</span> <span class="n">create_grid</span><span class="p">(</span><span class="o">**</span><span class="n">dialog</span><span class="o">.</span><span class="n">results</span><span class="p">)</span>
+        <span class="n">clear</span><span class="p">()</span>
+        <span class="n">draw</span><span class="p">(</span><span class="n">F</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">close</span><span class="p">():</span>
+    <span class="n">dialog</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+
+<span class="n">flat</span><span class="p">()</span>
+<span class="n">dialog</span> <span class="o">=</span> <span class="n">Dialog</span><span class="p">([</span>
+    <span class="n">_I</span><span class="p">(</span><span class="s1">&#39;base&#39;</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;4:0123&#39;</span><span class="p">,</span> <span class="s1">&#39;3:016&#39;</span><span class="p">]),</span>
+    <span class="n">_I</span><span class="p">(</span><span class="s1">&#39;nrows&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s1">&#39;Number of rows&#39;</span><span class="p">),</span>
+    <span class="n">_I</span><span class="p">(</span><span class="s1">&#39;ncols&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s1">&#39;Number of columns&#39;</span><span class="p">),</span>
+    <span class="n">_I</span><span class="p">(</span><span class="s1">&#39;shear&#39;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s1">&#39;Shear dx/dy&#39;</span><span class="p">),</span>
+    <span class="n">_I</span><span class="p">(</span><span class="s1">&#39;color&#39;</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">,</span> <span class="s1">&#39;random&#39;</span><span class="p">,</span> <span class="s1">&#39;custom&#39;</span><span class="p">],</span> <span class="n">text</span><span class="o">=</span><span class="s1">&#39;Color&#39;</span><span class="p">),</span>
+    <span class="n">_I</span><span class="p">(</span><span class="s1">&#39;custom&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">itemtype</span><span class="o">=</span><span class="s1">&#39;color&#39;</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s1">&#39;Custom color&#39;</span><span class="p">),</span>
+    <span class="p">],</span> <span class="n">actions</span><span class="o">=</span><span class="p">[(</span><span class="s1">&#39;Close&#39;</span><span class="p">,</span> <span class="n">close</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;Show&#39;</span><span class="p">,</span> <span class="n">show</span><span class="p">)])</span>
+<span class="n">dialog</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">children</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="input-items">
+<span id="sec-input-items"></span><h2>Input Items<a class="headerlink" href="#input-items" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="geometry.html" title="Modeling Geometry with pyFormex"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="scripting.html" title="pyFormex scripting"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="user-guide.html" >pyFormex user guide</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">Input Dialogs</a></li--> 
+      </ul>
+    </div>
+    <div class="footer">
+    <span class="left">
+        &copy; Copyright 2004-2023, Benedict Verhegghe.
+    </span>
+      Last updated on Mar 27, 2023.
+    <span class="right">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.4.3.
+    </span>
+    </div>
+  </body>
+</html>

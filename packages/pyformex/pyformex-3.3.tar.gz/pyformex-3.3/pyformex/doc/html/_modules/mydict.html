@@ -1,0 +1,548 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!--
+##
+##  This file is part of the pyFormex project.
+##  pyFormex is a tool for generating, manipulating and transforming 3D
+##  geometrical models by sequences of mathematical operations.
+##  Home page: http://pyformex.org
+##  Project page:  http://savannah.nongnu.org/projects/pyformex/
+##  Copyright (C) Benedict Verhegghe (benedict.verhegghe@ugent.be)
+##  Distributed under the GNU General Public License version 3 or later.
+##
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see http://www.gnu.org/licenses/.
+##
+-->
+    <title>mydict &#8212; pyFormex 3.3 documentation</title>
+
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pyformex.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+<link rel="icon" type="image/png" href="../_static/pyformex_fav.png" />
+
+  </head><body>
+
+<div class="header">
+  <a href="http://pyformex.org">
+  <img src="../_static/scallop_dome_small.png" alt="scallop dome" border="0" hspace="20" vspace="12" align="left" />
+  <img src="../_static/pyformex-logo-2.png" alt="pyformex logo" border="0" hspace="10" vspace="8" align="left" />
+  </a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">mydict</a></li--> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<!-- PYFORMEX_SIDEBAR_LOGO -->
+<!-- PYFORMEX_WEBSITE_SIDEBAR_TOP -->
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for mydict</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1">##</span>
+<span class="c1">##  SPDX-FileCopyrightText: © 2007-2023 Benedict Verhegghe &lt;bverheg@gmail.com&gt;</span>
+<span class="c1">##  SPDX-License-Identifier: GPL-3.0-or-later</span>
+<span class="c1">##</span>
+<span class="c1">##  This file is part of pyFormex 3.3  (Sun Mar 26 20:16:15 CEST 2023)</span>
+<span class="c1">##  pyFormex is a tool for generating, manipulating and transforming 3D</span>
+<span class="c1">##  geometrical models by sequences of mathematical operations.</span>
+<span class="c1">##  Home page: https://pyformex.org</span>
+<span class="c1">##  Project page: https://savannah.nongnu.org/projects/pyformex/</span>
+<span class="c1">##  Development: https://gitlab.com/bverheg/pyformex</span>
+<span class="c1">##  Distributed under the GNU General Public License version 3 or later.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is free software: you can redistribute it and/or modify</span>
+<span class="c1">##  it under the terms of the GNU General Public License as published by</span>
+<span class="c1">##  the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1">##  (at your option) any later version.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is distributed in the hope that it will be useful,</span>
+<span class="c1">##  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1">##  GNU General Public License for more details.</span>
+<span class="c1">##</span>
+<span class="c1">##  You should have received a copy of the GNU General Public License</span>
+<span class="c1">##  along with this program.  If not, see http://www.gnu.org/licenses/.</span>
+<span class="c1">##</span>
+
+<span class="sd">&quot;&quot;&quot;Extensions to Python&#39;s built-in dict class.</span>
+
+<span class="sd">Dict is a dictionary with default values and alternate attribute syntax.</span>
+<span class="sd">CDict is a Dict with lookup cascading into the next level Dict&#39;s</span>
+<span class="sd">if the key is not found in the CDict itself.</span>
+
+<span class="sd">The classes have been largely reimplemented in 2019, because many of the</span>
+<span class="sd">reasons for choosing the old implementation are not valid anymore because</span>
+<span class="sd">of improved features of Python. And the migration to Python3 showed the</span>
+<span class="sd">shortcomings of an implementation that was too hackishly meddling with</span>
+<span class="sd">Python internals. Now we have a much cleaner and simpler implementation</span>
+<span class="sd">while still preserving the intended functionality.</span>
+
+<span class="sd">(C) 2005,2008,2019 Benedict Verhegghe</span>
+<span class="sd">Distributed under the GNU GPL version 3 or later</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Mapping</span>
+
+
+<div class="viewcode-block" id="formatDict"><a class="viewcode-back" href="../ref/mydict.html#mydict.formatDict">[docs]</a><span class="k">def</span> <span class="nf">formatDict</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Format a dict in nicely formatted Python source representation.</span>
+
+<span class="sd">    Each (key,value) pair is formatted on a line of the form::</span>
+
+<span class="sd">       key = value</span>
+
+<span class="sd">    If all the keys are strings containing only characters that are</span>
+<span class="sd">    allowed in Python variable names, the resulting text is a legal</span>
+<span class="sd">    Python script to define the items in the dict. It can be stored</span>
+<span class="sd">    on a file and executed.</span>
+
+<span class="sd">    &gt;&gt;&gt; d = {&#39;y&#39;:&#39;s&#39;, &#39;x&#39;:&#39;t&#39;}</span>
+<span class="sd">    &gt;&gt;&gt; D = {&#39;a&#39;:0, &#39;d&#39;:d, &#39;b&#39;:1}</span>
+<span class="sd">    &gt;&gt;&gt; print(formatDict(D))</span>
+<span class="sd">    {</span>
+<span class="sd">        &#39;a&#39;: 0,</span>
+<span class="sd">        &#39;d&#39;: {&#39;y&#39;: &#39;s&#39;, &#39;x&#39;: &#39;t&#39;},</span>
+<span class="sd">        &#39;b&#39;: 1,</span>
+<span class="sd">        }</span>
+<span class="sd">    &gt;&gt;&gt; D = {&#39;a&#39;:0, &#39;d&#39;:Dict(d), &#39;b&#39;:1}</span>
+<span class="sd">    &gt;&gt;&gt; print(formatDict(D))</span>
+<span class="sd">    {</span>
+<span class="sd">        &#39;a&#39;: 0,</span>
+<span class="sd">        &#39;d&#39;: {</span>
+<span class="sd">            &#39;y&#39;: &#39;s&#39;,</span>
+<span class="sd">            &#39;x&#39;: &#39;t&#39;,</span>
+<span class="sd">        },</span>
+<span class="sd">        &#39;b&#39;: 1,</span>
+<span class="sd">    }</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">default_indent</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;{</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39; &#39;</span> <span class="o">*</span> <span class="n">indent</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">&#39;: &quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">Dict</span><span class="p">):</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="n">formatDict</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">indent</span> <span class="o">+</span> <span class="mi">4</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">v</span><span class="si">!r}</span><span class="s2">&quot;</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;,</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39; &#39;</span> <span class="o">*</span> <span class="p">(</span><span class="n">indent</span><span class="o">-</span><span class="mi">4</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;}&#39;</span>
+    <span class="k">return</span> <span class="n">s</span></div>
+
+
+<div class="viewcode-block" id="Dict"><a class="viewcode-back" href="../ref/mydict.html#mydict.Dict">[docs]</a><span class="k">class</span> <span class="nc">Dict</span><span class="p">(</span><span class="n">defaultdict</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;A dictionary with default lookup and attribute and call syntax.</span>
+
+<span class="sd">    :class:`Dict` is a dictionary class providing extended functionality</span>
+<span class="sd">    over the builtin Python :class:`dict` class:</span>
+
+<span class="sd">    - Items can not only be accessed with dictionary key syntax, but also</span>
+<span class="sd">      with attribute and call syntax. Thus, if ``C`` is a :class:`Dict`,</span>
+<span class="sd">      an item with key &#39;foo&#39; can be obtained in any of the following</span>
+<span class="sd">      equivalent ``C[&#39;foo&#39;]``, ``C.foo``, ``C(&#39;foo&#39;)``. The attribute syntax</span>
+<span class="sd">      can of course only be used if the key is a string that is valid as</span>
+<span class="sd">      Python variable.</span>
+<span class="sd">      The first two can also be used to set the value in the Dict:</span>
+<span class="sd">      ``C[&#39;foo&#39;] = bar``, ``C.foo = bar``. The call syntax does not</span>
+<span class="sd">      allow setting a value. See however the :class:`Attributes` subclass</span>
+<span class="sd">      for a dict that does allow ``C(foo=bar)`` to set values.</span>
+
+<span class="sd">    - A default_factory function can be provided to handle missing keys.</span>
+<span class="sd">      The function is then passed the missing key and whatever it returns</span>
+<span class="sd">      is returned as the value for that key. Note that this is different</span>
+<span class="sd">      from Python&#39;s :class:`defaultdict`, where the default_factory does</span>
+<span class="sd">      not take an argument and can only return a constant value.</span>
+<span class="sd">      Without default_factory, the Dict will still produce a KeyError on</span>
+<span class="sd">      missing keys.</span>
+
+<span class="sd">    - Because the Dict accepts call syntax to lookup keys, another Dict</span>
+<span class="sd">      instance can perfectly well be used as default_factory. You can even</span>
+<span class="sd">      create a chain of Dict&#39;s to lookup missing keys.</span>
+
+<span class="sd">    - An example default_factory is provided which returns None for any</span>
+<span class="sd">      key. Using this default_factory will make the Dict accept any key</span>
+<span class="sd">      and just return None for the nonexistent keys.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    default_factory: callable, optional</span>
+<span class="sd">        If provided, missing keys will be looked up by a call to the</span>
+<span class="sd">        default_factory.</span>
+<span class="sd">    args, kargs: other arguments</span>
+<span class="sd">        Any other arguments are passed to the dict initialization.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Watch for this syntax quirks when initializing a Dict:</span>
+
+<span class="sd">    - ``Dict()``: an empty Dict without default_factory</span>
+<span class="sd">    - ``Dict(callable)``: an empty Dict with callable as default_factory</span>
+<span class="sd">    - ``Dict(noncallable)``: a Dict without default_factory initialized with</span>
+<span class="sd">      data fron noncallable (e.g. a dict or a sequence of tuples)</span>
+<span class="sd">    - ``Dict(callable,noncallable)``: a Dict with callable as default_factory</span>
+<span class="sd">      and initialized with data fron noncallable.</span>
+
+<span class="sd">    And since a Dict is callable, but a dict is not, Dict(some_dict) will</span>
+<span class="sd">    initialize the data in the Dict, while Dict(some_Dict) will use</span>
+<span class="sd">    ``some_dict`` as defaults, but stay empty itself.</span>
+
+<span class="sd">    If a default_factory is provided, all lookup mechanisms (key, attribute,</span>
+<span class="sd">    call) will use it for missing keys. The proper way to test whether a key</span>
+<span class="sd">    actually exists in the Dict (and not in the default_factory) is using the</span>
+<span class="sd">    &#39;key in Dict&#39; operation.</span>
+
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; A = Dict()</span>
+<span class="sd">    &gt;&gt;&gt; A</span>
+<span class="sd">    Dict({})</span>
+<span class="sd">    &gt;&gt;&gt; A[&#39;a&#39;] = 0</span>
+<span class="sd">    &gt;&gt;&gt; A.b = 1</span>
+<span class="sd">    &gt;&gt;&gt; # A(c=2) # not allowed</span>
+<span class="sd">    &gt;&gt;&gt; A</span>
+<span class="sd">    Dict({&#39;a&#39;: 0, &#39;b&#39;: 1})</span>
+<span class="sd">    &gt;&gt;&gt; sorted(A.keys())</span>
+<span class="sd">    [&#39;a&#39;, &#39;b&#39;]</span>
+<span class="sd">    &gt;&gt;&gt; &#39;c&#39; in A</span>
+<span class="sd">    False</span>
+<span class="sd">    &gt;&gt;&gt; A.default_factory is None   # A does have a default_factory attribute</span>
+<span class="sd">    True</span>
+
+<span class="sd">    Now a Dict with a default_factory.</span>
+
+<span class="sd">    &gt;&gt;&gt; B = Dict(Dict.returnNone,A)   # The dict is initialized with the values of A</span>
+<span class="sd">    &gt;&gt;&gt; B</span>
+<span class="sd">    Dict({&#39;a&#39;: 0, &#39;b&#39;: 1})</span>
+<span class="sd">    &gt;&gt;&gt; sorted(B.keys())</span>
+<span class="sd">    [&#39;a&#39;, &#39;b&#39;]</span>
+<span class="sd">    &gt;&gt;&gt; &#39;c&#39; in B</span>
+<span class="sd">    False</span>
+<span class="sd">    &gt;&gt;&gt; B[&#39;c&#39;] is None   # lookup nonexistent key returns None</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; B.c is None</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; B(&#39;c&#39;) is None</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; B.get(&#39;c&#39;,&#39;Surprise?&#39;)  # get() does not use default_factory!</span>
+<span class="sd">    &#39;Surprise?&#39;</span>
+
+<span class="sd">    Using another Dict as default_factory</span>
+
+<span class="sd">    &gt;&gt;&gt; C = Dict(A,{&#39;b&#39;:5, &#39;c&#39;:6})   # Now A is used for missing keys</span>
+<span class="sd">    &gt;&gt;&gt; C</span>
+<span class="sd">    Dict({&#39;b&#39;: 5, &#39;c&#39;: 6})</span>
+<span class="sd">    &gt;&gt;&gt; sorted(C.keys())</span>
+<span class="sd">    [&#39;b&#39;, &#39;c&#39;]</span>
+<span class="sd">    &gt;&gt;&gt; &#39;a&#39; in C, &#39;b&#39; in C, &#39;c&#39; in C        # &#39;a&#39; is not in C</span>
+<span class="sd">    (False, True, True)</span>
+<span class="sd">    &gt;&gt;&gt; C[&#39;a&#39;], C[&#39;b&#39;], C[&#39;c&#39;]         # but still returns a value</span>
+<span class="sd">    (0, 5, 6)</span>
+<span class="sd">    &gt;&gt;&gt; C(&#39;a&#39;), C(&#39;b&#39;), C(&#39;c&#39;)         # also with call syntax</span>
+<span class="sd">    (0, 5, 6)</span>
+<span class="sd">    &gt;&gt;&gt; C.a, C.b, C.c                  # or as attributes</span>
+<span class="sd">    (0, 5, 6)</span>
+<span class="sd">    &gt;&gt;&gt; hasattr(C,&#39;a&#39;)           # hasattr uses default_factory</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; getattr(C,&#39;a&#39;,None)      # getattr too</span>
+<span class="sd">    0</span>
+<span class="sd">    &gt;&gt;&gt; &#39;a&#39; in C                 # the proper way to test if key exists in C</span>
+<span class="sd">    False</span>
+<span class="sd">    &gt;&gt;&gt; C[&#39;b&#39;], C.__missing__(&#39;b&#39;)  # masked entries of A can also be accessed</span>
+<span class="sd">    (5, 1)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Dict.returnNone"><a class="viewcode-back" href="../ref/mydict.html#mydict.Dict.returnNone">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">returnNone</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Always returns None.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default_factory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a new Dict instance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">default_factory</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">callable</span><span class="p">(</span><span class="n">default_factory</span><span class="p">):</span>
+            <span class="k">pass</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="n">default_factory</span><span class="p">]</span>
+            <span class="n">default_factory</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">defaultdict</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default_factory</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__missing__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;What to do on a missing key</span>
+
+<span class="sd">        If the Dict has a default_factory, that is called with the key</span>
+<span class="sd">        as argument and the result returned.</span>
+<span class="sd">        Else, a KeyError for the given key is raised.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_factory</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_factory</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Format the Dict as a string.</span>
+
+<span class="sd">        We use the format Dict({}), so that the string is a valid Python</span>
+<span class="sd">        representation of the Dict.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="nb">dict</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Nicely format the Dict as a string.</span>
+
+<span class="sd">        Formats the dict in a human readable way.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">formatDict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Make the dict callable</span>
+
+<span class="sd">        This makes a Dict usable as default_factory in another Dict.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Allows items to be addressed as self.key.</span>
+
+<span class="sd">        This makes self.key equivalent to self[&#39;key&#39;], except if key</span>
+<span class="sd">        is an attribute of the builtin type &#39;dict&#39;: then we return that</span>
+<span class="sd">        attribute instead, so that the &#39;dict&#39; methods keep their binding.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">dict</span><span class="o">.</span><span class="fm">__getattribute__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">e</span>
+
+    <span class="k">def</span> <span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Allows items to be set as self.key=value.</span>
+
+<span class="sd">        &gt;&gt;&gt; D = Dict()</span>
+<span class="sd">        &gt;&gt;&gt; D.a = 5</span>
+<span class="sd">        &gt;&gt;&gt; D</span>
+<span class="sd">        Dict({&#39;a&#39;: 5})</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="fm">__delattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Allow items to be deleted using del self.key.</span>
+
+<span class="sd">        &gt;&gt;&gt; D = Dict(a=5)</span>
+<span class="sd">        &gt;&gt;&gt; del D.a</span>
+<span class="sd">        &gt;&gt;&gt; D</span>
+<span class="sd">        Dict({})</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+<div class="viewcode-block" id="Dict.update"><a class="viewcode-back" href="../ref/mydict.html#mydict.Dict.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">{},</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add a dictionary to the Dict object.</span>
+
+<span class="sd">        The data can be a dict or Dict type object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+        <span class="nb">dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kargs</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="CDict"><a class="viewcode-back" href="../ref/mydict.html#mydict.CDict">[docs]</a><span class="k">class</span> <span class="nc">CDict</span><span class="p">(</span><span class="n">Dict</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;A cascading Dict: missing keys are looked up in all dict values.</span>
+
+<span class="sd">    This is a :class:`Dict` subclass with an extra lookup mechanism for</span>
+<span class="sd">    missing keys: any value in the Dict that implements the Mapping</span>
+<span class="sd">    mechanism (such as dict, Dict and their subclasses) will be tested</span>
+<span class="sd">    for the missing key, and the first one found will be returned.</span>
+<span class="sd">    If there is no Mapping value providing the key, and a default_factory</span>
+<span class="sd">    exists, the key will finally be looked up in the default_factory</span>
+<span class="sd">    as well.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    default_factory: callable, optional</span>
+<span class="sd">        If provided, missing keys will be looked up by a call to the</span>
+<span class="sd">        default_factory.</span>
+<span class="sd">    args, kargs: other arguments</span>
+<span class="sd">        Any other arguments are passed to the dict initialization.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    If there are multiple Mapping values in the CDict containing the</span>
+<span class="sd">    missing key, it is undefined which one will be used to return a</span>
+<span class="sd">    value. CDict&#39;s are therefore usually used where the Mapping values</span>
+<span class="sd">    have themselves separate sets of keys.</span>
+
+<span class="sd">    If any of the values in the CDict is also a CDict, the lookup of missing</span>
+<span class="sd">    keys will continue in the Mapping values of that CDict. This results</span>
+<span class="sd">    in a cascading lookup as long as the Mapping types in the values as</span>
+<span class="sd">    CDict (and not Dict or dict). This is another way of creating chained</span>
+<span class="sd">    lookup mechanisms (besides using a Dict as default_factory).</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; C = CDict(a=0, d={&#39;a&#39;:1, &#39;b&#39;:2})</span>
+<span class="sd">    &gt;&gt;&gt; C</span>
+<span class="sd">    CDict({&#39;a&#39;: 0, &#39;d&#39;: {&#39;a&#39;: 1, &#39;b&#39;: 2}})</span>
+<span class="sd">    &gt;&gt;&gt; C[&#39;a&#39;]</span>
+<span class="sd">    0</span>
+<span class="sd">    &gt;&gt;&gt; C[&#39;d&#39;]</span>
+<span class="sd">    {&#39;a&#39;: 1, &#39;b&#39;: 2}</span>
+<span class="sd">    &gt;&gt;&gt; C[&#39;b&#39;]           # looked up in C[&#39;d&#39;]</span>
+<span class="sd">    2</span>
+<span class="sd">    &gt;&gt;&gt; &#39;b&#39; in C</span>
+<span class="sd">    False</span>
+
+<span class="sd">    Now a CDict with a default_factory.</span>
+
+<span class="sd">    &gt;&gt;&gt; C = CDict(CDict.returnNone,a=0, d={&#39;a&#39;:1, &#39;b&#39;:2})</span>
+<span class="sd">    &gt;&gt;&gt; C</span>
+<span class="sd">    CDict({&#39;a&#39;: 0, &#39;d&#39;: {&#39;a&#39;: 1, &#39;b&#39;: 2}})</span>
+<span class="sd">    &gt;&gt;&gt; &#39;c&#39; in C, C[&#39;c&#39;]      # No &#39;c&#39;, but returns None</span>
+<span class="sd">    (False, None)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default_factory</span><span class="o">=</span><span class="n">Dict</span><span class="o">.</span><span class="n">returnNone</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">default_factory</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">callable</span><span class="p">(</span><span class="n">default_factory</span><span class="p">):</span>
+            <span class="k">pass</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="n">default_factory</span><span class="p">]</span>
+            <span class="n">default_factory</span> <span class="o">=</span> <span class="n">Dict</span><span class="o">.</span><span class="n">returnNone</span>
+        <span class="n">Dict</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default_factory</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__missing__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="c1"># First try to cascade</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">CDict</span><span class="p">):</span>
+                <span class="c1"># Cascade through by just trying to lookup and accept if not None</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">key</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">res</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="n">res</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                    <span class="k">continue</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">Mapping</span><span class="p">):</span>
+                <span class="c1"># Any other mapping: accept if it has the key itself</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span>
+                    <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">key</span><span class="p">]</span>
+        <span class="c1"># Then try the default_factory</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_factory</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_factory</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">res</span>
+        <span class="c1"># Out of options</span>
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Format the CDict as a string.</span>
+
+<span class="sd">        We use the format Dict({}), so that the string is a valid Python</span>
+<span class="sd">        representation of the Dict.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;CDict(</span><span class="si">{</span><span class="nb">dict</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span></div>
+
+
+<span class="c1"># for compatibility (reading .pyf files)</span>
+
+<span class="n">returnNone</span> <span class="o">=</span> <span class="n">Dict</span><span class="o">.</span><span class="n">returnNone</span>
+
+
+<span class="k">def</span> <span class="nf">__newobj__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">doctest</span>
+    <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">()</span>
+
+<span class="c1"># End</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">mydict</a></li--> 
+      </ul>
+    </div>
+    <div class="footer">
+    <span class="left">
+        &copy; Copyright 2004-2023, Benedict Verhegghe.
+    </span>
+      Last updated on Mar 27, 2023.
+    <span class="right">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.4.3.
+    </span>
+    </div>
+  </body>
+</html>

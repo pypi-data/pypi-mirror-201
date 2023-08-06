@@ -1,0 +1,722 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!--
+##
+##  This file is part of the pyFormex project.
+##  pyFormex is a tool for generating, manipulating and transforming 3D
+##  geometrical models by sequences of mathematical operations.
+##  Home page: http://pyformex.org
+##  Project page:  http://savannah.nongnu.org/projects/pyformex/
+##  Copyright (C) Benedict Verhegghe (benedict.verhegghe@ugent.be)
+##  Distributed under the GNU General Public License version 3 or later.
+##
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see http://www.gnu.org/licenses/.
+##
+-->
+    <title>adjacency &#8212; pyFormex 3.3 documentation</title>
+
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pyformex.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+<link rel="icon" type="image/png" href="../_static/pyformex_fav.png" />
+
+  </head><body>
+
+<div class="header">
+  <a href="http://pyformex.org">
+  <img src="../_static/scallop_dome_small.png" alt="scallop dome" border="0" hspace="20" vspace="12" align="left" />
+  <img src="../_static/pyformex-logo-2.png" alt="pyformex logo" border="0" hspace="10" vspace="8" align="left" />
+  </a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">adjacency</a></li--> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<!-- PYFORMEX_SIDEBAR_LOGO -->
+<!-- PYFORMEX_WEBSITE_SIDEBAR_TOP -->
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for adjacency</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1">##</span>
+<span class="c1">##  SPDX-FileCopyrightText: © 2007-2023 Benedict Verhegghe &lt;bverheg@gmail.com&gt;</span>
+<span class="c1">##  SPDX-License-Identifier: GPL-3.0-or-later</span>
+<span class="c1">##</span>
+<span class="c1">##  This file is part of pyFormex 3.3  (Sun Mar 26 20:16:15 CEST 2023)</span>
+<span class="c1">##  pyFormex is a tool for generating, manipulating and transforming 3D</span>
+<span class="c1">##  geometrical models by sequences of mathematical operations.</span>
+<span class="c1">##  Home page: https://pyformex.org</span>
+<span class="c1">##  Project page: https://savannah.nongnu.org/projects/pyformex/</span>
+<span class="c1">##  Development: https://gitlab.com/bverheg/pyformex</span>
+<span class="c1">##  Distributed under the GNU General Public License version 3 or later.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is free software: you can redistribute it and/or modify</span>
+<span class="c1">##  it under the terms of the GNU General Public License as published by</span>
+<span class="c1">##  the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1">##  (at your option) any later version.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is distributed in the hope that it will be useful,</span>
+<span class="c1">##  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1">##  GNU General Public License for more details.</span>
+<span class="c1">##</span>
+<span class="c1">##  You should have received a copy of the GNU General Public License</span>
+<span class="c1">##  along with this program.  If not, see http://www.gnu.org/licenses/.</span>
+<span class="c1">##</span>
+
+<span class="sd">&quot;&quot;&quot;A class for storing and handling adjacency tables.</span>
+
+<span class="sd">This module defines a specialized array class for representing adjacency</span>
+<span class="sd">of items of a single type. This is e.g. used in mesh models, to store</span>
+<span class="sd">the adjacent elements.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">arraytools</span> <span class="k">as</span> <span class="n">at</span>
+
+
+<span class="c1">############################################################################</span>
+<span class="c1">##</span>
+<span class="c1">##   class Adjacency</span>
+<span class="c1">##</span>
+<span class="c1">####################</span>
+<span class="c1">#</span>
+
+<span class="c1"># TODO : This could be subclassed from Varray. But our preliminary</span>
+<span class="c1">#        test show that it is slower and uses more memory. Perhaps</span>
+<span class="c1">#        because in practical meshes the number of adjacent elements</span>
+<span class="c1">#        is fairly constant, so using a full array is not much of a loss.</span>
+<span class="c1">#        Might be different in beam type structures?</span>
+<span class="c1">#</span>
+
+<span class="c1"># TODO: WE SHOULD ADD A CONSISTENCY CHECK THAT WE HAVE BIDIRECTIONAL</span>
+<span class="c1">#       CONNECTIONS: if row a has a value b, row b should have a value a</span>
+<span class="c1">#</span>
+
+<div class="viewcode-block" id="Adjacency"><a class="viewcode-back" href="../ref/adjacency.html#adjacency.Adjacency">[docs]</a><span class="k">class</span> <span class="nc">Adjacency</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+    <span class="c1">#</span>
+    <span class="c1"># :DEV</span>
+    <span class="c1"># Because we have a __new__ constructor and no __init__,</span>
+    <span class="c1"># we have to put the signature of the object creation explicitely</span>
+    <span class="c1"># in the first line of the docstring.</span>
+    <span class="c1">#</span>
+    <span class="sd">&quot;&quot;&quot; Adjacency(data=[],dtyp=None,copy=False,normalize=True)</span>
+
+<span class="sd">    A class for storing and handling adjacency tables.</span>
+
+<span class="sd">    An adjacency table defines a neighbouring relation between elements of</span>
+<span class="sd">    a single collection. The nature of the relation is not important, but</span>
+<span class="sd">    should be a binary relation: two elements are either related or they are</span>
+<span class="sd">    not.</span>
+
+<span class="sd">    Typical applications in pyFormex are the adjacency tables for storing</span>
+<span class="sd">    elements connected by a node, or by an edge, or by a node but not by an</span>
+<span class="sd">    edge, etcetera.</span>
+
+<span class="sd">    Conceptually the adjacency table corresponds with a graph. In graph</span>
+<span class="sd">    theory however the data are usually stored as a set of tuples `(a,b)`</span>
+<span class="sd">    indicating a connection between the elements `a` and `b`.</span>
+<span class="sd">    In pyFormex elements are numbered consecutively from 0 to nelems-1, where</span>
+<span class="sd">    nelems is the number of elements. If the user wants another numbering,</span>
+<span class="sd">    he can always keep an array with the actual numbers himself.</span>
+<span class="sd">    Connections between elements are stored in an efficient two-dimensional</span>
+<span class="sd">    array, holding a row for each element. This row contains the numbers</span>
+<span class="sd">    of the connected elements.</span>
+<span class="sd">    Because the number of connections can be different for each</span>
+<span class="sd">    element, the rows are padded with an invalid elements number (-1).</span>
+
+<span class="sd">    A normalized Adjacency is one where all rows do not contain duplicate</span>
+<span class="sd">    nonnegative entries and are sorted in ascending order and where no column</span>
+<span class="sd">    contains only -1 values.</span>
+<span class="sd">    Also, since the adjacency is defined within a single collection, no row</span>
+<span class="sd">    should contain a value higher than the maximum row index.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data: int :term:`array_like`</span>
+<span class="sd">        Data to initialize the Connectivity. The data should be 2-dim with</span>
+<span class="sd">        shape ``(nelems,ncon)``, where ``nelems`` is the number of elements and</span>
+<span class="sd">        ``ncon`` is the maximum number of connections per element.</span>
+<span class="sd">    dtyp: float datatype, optional</span>
+<span class="sd">        Can be provided to force a specific int data type. If not, the</span>
+<span class="sd">        datatype of ``data`` is used.</span>
+<span class="sd">    copy: bool, optional</span>
+<span class="sd">        If True, the data are copied. The default setting will try to use</span>
+<span class="sd">        the original data if possible, e.g. if ``data`` is a correctly shaped</span>
+<span class="sd">        and typed :class:`numpy.ndarray`.</span>
+<span class="sd">    normalize: bool, optional</span>
+<span class="sd">        If True (default) the Adjacency will be normalized at creation time.</span>
+<span class="sd">    allow_self: bool, optional</span>
+<span class="sd">        If True, connections of elements with itself are allowed. The default</span>
+<span class="sd">        (False) will remove self-connections when the table is normalized.</span>
+
+<span class="sd">    Warning</span>
+<span class="sd">    -------</span>
+<span class="sd">    The ``allow_self`` parameter is currently inactive.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; A = Adjacency([[1,2,-1],</span>
+<span class="sd">    ...                [3,2,0],</span>
+<span class="sd">    ...                [1,-1,3],</span>
+<span class="sd">    ...                [1,2,-1],</span>
+<span class="sd">    ...                [-1,-1,-1]])</span>
+<span class="sd">    &gt;&gt;&gt; print(A)</span>
+<span class="sd">    [[-1  1  2]</span>
+<span class="sd">     [ 0  2  3]</span>
+<span class="sd">     [-1  1  3]</span>
+<span class="sd">     [-1  1  2]</span>
+<span class="sd">     [-1 -1 -1]]</span>
+<span class="sd">    &gt;&gt;&gt; A.nelems()</span>
+<span class="sd">    5</span>
+<span class="sd">    &gt;&gt;&gt; A.maxcon()</span>
+<span class="sd">    3</span>
+<span class="sd">    &gt;&gt;&gt; Adjacency([[]])</span>
+<span class="sd">    Adjacency([], shape=(1, 0))</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="n">clas</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">[],</span> <span class="n">dtyp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">allow_self</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">bidirectional</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">check_max</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a new Adjacency table.&quot;&quot;&quot;</span>
+
+        <span class="c1"># Turn the data into an array, and copy if requested</span>
+        <span class="n">ar</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtyp</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="n">copy</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ar</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expected 2-dim data&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Make sure dtype is an int type</span>
+        <span class="k">if</span> <span class="n">ar</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">kind</span> <span class="o">!=</span> <span class="s1">&#39;i&#39;</span><span class="p">:</span>
+            <span class="n">ar</span> <span class="o">=</span> <span class="n">ar</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">at</span><span class="o">.</span><span class="n">Int</span><span class="p">)</span>
+
+        <span class="c1"># Check values</span>
+        <span class="k">if</span> <span class="n">ar</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">maxval</span> <span class="o">=</span> <span class="n">ar</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">check_max</span> <span class="ow">and</span> <span class="n">maxval</span> <span class="o">&gt;</span> <span class="n">ar</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Too large element number (</span><span class="si">{</span><span class="n">maxval</span><span class="si">}</span><span class="s2">)&quot;</span>
+                                 <span class="sa">f</span><span class="s2">&quot; for number of rows(</span><span class="si">{</span><span class="n">ar</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">maxval</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+        <span class="k">if</span> <span class="n">normalize</span><span class="p">:</span>
+            <span class="n">ar</span> <span class="o">=</span> <span class="n">Adjacency</span><span class="o">.</span><span class="n">_normalize</span><span class="p">(</span><span class="n">ar</span><span class="p">)</span>
+
+        <span class="c1"># Transform &#39;subarr&#39; from an ndarray to our new subclass.</span>
+        <span class="n">ar</span> <span class="o">=</span> <span class="n">ar</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">clas</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">ar</span>
+
+
+<div class="viewcode-block" id="Adjacency.nelems"><a class="viewcode-back" href="../ref/adjacency.html#adjacency.Adjacency.nelems">[docs]</a>    <span class="k">def</span> <span class="nf">nelems</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the number of elements in the Adjacency table.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="Adjacency.maxcon"><a class="viewcode-back" href="../ref/adjacency.html#adjacency.Adjacency.maxcon">[docs]</a>    <span class="k">def</span> <span class="nf">maxcon</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the maximum number of connections for any element.</span>
+
+<span class="sd">        This returns the row width of the Adjacency.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span></div>
+
+
+    <span class="c1">### normalization ###</span>
+    <span class="c1"># This is a static method because it is called in the __new__ constructor</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_normalize</span><span class="p">(</span><span class="n">adj</span><span class="p">,</span> <span class="n">remove_self</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">remove_dup</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Reduce an adjacency table.</span>
+
+<span class="sd">        An adjacency table is an integer array where each row lists the numbers</span>
+<span class="sd">        of the items that are connected to the item with number equal to the row</span>
+<span class="sd">        index. Rows are padded with -1 values to create rows of equal length.</span>
+
+<span class="sd">        A reduced adjacency table is one where each row:</span>
+
+<span class="sd">        - does not contain the row index itself,</span>
+<span class="sd">        - does not contain duplicate entries (other than -1),</span>
+<span class="sd">        - is sorted in ascending order,</span>
+
+<span class="sd">        and that has at least one row without -1 value.</span>
+
+<span class="sd">        Paramaters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        adj: int :term:`array_like`</span>
+<span class="sd">            A 2-dim integer array with values &gt;=0 or -1</span>
+<span class="sd">        remove_self: bool</span>
+<span class="sd">            If True (default), row entries equal to the row index are removed</span>
+<span class="sd">            (i.e. elements are not considered to be adjacent to themselves).</span>
+<span class="sd">        remove_dup: bool</span>
+<span class="sd">            If True (default), duplicate (non-negative) entries on a row are</span>
+<span class="sd">            removed (i.e. adjacency does not count the number of connections).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int array</span>
+<span class="sd">            An integer array with shape (adj.shape[0],maxc) with</span>
+<span class="sd">            maxc &lt;= adj.shape[1], where row `i` retains the unique non-negative</span>
+<span class="sd">            numbers of the original array except the value `i`, and is possibly</span>
+<span class="sd">            padded with -1 values. The actual array class will be the same as</span>
+<span class="sd">            the input.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; a = np.array([[ 0,  0,  0,  1,  2,  5],</span>
+<span class="sd">        ...               [-1,  0,  1, -1,  1,  3],</span>
+<span class="sd">        ...               [-1, -1,  0, -1, -1,  2],</span>
+<span class="sd">        ...               [-1, -1,  1, -1, -1,  3],</span>
+<span class="sd">        ...               [-1, -1, -1, -1, -1, -1],</span>
+<span class="sd">        ...               [-1, -1,  0, -1, -1,  5]])</span>
+<span class="sd">        &gt;&gt;&gt; Adjacency._normalize(a)</span>
+<span class="sd">        array([[ 1,  2,  5],</span>
+<span class="sd">               [-1,  0,  3],</span>
+<span class="sd">               [-1, -1,  0],</span>
+<span class="sd">               [-1, -1,  1],</span>
+<span class="sd">               [-1, -1, -1],</span>
+<span class="sd">               [-1, -1,  0]])</span>
+<span class="sd">        &gt;&gt;&gt; Adjacency._normalize(Adjacency(a))</span>
+<span class="sd">        Adjacency([[ 1,  2,  5],</span>
+<span class="sd">                   [-1,  0,  3],</span>
+<span class="sd">                   [-1, -1,  0],</span>
+<span class="sd">                   [-1, -1,  1],</span>
+<span class="sd">                   [-1, -1, -1],</span>
+<span class="sd">                   [-1, -1,  0]])</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">adj</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">checkArray</span><span class="p">(</span><span class="n">adj</span><span class="p">,</span> <span class="n">ndim</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">subok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">adj</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">remove_self</span><span class="p">:</span>
+                <span class="c1"># remove the item i from row i</span>
+                <span class="n">adj</span><span class="p">[</span><span class="n">adj</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="n">adj</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>        <span class="c1"># sort the rows</span>
+            <span class="k">if</span> <span class="n">remove_dup</span><span class="p">:</span>
+                <span class="c1"># remove duplicate items</span>
+                <span class="n">adj</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">adj</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">adj</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:])]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+                <span class="n">adj</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">maxc</span> <span class="o">=</span> <span class="n">adj</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># find maximum per column</span>
+            <span class="n">adj</span> <span class="o">=</span> <span class="n">adj</span><span class="p">[:,</span> <span class="n">maxc</span><span class="o">&gt;=</span><span class="mi">0</span><span class="p">]</span>   <span class="c1"># remove columns with only negative values</span>
+        <span class="k">return</span> <span class="n">adj</span>
+
+
+<div class="viewcode-block" id="Adjacency.sortRows"><a class="viewcode-back" href="../ref/adjacency.html#adjacency.Adjacency.sortRows">[docs]</a>    <span class="k">def</span> <span class="nf">sortRows</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sort an adjacency table.</span>
+
+<span class="sd">        This sorts the entries in each row of the adjacency table in</span>
+<span class="sd">        ascending order and removes all columns containing only -1 values.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Adjacency</span>
+<span class="sd">            An Adjacency with the same non-negative data but each row</span>
+<span class="sd">            sorted in ascending order, and no column with only negative</span>
+<span class="sd">            values. The number of rows is the same as the input, the number</span>
+<span class="sd">            of columns may be lower.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        normalize: also removes self and duplicate entries</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; a = Adjacency([[ 0,  2,  1, -1],</span>
+<span class="sd">        ...                [-1,  3,  1, -1],</span>
+<span class="sd">        ...                [ 3, -1,  0,  1],</span>
+<span class="sd">        ...                [-1, -1, -1, -1]])</span>
+<span class="sd">        &gt;&gt;&gt; a.sortRows()</span>
+<span class="sd">        Adjacency([[-1,  1,  2],</span>
+<span class="sd">                   [-1, -1,  3],</span>
+<span class="sd">                   [ 0,  1,  3],</span>
+<span class="sd">                   [-1, -1, -1]])</span>
+<span class="sd">        &gt;&gt;&gt; a = Adjacency([[ 0,  2,  1, -1],</span>
+<span class="sd">        ...                [-1,  3,  1, -1],</span>
+<span class="sd">        ...                [ 3, -1,  0,  1],</span>
+<span class="sd">        ...                [-1, -1, -1, -1]],normalize=False)</span>
+<span class="sd">        &gt;&gt;&gt; a.sortRows()</span>
+<span class="sd">        Adjacency([[ 0,  1,  2],</span>
+<span class="sd">                   [-1,  1,  3],</span>
+<span class="sd">                   [ 0,  1,  3],</span>
+<span class="sd">                   [-1, -1, -1]])</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Adjacency</span><span class="o">.</span><span class="n">_normalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">remove_self</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">remove_dup</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Adjacency.normalize"><a class="viewcode-back" href="../ref/adjacency.html#adjacency.Adjacency.normalize">[docs]</a>    <span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Normalize an adjacency table.</span>
+
+<span class="sd">        A normalized adjacency table is one where each row:</span>
+
+<span class="sd">        - does not contain the row index itself,</span>
+<span class="sd">        - does not contain duplicates,</span>
+<span class="sd">        - is sorted in ascending order,</span>
+
+<span class="sd">        and that has no columns with all -1 values.</span>
+
+<span class="sd">        By default, an Adjacency gets normalized when it is constructed.</span>
+<span class="sd">        Performing operations on an Adjacency may however leave it in</span>
+<span class="sd">        a non-normalized state. Calling this method will normalize it again.</span>
+<span class="sd">        Obviously this can also be obtained by creating a new Adjacency</span>
+<span class="sd">        with self as data.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Adjacency</span>
+<span class="sd">            An Adjacency object with shape (self.shape[0],maxc), with</span>
+<span class="sd">            ``maxc &lt;= adj.shape[1]``. A row ``i`` of the Adjacency contains</span>
+<span class="sd">            the unique non-negative numbers except the value ``i`` of the</span>
+<span class="sd">            same row ``i`` in the original, and is possibly padded with -1</span>
+<span class="sd">            values.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; a = Adjacency([[ 0,  0,  0,  1,  2,  5],</span>
+<span class="sd">        ...                [-1,  0,  1, -1,  1,  3],</span>
+<span class="sd">        ...                [-1, -1,  0, -1, -1,  2],</span>
+<span class="sd">        ...                [-1, -1,  1, -1, -1,  3],</span>
+<span class="sd">        ...                [-1, -1, -1, -1, -1, -1],</span>
+<span class="sd">        ...                [-1, -1,  0, -1, -1,  5]],normalize=False)</span>
+<span class="sd">        &gt;&gt;&gt; a.normalize()</span>
+<span class="sd">        Adjacency([[ 1,  2,  5],</span>
+<span class="sd">                   [-1,  0,  3],</span>
+<span class="sd">                   [-1, -1,  0],</span>
+<span class="sd">                   [-1, -1,  1],</span>
+<span class="sd">                   [-1, -1, -1],</span>
+<span class="sd">                   [-1, -1,  0]])</span>
+<span class="sd">        &gt;&gt;&gt; Adjacency(a)</span>
+<span class="sd">        Adjacency([[ 1,  2,  5],</span>
+<span class="sd">                   [-1,  0,  3],</span>
+<span class="sd">                   [-1, -1,  0],</span>
+<span class="sd">                   [-1, -1,  1],</span>
+<span class="sd">                   [-1, -1, -1],</span>
+<span class="sd">                   [-1, -1,  0]])</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Adjacency</span><span class="o">.</span><span class="n">_normalize</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+
+    <span class="c1">### operations ###</span>
+
+
+<div class="viewcode-block" id="Adjacency.pairs"><a class="viewcode-back" href="../ref/adjacency.html#adjacency.Adjacency.pairs">[docs]</a>    <span class="k">def</span> <span class="nf">pairs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return all pairs of adjacent element.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int array</span>
+<span class="sd">            An int array with two columns, where each row contains</span>
+<span class="sd">            a pair of adjacent elements. The element number in the first column</span>
+<span class="sd">            is always the smaller of the two element numbers.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; Adjacency([[-1,1],[0,2],[-1,0]]).pairs()</span>
+<span class="sd">        array([[0, 1],</span>
+<span class="sd">               [1, 2]])</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="p">[[[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">k</span> <span class="k">if</span> <span class="n">j</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">]</span>
+             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="k">if</span> <span class="nb">max</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">row_stack</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">p</span><span class="p">[</span><span class="n">p</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">p</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]]</span></div>
+
+
+<div class="viewcode-block" id="Adjacency.symdiff"><a class="viewcode-back" href="../ref/adjacency.html#adjacency.Adjacency.symdiff">[docs]</a>    <span class="k">def</span> <span class="nf">symdiff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">adj</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the symmetric difference of two adjacency tables.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        adj: Adjacency</span>
+<span class="sd">            An Adjacency with the same number of rows as ``self``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Adjacency</span>
+<span class="sd">            An adjacency table of the same length, where each row contains</span>
+<span class="sd">            all the (nonnegative) numbers of the corresponding rows of ``self``</span>
+<span class="sd">            and ``adj``, except those that occur in both.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; A = Adjacency([[ 1, 2,-1],</span>
+<span class="sd">        ...                [ 3, 2, 0],</span>
+<span class="sd">        ...                [ 1,-1, 3],</span>
+<span class="sd">        ...                [ 1, 2,-1],</span>
+<span class="sd">        ...                [-1,-1,-1]])</span>
+<span class="sd">        &gt;&gt;&gt; B = Adjacency([[ 1, 2, 3],</span>
+<span class="sd">        ...                [ 3, 4, 1],</span>
+<span class="sd">        ...                [ 0,-1, 2],</span>
+<span class="sd">        ...                [ 0, 3, 4],</span>
+<span class="sd">        ...                [-1, 0,-1]])</span>
+<span class="sd">        &gt;&gt;&gt; A.symdiff(B)</span>
+<span class="sd">        Adjacency([[-1, -1, -1,  3],</span>
+<span class="sd">                   [-1,  0,  2,  4],</span>
+<span class="sd">                   [-1,  0,  1,  3],</span>
+<span class="sd">                   [ 0,  1,  2,  4],</span>
+<span class="sd">                   [-1, -1, -1,  0]])</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">adj</span><span class="o">.</span><span class="n">nelems</span><span class="p">()</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nelems</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`adj` should have same number of rows as `self`&quot;</span><span class="p">)</span>
+        <span class="n">adj</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="bp">self</span><span class="p">,</span> <span class="n">adj</span><span class="p">],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">adj</span><span class="p">)):</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="n">adj</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">mult</span><span class="p">,</span> <span class="n">uniq</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">multiplicity</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">row</span><span class="o">&gt;=</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="n">uniq</span><span class="p">[</span><span class="n">mult</span><span class="o">==</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">nr</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+            <span class="n">adj</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="k">if</span> <span class="n">nr</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">adj</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="o">-</span><span class="n">nr</span><span class="p">:]</span> <span class="o">=</span> <span class="n">r</span>
+        <span class="k">return</span> <span class="n">Adjacency</span><span class="p">(</span><span class="n">adj</span><span class="p">)</span></div>
+
+
+    <span class="c1">### frontal methods ###</span>
+
+
+<div class="viewcode-block" id="Adjacency.frontGenerator"><a class="viewcode-back" href="../ref/adjacency.html#adjacency.Adjacency.frontGenerator">[docs]</a>    <span class="k">def</span> <span class="nf">frontGenerator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">startat</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">frontinc</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">partinc</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Generator function returning the frontal elements.</span>
+
+<span class="sd">        This is a generator function and is normally not used directly,</span>
+<span class="sd">        but via the :meth:`frontWalk` method.</span>
+
+<span class="sd">        Parameters: see :meth:`frontWalk`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int array</span>
+<span class="sd">            Int array with a value for each element. On the initial call,</span>
+<span class="sd">            all values are -1, except for the elements in the initial front,</span>
+<span class="sd">            which get a value 0. At each call a new front is created with</span>
+<span class="sd">            all the elements that are connected to any of the</span>
+<span class="sd">            current front and which have not yet been visited. The new front</span>
+<span class="sd">            elements get a value equal to the last front&#39;s value plus the</span>
+<span class="sd">            ``frontinc``. If the front becomes empty and a new starting front is</span>
+<span class="sd">            created, the front value is extra incremented with ``partinc``.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; A = Adjacency([[ 1, 2,-1],</span>
+<span class="sd">        ...                [ 3, 2, 0],</span>
+<span class="sd">        ...                [ 1,-1, 3],</span>
+<span class="sd">        ...                [ 1, 2,-1],</span>
+<span class="sd">        ...                [-1,-1,-1]])</span>
+<span class="sd">        &gt;&gt;&gt; for p in A.frontGenerator(): print(p)</span>
+<span class="sd">        [ 0 -1 -1 -1 -1]</span>
+<span class="sd">        [ 0  1  1 -1 -1]</span>
+<span class="sd">        [ 0  1  1  2 -1]</span>
+<span class="sd">        [0 1 1 2 4]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">nelems</span><span class="p">()),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">at</span><span class="o">.</span><span class="n">Int</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nelems</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Remember current elements front</span>
+        <span class="n">elems</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">startat</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nelems</span><span class="p">())</span>
+        <span class="n">prop</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="n">elems</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># Store prop value for current elems</span>
+            <span class="n">p</span><span class="p">[</span><span class="n">elems</span><span class="p">]</span> <span class="o">=</span> <span class="n">prop</span>
+            <span class="k">yield</span> <span class="n">p</span>
+
+            <span class="n">prop</span> <span class="o">+=</span> <span class="n">frontinc</span>
+
+            <span class="c1"># Determine adjacent elements</span>
+            <span class="n">elems</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">elems</span><span class="p">]))</span>
+            <span class="n">elems</span> <span class="o">=</span> <span class="n">elems</span><span class="p">[</span><span class="n">elems</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">]</span>
+            <span class="n">elems</span> <span class="o">=</span> <span class="n">elems</span><span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="n">elems</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">elems</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># No more elements in this part: start a new one</span>
+            <span class="n">elems</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">p</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">elems</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># Start a new part</span>
+                <span class="n">elems</span> <span class="o">=</span> <span class="n">elems</span><span class="p">[[</span><span class="mi">0</span><span class="p">]]</span>
+                <span class="n">prop</span> <span class="o">+=</span> <span class="n">partinc</span></div>
+
+
+<div class="viewcode-block" id="Adjacency.frontWalk"><a class="viewcode-back" href="../ref/adjacency.html#adjacency.Adjacency.frontWalk">[docs]</a>    <span class="k">def</span> <span class="nf">frontWalk</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">startat</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">frontinc</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">partinc</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">maxval</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Walks through the elements by their node front.</span>
+
+<span class="sd">        A frontal walk is executed starting from the given element(s).</span>
+<span class="sd">        A number of steps is executed, each step advancing the front</span>
+<span class="sd">        over a given number of single pass increments. The step number at</span>
+<span class="sd">        which an element is reached is recorded and returned.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        startat: int or list of ints</span>
+<span class="sd">            Initial element number(s) in the front.</span>
+<span class="sd">        frontinc: int</span>
+<span class="sd">            Increment for the front number on each frontal step.</span>
+<span class="sd">        partinc: int</span>
+<span class="sd">            Increment for the front number when the front gets empty and</span>
+<span class="sd">            a new part is started.</span>
+<span class="sd">        maxval: int</span>
+<span class="sd">            Maximum frontal value. If negative (default) the walk will</span>
+<span class="sd">            continue until all elements have been reached. If non-negative,</span>
+<span class="sd">            walking will stop as soon as the frontal value reaches this</span>
+<span class="sd">            maximum.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int array</span>
+<span class="sd">            An array of ints specifying for each element in which step</span>
+<span class="sd">            the element was reached by the walker.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; A = Adjacency([</span>
+<span class="sd">        ...       [-1,  1,  2,  3],</span>
+<span class="sd">        ...       [-1,  0,  2,  3],</span>
+<span class="sd">        ...       [ 0,  1,  4,  5],</span>
+<span class="sd">        ...       [-1, -1,  0,  1],</span>
+<span class="sd">        ...       [-1, -1,  2,  5],</span>
+<span class="sd">        ...       [-1, -1,  2,  4]])</span>
+<span class="sd">        &gt;&gt;&gt; print(A.frontWalk())</span>
+<span class="sd">        [0 1 1 1 2 2]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">frontGenerator</span><span class="p">(</span><span class="n">startat</span><span class="o">=</span><span class="n">startat</span><span class="p">,</span> <span class="n">frontinc</span><span class="o">=</span><span class="n">frontinc</span><span class="p">,</span> <span class="n">partinc</span><span class="o">=</span><span class="n">partinc</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">maxval</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="n">maxval</span><span class="p">:</span>
+                    <span class="k">break</span>
+        <span class="k">return</span> <span class="n">p</span></div>
+
+
+<div class="viewcode-block" id="Adjacency.front"><a class="viewcode-back" href="../ref/adjacency.html#adjacency.Adjacency.front">[docs]</a>    <span class="k">def</span> <span class="nf">front</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">startat</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the elements of the first node front.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        startat: int or list od ints</span>
+<span class="sd">            Element number(s) or a list of element numbers. The list of</span>
+<span class="sd">            elements to find the next front for.</span>
+<span class="sd">        add: bool, optional</span>
+<span class="sd">            If True, the `startat` elements wil be included in the</span>
+<span class="sd">            return value. The default (False) will only return the elements</span>
+<span class="sd">            in the next front line.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int array</span>
+<span class="sd">            A list of the elements that are connected to any of the nodes</span>
+<span class="sd">            that are part of the startat elements.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        This is equivalent to the first step of a :func:`frontWalk`</span>
+<span class="sd">        with the same startat elements, and could thus also be obtained from</span>
+<span class="sd">        ``where(self.frontWalk(startat,maxval=1) == 1)[0]``.</span>
+
+<span class="sd">        Here however another implementation is used, which is more efficient</span>
+<span class="sd">        for very large models: it avoids the creation of the large array as</span>
+<span class="sd">        returned by frontWalk.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; a = Adjacency([[ 0,  0,  0,  1,  2,  5],</span>
+<span class="sd">        ...                [-1,  0,  1, -1,  1,  3],</span>
+<span class="sd">        ...                [-1, -1,  0, -1, -1,  2],</span>
+<span class="sd">        ...                [-1, -1,  1, -1, -1,  3],</span>
+<span class="sd">        ...                [-1, -1, -1, -1, -1, -1],</span>
+<span class="sd">        ...                [-1, -1,  0, -1, -1,  5]])</span>
+<span class="sd">        &gt;&gt;&gt; print(a.front())</span>
+<span class="sd">        [1 2 5]</span>
+<span class="sd">        &gt;&gt;&gt; print(a.front([0,1]))</span>
+<span class="sd">        [2 3 5]</span>
+<span class="sd">        &gt;&gt;&gt; print(a.front([0,1],add=True))</span>
+<span class="sd">        [0 1 2 3 5]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">elems</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">startat</span><span class="p">]))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">add</span><span class="p">:</span>
+            <span class="n">elems</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">setdiff1d</span><span class="p">(</span><span class="n">elems</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">startat</span><span class="p">))</span>
+        <span class="n">elems</span> <span class="o">=</span> <span class="n">elems</span><span class="p">[</span><span class="n">elems</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">elems</span></div></div>
+
+
+<span class="c1"># End</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">adjacency</a></li--> 
+      </ul>
+    </div>
+    <div class="footer">
+    <span class="left">
+        &copy; Copyright 2004-2023, Benedict Verhegghe.
+    </span>
+      Last updated on Mar 27, 2023.
+    <span class="right">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.4.3.
+    </span>
+    </div>
+  </body>
+</html>

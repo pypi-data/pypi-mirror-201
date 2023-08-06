@@ -1,0 +1,1340 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!--
+##
+##  This file is part of the pyFormex project.
+##  pyFormex is a tool for generating, manipulating and transforming 3D
+##  geometrical models by sequences of mathematical operations.
+##  Home page: http://pyformex.org
+##  Project page:  http://savannah.nongnu.org/projects/pyformex/
+##  Copyright (C) Benedict Verhegghe (benedict.verhegghe@ugent.be)
+##  Distributed under the GNU General Public License version 3 or later.
+##
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see http://www.gnu.org/licenses/.
+##
+-->
+    <title>15. connectivity — A class and functions for handling nodal connectivity. &#8212; pyFormex 3.3 documentation</title>
+
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pyformex.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="16. coordsys — Coordinate Systems." href="coordsys.html" />
+    <link rel="prev" title="14. config — A general yet simple configuration class." href="config.html" />
+<link rel="icon" type="image/png" href="../_static/pyformex_fav.png" />
+
+  </head><body>
+
+<div class="header">
+  <a href="http://pyformex.org">
+  <img src="../_static/scallop_dome_small.png" alt="scallop dome" border="0" hspace="20" vspace="12" align="left" />
+  <img src="../_static/pyformex-logo-2.png" alt="pyformex logo" border="0" hspace="10" vspace="8" align="left" />
+  </a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="coordsys.html" title="16. coordsys — Coordinate Systems."
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="config.html" title="14. config — A general yet simple configuration class."
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../refman.html" accesskey="U">pyFormex reference manual</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href=""><span class="section-number">15. </span><code class="xref py py-mod docutils literal notranslate"><span class="pre">connectivity</span></code> — A class and functions for handling nodal connectivity.</a></li--> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<!-- PYFORMEX_SIDEBAR_LOGO -->
+<!-- PYFORMEX_WEBSITE_SIDEBAR_TOP -->
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="config.html"
+                        title="previous chapter"><span class="section-number">14. </span><code class="xref py py-mod docutils literal notranslate"><span class="pre">config</span></code> — A general yet simple configuration class.</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="coordsys.html"
+                        title="next chapter"><span class="section-number">16. </span><code class="xref py py-mod docutils literal notranslate"><span class="pre">coordsys</span></code> — Coordinate Systems.</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-connectivity">
+<span id="connectivity-a-class-and-functions-for-handling-nodal-connectivity"></span><span id="sec-ref-connectivity"></span><h1><span class="section-number">15. </span><a class="reference internal" href="#module-connectivity" title="connectivity: A class and functions for handling nodal connectivity."><code class="xref py py-mod docutils literal notranslate"><span class="pre">connectivity</span></code></a> — A class and functions for handling nodal connectivity.<a class="headerlink" href="#module-connectivity" title="Permalink to this headline">¶</a></h1>
+<p>This module defines a specialized array class for representing nodal
+connectivity. This is e.g. used in mesh models, where geometry is
+represented by a set of numbered points (nodes) and the geometric elements
+are described by refering to the node numbers.
+In a mesh model, points common to adjacent elements are unique, and
+adjacency of elements can easily be detected from common node numbers.</p>
+<dl class="py class">
+<dt id="connectivity.Connectivity">
+<em class="property">class </em><code class="sig-prename descclassname">connectivity.</code><code class="sig-name descname">Connectivity</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span><span class="o">=</span><span class="default_value">[]</span></em>, <em class="sig-param"><span class="n">dtyp</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">copy</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">nplex</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">eltype</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/connectivity.html#Connectivity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#connectivity.Connectivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>A class for handling element to node connectivity.</p>
+<p>A connectivity object is a 2-dimensional integer array with all
+non-negative values. Each row of the array defines an element by listing
+the numbers of its lower entity types.
+A typical use is a <a class="reference internal" href="mesh.html#mesh.Mesh" title="mesh.Mesh"><code class="xref py py-class docutils literal notranslate"><span class="pre">Mesh</span></code></a> object, where each element
+is defined in function of its nodes.
+While in a Mesh the word ‘node’ will normally refer to a geometrical
+point, here we will use ‘node’ for the lower entity whatever its nature
+is. It doesn’t even have to be a geometrical entity.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The current implementation limits a Connectivity object to numbers that
+are smaller than 2**31. That is however largely sufficient for all
+practical cases.</p>
+<p>In a row (element), the same node number may occur more than once, though
+usually all numbers in a row are different. Rows containing duplicate
+numbers are called <cite>degenerate</cite> elements.
+Rows containing the same node sets, albeit different permutations thereof,
+are called duplicates.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (int <a class="reference internal" href="../glossary.html#term-array_like"><span class="xref std std-term">array_like</span></a>) – Data to initialize the Connectivity. The data should be 2-dim with
+shape <code class="docutils literal notranslate"><span class="pre">(nelems,nplex)</span></code>, where <code class="docutils literal notranslate"><span class="pre">nelems</span></code> is the number of elements and
+<code class="docutils literal notranslate"><span class="pre">nplex</span></code> is the plexitude of the elements.</p></li>
+<li><p><strong>dtyp</strong> (<em>float datatype</em><em>, </em><em>optional</em>) – It not provided, the datatype of <code class="docutils literal notranslate"><span class="pre">data</span></code> is used.</p></li>
+<li><p><strong>copy</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – If True, the data are copied. The default setting will try to use
+the original data if possible, e.g. if <code class="docutils literal notranslate"><span class="pre">data</span></code> is a correctly shaped
+and typed <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.24)"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></a>.</p></li>
+<li><p><strong>nplex</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>optional</em>) – The plexitude of the data. This can be specified to force a check on
+the plexitude of the data, or to set the plexitude for an empty
+Connectivity.
+If an <code class="docutils literal notranslate"><span class="pre">eltype</span></code> is specified, the plexitude of the element type
+will override this value.</p></li>
+<li><p><strong>eltype</strong> (str or <a class="reference internal" href="elements.html#elements.ElementType" title="elements.ElementType"><code class="xref py py-class docutils literal notranslate"><span class="pre">elements.ElementType</span></code></a> subclass, optional) – The element type associated with the Connectivity. It can be either
+a subclass of:class:<cite>elements.ElementType</cite> or the <code class="docutils literal notranslate"><span class="pre">name</span></code> of such
+a subclass.
+If not provided, a non-typed Connectivity will result.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.11)"><strong>ValueError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">nplex</span></code> is provided and the specified <code class="docutils literal notranslate"><span class="pre">data</span></code> do not match the
+    specified plexitude.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The Connectivity class has no knowledge about the geometrical meaning
+of the element types. In most cases the use of its subclass
+<a class="reference internal" href="elements.html#elements.Elems" title="elements.Elems"><code class="xref py py-class docutils literal notranslate"><span class="pre">Elems</span></code></a> is therefore more appropriate.</p>
+<p>Empty Connectivities with <code class="docutils literal notranslate"><span class="pre">nelems==0</span></code> and <code class="docutils literal notranslate"><span class="pre">nplex</span> <span class="pre">&gt;</span> <span class="pre">0</span></code> can be useful,
+but a Connectivity with <code class="docutils literal notranslate"><span class="pre">nplex==0</span></code> generally is not.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="elements.html#elements.Elems" title="elements.Elems"><code class="xref py py-class docutils literal notranslate"><span class="pre">Elems</span></code></a></dt><dd><p>a subclass that holds geometrical information about the element types and is used to create <code class="xref py py-class docutils literal notranslate"><span class="pre">Mesh</span></code> geometries.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Connectivity</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">3</span><span class="p">]])</span>
+<span class="go">Connectivity([[0, 1, 2],</span>
+<span class="go">              [0, 1, 3],</span>
+<span class="go">              [0, 3, 2],</span>
+<span class="go">              [0, 5, 3]])</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Connectivity</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([],</span><span class="n">dtype</span><span class="o">=</span><span class="n">at</span><span class="o">.</span><span class="n">Int</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
+<span class="go">Connectivity([], shape=(0, 3))</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt id="connectivity.Connectivity.nelems">
+<code class="sig-name descname">nelems</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/connectivity.html#Connectivity.nelems"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#connectivity.Connectivity.nelems" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the number of elements in the Connectivity table.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><em>int</em> – The number of rows in the table.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Connectivity</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">3</span><span class="p">]])</span><span class="o">.</span><span class="n">nelems</span><span class="p">()</span>
+<span class="go">4</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="connectivity.Connectivity.maxnodes">
+<code class="sig-name descname">maxnodes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/connectivity.html#Connectivity.maxnodes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#connectivity.Connectivity.maxnodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an upper limit for number of nodes in the Connectivity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><em>int</em> – The highest node number plus one.</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#connectivity.Connectivity.nnodes" title="connectivity.Connectivity.nnodes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nnodes</span></code></a></dt><dd><p>the actual number of nodes in the table</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Connectivity</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">3</span><span class="p">]])</span><span class="o">.</span><span class="n">maxnodes</span><span class="p">()</span>
+<span class="go">6</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="connectivity.Connectivity.nnodes">
+<code class="sig-name descname">nnodes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/connectivity.html#Connectivity.nnodes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#connectivity.Connectivity.nnodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the actual number of nodes in the Connectivity.</p>
+<p>This returns the count of the unique node numbers.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#connectivity.Connectivity.maxnodes" title="connectivity.Connectivity.maxnodes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">maxnodes</span></code></a></dt><dd><p>the highest node number + 1</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Connectivity</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">3</span><span class="p">]])</span><span class="o">.</span><span class="n">nnodes</span><span class="p">()</span>
+<span class="go">5</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="connectivity.Connectivity.nplex">
+<code class="sig-name descname">nplex</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/connectivity.html#Connectivity.nplex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#connectivity.Connectivity.nplex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the plexitude of the elements in the Connectivity table.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Connectivity</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">3</span><span class="p">]])</span><span class="o">.</span><span class="n">nplex</span><span class="p">()</span>
+<span class="go">3</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="connectivity.Connectivity.report">
+<code class="sig-name descname">report</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/connectivity.html#Connectivity.report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#connectivity.Connectivity.report" title="Permalink to this definition">¶</a></dt>
+<dd><p>Format a Connectivity table</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="connectivity.Connectivity.testDegenerate">
+<code class="sig-name descname">testDegenerate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/connectivity.html#Connectivity.testDegenerate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#connectivity.Connectivity.testDegenerate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flag the degenerate elements (rows).</p>
+<p>A degenerate element is a row which contains at least two
+equal values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><em>bool array</em> – A 1-dim bool array with length <code class="docutils literal notranslate"><span class="pre">self.nelems()</span></code>, holding
+True values for the degenerate rows.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Connectivity</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">]])</span><span class="o">.</span><span class="n">testDegenerate</span><span class="p">()</span>
+<span class="go">array([False,  True, False])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="connectivity.Connectivity.listDegenerate">
+<code class="sig-name descname">listDegenerate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/connectivity.html#Connectivity.listDegenerate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#connectivity.Connectivity.listDegenerate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list with the numbers of the degenerate elements.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><em>int array</em> – A 1-dim int array holding the row indices of the
+degenerate elements.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Connectivity</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">]])</span><span class="o">.</span><span class="n">listDegenerate</span><span class="p">()</span>
+<span class="go">array([1])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="connectivity.Connectivity.listNonDegenerate">
+<code class="sig-name descname">listNonDegenerate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/connectivity.html#Connectivity.listNonDegenerate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#connectivity.Connectivity.listNonDegenerate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list with the numbers of the non-degenerate elements.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><em>int array</em> – A 1-dim int array holding the row indices of the
+non-degenerate elements.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Connectivity</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">]])</span><span class="o">.</span><span class="n">listNonDegenerate</span><span class="p">()</span>
+<span class="go">array([0, 2])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="connectivity.Connectivity.removeDegenerate">
+<code class="sig-name descname">removeDegenerate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/connectivity.html#Connectivity.removeDegenerate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#connectivity.Connectivity.removeDegenerate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove the degenerate elements from a Connectivity table.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><em>Connectivity</em> – A Connectivity object with the degenerate elements removed.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Connectivity</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">]])</span><span class="o">.</span><span class="n">removeDegenerate</span><span class="p">()</span>
+<span class="go">Connectivity([[0, 1, 2],</span>
+<span class="go">              [0, 3, 2]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="connectivity.Connectivity.findDuplicate">
+<code class="sig-name descname">findDuplicate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">permutations</span><span class="o">=</span><span class="default_value">'all'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/connectivity.html#Connectivity.findDuplicate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#connectivity.Connectivity.findDuplicate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find duplicate rows in the Connectivity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>permutations</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – <p>Defines which permutations of the row data are allowed while still
+considering the rows equal. Possible values are:</p>
+<ul class="simple">
+<li><p>’none’: no permutations are allowed: rows must match the same date
+at the same positions.</p></li>
+<li><p>’roll’: rolling is allowed. Rows that can be transformed into
+each other by rolling are considered equal;</p></li>
+<li><p>’all’: any permutation of the same data will be considered an
+equal row. This is the default.</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>V</strong> (<a class="reference internal" href="varray.html#varray.Varray" title="varray.Varray"><code class="xref py py-class docutils literal notranslate"><span class="pre">Varray</span></code></a>) – A Varray where each row contains a list of the row numbers
+from a that are considered equal. The entries in each row are
+sorted and the rows are sorted according to their first element.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This is like <a class="reference internal" href="arraytools.html#arraytools.equalRows" title="arraytools.equalRows"><code class="xref py py-func docutils literal notranslate"><span class="pre">arraytools.equalRows()</span></code></a> but has a different
+default value for <code class="docutils literal notranslate"><span class="pre">permutations</span></code>.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">C</span> <span class="o">=</span> <span class="n">Connectivity</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">C</span><span class="o">.</span><span class="n">findDuplicate</span><span class="p">()</span>
+<span class="go">Varray([[0, 2, 3, 4], [1]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">C</span><span class="o">.</span><span class="n">findDuplicate</span><span class="p">(</span><span class="n">permutations</span><span class="o">=</span><span class="s1">&#39;roll&#39;</span><span class="p">)</span>
+<span class="go">Varray([[0, 2, 3], [1], [4]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">C</span><span class="o">.</span><span class="n">findDuplicate</span><span class="p">(</span><span class="n">permutations</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">)</span>
+<span class="go">Varray([[0, 2], [1], [3], [4]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="connectivity.Connectivity.listDuplicate">
+<code class="sig-name descname">listDuplicate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">permutations</span><span class="o">=</span><span class="default_value">'all'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/connectivity.html#Connectivity.listDuplicate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#connectivity.Connectivity.listDuplicate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list with the numbers of the duplicate elements.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><em>1-dim int array</em> – The indices of the unique rows in the Connectivity array.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">C</span> <span class="o">=</span> <span class="n">Connectivity</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">C</span><span class="o">.</span><span class="n">listDuplicate</span><span class="p">()</span>
+<span class="go">array([2, 3, 4])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">C</span><span class="o">.</span><span class="n">listDuplicate</span><span class="p">(</span><span class="n">permutations</span><span class="o">=</span><span class="s1">&#39;roll&#39;</span><span class="p">)</span>
+<span class="go">array([2, 3])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">C</span><span class="o">.</span><span class="n">listDuplicate</span><span class="p">(</span><span class="n">permutations</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">)</span>
+<span class="go">array([2])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="connectivity.Connectivity.listUnique">
+<code class="sig-name descname">listUnique</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">permutations</span><span class="o">=</span><span class="default_value">'all'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/connectivity.html#Connectivity.listUnique"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#connectivity.Connectivity.listUnique" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list with the numbers of the unique elements.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><em>1-dim int array</em> – The indices of the unique rows in the Connectivity array.</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#connectivity.Connectivity.findDuplicate" title="connectivity.Connectivity.findDuplicate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">findDuplicate</span></code></a></dt><dd><p>find duplicate rows</p>
+</dd>
+<dt><a class="reference internal" href="#connectivity.Connectivity.listDuplicate" title="connectivity.Connectivity.listDuplicate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">listDuplicate</span></code></a></dt><dd><p>list duplicate rows</p>
+</dd>
+<dt><a class="reference internal" href="#connectivity.Connectivity.removeDuplicate" title="connectivity.Connectivity.removeDuplicate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">removeDuplicate</span></code></a></dt><dd><p>remove duplicate rows</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">C</span> <span class="o">=</span> <span class="n">Connectivity</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">C</span><span class="o">.</span><span class="n">listUnique</span><span class="p">()</span>
+<span class="go">array([0, 1])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">C</span><span class="o">.</span><span class="n">listUnique</span><span class="p">(</span><span class="n">permutations</span><span class="o">=</span><span class="s1">&#39;roll&#39;</span><span class="p">)</span>
+<span class="go">array([0, 1, 4])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">C</span><span class="o">.</span><span class="n">listUnique</span><span class="p">(</span><span class="n">permutations</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">)</span>
+<span class="go">array([0, 1, 3, 4])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="connectivity.Connectivity.removeDuplicate">
+<code class="sig-name descname">removeDuplicate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">permutations</span><span class="o">=</span><span class="default_value">'all'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/connectivity.html#Connectivity.removeDuplicate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#connectivity.Connectivity.removeDuplicate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove duplicate elements from a Connectivity list.</p>
+<p>By default, duplicates are elements that consist of the same set of
+nodes, in any particular order. Setting permutations to ‘none’
+will only remove the duplicate rows that have matching values at
+matching positions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><em>Connectivity</em> – A new Connectivity with the duplicate elements removed.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">C</span> <span class="o">=</span> <span class="n">Connectivity</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">C</span><span class="o">.</span><span class="n">removeDuplicate</span><span class="p">()</span>
+<span class="go">Connectivity([[0, 1, 2],</span>
+<span class="go">              [0, 1, 3]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">C</span><span class="o">.</span><span class="n">removeDuplicate</span><span class="p">(</span><span class="n">permutations</span><span class="o">=</span><span class="s1">&#39;roll&#39;</span><span class="p">)</span>
+<span class="go">Connectivity([[0, 1, 2],</span>
+<span class="go">              [0, 1, 3],</span>
+<span class="go">              [2, 1, 0]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">C</span><span class="o">.</span><span class="n">removeDuplicate</span><span class="p">(</span><span class="n">permutations</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">)</span>
+<span class="go">Connectivity([[0, 1, 2],</span>
+<span class="go">              [0, 1, 3],</span>
+<span class="go">              [2, 0, 1],</span>
+<span class="go">              [2, 1, 0]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="connectivity.Connectivity.reorder">
+<code class="sig-name descname">reorder</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">order</span><span class="o">=</span><span class="default_value">'nodes'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/connectivity.html#Connectivity.reorder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#connectivity.Connectivity.reorder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reorder the elements of a Connectivity in a specified order.</p>
+<p>This does not actually reorder the elements itself, but returns
+an index with the order of the rows (elements) in the Connectivity
+table that meets the specified ordering requirements.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>order</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em> or </em><em>list of ints</em>) – <p>Specifies how to reorder the elements. It is either one
+of the special string values defined below, or else it is an index
+with length equal to the number of elements. The index should be
+a permutation of the numbers in <code class="docutils literal notranslate"><span class="pre">range(self.nelems()</span></code>. Each value
+gives the number of the old element that should be placed at
+this position. Thus, the order values are the old element numbers
+on the position of the new element number.</p>
+<p><code class="docutils literal notranslate"><span class="pre">order</span></code> can also take one of the following predefined values,
+resulting in the corresponding renumbering scheme being generated:</p>
+<ul class="simple">
+<li><p>’nodes’: the elements are renumbered in order of their appearance
+in the inverse index, i.e. first are the elements connected to
+node 0, then the as yet unlisted elements connected to node 1, etc.</p></li>
+<li><p>’random’: the elements are randomly renumbered.</p></li>
+<li><p>’reverse’: the elements are renumbered in reverse order.</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>1-dim int array</em> – Int array with a permutation of <code class="docutils literal notranslate"><span class="pre">arange(self.nelems()</span></code>, such that
+taking the elements in this order will produce a Connectivity
+reordered as requested.
+In case an explicit order was specified as input, this order is
+returned after checking that it is indeed a permutation of
+<code class="docutils literal notranslate"><span class="pre">range(self.nelems()</span></code>.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span> <span class="o">=</span> <span class="n">Connectivity</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">3</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="p">[</span><span class="n">A</span><span class="o">.</span><span class="n">reorder</span><span class="p">(</span><span class="s1">&#39;reverse&#39;</span><span class="p">)]</span>
+<span class="go">Connectivity([[0, 1],</span>
+<span class="go">              [3, 0],</span>
+<span class="go">              [2, 3],</span>
+<span class="go">              [1, 2]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="p">[</span><span class="n">A</span><span class="o">.</span><span class="n">reorder</span><span class="p">(</span><span class="s1">&#39;nodes&#39;</span><span class="p">)]</span>
+<span class="go">Connectivity([[0, 1],</span>
+<span class="go">              [3, 0],</span>
+<span class="go">              [1, 2],</span>
+<span class="go">              [2, 3]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="p">[</span><span class="n">A</span><span class="o">.</span><span class="n">reorder</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])]</span>
+<span class="go">Connectivity([[3, 0],</span>
+<span class="go">              [0, 1],</span>
+<span class="go">              [1, 2],</span>
+<span class="go">              [2, 3]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="connectivity.Connectivity.renumber">
+<code class="sig-name descname">renumber</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">start</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/connectivity.html#Connectivity.renumber"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#connectivity.Connectivity.renumber" title="Permalink to this definition">¶</a></dt>
+<dd><p>Renumber the nodes to a consecutive integer range.</p>
+<p>The node numbers in the table are changed thus that they
+form a consecutive integer range starting from the specified
+value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>start</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – Lowest node number to be used in the renumbered Connectivity.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>elems</strong> (<em>Connectivity</em>) – The renumbered Connectivity</p></li>
+<li><p><strong>oldnrs</strong> (<em>1-dim int array</em>) – The sorted list of unique (old) node numbers. The new
+node numbers are assigned in order of increasing old node numbers,
+thus the old node number for new node number <code class="docutils literal notranslate"><span class="pre">i</span></code> can be found
+at position <code class="docutils literal notranslate"><span class="pre">i</span> <span class="pre">-</span> <span class="pre">start</span></code>.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">e</span><span class="p">,</span><span class="n">n</span> <span class="o">=</span> <span class="n">Connectivity</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">],[</span><span class="mi">4</span><span class="p">,</span><span class="mi">2</span><span class="p">]])</span><span class="o">.</span><span class="n">renumber</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+<span class="go">[[ 7  9]</span>
+<span class="go"> [ 8 10]</span>
+<span class="go"> [10  9]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+<span class="go">[0 1 2 4]</span>
+</pre></div>
+</div>
+<p>Find the old node number of new node 10
+&gt;&gt;&gt; n[10-7]
+4</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="connectivity.Connectivity.inverse">
+<code class="sig-name descname">inverse</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">expand</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/connectivity.html#Connectivity.inverse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#connectivity.Connectivity.inverse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the inverse index of a Connectivity table.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><em>int array</em> – The inverse index of the Connectivity, as computed
+by <a class="reference internal" href="arraytools.html#arraytools.inverseIndex" title="arraytools.inverseIndex"><code class="xref py py-func docutils literal notranslate"><span class="pre">arraytools.inverseIndex()</span></code></a>.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Connectivity</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">2</span><span class="p">]])</span><span class="o">.</span><span class="n">inverse</span><span class="p">(</span><span class="n">expand</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">array([[ 0,  1,  2],</span>
+<span class="go">       [-1,  0,  1],</span>
+<span class="go">       [-1,  0,  2],</span>
+<span class="go">       [-1, -1, -1],</span>
+<span class="go">       [-1,  1,  2]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Connectivity</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">2</span><span class="p">]])</span><span class="o">.</span><span class="n">inverse</span><span class="p">(</span><span class="n">expand</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="go">Varray([[0, 1, 2], [0, 1], [0, 2], [], [1, 2]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Connectivity</span><span class="p">()</span><span class="o">.</span><span class="n">inverse</span><span class="p">()</span>
+<span class="go">Varray([])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="connectivity.Connectivity.nParents">
+<code class="sig-name descname">nParents</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/connectivity.html#Connectivity.nParents"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#connectivity.Connectivity.nParents" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the number of elements connected to each node.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><em>1-dim int array</em> – The number of elements connected to each node. The length of
+the array is equal to the highest node number + 1.
+Unused node numbers will have a count of zero.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Connectivity</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">2</span><span class="p">]])</span><span class="o">.</span><span class="n">nParents</span><span class="p">()</span>
+<span class="go">array([3, 2, 2, 0, 2])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="connectivity.Connectivity.connectedTo">
+<code class="sig-name descname">connectedTo</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nodes</span></em>, <em class="sig-param"><span class="n">return_ncon</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/connectivity.html#Connectivity.connectedTo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#connectivity.Connectivity.connectedTo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if the elements are connected to the specified nodes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>nodes</strong> (int or int <a class="reference internal" href="../glossary.html#term-array_like"><span class="xref std std-term">array_like</span></a>) – One or more node numbers to check for connections in the table.</p></li>
+<li><p><strong>return_ncon</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – If True, also return the number of connections for each element.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>connections</strong> (<em>int array</em>) – The numbers of the elements that contain at least one of the
+specified nodes.</p></li>
+<li><p><strong>ncon</strong> (<em>int array, optional</em>) – The number of connections for each connected element.
+This is only provided if <code class="docutils literal notranslate"><span class="pre">return_ncon</span></code> is True.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span> <span class="o">=</span> <span class="n">Connectivity</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">connectedTo</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+<span class="go">[0 2 3]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="o">.</span><span class="n">connectedTo</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">(array([0, 1, 2, 3]), array([2, 3, 2, 2]))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="connectivity.Connectivity.hits">
+<code class="sig-name descname">hits</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nodes</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/connectivity.html#Connectivity.hits"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#connectivity.Connectivity.hits" title="Permalink to this definition">¶</a></dt>
+<dd><p>Count the nodes from a list connected to the elements.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>nodes</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em> or </em><em>list of ints</em>) – One or more node numbers.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>int array (nelems,)</em> – An int array holding the number of nodes from the specified
+input that are contained in each of the elements.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This information can also be got from meth:<cite>connectedTo</cite>.
+This method however expands the results to the full element set,
+making it apt for use in selector expressions like
+<code class="docutils literal notranslate"><span class="pre">self[self.hits(nodes)</span> <span class="pre">&gt;=</span> <span class="pre">2]</span></code>.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">A</span> <span class="o">=</span> <span class="n">Connectivity</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="o">.</span><span class="n">hits</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">array([1, 0, 1, 1])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">A</span><span class="o">.</span><span class="n">hits</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
+<span class="go">array([2, 3, 2, 2])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="connectivity.Connectivity.adjacency">
+<code class="sig-name descname">adjacency</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">kind</span><span class="o">=</span><span class="default_value">'e'</span></em>, <em class="sig-param"><span class="o">*</span></em>, <em class="sig-param"><span class="n">exclude</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">mask</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/connectivity.html#Connectivity.adjacency"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#connectivity.Connectivity.adjacency" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a table of adjacent items.</p>
+<p>This creates an element adjacency table or node adjacency table
+An element <cite>i</cite> is said to be adjacent to element <cite>j</cite>, if the two
+elements have at least one common node.
+A node <cite>i</cite> is said to be adjacent to node <cite>j</cite>, if there is at least
+one element containing both nodes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>kind</strong> (<em>'e'</em><em> or </em><em>'n'</em>) – Select element (‘e’) or node (n’) adjacency table. Default is
+element adjacency.</p></li>
+<li><p><strong>exclude</strong> (<em>bool array</em><em> or </em><em>int index</em><em>, </em><em>optional</em>) – <p>Node selector. If provided (with <code class="docutils literal notranslate"><span class="pre">kind=='e'</span></code>) this defines
+by a bool flag array or int index numbers a list of nodes
+that are not to be considered connectors between elements.</p>
+<p>This option is only useful in the case <cite>kind</cite> == ‘e’. If you want to
+exclude elements for the ‘n’ case, remove those elements from
+the Connectivity before calling adjacency().</p>
+</p></li>
+<li><p><strong>mask</strong> (<em>bool array</em><em> or </em><em>int index</em><em>, </em><em>optional</em>) – <p>This is like exclude, but specifies the nodes that should be
+considered connectors instead of the ones that should be excluded.</p>
+<p>This argument can not be used together with <code class="docutils literal notranslate"><span class="pre">exclude</span></code>.
+Its use is deprecated.</p>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><a class="reference internal" href="adjacency.html#adjacency.Adjacency" title="adjacency.Adjacency"><code class="xref py py-class docutils literal notranslate"><span class="pre">Adjacency</span></code></a> object – An Adjacency array with shape (nr,nc), where row <cite>i</cite> holds
+a sorted list of all the items that are adjacent to item <cite>i</cite>,
+padded with -1 values to create an equal list length for all items.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Connectivity</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">5</span><span class="p">]])</span><span class="o">.</span><span class="n">adjacency</span><span class="p">(</span><span class="s1">&#39;e&#39;</span><span class="p">)</span>
+<span class="go">Adjacency([[ 1,  2,  3],</span>
+<span class="go">           [-1,  0,  3],</span>
+<span class="go">           [-1, -1,  0],</span>
+<span class="go">           [-1,  0,  1]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Connectivity</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">5</span><span class="p">]])</span><span class="o">.</span><span class="n">adjacency</span><span class="p">(</span><span class="s1">&#39;e&#39;</span><span class="p">,</span><span class="n">exclude</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="p">])</span>
+<span class="go">Adjacency([[ 2],</span>
+<span class="go">           [-1],</span>
+<span class="go">           [ 0],</span>
+<span class="go">           [-1]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Connectivity</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">5</span><span class="p">]])</span><span class="o">.</span><span class="n">adjacency</span><span class="p">(</span><span class="s1">&#39;e&#39;</span><span class="p">,</span><span class="n">mask</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">5</span><span class="p">])</span>
+<span class="go">Adjacency([[ 2],</span>
+<span class="go">           [-1],</span>
+<span class="go">           [ 0],</span>
+<span class="go">           [-1]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Connectivity</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">5</span><span class="p">]])</span><span class="o">.</span><span class="n">adjacency</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="s1">&#39;e&#39;</span><span class="p">,</span><span class="n">mask</span><span class="o">=</span><span class="p">[</span><span class="kc">False</span><span class="p">,</span><span class="kc">True</span><span class="p">,</span><span class="kc">True</span><span class="p">,</span><span class="kc">True</span><span class="p">,</span><span class="kc">False</span><span class="p">,</span><span class="kc">True</span><span class="p">])</span>
+<span class="go">Adjacency([[ 2],</span>
+<span class="go">           [-1],</span>
+<span class="go">           [ 0],</span>
+<span class="go">           [-1]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Connectivity</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">5</span><span class="p">]])</span><span class="o">.</span><span class="n">adjacency</span><span class="p">(</span><span class="s1">&#39;n&#39;</span><span class="p">)</span>
+<span class="go">Adjacency([[ 1,  2,  5],</span>
+<span class="go">           [-1,  0,  3],</span>
+<span class="go">           [-1, -1,  0],</span>
+<span class="go">           [-1, -1,  1],</span>
+<span class="go">           [-1, -1, -1],</span>
+<span class="go">           [-1, -1,  0]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Connectivity</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">]])</span><span class="o">.</span><span class="n">adjacency</span><span class="p">(</span><span class="s1">&#39;n&#39;</span><span class="p">)</span>
+<span class="go">Adjacency([[-1,  1,  2,  3],</span>
+<span class="go">           [-1,  0,  2,  3],</span>
+<span class="go">           [ 0,  1,  4,  5],</span>
+<span class="go">           [-1, -1,  0,  1],</span>
+<span class="go">           [-1, -1,  2,  5],</span>
+<span class="go">           [-1, -1,  2,  4]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Connectivity</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">]])[[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">]]</span><span class="o">.</span><span class="n">adjacency</span><span class="p">(</span><span class="s1">&#39;n&#39;</span><span class="p">)</span>
+<span class="go">Adjacency([[-1, -1,  1,  2],</span>
+<span class="go">           [-1, -1,  0,  2],</span>
+<span class="go">           [ 0,  1,  4,  5],</span>
+<span class="go">           [-1, -1, -1, -1],</span>
+<span class="go">           [-1, -1,  2,  5],</span>
+<span class="go">           [-1, -1,  2,  4]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Connectivity</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]])</span><span class="o">.</span><span class="n">adjacency</span><span class="p">(</span><span class="s1">&#39;e&#39;</span><span class="p">)</span>
+<span class="go">Adjacency([], shape=(2, 0))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="connectivity.Connectivity.adjacentElements">
+<code class="sig-name descname">adjacentElements</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">els</span></em>, <em class="sig-param"><span class="n">mask</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/connectivity.html#Connectivity.adjacentElements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#connectivity.Connectivity.adjacentElements" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute adjacent elements.</p>
+<p>This creates an element adjacency table or node adjacency table.
+An element <cite>i</cite> is said to be adjacent to element <cite>j</cite>, if the two
+elements have at least one common node.
+A node <cite>i</cite> is said to be adjacent to node <cite>j</cite>, if there is at least
+one element containing both nodes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>else</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em> or </em><em>list of ints</em>) – The element number(s) for which to compute the adjacent elements</p></li>
+<li><p><strong>mask</strong> (<em>bool array</em><em> or </em><em>int index</em><em>, </em><em>optional</em>) – <p>Node selector. If provided (with <code class="docutils literal notranslate"><span class="pre">kind=='e'</span></code>) this defines
+by a bool flag array or int index numbers the list of nodes
+that are to be considered connectors between elements. The default
+is to consider all nodes as connectors.</p>
+<p>This option is only useful in the case <cite>kind</cite> == ‘e’. If you want to
+use an element mask for the ‘n’ case, just apply the (element) mask
+beforehand by using <code class="docutils literal notranslate"><span class="pre">self[mask].adjacency('n')</span></code>.</p>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><a class="reference internal" href="adjacency.html#adjacency.Adjacency" title="adjacency.Adjacency"><code class="xref py py-class docutils literal notranslate"><span class="pre">Adjacency</span></code></a> object – An Adjacency array with shape (nr,nc), where row <cite>i</cite> holds
+a sorted list of all the items that are adjacent to item <cite>i</cite>,
+padded with -1 values to create an equal list length for all items.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Connectivity</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">5</span><span class="p">]])</span><span class="o">.</span><span class="n">adjacentElements</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
+<span class="go">array([[ 1,  2,  3],</span>
+<span class="go">       [-1,  0,  3],</span>
+<span class="go">       [-1, -1,  0],</span>
+<span class="go">       [-1,  0,  1]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Connectivity</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">5</span><span class="p">]])</span><span class="o">.</span><span class="n">adjacentElements</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">])</span>
+<span class="go">array([[ 1,  2,  3],</span>
+<span class="go">       [-1,  0,  3],</span>
+<span class="go">       [-1, -1,  0]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Connectivity</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">5</span><span class="p">]])</span><span class="o">.</span><span class="n">adjacentElements</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
+<span class="go">array([[ 0,  3],</span>
+<span class="go">       [-1,  0],</span>
+<span class="go">       [ 0,  1]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Connectivity</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">5</span><span class="p">]])</span><span class="o">.</span><span class="n">adjacentElements</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">])</span>
+<span class="go">array([[ 1,  2,  3],</span>
+<span class="go">       [-1, -1,  0]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Connectivity</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">5</span><span class="p">]])</span><span class="o">.</span><span class="n">adjacentElements</span><span class="p">([</span><span class="mi">2</span><span class="p">])</span>
+<span class="go">array([[0]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Connectivity</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">5</span><span class="p">]])</span><span class="o">.</span><span class="n">adjacentElements</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">array([[0, 3]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="connectivity.Connectivity.frontGenerator">
+<code class="sig-name descname">frontGenerator</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">startat</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">frontinc</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">partinc</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/connectivity.html#Connectivity.frontGenerator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#connectivity.Connectivity.frontGenerator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generator function returning the frontal elements.</p>
+<p>This is a generator function and is normally not used directly,
+but via the <a class="reference internal" href="#connectivity.Connectivity.frontWalk" title="connectivity.Connectivity.frontWalk"><code class="xref py py-meth docutils literal notranslate"><span class="pre">frontWalk()</span></code></a> method.</p>
+<p>Parameters: see <a class="reference internal" href="#connectivity.Connectivity.frontWalk" title="connectivity.Connectivity.frontWalk"><code class="xref py py-meth docutils literal notranslate"><span class="pre">frontWalk()</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><em>int array</em> – Int array with a value for each element. On the initial call,
+all values are -1, except for the elements in the initial front,
+which get a value 0. At each call a new front is created with
+all the elements that are connected to any of the
+current front and which have not yet been visited. The new front
+elements get a value equal to the last front’s value plus the
+<code class="docutils literal notranslate"><span class="pre">frontinc</span></code>. If the front becomes empty and a new starting front is
+created, the front value is extra incremented with <code class="docutils literal notranslate"><span class="pre">partinc</span></code>.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">C</span> <span class="o">=</span> <span class="n">Connectivity</span><span class="p">([[</span><span class="mi">2</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">7</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">8</span><span class="p">],[</span><span class="mi">3</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">8</span><span class="p">],[</span><span class="mi">4</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">9</span><span class="p">],[</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">11</span><span class="p">],</span>
+<span class="gp">... </span>                  <span class="p">[</span><span class="mi">6</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">11</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">C</span><span class="o">.</span><span class="n">frontGenerator</span><span class="p">():</span> <span class="nb">print</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+<span class="go">[ 0 -1 -1 -1 -1 -1]</span>
+<span class="go">[ 0  1  1 -1 -1 -1]</span>
+<span class="go">[ 0  1  1  2 -1 -1]</span>
+<span class="go">[ 0  1  1  2  4 -1]</span>
+<span class="go">[0 1 1 2 4 5]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">A</span> <span class="o">=</span> <span class="n">C</span><span class="o">.</span><span class="n">adjacency</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">A</span><span class="o">.</span><span class="n">frontGenerator</span><span class="p">():</span> <span class="nb">print</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+<span class="go">[ 0 -1 -1 -1 -1 -1]</span>
+<span class="go">[ 0  1  1 -1 -1 -1]</span>
+<span class="go">[ 0  1  1  2 -1 -1]</span>
+<span class="go">[ 0  1  1  2  4 -1]</span>
+<span class="go">[0 1 1 2 4 5]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="connectivity.Connectivity.frontWalk">
+<code class="sig-name descname">frontWalk</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">startat</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">frontinc</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">partinc</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">maxval</span><span class="o">=</span><span class="default_value">- 1</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/connectivity.html#Connectivity.frontWalk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#connectivity.Connectivity.frontWalk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Walks through the elements by their node front.</p>
+<p>A frontal walk is executed starting from the given element(s).
+A number of steps is executed, each step advancing the front
+over a given number of single pass increments. The step number at
+which an element is reached is recorded and returned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>startat</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em> or </em><em>list of ints</em>) – Initial element number(s) in the front.</p></li>
+<li><p><strong>frontinc</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – Increment for the front number on each frontal step.</p></li>
+<li><p><strong>partinc</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – Increment for the front number when the front gets empty and
+a new part is started.</p></li>
+<li><p><strong>maxval</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – Maximum frontal value. If negative (default) the walk will
+continue until all elements have been reached. If non-negative,
+walking will stop as soon as the frontal value reaches this
+maximum.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>int array</em> – An array of ints specifying for each element in which step
+the element was reached by the walker.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">C</span> <span class="o">=</span> <span class="n">Connectivity</span><span class="p">([[</span><span class="mi">2</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">7</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">8</span><span class="p">],[</span><span class="mi">3</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">8</span><span class="p">],[</span><span class="mi">4</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">9</span><span class="p">],[</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">11</span><span class="p">],</span>
+<span class="gp">... </span>                  <span class="p">[</span><span class="mi">6</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">11</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">frontWalk</span><span class="p">())</span>
+<span class="go">[0 1 1 2 4 5]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="connectivity.Connectivity.front">
+<code class="sig-name descname">front</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">startat</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">add</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/connectivity.html#Connectivity.front"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#connectivity.Connectivity.front" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the elements of the first node front.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>startat</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em> or </em><em>list od ints</em>) – Element number(s) or a list of element numbers. The list of
+elements to find the next front for.</p></li>
+<li><p><strong>add</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – If True, the <cite>startat</cite> elements wil be included in the
+return value. The default (False) will only return the elements
+in the next front line.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>int array</em> – A list of the elements that are connected to any of the nodes
+that are part of the startat elements.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This is equivalent to the first step of a <a class="reference internal" href="#connectivity.Connectivity.frontWalk" title="connectivity.Connectivity.frontWalk"><code class="xref py py-func docutils literal notranslate"><span class="pre">frontWalk()</span></code></a>
+with the same startat elements, and could thus also be obtained from
+<code class="docutils literal notranslate"><span class="pre">where(self.frontWalk(startat,maxval=1)</span> <span class="pre">==</span> <span class="pre">1)[0]</span></code>.</p>
+<p>Here however another implementation is used, which is more efficient
+for very large models: it avoids the creation of the large array as
+returned by frontWalk.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">C</span> <span class="o">=</span> <span class="n">Connectivity</span><span class="p">([[</span><span class="mi">2</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">7</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">8</span><span class="p">],[</span><span class="mi">3</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">8</span><span class="p">],[</span><span class="mi">4</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">9</span><span class="p">],[</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">11</span><span class="p">],</span>
+<span class="gp">... </span>                  <span class="p">[</span><span class="mi">6</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">11</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">front</span><span class="p">([</span><span class="mi">2</span><span class="p">]))</span>
+<span class="go">[0 1 3]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="connectivity.Connectivity.selectNodes">
+<code class="sig-name descname">selectNodes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">selector</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/connectivity.html#Connectivity.selectNodes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#connectivity.Connectivity.selectNodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a <a class="reference internal" href="#connectivity.Connectivity" title="connectivity.Connectivity"><code class="xref py py-class docutils literal notranslate"><span class="pre">Connectivity</span></code></a> containing subsets of the nodes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>selector</strong> (int <a class="reference internal" href="../glossary.html#term-array_like"><span class="xref std std-term">array_like</span></a>) – An object that can be converted to a 1-dim or 2-dim
+int array. Examples are a tuple of local node numbers, or a list
+of such tuples all having the same length.
+Each row of <cite>selector</cite> holds a list of the local node numbers that
+should be retained in the new Connectivity table. As an example,
+if the Connectivity is plex-3 representing triangles, a selector
+[[0,1],[1,2],[2,0]] would extract the edges of the triangle.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><a class="reference internal" href="#connectivity.Connectivity" title="connectivity.Connectivity"><code class="xref py py-class docutils literal notranslate"><span class="pre">Connectivity</span></code></a> – A new Connectivity object with shape
+<code class="docutils literal notranslate"><span class="pre">(self.nelems*selector.nelems,selector.nplex)</span></code>.
+Duplicate elements created by the selector are retained.
+If the selector has an eltype (for example if it is a
+Connectivity itself), the returned Connectivity will have
+the same eltype.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Connectivity</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">]])</span><span class="o">.</span><span class="n">selectNodes</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">]])</span>
+<span class="go">Connectivity([[0, 1],</span>
+<span class="go">              [0, 2],</span>
+<span class="go">              [0, 2],</span>
+<span class="go">              [0, 1],</span>
+<span class="go">              [0, 3],</span>
+<span class="go">              [0, 2]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="connectivity.Connectivity.insertLevel">
+<code class="sig-name descname">insertLevel</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">selector</span></em>, <em class="sig-param"><span class="n">permutations</span><span class="o">=</span><span class="default_value">'all'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/connectivity.html#Connectivity.insertLevel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#connectivity.Connectivity.insertLevel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Insert an extra hierarchical level in a Connectivity table.</p>
+<p>A Connectivity table identifies higher hierarchical entities in
+function of lower ones. This method inserts an extra level in the
+hierarchy.
+For example, if you have volumes defined in function of points,
+you can insert an intermediate level of edges, or faces.
+Each element may generate multiple instances of the intermediate level.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>selector</strong> (int <a class="reference internal" href="../glossary.html#term-array_like"><span class="xref std std-term">array_like</span></a>) – An object that can be converted to a 1-dim or 2-dim
+int array. Examples are a tuple of local node numbers, or a list
+of such tuples all having the same length.
+Each row of <cite>selector</cite> holds a list of the local node numbers that
+should be retained in the new Connectivity table.</p></li>
+<li><p><strong>permutations</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><em>None</em></a>) – <p>Defines which permutations of the row data are allowed while still
+considering the rows equal. Equal rows in the intermediate level
+are collapsed into single items. Possible values are:</p>
+<ul>
+<li><p>’none’: no permutations are allowed: rows must match the same date
+at the same positions.</p></li>
+<li><p>’roll’: rolling is allowed. Rows that can be transformed into
+each other by rolling are considered equal;</p></li>
+<li><p>’all’: any permutation of the same data will be considered an
+equal row. This is the default.</p></li>
+</ul>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>hi</strong> (<a class="reference internal" href="#connectivity.Connectivity" title="connectivity.Connectivity"><code class="xref py py-class docutils literal notranslate"><span class="pre">Connectivity</span></code></a>) – A Connecivity defining the original elements
+in function of the intermediate level ones.</p></li>
+<li><p><strong>lo</strong> (<a class="reference internal" href="#connectivity.Connectivity" title="connectivity.Connectivity"><code class="xref py py-class docutils literal notranslate"><span class="pre">Connectivity</span></code></a>) – A Connectivity defining the intermediate level
+items in function of the lowest level ones (the original nodes).
+If the <code class="docutils literal notranslate"><span class="pre">selector</span></code> has an <code class="docutils literal notranslate"><span class="pre">eltype</span></code> attribute, then <code class="docutils literal notranslate"><span class="pre">lo</span></code> will
+inherit the same <code class="docutils literal notranslate"><span class="pre">eltype</span></code> value.</p></li>
+<li><p><em>The resulting node numbering of the created intermediate entities</em></p></li>
+<li><p>(the <cite>lo</cite> return value) respects the numbering order of the original</p></li>
+<li><p><em>elements and the applied selector, but in case of collapsing</em></p></li>
+<li><p><em>duplicate rows, it is undefined which of the collapsed sequences is</em></p></li>
+<li><p><em>returned.</em></p></li>
+<li><p><em>Because the precise order of the data in the collapsed rows is lost,</em></p></li>
+<li><p><em>it is in general not possible to restore the exact original table</em></p></li>
+<li><p><em>from the two resulting tables.</em></p></li>
+<li><p>See however <a class="reference internal" href="mesh.html#mesh.Mesh.getBorder" title="mesh.Mesh.getBorder"><code class="xref py py-meth docutils literal notranslate"><span class="pre">mesh.Mesh.getBorder()</span></code></a> for an application where an</p></li>
+<li><p><em>inverse operation is possible, because the border only contains</em></p></li>
+<li><p><em>unique rows.</em></p></li>
+<li><p>See also <code class="xref py py-meth docutils literal notranslate"><span class="pre">mesh.Mesh.combine()</span></code>, which is an almost inverse operation</p></li>
+<li><p><em>for the general case, if the selector is complete.</em></p></li>
+<li><p><em>The resulting rows may however be permutations of the original.</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Connectivity</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">]])</span><span class="o">.</span>        <span class="n">insertLevel</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">]])</span>
+<span class="go">(Connectivity([[0, 3, 1],</span>
+<span class="go">          [1, 3, 0],</span>
+<span class="go">          [2, 4, 1]]), Connectivity([[0, 1],</span>
+<span class="go">          [2, 0],</span>
+<span class="go">          [0, 3],</span>
+<span class="go">          [1, 2],</span>
+<span class="go">          [3, 2]]))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Connectivity</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]])</span><span class="o">.</span><span class="n">insertLevel</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">[[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]])</span>
+<span class="go">(Connectivity([[1, 2, 0, 0, 0]]), Connectivity([[0, 1, 1],</span>
+<span class="go">          [0, 1, 2],</span>
+<span class="go">          [1, 2, 3]]))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="connectivity.Connectivity.combine">
+<code class="sig-name descname">combine</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">lo</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/connectivity.html#Connectivity.combine"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#connectivity.Connectivity.combine" title="Permalink to this definition">¶</a></dt>
+<dd><p>Combine two hierarchical Connectivity levels to a single one.</p>
+<p>self and lo are two hierarchical Connectivity tables, representing
+higher and lower level respectively. This means that the elements
+of self hold numbers which point into lo to obtain the lowest level
+items.</p>
+<p><em>In the current implementation, the plexitude of lo should be 2!</em></p>
+<p>As an example, in a structure of triangles, hi could represent
+triangles defined by 3 edges and lo could represent edges defined
+by 2 vertices. This method will then result in a table
+with plexitude 3 defining the triangles in function of the vertices.</p>
+<p>This is the inverse operation of <a class="reference internal" href="#connectivity.Connectivity.insertLevel" title="connectivity.Connectivity.insertLevel"><code class="xref py py-meth docutils literal notranslate"><span class="pre">insertLevel()</span></code></a> with a selector
+which is complete.
+The algorithm only works if all node numbers of an element are
+unique.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">hi</span><span class="p">,</span><span class="n">lo</span> <span class="o">=</span> <span class="n">Connectivity</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">]])</span><span class="o">.</span>        <span class="n">insertLevel</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hi</span><span class="o">.</span><span class="n">combine</span><span class="p">(</span><span class="n">lo</span><span class="p">)</span>
+<span class="go">Connectivity([[0, 1, 2],</span>
+<span class="go">              [0, 2, 1],</span>
+<span class="go">              [0, 3, 2]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="connectivity.Connectivity.resolve">
+<code class="sig-name descname">resolve</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/connectivity.html#Connectivity.resolve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#connectivity.Connectivity.resolve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resolve the connectivity into plex-2 connections.</p>
+<p>Creates a Connectivity table with a plex-2 (edge) connection
+between any two nodes that are connected to a common element.</p>
+<p>There is no point in resolving a plexitude 2 structure.
+Plexitudes lower than 2 can not be resolved.</p>
+<p>Returns a plex-2 Connectivity with all connections between node
+pairs. In each element the nodes are sorted.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">([</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">combinations</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span><span class="mi">2</span><span class="p">)</span> <span class="p">])</span>
+<span class="go">[(0, 1), (0, 2), (1, 2)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Connectivity</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">]])</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+<span class="go">Connectivity([[0, 1],</span>
+<span class="go">              [0, 2],</span>
+<span class="go">              [0, 3],</span>
+<span class="go">              [1, 2],</span>
+<span class="go">              [2, 3]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="connectivity.Connectivity.sharedNodes">
+<code class="sig-name descname">sharedNodes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">elist</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/connectivity.html#Connectivity.sharedNodes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#connectivity.Connectivity.sharedNodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the list of nodes shared by all elements in elist</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>elist</strong> (int <a class="reference internal" href="../glossary.html#term-array_like"><span class="xref std std-term">array_like</span></a>) – List of element numbers. If not specified,
+all elements are considered.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>int array</em> – A 1-dim int array with the list of nodes that are
+common to all elements in the specified list. This array may be
+empty.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">Connectivity</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">sharedNodes</span><span class="p">()</span>
+<span class="go">array([0, 2])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">sharedNodes</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+<span class="go">array([0, 1, 2])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="connectivity.Connectivity.replic">
+<code class="sig-name descname">replic</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n</span></em>, <em class="sig-param"><span class="n">inc</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/connectivity.html#Connectivity.replic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#connectivity.Connectivity.replic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Repeat a Connectivity with increasing node numbers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – Number of copies to make.</p></li>
+<li><p><strong>inc</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – Increment in node numbers for each copy.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>Connectivity</em> – A Connectivity with the concatenation of <code class="docutils literal notranslate"><span class="pre">n</span></code> replicas of
+<code class="docutils literal notranslate"><span class="pre">self</span></code>, where the first replica is identical to self and each
+next one has its node numbers increased by <code class="docutils literal notranslate"><span class="pre">inc</span></code>.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Connectivity</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]])</span><span class="o">.</span><span class="n">replic</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span>
+<span class="go">Connectivity([[0, 1, 2],</span>
+<span class="go">              [0, 2, 3],</span>
+<span class="go">              [4, 5, 6],</span>
+<span class="go">              [4, 6, 7]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="connectivity.Connectivity.chain">
+<code class="sig-name descname">chain</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">disconnect</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">return_conn</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/connectivity.html#Connectivity.chain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#connectivity.Connectivity.chain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reorder the elements into simply connected chains.</p>
+<p>Chaining the elements involves reordering them such that the first
+node of the next element is equal to the last node of the previous.
+This is especially useful in converting line elements to continuous
+curves or polylines. It will work with any plexitude though, and
+only look at the first and last node of the elements in the chaining
+process.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>disconnect</strong> (int <a class="reference internal" href="../glossary.html#term-array_like"><span class="xref std std-term">array_like</span></a> | str, optional) – List of node numbers where the resulting chains should be split.
+None of the resulting chains will have any of the listed node
+numbers as an interior node. A chain may start and end
+at such a node. A special value ‘branch’ will set the disconnect
+array to all the nodes owned by more than two elements. This will
+split all chains at branching points.</p></li>
+<li><p><strong>return_conn</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – If True, also return the list of Connectivities corresponding with
+the chains.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>chains</strong> (<em>list of int arrays</em>) – A list of tables with the same column length as those in <code class="docutils literal notranslate"><span class="pre">conn</span></code>,
+and having two columns. The first column contains the original
+element numbers of a chain, and the second column a value +1 or
+-1 depending on whether the element traversal in the connected
+segment is in the original direction (+1) or the reverse (-1).
+The list of chains is sorted in order of decreasing length.</p></li>
+<li><p><strong>conn</strong> (list of <a class="reference internal" href="#connectivity.Connectivity" title="connectivity.Connectivity"><code class="xref py py-class docutils literal notranslate"><span class="pre">Connectivity</span></code></a> instances, optional) – Only returned if <code class="docutils literal notranslate"><span class="pre">return_conn</span></code> is True: a list a Connectivity
+tables of plexitude <code class="docutils literal notranslate"><span class="pre">nplex</span></code> corresponding to each chain.
+The elements in each Connectivity are ordered to form a continuous
+connected segment, i.e. the last node of each element in the table
+is equal to the first node of the following element (if any).</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#connectivity.Connectivity.chained" title="connectivity.Connectivity.chained"><code class="xref py py-obj docutils literal notranslate"><span class="pre">chained</span></code></a></dt><dd><p>return only the chained Connectivities</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Connectivity</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="p">],[</span><span class="mi">4</span><span class="p">,</span><span class="mi">2</span><span class="p">]])</span><span class="o">.</span><span class="n">chain</span><span class="p">()</span>
+<span class="go">[array([[ 0,  1],</span>
+<span class="go">        [ 1,  1],</span>
+<span class="go">        [ 3, -1],</span>
+<span class="go">        [ 2, -1]])]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Connectivity</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="p">]])</span><span class="o">.</span><span class="n">chain</span><span class="p">()</span>
+<span class="go">[array([[ 1, -1],</span>
+<span class="go">   [ 0, -1],</span>
+<span class="go">   [ 2,  1]])]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Connectivity</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">5</span><span class="p">,</span><span class="mi">4</span><span class="p">]])</span><span class="o">.</span><span class="n">chain</span><span class="p">()</span>
+<span class="go">[array([[ 0, -1],</span>
+<span class="go">        [ 1,  1]]),</span>
+<span class="go">array([[3, 1]]),</span>
+<span class="go">array([[2, 1]])]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Connectivity</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">5</span><span class="p">,</span><span class="mi">4</span><span class="p">]])</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="n">disconnect</span><span class="o">=</span><span class="s1">&#39;branch&#39;</span><span class="p">)</span>
+<span class="go">[array([[3, 1]]), array([[2, 1]]), array([[1, 1]]), array([[0, 1]])]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Connectivity</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">5</span><span class="p">,</span><span class="mi">4</span><span class="p">]])</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="n">return_conn</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">([array([[ 0, -1],</span>
+<span class="go">         [ 1,  1]]),</span>
+<span class="go">array([[3, 1]]),</span>
+<span class="go">array([[2, 1]])],</span>
+<span class="go">[Connectivity([[1, 0],</span>
+<span class="go">               [0, 2]]),</span>
+<span class="go">Connectivity([[5, 4]]),</span>
+<span class="go">Connectivity([[0, 3]])])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Connectivity</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">2</span><span class="p">]])</span><span class="o">.</span><span class="n">chain</span><span class="p">()</span>
+<span class="go">[array([[ 1, -1],</span>
+<span class="go">       [ 0, -1],</span>
+<span class="go">       [ 2,  1]]),</span>
+<span class="go">array([[3, 1]])]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Connectivity</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">2</span><span class="p">]])</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span>
+<span class="gp">... </span>   <span class="n">disconnect</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="go">[array([[0, 1],</span>
+<span class="go">   [1, 1]]), array([[3, 1]]), array([[2, 1]])]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="connectivity.Connectivity.chained">
+<code class="sig-name descname">chained</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">disconnect</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/connectivity.html#Connectivity.chained"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#connectivity.Connectivity.chained" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the Connectivities of the chained elements.</p>
+<p>This is a convenience method calling <a class="reference internal" href="#connectivity.Connectivity.chain" title="connectivity.Connectivity.chain"><code class="xref py py-meth docutils literal notranslate"><span class="pre">chain()</span></code></a> with
+the <code class="docutils literal notranslate"><span class="pre">return_conn=True</span></code> parameter and only returning the
+second return value. It is equivalent with:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="n">disconnect</span><span class="p">,</span> <span class="n">return_conn</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+</pre></div>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Connectivity</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="p">],[</span><span class="mi">4</span><span class="p">,</span><span class="mi">2</span><span class="p">]])</span><span class="o">.</span><span class="n">chained</span><span class="p">()</span>
+<span class="go">[Connectivity([[0, 1],</span>
+<span class="go">              [1, 2],</span>
+<span class="go">              [2, 4],</span>
+<span class="go">              [4, 0]])]</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Connectivity</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="p">]])</span><span class="o">.</span><span class="n">chained</span><span class="p">()</span>
+<span class="go">[Connectivity([[4, 0],</span>
+<span class="go">              [0, 1],</span>
+<span class="go">              [1, 2]])]</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Connectivity</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">]])</span><span class="o">.</span><span class="n">chained</span><span class="p">()</span>
+<span class="go">[Connectivity([[1, 0],</span>
+<span class="go">              [0, 2]]), Connectivity([[4, 5]]), Connectivity([[0, 3]])]</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Connectivity</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">5</span><span class="p">,</span><span class="mi">4</span><span class="p">]])</span><span class="o">.</span><span class="n">chained</span><span class="p">(</span><span class="n">disconnect</span><span class="o">=</span><span class="s1">&#39;branch&#39;</span><span class="p">)</span>
+<span class="go">[Connectivity([[5, 4]]), Connectivity([[0, 3]]),</span>
+<span class="go">Connectivity([[0, 2]]), Connectivity([[0, 1]])]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Connectivity</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">2</span><span class="p">]])</span><span class="o">.</span><span class="n">chained</span><span class="p">()</span>
+<span class="go">[Connectivity([[1, 3, 0],</span>
+<span class="go">               [0, 1, 2],</span>
+<span class="go">               [2, 0, 3]]),</span>
+<span class="go">Connectivity([[4, 5, 2]])]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Connectivity</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">2</span><span class="p">]],)</span><span class="o">.</span><span class="n">chained</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">disconnect</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="go">[Connectivity([[0, 1, 2],</span>
+<span class="go">              [2, 0, 3]]),         Connectivity([[4, 5, 2]]), Connectivity([[0, 3, 1]])]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="connectivity.Connectivity.connect">
+<em class="property">static </em><code class="sig-name descname">connect</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">clist</span></em>, <em class="sig-param"><span class="n">nodid</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">bias</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">loop</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/connectivity.html#Connectivity.connect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#connectivity.Connectivity.connect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Connect nodes from multiple Connectivity objects.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>clist</strong> (<em>list of Connectivity objects</em>) – The Connectivities to connect.</p></li>
+<li><p><strong>nodid</strong> (int <a class="reference internal" href="../glossary.html#term-array_like"><span class="xref std std-term">array_like</span></a>, optional) – List of node indices, same length as <code class="docutils literal notranslate"><span class="pre">clist</span></code>. This specifies
+which node of the elements will be used in the connect operation.</p></li>
+<li><p><strong>bias</strong> (int <a class="reference internal" href="../glossary.html#term-array_like"><span class="xref std std-term">array_like</span></a>, optional) – List of element bias values, same length as <code class="docutils literal notranslate"><span class="pre">clist</span></code>. If provided,
+then element looping will start at this number instead of at zero.</p></li>
+<li><p><strong>loop</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – If False (default), new element generation will stop as soon as
+the shortest Connectivity runs out of elements. If set to True,
+the shorter lists will wrap around until all elements of all
+Connectivities have been used.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>Connectivity</em> – A Connectivity with plexitude equal to the number of
+Connectivities in <code class="docutils literal notranslate"><span class="pre">clist</span></code>. Each element of the new
+Connectivity consist of a node from the corresponding
+element of each of the Connectivities in <code class="docutils literal notranslate"><span class="pre">clist</span></code>.
+By default this will be the first node of that element,
+but a <code class="docutils literal notranslate"><span class="pre">nodid</span></code> list may be given to specify the node index
+to be used for each of the Connectivities.
+Finally, a list of bias values may be given to specify an offset in
+element number for the subsequent Connectivities.
+If loop==False, the length of the Connectivity will be the minimum
+length of the Connectivities in <code class="docutils literal notranslate"><span class="pre">clist</span></code>, each minus its respective
+bias. If loop=True, the length will be the maximum
+length in of the Connectivities in <code class="docutils literal notranslate"><span class="pre">clist</span></code>.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">Connectivity</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">Connectivity</span><span class="p">([[</span><span class="mi">10</span><span class="p">,</span><span class="mi">11</span><span class="p">,</span><span class="mi">12</span><span class="p">],[</span><span class="mi">13</span><span class="p">,</span><span class="mi">14</span><span class="p">,</span><span class="mi">15</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span> <span class="o">=</span> <span class="n">Connectivity</span><span class="p">([[</span><span class="mi">20</span><span class="p">,</span><span class="mi">21</span><span class="p">],[</span><span class="mi">22</span><span class="p">,</span><span class="mi">23</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">Connectivity</span><span class="o">.</span><span class="n">connect</span><span class="p">([</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">c</span><span class="p">]))</span>
+<span class="go">[[ 0 10 20]</span>
+<span class="go"> [ 2 13 22]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">Connectivity</span><span class="o">.</span><span class="n">connect</span><span class="p">([</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">c</span><span class="p">],</span><span class="n">nodid</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]))</span>
+<span class="go">[[ 1 10 21]</span>
+<span class="go"> [ 3 13 23]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">Connectivity</span><span class="o">.</span><span class="n">connect</span><span class="p">([</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">c</span><span class="p">],</span><span class="n">bias</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]))</span>
+<span class="go">[[ 2 10 22]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">Connectivity</span><span class="o">.</span><span class="n">connect</span><span class="p">([</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">c</span><span class="p">],</span><span class="n">bias</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="n">loop</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+<span class="go">[[ 2 10 22]</span>
+<span class="go"> [ 4 13 20]</span>
+<span class="go"> [ 0 10 22]]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="coordsys.html" title="16. coordsys — Coordinate Systems."
+             >next</a> |</li>
+        <li class="right" >
+          <a href="config.html" title="14. config — A general yet simple configuration class."
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../refman.html" >pyFormex reference manual</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href=""><span class="section-number">15. </span><code class="xref py py-mod docutils literal notranslate"><span class="pre">connectivity</span></code> — A class and functions for handling nodal connectivity.</a></li--> 
+      </ul>
+    </div>
+    <div class="footer">
+    <span class="left">
+        &copy; Copyright 2004-2023, Benedict Verhegghe.
+    </span>
+      Last updated on Mar 27, 2023.
+    <span class="right">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.4.3.
+    </span>
+    </div>
+  </body>
+</html>

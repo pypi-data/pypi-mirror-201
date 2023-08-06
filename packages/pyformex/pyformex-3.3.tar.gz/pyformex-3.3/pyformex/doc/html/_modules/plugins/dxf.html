@@ -1,0 +1,551 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!--
+##
+##  This file is part of the pyFormex project.
+##  pyFormex is a tool for generating, manipulating and transforming 3D
+##  geometrical models by sequences of mathematical operations.
+##  Home page: http://pyformex.org
+##  Project page:  http://savannah.nongnu.org/projects/pyformex/
+##  Copyright (C) Benedict Verhegghe (benedict.verhegghe@ugent.be)
+##  Distributed under the GNU General Public License version 3 or later.
+##
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see http://www.gnu.org/licenses/.
+##
+-->
+    <title>plugins.dxf &#8212; pyFormex 3.3 documentation</title>
+
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pyformex.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+<link rel="icon" type="image/png" href="../../_static/pyformex_fav.png" />
+
+  </head><body>
+
+<div class="header">
+  <a href="http://pyformex.org">
+  <img src="../../_static/scallop_dome_small.png" alt="scallop dome" border="0" hspace="20" vspace="12" align="left" />
+  <img src="../../_static/pyformex-logo-2.png" alt="pyformex logo" border="0" hspace="10" vspace="8" align="left" />
+  </a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">plugins.dxf</a></li--> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<!-- PYFORMEX_SIDEBAR_LOGO -->
+<!-- PYFORMEX_WEBSITE_SIDEBAR_TOP -->
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for plugins.dxf</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1">##</span>
+<span class="c1">##  SPDX-FileCopyrightText: © 2007-2023 Benedict Verhegghe &lt;bverheg@gmail.com&gt;</span>
+<span class="c1">##  SPDX-License-Identifier: GPL-3.0-or-later</span>
+<span class="c1">##</span>
+<span class="c1">##  This file is part of pyFormex 3.3  (Sun Mar 26 20:16:15 CEST 2023)</span>
+<span class="c1">##  pyFormex is a tool for generating, manipulating and transforming 3D</span>
+<span class="c1">##  geometrical models by sequences of mathematical operations.</span>
+<span class="c1">##  Home page: https://pyformex.org</span>
+<span class="c1">##  Project page: https://savannah.nongnu.org/projects/pyformex/</span>
+<span class="c1">##  Development: https://gitlab.com/bverheg/pyformex</span>
+<span class="c1">##  Distributed under the GNU General Public License version 3 or later.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is free software: you can redistribute it and/or modify</span>
+<span class="c1">##  it under the terms of the GNU General Public License as published by</span>
+<span class="c1">##  the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1">##  (at your option) any later version.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is distributed in the hope that it will be useful,</span>
+<span class="c1">##  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1">##  GNU General Public License for more details.</span>
+<span class="c1">##</span>
+<span class="c1">##  You should have received a copy of the GNU General Public License</span>
+<span class="c1">##  along with this program.  If not, see http://www.gnu.org/licenses/.</span>
+<span class="c1">##</span>
+<span class="sd">&quot;&quot;&quot;Read/write geometry in DXF format.</span>
+
+<span class="sd">This module allows to import and export some simple geometrical items</span>
+<span class="sd">in DXF format.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="kn">from</span> <span class="nn">pyformex.core</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">curve</span>
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">utils</span>
+
+
+<span class="c1"># Avoid compilation problems</span>
+<span class="k">def</span> <span class="nf">execSource</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">g</span><span class="p">):</span>
+    <span class="n">exec</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">g</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="importDXF"><a class="viewcode-back" href="../../ref/plugins.dxf.html#plugins.dxf.importDXF">[docs]</a><span class="k">def</span> <span class="nf">importDXF</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Import (parts of) a DXF file into pyFormex.</span>
+
+<span class="sd">    This function scans a DXF file for recognized entities and imports</span>
+<span class="sd">    those entities as pyFormex objects. It is only a very partial importer,</span>
+<span class="sd">    but has proven to be already very valuable for many users.</span>
+
+<span class="sd">    `filename`: name of a DXF file.</span>
+<span class="sd">    The return value is a list of pyFormex objects.</span>
+
+<span class="sd">    Importing a DXF file is done in two steps:</span>
+
+<span class="sd">    - First the DXF file is scanned and the recognized entities are</span>
+<span class="sd">      formatted into a text with standard function calling syntax.</span>
+<span class="sd">      See :func:`readDXF`.</span>
+<span class="sd">    - Then the created text is executed as a Python script, producing</span>
+<span class="sd">      equivalent pyFormex objects.</span>
+<span class="sd">      See :func:`convertDXF`.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">readDXF</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">text</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">convertDXF</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span></div>
+
+
+<div class="viewcode-block" id="readDXF"><a class="viewcode-back" href="../../ref/plugins.dxf.html#plugins.dxf.readDXF">[docs]</a><span class="k">def</span> <span class="nf">readDXF</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read a DXF file and extract the recognized entities.</span>
+
+<span class="sd">    `filename`: name of a .DXF file.</span>
+
+<span class="sd">    Returns a multiline string with one line for each recognized entity,</span>
+<span class="sd">    in a format that can directly be used by :func:`convertDXF`.</span>
+
+<span class="sd">    This function requires the external program `dxfparser` which comes</span>
+<span class="sd">    with the pyFormex distribution. It currently recognizes entities of</span>
+<span class="sd">    type &#39;Arc&#39;, &#39;Line&#39;, &#39;Polyline&#39;, &#39;Vertex&#39;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">utils</span><span class="o">.</span><span class="n">External</span><span class="o">.</span><span class="n">has</span><span class="p">(</span><span class="s1">&#39;dxfparser&#39;</span><span class="p">):</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="s1">&#39;pyformex-dxfparser </span><span class="si">%s</span><span class="s1"> 2&gt;/dev/null&#39;</span> <span class="o">%</span> <span class="n">filename</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+        <span class="n">P</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">P</span><span class="o">.</span><span class="n">returncode</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">P</span><span class="o">.</span><span class="n">stdout</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s1">&#39;&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;warn_dxf_noparser&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s1">&#39;&#39;</span></div>
+
+
+<span class="n">Entities</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">Vertices</span> <span class="o">=</span> <span class="p">[]</span>
+
+<div class="viewcode-block" id="convertDXF"><a class="viewcode-back" href="../../ref/plugins.dxf.html#plugins.dxf.convertDXF">[docs]</a><span class="k">def</span> <span class="nf">convertDXF</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert a textual representation of a DXF format to pyFormex objects.</span>
+
+<span class="sd">    `text` : a multiline text representation of the contents of a DXF file.</span>
+<span class="sd">      This text representation can e.g. be obtained by the function</span>
+<span class="sd">      :func:`readDXF`. It contains lines defining DXF entities. A small</span>
+<span class="sd">      example::</span>
+
+<span class="sd">        Arc(0.0,0.0,0.0,1.0,-90.,90.)</span>
+<span class="sd">        Arc(0.0,0.0,0.0,3.0,-90.,90.)</span>
+<span class="sd">        Line(0.0,-1.0,0.0,0.0,1.0,0.0)</span>
+<span class="sd">        Polyline(0)</span>
+<span class="sd">        Vertex(0.0,3.0,0.0)</span>
+<span class="sd">        Vertex(-2.0,3.0,0.0)</span>
+<span class="sd">        Vertex(-2.0,-7.0,0.0)</span>
+<span class="sd">        Vertex(0.0,-7.0,0.0)</span>
+<span class="sd">        Vertex(0.0,-3.0,0.0)</span>
+
+<span class="sd">      Each line of the text defines a single entity or starts a multiple</span>
+<span class="sd">      component entity. The text should be well aligned to constitute a</span>
+<span class="sd">      proper Python script. Currently, the only defined entities are</span>
+<span class="sd">      &#39;Arc&#39;, &#39;Line&#39;, &#39;Polyline&#39;, &#39;Vertex&#39;.</span>
+
+<span class="sd">    Returns a list of pyFormex objects corresponding to the text. The</span>
+<span class="sd">    returned objects are of the following type:</span>
+
+<span class="sd">        =============         ================================</span>
+<span class="sd">        function name         object</span>
+<span class="sd">        =============         ================================</span>
+<span class="sd">        Arc                   :class:`curve.Arc`</span>
+<span class="sd">        Line                  :class:`plugins.dxf.Line`</span>
+<span class="sd">        Polyline              :class:`curve.PolyLine`</span>
+<span class="sd">        =============         ================================</span>
+
+<span class="sd">    No object is returned for the `Vertex` function: they define the</span>
+<span class="sd">    vertices of a PolyLine.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">types</span>
+    <span class="k">global</span> <span class="n">Entities</span><span class="p">,</span> <span class="n">Vertices</span>
+
+    <span class="n">Entities</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">Vertices</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Simple type (Line, Arc) create the object and append it to the</span>
+    <span class="c1"># Entities list</span>
+    <span class="c1"># Compound types (like Polyline) append the corresponding</span>
+    <span class="c1"># EndEntity function to the Entities list</span>
+
+
+    <span class="k">def</span> <span class="nf">EndEntity</span><span class="p">():</span>
+        <span class="k">global</span> <span class="n">Entities</span><span class="p">,</span> <span class="n">Vertices</span>
+        <span class="k">if</span> <span class="n">Entities</span><span class="p">:</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="n">Entities</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">FunctionType</span><span class="p">):</span>
+                <span class="n">f</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">Arc</span><span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">z0</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">a0</span><span class="p">,</span> <span class="n">a1</span><span class="p">):</span>
+        <span class="k">global</span> <span class="n">Entities</span><span class="p">,</span> <span class="n">Vertices</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">Entities</span><span class="p">)</span>
+        <span class="n">part</span> <span class="o">=</span> <span class="n">curve</span><span class="o">.</span><span class="n">Arc</span><span class="p">(</span><span class="n">center</span><span class="o">=</span><span class="p">[</span><span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">z0</span><span class="p">],</span> <span class="n">radius</span><span class="o">=</span><span class="n">r</span><span class="p">,</span> <span class="n">angles</span><span class="o">=</span><span class="p">[</span><span class="n">a0</span><span class="p">,</span> <span class="n">a1</span><span class="p">])</span><span class="o">.</span><span class="n">setProp</span><span class="p">(</span><span class="n">count</span><span class="p">)</span>
+        <span class="n">part</span><span class="o">.</span><span class="n">dxftype</span> <span class="o">=</span> <span class="s1">&#39;Arc&#39;</span>
+        <span class="n">Entities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">part</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">Circle</span><span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">z0</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
+        <span class="n">Arc</span><span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">z0</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">360.</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">Line</span><span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">z0</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">z1</span><span class="p">):</span>
+        <span class="k">global</span> <span class="n">Entities</span><span class="p">,</span> <span class="n">Vertices</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">Entities</span><span class="p">)</span>
+        <span class="n">part</span> <span class="o">=</span> <span class="n">curve</span><span class="o">.</span><span class="n">PolyLine</span><span class="p">([[</span><span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">z0</span><span class="p">],</span> <span class="p">[</span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">z1</span><span class="p">]])</span><span class="o">.</span><span class="n">setProp</span><span class="p">(</span><span class="n">count</span><span class="p">)</span>
+        <span class="n">part</span><span class="o">.</span><span class="n">dxftype</span> <span class="o">=</span> <span class="s1">&#39;Line&#39;</span>
+        <span class="n">Entities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">part</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">Polyline</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+        <span class="k">global</span> <span class="n">Entities</span><span class="p">,</span> <span class="n">Vertices</span>
+        <span class="n">EndEntity</span><span class="p">()</span>
+        <span class="n">Entities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">EndPolyline</span><span class="p">)</span>
+        <span class="n">Vertices</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">EndPolyline</span><span class="p">():</span>
+        <span class="k">global</span> <span class="n">Entities</span><span class="p">,</span> <span class="n">Vertices</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">Entities</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="n">part</span> <span class="o">=</span> <span class="n">curve</span><span class="o">.</span><span class="n">PolyLine</span><span class="p">(</span><span class="n">Vertices</span><span class="p">)</span><span class="o">.</span><span class="n">setProp</span><span class="p">(</span><span class="n">count</span><span class="p">)</span>
+        <span class="n">part</span><span class="o">.</span><span class="n">dxftype</span> <span class="o">=</span> <span class="s1">&#39;Polyline&#39;</span>
+        <span class="n">Entities</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">part</span>
+        <span class="n">Vertices</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">Vertex</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
+        <span class="k">global</span> <span class="n">Entities</span><span class="p">,</span> <span class="n">Vertices</span>
+        <span class="n">Vertices</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">])</span>
+
+
+    <span class="n">l</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Line&#39;</span><span class="p">:</span> <span class="n">Line</span><span class="p">,</span> <span class="s1">&#39;Arc&#39;</span><span class="p">:</span> <span class="n">Arc</span><span class="p">,</span> <span class="s1">&#39;Circle&#39;</span><span class="p">:</span> <span class="n">Circle</span><span class="p">,</span> <span class="s1">&#39;Polyline&#39;</span><span class="p">:</span> <span class="n">Polyline</span><span class="p">,</span> <span class="s1">&#39;EndPolyline&#39;</span><span class="p">:</span> <span class="n">EndPolyline</span><span class="p">,</span> <span class="s1">&#39;Vertex&#39;</span><span class="p">:</span> <span class="n">Vertex</span><span class="p">}</span>
+    <span class="n">execSource</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">l</span><span class="p">)</span>
+    <span class="n">EndEntity</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">Entities</span></div>
+
+
+<div class="viewcode-block" id="collectByType"><a class="viewcode-back" href="../../ref/plugins.dxf.html#plugins.dxf.collectByType">[docs]</a><span class="k">def</span> <span class="nf">collectByType</span><span class="p">(</span><span class="n">entities</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Collect the dxf entities by type.&quot;&quot;&quot;</span>
+    <span class="n">coll</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">types</span> <span class="o">=</span> <span class="p">{</span><span class="nb">type</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">entities</span><span class="p">}</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;DXF collection:&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">types</span><span class="p">:</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="n">cn</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">entities</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">t</span><span class="p">)]</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  items of type </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">cn</span><span class="p">)))</span>
+        <span class="n">coll</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">cn</span>
+    <span class="k">return</span> <span class="n">coll</span></div>
+
+
+<div class="viewcode-block" id="toLines"><a class="viewcode-back" href="../../ref/plugins.dxf.html#plugins.dxf.toLines">[docs]</a><span class="k">def</span> <span class="nf">toLines</span><span class="p">(</span><span class="n">coll</span><span class="p">,</span> <span class="n">chordal</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">arcdiv</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert the dxf entities in a dxf collection to a plex-2 Formex</span>
+
+<span class="sd">    This converts Lines, Arcs and PolyLines to plex-2 elements and collects</span>
+<span class="sd">    them in a single Formex.</span>
+<span class="sd">    The chordal and arcdiv parameters are passed to :meth:`Arc.approx` to set</span>
+<span class="sd">    the accuracy for the approximation of the Arc by line segments.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">Lines</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">coll</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;Line&#39;</span><span class="p">,</span> <span class="s1">&#39;PolyLine&#39;</span><span class="p">]:</span>
+            <span class="n">Lines</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">a</span><span class="o">.</span><span class="n">toFormex</span><span class="p">()</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">v</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">k</span> <span class="o">==</span> <span class="s1">&#39;Arc&#39;</span><span class="p">:</span>
+            <span class="n">Lines</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">a</span><span class="o">.</span><span class="n">toFormex</span><span class="p">(</span><span class="n">chordal</span><span class="o">=</span><span class="n">chordal</span><span class="p">,</span> <span class="n">ndiv</span><span class="o">=</span><span class="n">arcdiv</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">v</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">Formex</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">Lines</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DxfExporter"><a class="viewcode-back" href="../../ref/plugins.dxf.html#plugins.dxf.DxfExporter">[docs]</a><span class="k">class</span> <span class="nc">DxfExporter</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Export geometry in DXF format.</span>
+
+<span class="sd">    While we certainly do not want to promote proprietary software,</span>
+<span class="sd">    some of our users occasionally needed to export some model in</span>
+<span class="sd">    DXF format.</span>
+<span class="sd">    This class provides a minimum of functionality.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">terminator</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Open a file for export in DXF format.</span>
+
+<span class="sd">        No check is done that the file has a &#39;.dxf&#39; extension.</span>
+<span class="sd">        The file will by default be written in UNIX line termination mode.</span>
+<span class="sd">        An existing file will be overwritten without warning!</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fil</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">term</span> <span class="o">=</span> <span class="n">terminator</span>
+
+
+<div class="viewcode-block" id="DxfExporter.write"><a class="viewcode-back" href="../../ref/plugins.dxf.html#plugins.dxf.DxfExporter.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Write a string to the dxf file.</span>
+
+<span class="sd">        The string does not include the line terminator.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fil</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">s</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">term</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DxfExporter.out"><a class="viewcode-back" href="../../ref/plugins.dxf.html#plugins.dxf.DxfExporter.out">[docs]</a>    <span class="k">def</span> <span class="nf">out</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">code</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Output a string data item to the dxf file.</span>
+
+<span class="sd">        code is the group code,</span>
+<span class="sd">        data holds the data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%3s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">code</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">data</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DxfExporter.close"><a class="viewcode-back" href="../../ref/plugins.dxf.html#plugins.dxf.DxfExporter.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Finalize and close the DXF file&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;EOF&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fil</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="DxfExporter.section"><a class="viewcode-back" href="../../ref/plugins.dxf.html#plugins.dxf.DxfExporter.section">[docs]</a>    <span class="k">def</span> <span class="nf">section</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Start a new section&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;SECTION&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DxfExporter.endSection"><a class="viewcode-back" href="../../ref/plugins.dxf.html#plugins.dxf.DxfExporter.endSection">[docs]</a>    <span class="k">def</span> <span class="nf">endSection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;End the current section&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;ENDSEC&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DxfExporter.entities"><a class="viewcode-back" href="../../ref/plugins.dxf.html#plugins.dxf.DxfExporter.entities">[docs]</a>    <span class="k">def</span> <span class="nf">entities</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Start the ENTITIES section&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">section</span><span class="p">(</span><span class="s1">&#39;ENTITIES&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DxfExporter.layer"><a class="viewcode-back" href="../../ref/plugins.dxf.html#plugins.dxf.DxfExporter.layer">[docs]</a>    <span class="k">def</span> <span class="nf">layer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Export the layer&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="n">layer</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DxfExporter.vertex"><a class="viewcode-back" href="../../ref/plugins.dxf.html#plugins.dxf.DxfExporter.vertex">[docs]</a>    <span class="k">def</span> <span class="nf">vertex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">layer</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Export a vertex.</span>
+
+<span class="sd">        x is a (3,) shaped array</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;VERTEX&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="n">layer</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">out</span><span class="p">(</span><span class="mi">10</span><span class="o">*</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="DxfExporter.line"><a class="viewcode-back" href="../../ref/plugins.dxf.html#plugins.dxf.DxfExporter.line">[docs]</a>    <span class="k">def</span> <span class="nf">line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">layer</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Export a line.</span>
+
+<span class="sd">        x is a (2,3) shaped array</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;LINE&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="n">layer</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">out</span><span class="p">(</span><span class="mi">10</span><span class="o">*</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="n">j</span><span class="p">,</span> <span class="n">x</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">i</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="DxfExporter.polyline"><a class="viewcode-back" href="../../ref/plugins.dxf.html#plugins.dxf.DxfExporter.polyline">[docs]</a>    <span class="k">def</span> <span class="nf">polyline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">layer</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Export a polyline.</span>
+
+<span class="sd">        x is a (nvertices,3) shaped array</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;POLYLINE&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="n">layer</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">xi</span> <span class="ow">in</span> <span class="n">x</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">vertex</span><span class="p">(</span><span class="n">xi</span><span class="p">,</span> <span class="n">layer</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;SEQEND&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DxfExporter.arc"><a class="viewcode-back" href="../../ref/plugins.dxf.html#plugins.dxf.DxfExporter.arc">[docs]</a>    <span class="k">def</span> <span class="nf">arc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">layer</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Export an arc.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;ARC&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="n">layer</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="p">[</span>
+            <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">C</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+            <span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="n">C</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+            <span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="n">C</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span>
+            <span class="p">(</span><span class="mi">40</span><span class="p">,</span> <span class="n">R</span><span class="p">),</span>
+            <span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+            <span class="p">(</span><span class="mi">51</span><span class="p">,</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+            <span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">out</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="exportDXF"><a class="viewcode-back" href="../../ref/plugins.dxf.html#plugins.dxf.exportDXF">[docs]</a><span class="k">def</span> <span class="nf">exportDXF</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">F</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Export a Formex to a DXF file</span>
+
+<span class="sd">    Currently, only plex-2 Formices can be exported to DXF.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">F</span><span class="o">.</span><span class="n">nplex</span><span class="p">()</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Can only export plex-2 Formices to DXF&quot;</span><span class="p">)</span>
+    <span class="n">dxf</span> <span class="o">=</span> <span class="n">DxfExporter</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="n">dxf</span><span class="o">.</span><span class="n">entities</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">F</span><span class="p">:</span>
+        <span class="n">dxf</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+    <span class="n">dxf</span><span class="o">.</span><span class="n">endSection</span><span class="p">()</span>
+    <span class="n">dxf</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="exportDxf"><a class="viewcode-back" href="../../ref/plugins.dxf.html#plugins.dxf.exportDxf">[docs]</a><span class="k">def</span> <span class="nf">exportDxf</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">coll</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Export a collection of dxf parts a DXF file</span>
+
+<span class="sd">    coll is a list of dxf objects</span>
+
+<span class="sd">    Currently, only dxf objects of type &#39;Line&#39; and &#39;Arc&#39; can be exported.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dxf</span> <span class="o">=</span> <span class="n">DxfExporter</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="n">dxf</span><span class="o">.</span><span class="n">entities</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">ent</span> <span class="ow">in</span> <span class="n">coll</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">ent</span><span class="p">),</span> <span class="n">ent</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">curve</span><span class="o">.</span><span class="n">Line</span><span class="p">):</span>
+            <span class="n">dxf</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">ent</span><span class="o">.</span><span class="n">coords</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">curve</span><span class="o">.</span><span class="n">Arc</span><span class="p">):</span>
+            <span class="n">dxf</span><span class="o">.</span><span class="n">arc</span><span class="p">(</span><span class="n">ent</span><span class="o">.</span><span class="n">getCenter</span><span class="p">(),</span> <span class="n">ent</span><span class="o">.</span><span class="n">radius</span><span class="p">,</span> <span class="n">ent</span><span class="o">.</span><span class="n">angles</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="n">curve</span><span class="o">.</span><span class="n">PolyLine</span><span class="p">):</span>
+            <span class="n">dxf</span><span class="o">.</span><span class="n">polyline</span><span class="p">(</span><span class="n">ent</span><span class="o">.</span><span class="n">coords</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">utils</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;warn_dxf_export&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="nb">type</span><span class="p">(</span><span class="n">ent</span><span class="p">))</span>
+
+    <span class="n">dxf</span><span class="o">.</span><span class="n">endSection</span><span class="p">()</span>
+    <span class="n">dxf</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="dxftext"><a class="viewcode-back" href="../../ref/plugins.dxf.html#plugins.dxf.dxftext">[docs]</a><span class="k">def</span> <span class="nf">dxftext</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; L = curve.Line([[0.,0.,0.], [0.,1.,0.]])</span>
+<span class="sd">    &gt;&gt;&gt; print(dxftext(L))</span>
+<span class="sd">    Line(0.0, 0.0, 0.0, 0.0, 1.0, 0.0)</span>
+<span class="sd">    &gt;&gt;&gt; A = curve.Arc(center=[0.,0.,0.], radius=1., angles=(-90., 90.))</span>
+<span class="sd">    &gt;&gt;&gt; print(dxftext(A))</span>
+<span class="sd">    Arc(0.0, 0.0, 0.0, 1.0, 270.0, 450.0)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">curve</span><span class="o">.</span><span class="n">Line</span><span class="p">):</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">coords</span><span class="o">.</span><span class="n">ravel</span><span class="p">())</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Line</span><span class="si">{</span><span class="n">d</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">curve</span><span class="o">.</span><span class="n">Arc</span><span class="p">):</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">obj</span><span class="o">.</span><span class="n">center</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">radius</span><span class="p">,</span> <span class="o">*</span><span class="n">obj</span><span class="o">.</span><span class="n">angles</span><span class="p">)</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Arc</span><span class="si">{</span><span class="n">d</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">return</span> <span class="n">s</span></div>
+
+<div class="viewcode-block" id="exportDxfText"><a class="viewcode-back" href="../../ref/plugins.dxf.html#plugins.dxf.exportDxfText">[docs]</a><span class="k">def</span> <span class="nf">exportDxfText</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">parts</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Export a set of dxf entities to a .dxftext file.&quot;&quot;&quot;</span>
+    <span class="n">fil</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">:</span>
+        <span class="n">fil</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">dxftext</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">fil</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+<span class="c1"># An example</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__draw__&#39;</span><span class="p">:</span>
+    <span class="c1">#chdir(__file__)</span>
+    <span class="kn">from</span> <span class="nn">pyformex.simple</span> <span class="kn">import</span> <span class="n">circle</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">circle</span><span class="p">(</span><span class="mf">360.</span><span class="o">/</span><span class="mf">20.</span><span class="p">,</span> <span class="mf">360.</span><span class="o">/</span><span class="mf">20.</span><span class="p">,</span> <span class="mf">360.</span><span class="p">)</span>
+    <span class="n">draw</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+    <span class="n">exportDXF</span><span class="p">(</span><span class="s1">&#39;circle1.dxf&#39;</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
+
+<span class="c1">#End</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">plugins.dxf</a></li--> 
+      </ul>
+    </div>
+    <div class="footer">
+    <span class="left">
+        &copy; Copyright 2004-2023, Benedict Verhegghe.
+    </span>
+      Last updated on Mar 27, 2023.
+    <span class="right">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.4.3.
+    </span>
+    </div>
+  </body>
+</html>

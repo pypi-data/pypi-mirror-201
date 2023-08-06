@@ -1,0 +1,425 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!--
+##
+##  This file is part of the pyFormex project.
+##  pyFormex is a tool for generating, manipulating and transforming 3D
+##  geometrical models by sequences of mathematical operations.
+##  Home page: http://pyformex.org
+##  Project page:  http://savannah.nongnu.org/projects/pyformex/
+##  Copyright (C) Benedict Verhegghe (benedict.verhegghe@ugent.be)
+##  Distributed under the GNU General Public License version 3 or later.
+##
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see http://www.gnu.org/licenses/.
+##
+-->
+    <title>gui.colorscale &#8212; pyFormex 3.3 documentation</title>
+
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pyformex.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+<link rel="icon" type="image/png" href="../../_static/pyformex_fav.png" />
+
+  </head><body>
+
+<div class="header">
+  <a href="http://pyformex.org">
+  <img src="../../_static/scallop_dome_small.png" alt="scallop dome" border="0" hspace="20" vspace="12" align="left" />
+  <img src="../../_static/pyformex-logo-2.png" alt="pyformex logo" border="0" hspace="10" vspace="8" align="left" />
+  </a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">gui.colorscale</a></li--> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<!-- PYFORMEX_SIDEBAR_LOGO -->
+<!-- PYFORMEX_WEBSITE_SIDEBAR_TOP -->
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for gui.colorscale</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1">##</span>
+<span class="c1">##  SPDX-FileCopyrightText: © 2007-2023 Benedict Verhegghe &lt;bverheg@gmail.com&gt;</span>
+<span class="c1">##  SPDX-License-Identifier: GPL-3.0-or-later</span>
+<span class="c1">##</span>
+<span class="c1">##  This file is part of pyFormex 3.3  (Sun Mar 26 20:16:15 CEST 2023)</span>
+<span class="c1">##  pyFormex is a tool for generating, manipulating and transforming 3D</span>
+<span class="c1">##  geometrical models by sequences of mathematical operations.</span>
+<span class="c1">##  Home page: https://pyformex.org</span>
+<span class="c1">##  Project page: https://savannah.nongnu.org/projects/pyformex/</span>
+<span class="c1">##  Development: https://gitlab.com/bverheg/pyformex</span>
+<span class="c1">##  Distributed under the GNU General Public License version 3 or later.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is free software: you can redistribute it and/or modify</span>
+<span class="c1">##  it under the terms of the GNU General Public License as published by</span>
+<span class="c1">##  the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1">##  (at your option) any later version.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is distributed in the hope that it will be useful,</span>
+<span class="c1">##  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1">##  GNU General Public License for more details.</span>
+<span class="c1">##</span>
+<span class="c1">##  You should have received a copy of the GNU General Public License</span>
+<span class="c1">##  along with this program.  If not, see http://www.gnu.org/licenses/.</span>
+<span class="c1">##</span>
+<span class="sd">&quot;&quot;&quot;Mapping numerical values into colors.</span>
+
+<span class="sd">This module contains some definitions useful in the mapping of</span>
+<span class="sd">numerical values into colors. This is typically used to provide</span>
+<span class="sd">a visual representation of numerical values (e.g. a temperature plot).</span>
+<span class="sd">See the &#39;postproc&#39; plugin for some applications in the representation</span>
+<span class="sd">of results from Finite Element simulation programs.</span>
+
+<span class="sd">- ColorScale: maps scalar float values into colors.</span>
+<span class="sd">- ColorLegend: subdivides a ColorScale into a number of subranges (which</span>
+<span class="sd">  are graphically represented by the pyformex.opengl.decors.ColorLegend</span>
+<span class="sd">  class).</span>
+<span class="sd">- Palette: a dict with some predefined palettes that can be used to create</span>
+<span class="sd">  ColorScale instances. The values in the dict are tuples of three colors,</span>
+<span class="sd">  the middle one possibly being None (see ColorScale initialization for</span>
+<span class="sd">  more details). The keys are strings that can be used in the ColorScale</span>
+<span class="sd">  initialization instead of the corresponding value.</span>
+<span class="sd">  Currently, the following palettes are defined:</span>
+<span class="sd">  &#39;RAINBOW&#39;, &#39;IRAINBOW&#39;, &#39;HOT&#39;, &#39;RGB&#39;, &#39;BGR&#39;, RWB&#39;, &#39;BWR&#39;, &#39;RWG&#39;, &#39;GWR&#39;,</span>
+<span class="sd">  &#39;GWB&#39;, &#39;BWG&#39;, &#39;BW&#39;, &#39;WB&#39;, &#39;PLASMA&#39;, &#39;VIRIDIS&#39;, &#39;INFERNO&#39;, &#39;MAGMA&#39;.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">colors</span>
+<span class="kn">from</span> <span class="nn">pyformex.arraytools</span> <span class="kn">import</span> <span class="n">stuur</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="c1"># predefined color palettes</span>
+<span class="n">Palette</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;RAINBOW&#39;</span><span class="p">:</span> <span class="p">((</span><span class="o">-</span><span class="mf">2.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">),</span> <span class="p">(</span><span class="mf">2.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.</span><span class="p">)),</span>
+    <span class="s1">&#39;IRAINBOW&#39;</span><span class="p">:</span> <span class="p">((</span><span class="mf">2.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mf">2.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">)),</span>
+    <span class="s1">&#39;HOT&#39;</span><span class="p">:</span> <span class="p">((</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">)),</span>
+    <span class="s1">&#39;RGB&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">colors</span><span class="o">.</span><span class="n">red</span><span class="p">,</span> <span class="n">colors</span><span class="o">.</span><span class="n">green</span><span class="p">,</span> <span class="n">colors</span><span class="o">.</span><span class="n">blue</span><span class="p">),</span>
+    <span class="s1">&#39;BGR&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">colors</span><span class="o">.</span><span class="n">blue</span><span class="p">,</span> <span class="n">colors</span><span class="o">.</span><span class="n">green</span><span class="p">,</span> <span class="n">colors</span><span class="o">.</span><span class="n">red</span><span class="p">),</span>
+    <span class="s1">&#39;RWB&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">colors</span><span class="o">.</span><span class="n">red</span><span class="p">,</span> <span class="n">colors</span><span class="o">.</span><span class="n">white</span><span class="p">,</span> <span class="n">colors</span><span class="o">.</span><span class="n">blue</span><span class="p">),</span>
+    <span class="s1">&#39;BWR&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">colors</span><span class="o">.</span><span class="n">blue</span><span class="p">,</span> <span class="n">colors</span><span class="o">.</span><span class="n">white</span><span class="p">,</span> <span class="n">colors</span><span class="o">.</span><span class="n">red</span><span class="p">),</span>
+    <span class="s1">&#39;RWG&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">colors</span><span class="o">.</span><span class="n">red</span><span class="p">,</span> <span class="n">colors</span><span class="o">.</span><span class="n">white</span><span class="p">,</span> <span class="n">colors</span><span class="o">.</span><span class="n">green</span><span class="p">),</span>
+    <span class="s1">&#39;GWR&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">colors</span><span class="o">.</span><span class="n">green</span><span class="p">,</span> <span class="n">colors</span><span class="o">.</span><span class="n">white</span><span class="p">,</span> <span class="n">colors</span><span class="o">.</span><span class="n">red</span><span class="p">),</span>
+    <span class="s1">&#39;GWB&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">colors</span><span class="o">.</span><span class="n">green</span><span class="p">,</span> <span class="n">colors</span><span class="o">.</span><span class="n">white</span><span class="p">,</span> <span class="n">colors</span><span class="o">.</span><span class="n">blue</span><span class="p">),</span>
+    <span class="s1">&#39;BWG&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">colors</span><span class="o">.</span><span class="n">blue</span><span class="p">,</span> <span class="n">colors</span><span class="o">.</span><span class="n">white</span><span class="p">,</span> <span class="n">colors</span><span class="o">.</span><span class="n">green</span><span class="p">),</span>
+    <span class="s1">&#39;BW&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">colors</span><span class="o">.</span><span class="n">black</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">colors</span><span class="o">.</span><span class="n">white</span><span class="p">),</span>
+    <span class="s1">&#39;WB&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">colors</span><span class="o">.</span><span class="n">white</span><span class="p">,</span> <span class="n">colors</span><span class="o">.</span><span class="n">grey</span><span class="p">(</span><span class="mf">0.5</span><span class="p">),</span> <span class="n">colors</span><span class="o">.</span><span class="n">black</span><span class="p">),</span>
+            <span class="c1"># could be None or grey(0.5)</span>
+    <span class="c1"># From matplotlib:</span>
+    <span class="s1">&#39;PLASMA&#39;</span><span class="p">:</span> <span class="p">((</span><span class="mf">0.050383</span><span class="p">,</span> <span class="mf">0.029803</span><span class="p">,</span> <span class="mf">0.527975</span><span class="p">),</span>
+               <span class="p">(</span><span class="mf">0.794549</span><span class="p">,</span> <span class="mf">0.275770</span><span class="p">,</span> <span class="mf">0.473117</span><span class="p">),</span>
+               <span class="p">(</span><span class="mf">0.940015</span><span class="p">,</span> <span class="mf">0.975158</span><span class="p">,</span> <span class="mf">0.131326</span><span class="p">)),</span>
+    <span class="s1">&#39;VIRIDIS&#39;</span><span class="p">:</span> <span class="p">((</span><span class="mf">0.267004</span><span class="p">,</span> <span class="mf">0.004874</span><span class="p">,</span> <span class="mf">0.329415</span><span class="p">),</span>
+                <span class="p">(</span><span class="mf">0.128729</span><span class="p">,</span> <span class="mf">0.563265</span><span class="p">,</span> <span class="mf">0.551229</span><span class="p">),</span>
+                <span class="p">(</span><span class="mf">0.993248</span><span class="p">,</span> <span class="mf">0.906157</span><span class="p">,</span> <span class="mf">0.143936</span><span class="p">)),</span>
+    <span class="s1">&#39;INFERNO&#39;</span><span class="p">:</span> <span class="p">((</span><span class="mf">0.001462</span><span class="p">,</span> <span class="mf">0.000466</span><span class="p">,</span> <span class="mf">0.013866</span><span class="p">),</span>
+                <span class="p">(</span><span class="mf">0.735683</span><span class="p">,</span> <span class="mf">0.215906</span><span class="p">,</span> <span class="mf">0.330245</span><span class="p">),</span>
+                <span class="p">(</span><span class="mf">0.988362</span><span class="p">,</span> <span class="mf">0.998364</span><span class="p">,</span> <span class="mf">0.644924</span><span class="p">)),</span>
+    <span class="s1">&#39;MAGMA&#39;</span><span class="p">:</span> <span class="p">((</span><span class="mf">0.001462</span><span class="p">,</span> <span class="mf">0.000466</span><span class="p">,</span> <span class="mf">0.013866</span><span class="p">),</span>
+                <span class="p">(</span><span class="mf">0.716387</span><span class="p">,</span> <span class="mf">0.214982</span><span class="p">,</span> <span class="mf">0.47529</span><span class="p">),</span>
+                <span class="p">(</span><span class="mf">0.987053</span><span class="p">,</span> <span class="mf">0.991438</span><span class="p">,</span> <span class="mf">0.749504</span><span class="p">)),</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="ColorScale"><a class="viewcode-back" href="../../ref/gui.colorscale.html#gui.colorscale.ColorScale">[docs]</a><span class="k">class</span> <span class="nc">ColorScale</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Mapping floating point values into colors.</span>
+
+<span class="sd">    The ColorScale maps a range of float values minval..maxval or</span>
+<span class="sd">    minval..midval..maxval into the corresponding color from the</span>
+<span class="sd">    specified palette.</span>
+
+<span class="sd">    Parameters:</span>
+
+<span class="sd">    - `palet`: the color palette to be used. It is either a string or</span>
+<span class="sd">      a tuple of three colors.  If a string, is should be one of the keys of</span>
+<span class="sd">      the colorscale.Palette dict (see above). The full list of available</span>
+<span class="sd">      strings can be seen in the `ColorScale` example.</span>
+<span class="sd">      If a tuple of three colors, the middle one may</span>
+<span class="sd">      be specified as None, in which case it will be set to the mean value</span>
+<span class="sd">      of the two other colors. Each color is a tuple of 3 float values,</span>
+<span class="sd">      corresponding to the RGB components of the color. Although OpenGL</span>
+<span class="sd">      RGB values are limited to the range 0.0 to 1.0, it is perfectly legal</span>
+<span class="sd">      to specify color component values outside this range here. OpenGL</span>
+<span class="sd">      will however clip the resulting colors to the 0..1 range. This</span>
+<span class="sd">      feature can effectively be used to construct color ranges displaying</span>
+<span class="sd">      a wider variation of colors. for example, the built in &#39;RAINBOW&#39;</span>
+<span class="sd">      palette has a value ((-2., 0., 2.), (0., 2., 0.), (2., 0., -2.)).</span>
+<span class="sd">      After clipping these will correspond to the colors blue, yellow, red</span>
+<span class="sd">      respecively.</span>
+<span class="sd">    - `minval`: float: the minimum value of the scalar range. This value and</span>
+<span class="sd">      all lower values will be mapped to the first color of the palette.</span>
+<span class="sd">    - `maxval`: float: the maximum value of the scalar range. This value and</span>
+<span class="sd">      all higher values will be mapped to the last (third) color of the palette.</span>
+<span class="sd">    - `midval`: float: a value in the scalar range that will correspond to</span>
+<span class="sd">      the middle color of the palette. It defaults to the mean value of</span>
+<span class="sd">      `minval` and `maxval`. It can be specified to allow unequal scaling</span>
+<span class="sd">      of both subranges of the scalar values. This is often used to set</span>
+<span class="sd">      a middle value 0.0 when the values can have both negative and positive</span>
+<span class="sd">      values but with rather different maximum values in both directions.</span>
+<span class="sd">    - `exp`, `exp2`: float: exponent to allow non-linear mapping. The defaults</span>
+<span class="sd">      provide a linear mapping between numerical values and colors, or</span>
+<span class="sd">      rather a bilinear mapping if the (midval,middle color) is not a linear</span>
+<span class="sd">      combination of the endpoint mappings. Still, there are cases where the</span>
+<span class="sd">      user wants a nonlinear mapping, e.g. to have more visual accuracy in the</span>
+<span class="sd">      higher or lower (absolute) values of the (sub)range(s). Therefore, the</span>
+<span class="sd">      values are first linearly scaled to the -1..1 range, and then mapped</span>
+<span class="sd">      through the nonlinear function :func:`arraytools.stuur`.</span>
+<span class="sd">      The effect is that with</span>
+<span class="sd">      both exp &gt; 1.0, more colors are used in the neighbourhood of the lowest</span>
+<span class="sd">      value, while with exp &lt; 1.0, more colors are use around the highest</span>
+<span class="sd">      value. When both `exp` and `exp2`, the first one holds for the upper</span>
+<span class="sd">      halfrange, the second for the lower one. Setting both values &gt; 1.0</span>
+<span class="sd">      thus has the effect of using more colors around the `midval`.</span>
+
+<span class="sd">    See example: ColorScale</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">palet</span><span class="o">=</span><span class="s1">&#39;RAINBOW&#39;</span><span class="p">,</span> <span class="n">minval</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">maxval</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">midval</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">exp</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">exp2</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize the ColorScale.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">palet</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">palet</span> <span class="o">=</span> <span class="n">Palette</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">palet</span><span class="o">.</span><span class="n">upper</span><span class="p">(),</span> <span class="n">Palette</span><span class="p">[</span><span class="s1">&#39;RGB&#39;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">palet</span> <span class="o">=</span> <span class="n">palet</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">palet</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">first</span><span class="p">,</span> <span class="n">last</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">palet</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">palet</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">palet</span> <span class="o">=</span> <span class="p">(</span><span class="n">first</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">p</span><span class="o">+</span><span class="n">q</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">q</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">first</span><span class="p">,</span> <span class="n">last</span><span class="p">)),</span> <span class="n">last</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">palet</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xmin</span> <span class="o">=</span> <span class="n">minval</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xmax</span> <span class="o">=</span> <span class="n">maxval</span>
+        <span class="k">if</span> <span class="n">midval</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">x0</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">minval</span><span class="o">+</span><span class="n">maxval</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">x0</span> <span class="o">=</span> <span class="n">midval</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exp</span> <span class="o">=</span> <span class="n">exp</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exp2</span> <span class="o">=</span> <span class="n">exp2</span>
+
+
+<div class="viewcode-block" id="ColorScale.scale"><a class="viewcode-back" href="../../ref/gui.colorscale.html#gui.colorscale.ColorScale.scale">[docs]</a>    <span class="k">def</span> <span class="nf">scale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Scale a value to the range -1...1.</span>
+
+<span class="sd">        Parameters:</span>
+
+<span class="sd">        - `val`: float: numerical value to be scaled.</span>
+
+<span class="sd">        If the ColorScale has only one exponent, values in the range</span>
+<span class="sd">        self.minval..self.maxval are scaled to the range -1..+1.</span>
+
+<span class="sd">        If two exponents were specified, scaling is done independently in</span>
+<span class="sd">        the intervals minval..midval and midval..maxval, mapped resp. using</span>
+<span class="sd">        exp2 and exp onto the intervals -1..0 and 0..1.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">exp2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">stuur</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">xmin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmax</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">exp</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">val</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">x0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">stuur</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">xmin</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x0</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">xmin</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x0</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mf">1.</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">exp2</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">stuur</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">x0</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x0</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">xmax</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmax</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">exp</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ColorScale.color"><a class="viewcode-back" href="../../ref/gui.colorscale.html#gui.colorscale.ColorScale.color">[docs]</a>    <span class="k">def</span> <span class="nf">color</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the color representing a value val.</span>
+
+<span class="sd">        Parameters:</span>
+
+<span class="sd">        - `val`: float: numerical value to be scaled.</span>
+
+<span class="sd">        The returned color is a tuple of three float RGB values. Values</span>
+<span class="sd">        may be out of the range 0..1 if any of the palette defining colors</span>
+<span class="sd">        is.</span>
+
+<span class="sd">        The resulting color is obtained by first scaling the value to the</span>
+<span class="sd">        -1..1 range using the `scale` method, and then using that result</span>
+<span class="sd">        to linearly interpolate between the color values of the palette.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+        <span class="n">c0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">palet</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="mf">0.</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">c0</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">c1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">palet</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="o">-</span><span class="n">x</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">c1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">palet</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">([(</span><span class="mf">1.</span><span class="o">-</span><span class="n">x</span><span class="p">)</span><span class="o">*</span><span class="n">p</span> <span class="o">+</span> <span class="n">x</span><span class="o">*</span><span class="n">q</span> <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">q</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">c0</span><span class="p">,</span> <span class="n">c1</span><span class="p">)])</span></div></div>
+
+
+<div class="viewcode-block" id="ColorLegend"><a class="viewcode-back" href="../../ref/gui.colorscale.html#gui.colorscale.ColorLegend">[docs]</a><span class="k">class</span> <span class="nc">ColorLegend</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;A colorlegend divides a ColorScale in a number of subranges.</span>
+
+<span class="sd">    Parameters:</span>
+
+<span class="sd">    - `colorscale`: a :class:`ColorScale` instance</span>
+<span class="sd">    - `n`: a positive integer</span>
+
+<span class="sd">    For a :class:`ColorScale` without ``midval``, the full range is divided</span>
+<span class="sd">    in ``n`` subranges; for a scale with ``midval``, each of the two ranges</span>
+<span class="sd">    is divided in ``n/2`` subranges. In each case the legend has ``n``</span>
+<span class="sd">    subranges limited by ``n+1`` values. The ``n`` colors of the legend</span>
+<span class="sd">    correspond to the middle value of each subrange.</span>
+
+<span class="sd">    See also :class:`opengl.decors.ColorLegend`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">colorscale</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize the color legend.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cs</span> <span class="o">=</span> <span class="n">colorscale</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span>
+        <span class="n">vals</span> <span class="o">=</span> <span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">cs</span><span class="o">.</span><span class="n">xmin</span><span class="o">*</span><span class="p">(</span><span class="n">r</span><span class="o">-</span><span class="n">i</span><span class="p">)</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">cs</span><span class="o">.</span><span class="n">x0</span><span class="o">*</span><span class="n">i</span><span class="p">)</span><span class="o">/</span><span class="n">r</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">)]</span>
+        <span class="n">val2</span> <span class="o">=</span> <span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">cs</span><span class="o">.</span><span class="n">xmax</span><span class="o">*</span><span class="p">(</span><span class="n">r</span><span class="o">-</span><span class="n">i</span><span class="p">)</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">cs</span><span class="o">.</span><span class="n">x0</span><span class="o">*</span><span class="n">i</span><span class="p">)</span><span class="o">/</span><span class="n">r</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">)]</span>
+        <span class="n">val2</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">n</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">vals</span> <span class="o">+=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">cs</span><span class="o">.</span><span class="n">x0</span><span class="p">]</span>
+        <span class="n">vals</span> <span class="o">+=</span> <span class="n">val2</span>
+        <span class="n">midvals</span> <span class="o">=</span> <span class="p">[(</span><span class="n">vals</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">vals</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span><span class="o">/</span><span class="mi">2</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">limits</span> <span class="o">=</span> <span class="n">vals</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">colors</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">cs</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">midvals</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">underflowcolor</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">overflowcolor</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+<div class="viewcode-block" id="ColorLegend.overflow"><a class="viewcode-back" href="../../ref/gui.colorscale.html#gui.colorscale.ColorLegend.overflow">[docs]</a>    <span class="k">def</span> <span class="nf">overflow</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">oflow</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Raise a runtime error if oflow is None, else return oflow.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">oflow</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Value outside colorscale range&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">oflow</span></div>
+
+
+<div class="viewcode-block" id="ColorLegend.color"><a class="viewcode-back" href="../../ref/gui.colorscale.html#gui.colorscale.ColorLegend.color">[docs]</a>    <span class="k">def</span> <span class="nf">color</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the color representing a value val.</span>
+
+<span class="sd">        The color is that of the subrange holding the value. If the value</span>
+<span class="sd">        matches a subrange limit, the lower range color is returned.</span>
+<span class="sd">        If the value falls outside the colorscale range, a runtime error</span>
+<span class="sd">        is raised, unless the corresponding underflowcolor or overflowcolor</span>
+<span class="sd">        attribute has been set, in which case this attirbute is returned.</span>
+<span class="sd">        Though these attributes can be set to any not None value, it will</span>
+<span class="sd">        usually be set to some color value, that will be used to show</span>
+<span class="sd">        overflow values.</span>
+<span class="sd">        The returned color is a tuple of three RGB values in the range 0-1.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">limits</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">val</span><span class="p">:</span>
+            <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">limits</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">overflow</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">overflowcolor</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">i</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">overflow</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">underflowcolor</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">colors</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+
+    <span class="k">for</span> <span class="n">palet</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;RGB&#39;</span><span class="p">,</span> <span class="s1">&#39;BW&#39;</span><span class="p">]:</span>
+        <span class="n">CS</span> <span class="o">=</span> <span class="n">ColorScale</span><span class="p">(</span><span class="n">palet</span><span class="p">,</span> <span class="o">-</span><span class="mf">50.</span><span class="p">,</span> <span class="mf">250.</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">[</span><span class="o">-</span><span class="mi">50</span><span class="o">+</span><span class="mf">10.</span><span class="o">*</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">31</span><span class="p">)]:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s2">&quot;: &quot;</span><span class="p">,</span> <span class="n">CS</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+
+    <span class="n">CS</span> <span class="o">=</span> <span class="n">ColorScale</span><span class="p">(</span><span class="s1">&#39;RGB&#39;</span><span class="p">,</span> <span class="o">-</span><span class="mf">50.</span><span class="p">,</span> <span class="mf">250.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">)</span>
+    <span class="n">CL</span> <span class="o">=</span> <span class="n">ColorLegend</span><span class="p">(</span><span class="n">CS</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">CL</span><span class="o">.</span><span class="n">limits</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">[</span><span class="o">-</span><span class="mi">45</span><span class="o">+</span><span class="mf">10.</span><span class="o">*</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">30</span><span class="p">)]:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s2">&quot;: &quot;</span><span class="p">,</span> <span class="n">CL</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+    <span class="n">CL</span><span class="o">.</span><span class="n">underflowcolor</span> <span class="o">=</span> <span class="n">black</span>
+    <span class="n">CL</span><span class="o">.</span><span class="n">overflowcolor</span> <span class="o">=</span> <span class="n">white</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="n">CL</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="o">-</span><span class="mi">55</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">CL</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="mi">255</span><span class="p">))</span>
+
+<span class="c1"># End</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">gui.colorscale</a></li--> 
+      </ul>
+    </div>
+    <div class="footer">
+    <span class="left">
+        &copy; Copyright 2004-2023, Benedict Verhegghe.
+    </span>
+      Last updated on Mar 27, 2023.
+    <span class="right">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.4.3.
+    </span>
+    </div>
+  </body>
+</html>

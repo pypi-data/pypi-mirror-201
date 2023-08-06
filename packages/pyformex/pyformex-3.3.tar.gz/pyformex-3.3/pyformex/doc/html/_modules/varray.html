@@ -1,0 +1,1200 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!--
+##
+##  This file is part of the pyFormex project.
+##  pyFormex is a tool for generating, manipulating and transforming 3D
+##  geometrical models by sequences of mathematical operations.
+##  Home page: http://pyformex.org
+##  Project page:  http://savannah.nongnu.org/projects/pyformex/
+##  Copyright (C) Benedict Verhegghe (benedict.verhegghe@ugent.be)
+##  Distributed under the GNU General Public License version 3 or later.
+##
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see http://www.gnu.org/licenses/.
+##
+-->
+    <title>varray &#8212; pyFormex 3.3 documentation</title>
+
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pyformex.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+<link rel="icon" type="image/png" href="../_static/pyformex_fav.png" />
+
+  </head><body>
+
+<div class="header">
+  <a href="http://pyformex.org">
+  <img src="../_static/scallop_dome_small.png" alt="scallop dome" border="0" hspace="20" vspace="12" align="left" />
+  <img src="../_static/pyformex-logo-2.png" alt="pyformex logo" border="0" hspace="10" vspace="8" align="left" />
+  </a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">varray</a></li--> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<!-- PYFORMEX_SIDEBAR_LOGO -->
+<!-- PYFORMEX_WEBSITE_SIDEBAR_TOP -->
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for varray</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1">##</span>
+<span class="c1">##  SPDX-FileCopyrightText: © 2007-2023 Benedict Verhegghe &lt;bverheg@gmail.com&gt;</span>
+<span class="c1">##  SPDX-License-Identifier: GPL-3.0-or-later</span>
+<span class="c1">##</span>
+<span class="c1">##  This file is part of pyFormex 3.3  (Sun Mar 26 20:16:15 CEST 2023)</span>
+<span class="c1">##  pyFormex is a tool for generating, manipulating and transforming 3D</span>
+<span class="c1">##  geometrical models by sequences of mathematical operations.</span>
+<span class="c1">##  Home page: https://pyformex.org</span>
+<span class="c1">##  Project page: https://savannah.nongnu.org/projects/pyformex/</span>
+<span class="c1">##  Development: https://gitlab.com/bverheg/pyformex</span>
+<span class="c1">##  Distributed under the GNU General Public License version 3 or later.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is free software: you can redistribute it and/or modify</span>
+<span class="c1">##  it under the terms of the GNU General Public License as published by</span>
+<span class="c1">##  the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1">##  (at your option) any later version.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is distributed in the hope that it will be useful,</span>
+<span class="c1">##  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1">##  GNU General Public License for more details.</span>
+<span class="c1">##</span>
+<span class="c1">##  You should have received a copy of the GNU General Public License</span>
+<span class="c1">##  along with this program.  If not, see http://www.gnu.org/licenses/.</span>
+<span class="c1">##</span>
+
+<span class="sd">&quot;&quot;&quot;Working with variable width tables.</span>
+
+<span class="sd">Mesh type geometries use tables of integer data to store the connectivity</span>
+<span class="sd">between different geometric entities. The basic connectivity table in a</span>
+<span class="sd">Mesh with elements of the same type is a table of constant width: the</span>
+<span class="sd">number of nodes connected to each element is constant.</span>
+<span class="sd">However, the inverse table (the elements connected to each node) does not</span>
+<span class="sd">have a constant width.</span>
+
+<span class="sd">Tables of constant width can conveniently be stored as a 2D array, allowing</span>
+<span class="sd">fast indexing by row and/or column number. A variable width table can be</span>
+<span class="sd">stored (using arrays) in two ways:</span>
+
+<span class="sd">- as a 2D array, with a width equal to the maximal row length.</span>
+<span class="sd">  Unused positions in the row are then filled with an invalid value (-1).</span>
+<span class="sd">- as a 1D array, storing a simple concatenation of the rows.</span>
+<span class="sd">  An additional array then stores the position in that array of the first</span>
+<span class="sd">  element of each row.</span>
+
+<span class="sd">In pyFormex, variable width tables were initially stored as 2D arrays:</span>
+<span class="sd">a remnant of the author&#39;s past FORTRAN experience. With a growing</span>
+<span class="sd">professional use of pyFormex involving ever larger models, it became clear</span>
+<span class="sd">that there was a large memory and speed penalty related to the use of</span>
+<span class="sd">2D arrays with lots of unused entries.</span>
+<span class="sd">This is illustrated in the following table, obtained on the</span>
+<span class="sd">inversion of a connectivity table of 10000 rows and 25 columns.</span>
+<span class="sd">The table shows the memory size of the inverse table, the time needed to</span>
+<span class="sd">compute it, and the time to compute both tables. The latter involves an</span>
+<span class="sd">extra conversion of the stored array to the other data type.</span>
+
+<span class="sd">====================  ===============  ==============  ===============</span>
+<span class="sd">Stored as:             2D (ndarray)     1D (Varray)     1D (Varray)</span>
+<span class="sd">Rows are sorted:       yes              yes             no</span>
+<span class="sd">====================  ===============  ==============  ===============</span>
+<span class="sd">Memory size                450000         250000        250000</span>
+<span class="sd">Time to create table       128 ms         49 ms         25ms</span>
+<span class="sd">Time to create both        169 ms         82 ms         57ms</span>
+<span class="sd">====================  ===============  ==============  ===============</span>
+
+<span class="sd">The memory and speed gains of using the Varray are important.</span>
+<span class="sd">The 2D array can even be faster generated by first creating the</span>
+<span class="sd">1D array, and then converting that to 2D.</span>
+<span class="sd">Not sorting the entries in the Varray provides a further gain.</span>
+<span class="sd">The Varray class defined below therefore does not sort the rows</span>
+<span class="sd">by default, but provides methods to sort them when needed.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">arraytools</span> <span class="k">as</span> <span class="n">at</span>
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">utils</span>
+
+
+<div class="viewcode-block" id="Varray"><a class="viewcode-back" href="../ref/varray.html#varray.Varray">[docs]</a><span class="k">class</span> <span class="nc">Varray</span><span class="p">():</span>
+
+    <span class="sd">&quot;&quot;&quot;A variable width 2D integer array</span>
+
+<span class="sd">    This class provides an efficient way to store tables of</span>
+<span class="sd">    nonnegative integers when the rows of the table may have</span>
+<span class="sd">    different length.</span>
+
+<span class="sd">    For large tables this may allow an important memory saving</span>
+<span class="sd">    compared to a rectangular array where the non-existent entries</span>
+<span class="sd">    are filled by some special value.</span>
+<span class="sd">    Data in the Varray are stored as a single 1D array,</span>
+<span class="sd">    containing the concatenation of all rows.</span>
+<span class="sd">    An index is kept with the start position of each row in the 1D array.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data:</span>
+<span class="sd">        Data to initialize to a new Varray object. This can either of:</span>
+
+<span class="sd">        - another Varray instance: a shallow copy of the Varray is created.</span>
+
+<span class="sd">        - a list of lists of integers. Each item in the list contains</span>
+<span class="sd">          one row of the table.</span>
+
+<span class="sd">        - a 2D ndarray of integer type. The nonnegative numbers on each row</span>
+<span class="sd">          constitute the data for that row.</span>
+
+<span class="sd">        - a 1D array or list of integers, containing the concatenation of</span>
+<span class="sd">          the rows. The second argument `ind` specifies the indices of the</span>
+<span class="sd">          first element of each row.</span>
+
+<span class="sd">        - a 1D array or list of integers, containing the concatenation of</span>
+<span class="sd">          the rows obtained by prepending each row with the row length.</span>
+<span class="sd">          The caller should make sure these 1D data are consistent.</span>
+
+<span class="sd">    ind: 1-dim int :term:`array_like`, optional</span>
+<span class="sd">        This is only used when `data` is a pure concatenation of all rows.</span>
+<span class="sd">        It holds the position in `data` of the first element of each row.</span>
+<span class="sd">        Its length is equal to the number of rows (`nrows`) or `nrows+1`.</span>
+<span class="sd">        It is a non-decreasing series of integer values, starting with 0.</span>
+<span class="sd">        If it has ``nrows+1`` entries, the last value is equal to the total</span>
+<span class="sd">        number of elements in `data`. This last value may be omitted,</span>
+<span class="sd">        and will then be added automatically.</span>
+<span class="sd">        Note that two subsequent elements may be equal, corresponding with</span>
+<span class="sd">        an empty row.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Create a Varray from a nested list:</span>
+
+<span class="sd">    &gt;&gt;&gt; Va = Varray([[0],[1,2],[0,2,4],[0,2]])</span>
+<span class="sd">    &gt;&gt;&gt; Va</span>
+<span class="sd">    Varray([[0], [1, 2], [0, 2, 4], [0, 2]])</span>
+
+<span class="sd">    The Varray prints in a user-friendly format:</span>
+
+<span class="sd">    &gt;&gt;&gt; print(Va)</span>
+<span class="sd">    Varray (4, (1, 3))</span>
+<span class="sd">      [0]</span>
+<span class="sd">      [1 2]</span>
+<span class="sd">      [0 2 4]</span>
+<span class="sd">      [0 2]</span>
+<span class="sd">    &lt;BLANKLINE&gt;</span>
+
+<span class="sd">    The internal data are 1-D arrays:</span>
+
+<span class="sd">    &gt;&gt;&gt; print(Va.data)</span>
+<span class="sd">    [0 1 2 0 2 4 0 2]</span>
+<span class="sd">    &gt;&gt;&gt; print(Va.ind)</span>
+<span class="sd">    [0 1 3 6 8]</span>
+
+<span class="sd">    Other initialization methods resulting in the same Varray:</span>
+
+<span class="sd">    &gt;&gt;&gt; Vb = Varray(Va)</span>
+<span class="sd">    &gt;&gt;&gt; print(str(Vb) == str(Va))</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; Vb = Varray(np.array([[-1,-1,0],[-1,1,2],[0,2,4],[-1,0,2]]))</span>
+<span class="sd">    &gt;&gt;&gt; print(str(Vb) == str(Va))</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; Vc = Varray([0,1,2,0,2,4,0,2], at.cumsum0([1,2,3,2]))</span>
+<span class="sd">    &gt;&gt;&gt; print(str(Vc) == str(Va))</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; Vd = Varray([1,0, 2,1,2, 3,0,2,4, 2,0,2])</span>
+<span class="sd">    &gt;&gt;&gt; print(str(Vd) == str(Va))</span>
+<span class="sd">    True</span>
+
+<span class="sd">    Show info about the Varray</span>
+
+<span class="sd">    &gt;&gt;&gt; print(Va.nrows, Va.width, Va.shape)</span>
+<span class="sd">    4 (1, 3) (4, 3)</span>
+<span class="sd">    &gt;&gt;&gt; print(Va.size, Va.lengths)</span>
+<span class="sd">    8 [1 2 3 2]</span>
+
+<span class="sd">    Indexing: The data for any row can be obtained by simple indexing:</span>
+
+<span class="sd">    &gt;&gt;&gt; print(Va[1])</span>
+<span class="sd">    [1 2]</span>
+
+<span class="sd">    This is equivalent with</span>
+
+<span class="sd">    &gt;&gt;&gt; print(Va.row(1))</span>
+<span class="sd">    [1 2]</span>
+
+<span class="sd">    &gt;&gt;&gt; print(Va.row(-1))</span>
+<span class="sd">    [0 2]</span>
+
+<span class="sd">    Change elements:</span>
+
+<span class="sd">    &gt;&gt;&gt; Va[1][0] = 3</span>
+<span class="sd">    &gt;&gt;&gt; print(Va[1])</span>
+<span class="sd">    [3 2]</span>
+
+<span class="sd">    Full row can be changed with matching length:</span>
+
+<span class="sd">    &gt;&gt;&gt; Va[1] = [1, 2]</span>
+<span class="sd">    &gt;&gt;&gt; print(Va[1])</span>
+<span class="sd">    [1 2]</span>
+
+<span class="sd">    Negative indices are allowed:</span>
+
+<span class="sd">    Extracted columns are filled with -1 values where needed</span>
+
+<span class="sd">    &gt;&gt;&gt; print(Va.col(1))</span>
+<span class="sd">    [-1  2  2  2]</span>
+
+<span class="sd">    Select takes multiple rows using indices or bool:</span>
+
+<span class="sd">    &gt;&gt;&gt; print(Va.select([1,3]))</span>
+<span class="sd">    Varray (2, (2, 2))</span>
+<span class="sd">      [1 2]</span>
+<span class="sd">      [0 2]</span>
+<span class="sd">    &lt;BLANKLINE&gt;</span>
+<span class="sd">    &gt;&gt;&gt; print(Va.select(Va.lengths==2))</span>
+<span class="sd">    Varray (2, (2, 2))</span>
+<span class="sd">      [1 2]</span>
+<span class="sd">      [0 2]</span>
+<span class="sd">    &lt;BLANKLINE&gt;</span>
+
+<span class="sd">    Iterator: A Varray provides its own iterator:</span>
+
+<span class="sd">    &gt;&gt;&gt; for row in Va:</span>
+<span class="sd">    ...     print(row)</span>
+<span class="sd">    [0]</span>
+<span class="sd">    [1 2]</span>
+<span class="sd">    [0 2 4]</span>
+<span class="sd">    [0 2]</span>
+
+<span class="sd">    &gt;&gt;&gt; print(Varray())</span>
+<span class="sd">    Varray (0, (0, 0))</span>
+<span class="sd">    &lt;BLANKLINE&gt;</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># REMOVED</span>
+
+    <span class="c1"># **Attributes**</span>
+
+    <span class="c1"># Attributes</span>
+    <span class="c1"># ----------</span>
+    <span class="c1"># nrows: int</span>
+    <span class="c1">#     The number of rows in the table</span>
+    <span class="c1"># width: int</span>
+    <span class="c1">#     The length of the longest row in the table</span>
+    <span class="c1"># size: int</span>
+    <span class="c1">#     The total number of entries in the table</span>
+    <span class="c1"># shape: tuple of two ints</span>
+    <span class="c1">#     The combined (``nrows``,``width``) values.</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">[],</span> <span class="n">ind</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize the Varray. See the class docstring.&quot;&quot;&quot;</span>
+
+        <span class="c1"># If data is a Varray, just use its data</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">Varray</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">data</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ind</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">ind</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_row</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Allow for empty Varray</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">at</span><span class="o">.</span><span class="n">Int</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s1">&#39;i&#39;</span> <span class="ow">and</span> <span class="n">data</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="c1"># data is a 1-dim int array</span>
+            <span class="k">if</span> <span class="n">ind</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># It is a 1-d array with embedded length</span>
+                <span class="c1"># extract row lengths from data</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+                <span class="n">rowlen</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">size</span><span class="p">:</span>
+                    <span class="n">rowlen</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                    <span class="n">i</span> <span class="o">+=</span> <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="c1"># create indices and remove row lengths from data</span>
+                <span class="n">ind</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">cumsum0</span><span class="p">(</span><span class="n">rowlen</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">ind</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">rowlen</span><span class="p">)))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># ind holds the indices of the row starts</span>
+                <span class="n">ind</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">checkArray</span><span class="p">(</span><span class="n">ind</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;i&#39;</span><span class="p">,</span> <span class="n">ndim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">ind</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">ind</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Invalid ind: should start with 0; end with len(data)&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Got: </span><span class="si">{</span><span class="n">ind</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">ind</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">ind</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Invalid ind: should be a no-decreasing sequence&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Got: </span><span class="si">{</span><span class="n">ind</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># A 2-d int array or a nested list was specified</span>
+            <span class="c1"># remove the negative elements</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">data</span><span class="p">]</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="n">row</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">data</span><span class="p">]</span>
+            <span class="n">rowlen</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">data</span><span class="p">]</span>
+            <span class="n">ind</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">cumsum0</span><span class="p">(</span><span class="n">rowlen</span><span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">at</span><span class="o">.</span><span class="n">Int</span><span class="p">)</span>
+
+        <span class="c1"># Make sure we have the last row</span>
+        <span class="k">if</span> <span class="n">ind</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+            <span class="n">ind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">ind</span><span class="p">,</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)]])</span>
+
+        <span class="c1"># Store the data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">at</span><span class="o">.</span><span class="n">Int</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ind</span> <span class="o">=</span> <span class="n">ind</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">at</span><span class="o">.</span><span class="n">Int</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_memory</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1"># And the current row, for use in iterators</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_row</span> <span class="o">=</span> <span class="mi">0</span>
+
+
+<div class="viewcode-block" id="Varray.copy"><a class="viewcode-back" href="../ref/varray.html#varray.Varray.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a deep copy of the Varray&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Varray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span></div>
+
+
+    <span class="c1"># Attributes computed ad hoc, because cheap(er)</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">lengths</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the length of all rows of the Varray&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">nrows</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the number of rows in the Varray&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+
+
+    <span class="nd">@property</span>
+    <span class="nd">@utils</span><span class="o">.</span><span class="n">memoize</span>
+    <span class="k">def</span> <span class="nf">width</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;varray_width&quot;</span><span class="p">)</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lengths</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">l</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">l</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">minwidth</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">maxwidth</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the number of rows in the Varray&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the total number of elements in the Varray&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a tuple with the number of rows and maximum row length&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nrows</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxwidth</span><span class="p">)</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the data type of the elements in the Varray&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">dtype</span>
+
+
+<div class="viewcode-block" id="Varray.length"><a class="viewcode-back" href="../ref/varray.html#varray.Varray.length">[docs]</a>    <span class="k">def</span> <span class="nf">length</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the length of row i&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">[</span><span class="n">i</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="Varray.row"><a class="viewcode-back" href="../ref/varray.html#varray.Varray.row">[docs]</a>    <span class="k">def</span> <span class="nf">row</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the data for the row i.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        i: int</span>
+<span class="sd">            The index of the row to return.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        1-dim int array</span>
+<span class="sd">            An array with the values of row i</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        The same is obtained by simple indexing. See the examples.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; Va = Varray([[0],[1,2],[0,2,4],[0,2]])</span>
+<span class="sd">        &gt;&gt;&gt; print(Va.row(1))</span>
+<span class="sd">        [1 2]</span>
+<span class="sd">        &gt;&gt;&gt; print(Va[1])</span>
+<span class="sd">        [1 2]</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">at</span><span class="o">.</span><span class="n">isInt</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Varray index should be an single int&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">i</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nrows</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span><span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]]</span></div>
+
+
+    <span class="fm">__getitem__</span> <span class="o">=</span> <span class="n">row</span>
+
+
+<div class="viewcode-block" id="Varray.rowslice"><a class="viewcode-back" href="../ref/varray.html#varray.Varray.rowslice">[docs]</a>    <span class="k">def</span> <span class="nf">rowslice</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a slice object for the row i.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        i: int</span>
+<span class="sd">            The index of the row to return.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        slice</span>
+<span class="sd">            A slice object representing the set of indices for row i</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; Va = Varray([[0],[1,2],[0,2,4],[0,2]])</span>
+<span class="sd">        &gt;&gt;&gt; print(Va.rowslice(2))</span>
+<span class="sd">        slice(3, 6, None)</span>
+<span class="sd">        &gt;&gt;&gt; print(Va.data[Va.rowslice(2)])</span>
+<span class="sd">        [0 2 4]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">slice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="Varray.rowlimits"><a class="viewcode-back" href="../ref/varray.html#varray.Varray.rowlimits">[docs]</a>    <span class="k">def</span> <span class="nf">rowlimits</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Generator for row slice limits</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; Va = Varray([[0],[1,2],[0,2,4],[0,2]])</span>
+<span class="sd">        &gt;&gt;&gt; for row in Va.rowlimits():</span>
+<span class="sd">        ...     print(row)</span>
+<span class="sd">        (0, 1)</span>
+<span class="sd">        (1, 3)</span>
+<span class="sd">        (3, 6)</span>
+<span class="sd">        (6, 8)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">nrows</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span></div>
+
+
+<div class="viewcode-block" id="Varray.index1d"><a class="viewcode-back" href="../ref/varray.html#varray.Varray.index1d">[docs]</a>    <span class="k">def</span> <span class="nf">index1d</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the sequential index for the element with 2D index i,j</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        i: int</span>
+<span class="sd">            The row index</span>
+<span class="sd">        j: int</span>
+<span class="sd">            The column index</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            The sequential index corresponding with position (i,j).</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; Va = Varray([[0],[1,2],[0,2,4],[0,2]])</span>
+<span class="sd">        &gt;&gt;&gt; print(Va.index1d(2,2))</span>
+<span class="sd">        5</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">j</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">j</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="s2">&quot;Index out of bounds&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Varray.index2d"><a class="viewcode-back" href="../ref/varray.html#varray.Varray.index2d">[docs]</a>    <span class="k">def</span> <span class="nf">index2d</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the 2D index for the element with sequential index k</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        k: int</span>
+<span class="sd">            The sequential index in the flat array</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        i: int</span>
+<span class="sd">            The row index of the element with sequential index k</span>
+<span class="sd">        j: int</span>
+<span class="sd">            The column index of the element with sequential index k</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; Va = Varray([[0],[1,2],[0,2,4],[0,2]])</span>
+<span class="sd">        &gt;&gt;&gt; print(Va.index2d(5))</span>
+<span class="sd">        (2, 2)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">k</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Varray: index </span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2"> out of bounds [0, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">side</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="n">j</span> <span class="o">=</span> <span class="n">k</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the data for the row i.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        i: int</span>
+<span class="sd">            The index of the row to change.</span>
+<span class="sd">        data: int or int :term:`array_like`</span>
+<span class="sd">            Data to replace the row i.</span>
+<span class="sd">            If a single int, all items in the row are set to this value.</span>
+<span class="sd">            If an array, it should match the row length.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; Va = Varray([[0],[1,2],[0,2,4],[0,2]])</span>
+<span class="sd">        &gt;&gt;&gt; Va[1] = 0</span>
+<span class="sd">        &gt;&gt;&gt; Va[2] = [1,3,5]</span>
+<span class="sd">        &gt;&gt;&gt; Va[3][1] = 1</span>
+<span class="sd">        &gt;&gt;&gt; print(Va)</span>
+<span class="sd">        Varray (4, (1, 3))</span>
+<span class="sd">          [0]</span>
+<span class="sd">          [0 0]</span>
+<span class="sd">          [1 3 5]</span>
+<span class="sd">          [0 1]</span>
+<span class="sd">        &lt;BLANKLINE&gt;</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">at</span><span class="o">.</span><span class="n">isInt</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Varray index should be an single int&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">i</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nrows</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span><span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">data</span>
+
+
+<div class="viewcode-block" id="Varray.setRow"><a class="viewcode-back" href="../ref/varray.html#varray.Varray.setRow">[docs]</a>    <span class="k">def</span> <span class="nf">setRow</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Replace the data of row i</span>
+
+<span class="sd">        This is equivalent to self[i] = data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span></div>
+
+
+<div class="viewcode-block" id="Varray.col"><a class="viewcode-back" href="../ref/varray.html#varray.Varray.col">[docs]</a>    <span class="k">def</span> <span class="nf">col</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the data for column i</span>
+
+<span class="sd">        This always returns a list of length nrows.</span>
+<span class="sd">        For rows where the column index i is missing, a value -1 is returned.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">r</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">r</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">r</span><span class="p">))</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span>
+                         <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="Varray.select"><a class="viewcode-back" href="../ref/varray.html#varray.Varray.select">[docs]</a>    <span class="k">def</span> <span class="nf">select</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sel</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Select some rows from the Varray.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        sel: iterable of ints or bools</span>
+<span class="sd">            Specifies the row(s) to be selected.</span>
+<span class="sd">            If type is int, the values are the row numbers.</span>
+<span class="sd">            If type is bool, the length of the iterable should be</span>
+<span class="sd">            exactly ``self.nrows``; the positions where the value is True are</span>
+<span class="sd">            the rows to be returned.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Varray object</span>
+<span class="sd">            A Varray with only the selected rows.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; Va = Varray([[0],[1,2],[0,2,4],[0,2]])</span>
+<span class="sd">        &gt;&gt;&gt; Va.select((1,3))</span>
+<span class="sd">        Varray([[1, 2], [0, 2]])</span>
+<span class="sd">        &gt;&gt;&gt; Va.select((False,True,False,True))</span>
+<span class="sd">        Varray([[1, 2], [0, 2]])</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">sel</span><span class="p">)</span>   <span class="c1"># this is important, because Python bool isInt</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sel</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">at</span><span class="o">.</span><span class="n">isInt</span><span class="p">(</span><span class="n">sel</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="n">sel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">sel</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">Varray</span><span class="p">([</span><span class="bp">self</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">sel</span><span class="p">])</span></div>
+
+
+    <span class="c1"># TODO: These could be removed and replaced with index2d()[0/1]</span>
+    <span class="c1"># and put sel = self.index(sel) in index2d</span>
+<div class="viewcode-block" id="Varray.rowindex"><a class="viewcode-back" href="../ref/varray.html#varray.Varray.rowindex">[docs]</a>    <span class="k">def</span> <span class="nf">rowindex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sel</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the rowindex for the elements flagged by selector sel.</span>
+
+<span class="sd">        sel is either a list of element numbers or a bool array with</span>
+<span class="sd">        length self.size</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">sel</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">sel</span><span class="p">,</span> <span class="n">side</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span></div>
+
+
+<div class="viewcode-block" id="Varray.colindex"><a class="viewcode-back" href="../ref/varray.html#varray.Varray.colindex">[docs]</a>    <span class="k">def</span> <span class="nf">colindex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sel</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the column index for the elements flagged by selector sel.</span>
+
+<span class="sd">        sel is either a list of element numbers or a bool array with</span>
+<span class="sd">        length self.size</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">sel</span><span class="p">)</span>
+        <span class="n">ri</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rowindex</span><span class="p">(</span><span class="n">sel</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">sel</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="p">[</span><span class="n">ri</span><span class="p">]</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return an iterator for the Varray&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_row</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+
+    <span class="k">def</span> <span class="fm">__next__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the next row of the Varray&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_row</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nrows</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">StopIteration</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_row</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_row</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">row</span>
+
+
+<div class="viewcode-block" id="Varray.index"><a class="viewcode-back" href="../ref/varray.html#varray.Varray.index">[docs]</a>    <span class="k">def</span> <span class="nf">index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sel</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Convert a selector to an index.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        sel: iterable of ints or bools</span>
+<span class="sd">            Specifies the elements of the Varray to be selected.</span>
+<span class="sd">            If type is int, the values are the index numbers in the</span>
+<span class="sd">            flat array. If type is bool, the length of the iterable</span>
+<span class="sd">            should be exactly ``self.size``; the positions where the</span>
+<span class="sd">            value is True will be returned.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int array</span>
+<span class="sd">            The selected element numbers.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; Va = Varray([[0],[1,2],[0,2,4],[0,2]])</span>
+<span class="sd">        &gt;&gt;&gt; Va.index((1,3,5,7))</span>
+<span class="sd">        array([1, 3, 5, 7])</span>
+<span class="sd">        &gt;&gt;&gt; Va.index((False,True,False,True,False,True,False,True))</span>
+<span class="sd">        array([1, 3, 5, 7])</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">sel</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">checkArray</span><span class="p">(</span><span class="n">sel</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">,),</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;b&#39;</span><span class="p">)</span>
+            <span class="n">sel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">sel</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="n">sel</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">checkArray</span><span class="p">(</span><span class="n">sel</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;i&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">sel</span></div>
+
+
+<div class="viewcode-block" id="Varray.where"><a class="viewcode-back" href="../ref/varray.html#varray.Varray.where">[docs]</a>    <span class="k">def</span> <span class="nf">where</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sel</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return row and column index of the selected elements</span>
+
+<span class="sd">        sel is either a list of element numbers or a bool array with</span>
+<span class="sd">        length self.size</span>
+
+<span class="sd">        Returns a 2D array where the first column is the row index</span>
+<span class="sd">        and the second column the corresponding column index of an</span>
+<span class="sd">        element selected by sel</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; Va = Varray([[0],[1,2],[0,2,4],[0,2]])</span>
+<span class="sd">        &gt;&gt;&gt; Va.where([1,3,5,7])</span>
+<span class="sd">        array([[1, 0],</span>
+<span class="sd">               [2, 0],</span>
+<span class="sd">               [2, 2],</span>
+<span class="sd">               [3, 1]])</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">row_stack</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">index2d</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">sel</span><span class="p">)])</span></div>
+
+
+<div class="viewcode-block" id="Varray.sorted"><a class="viewcode-back" href="../ref/varray.html#varray.Varray.sorted">[docs]</a>    <span class="k">def</span> <span class="nf">sorted</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a sorted Varray.</span>
+
+<span class="sd">        Returns a Varray with the same entries but where each</span>
+<span class="sd">        row is sorted.</span>
+
+<span class="sd">        This returns a copy of the data, and leaves the original</span>
+<span class="sd">        unchanged.</span>
+
+<span class="sd">        See also :meth:`sort` for sorting the rows inplace.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Varray</span><span class="p">([</span><span class="nb">sorted</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="Varray.roll"><a class="viewcode-back" href="../ref/varray.html#varray.Varray.roll">[docs]</a>    <span class="k">def</span> <span class="nf">roll</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shift</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Roll the elements row by row.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        shift: int</span>
+<span class="sd">            The number of places by which elements are shifted. Positive</span>
+<span class="sd">            values shift to the right.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Varray</span>
+<span class="sd">            A Varray containing on each row the entries from the input</span>
+<span class="sd">            Varray shifted ofter the specified number of places.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; Varray([[0], [0, 1, 2, 3], [0, 2, 4]]).roll(1)</span>
+<span class="sd">        Varray([[0], [3, 0, 1, 2], [4, 0, 2]])</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Varray</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">shift</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="Varray.removeFlat"><a class="viewcode-back" href="../ref/varray.html#varray.Varray.removeFlat">[docs]</a>    <span class="k">def</span> <span class="nf">removeFlat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ind</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Remove the element with flat index i</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ind: int or int :term:`array_like`</span>
+<span class="sd">            Index in the flat data of the element(s) to remove.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Varray</span>
+<span class="sd">            A Varray with the element(s) ind removed.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; Va = Varray([[0],[1,2],[0,2,4],[0,2]])</span>
+<span class="sd">        &gt;&gt;&gt; Va.removeFlat(3)</span>
+<span class="sd">        Varray([[0], [1, 2], [2, 4], [0, 2]])</span>
+<span class="sd">        &gt;&gt;&gt; Va.removeFlat([0,2,7])</span>
+<span class="sd">        Varray([[], [1], [0, 2, 4], [0]])</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">srt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">ind</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">at</span><span class="o">.</span><span class="n">complement</span><span class="p">(</span><span class="n">srt</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">))]</span>
+        <span class="n">ind</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ind</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">srt</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="n">ind</span><span class="p">[</span><span class="n">ind</span><span class="o">&gt;</span><span class="n">i</span><span class="p">]</span> <span class="o">-=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">Varray</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">ind</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Varray.sort"><a class="viewcode-back" href="../ref/varray.html#varray.Varray.sort">[docs]</a>    <span class="k">def</span> <span class="nf">sort</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sort the Varray inplace.</span>
+
+<span class="sd">        Sorting a Varray sorts the elements in each row.</span>
+<span class="sd">        The sorting is done inplace.</span>
+
+<span class="sd">        See also :meth:`sorted` for sorting the rows without</span>
+<span class="sd">        changing the original.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; va = Varray([[0],[2,1],[4,0,2],[0,2]])</span>
+<span class="sd">        &gt;&gt;&gt; va.sort()</span>
+<span class="sd">        &gt;&gt;&gt; print(va)</span>
+<span class="sd">        Varray (4, (1, 3))</span>
+<span class="sd">          [0]</span>
+<span class="sd">          [1 2]</span>
+<span class="sd">          [0 2 4]</span>
+<span class="sd">          [0 2]</span>
+<span class="sd">        &lt;BLANKLINE&gt;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="n">row</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Varray.toArray"><a class="viewcode-back" href="../ref/varray.html#varray.Varray.toArray">[docs]</a>    <span class="k">def</span> <span class="nf">toArray</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Convert the Varray to a 2D array.</span>
+
+<span class="sd">        Returns a 2D array with shape (self.nrows,self.maxwidth), containing</span>
+<span class="sd">        the row data of the Varray.</span>
+<span class="sd">        Rows which are shorter than width are padded at the start with</span>
+<span class="sd">        values -1.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; Varray([[0],[2,1],[4,0,2],[0,2]]).toArray()</span>
+<span class="sd">        array([[-1, -1,  0],</span>
+<span class="sd">               [-1,  2,  1],</span>
+<span class="sd">               [ 4,  0,  2],</span>
+<span class="sd">               [-1,  0,  2]])</span>
+<span class="sd">        &gt;&gt;&gt; Varray([[0,3],[2,1],[4,0],[0,2]]).toArray()</span>
+<span class="sd">        array([[0, 3],</span>
+<span class="sd">               [2, 1],</span>
+<span class="sd">               [4, 0],</span>
+<span class="sd">               [0, 2]])</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">minwidth</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxwidth</span><span class="p">:</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nrows</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxwidth</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">nrows</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxwidth</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">at</span><span class="o">.</span><span class="n">Int</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">r</span><span class="p">):]</span> <span class="o">=</span> <span class="n">r</span>
+        <span class="k">return</span> <span class="n">a</span></div>
+
+
+<div class="viewcode-block" id="Varray.sameLength"><a class="viewcode-back" href="../ref/varray.html#varray.Varray.sameLength">[docs]</a>    <span class="k">def</span> <span class="nf">sameLength</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Groups the rows according to their length.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        lengths: list</span>
+<span class="sd">            the sorted unique row lengths</span>
+<span class="sd">        rows: list</span>
+<span class="sd">            the indices of the rows having the corresponding length.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; Va = Varray([[0],[1,2],[0,2,4],[0,2]])</span>
+<span class="sd">        &gt;&gt;&gt; L,R = Va.sameLength()</span>
+<span class="sd">        &gt;&gt;&gt; print(L)</span>
+<span class="sd">        [1 2 3]</span>
+<span class="sd">        &gt;&gt;&gt; print(R)</span>
+<span class="sd">        [array([0]), array([1, 3]), array([2])]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lens</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lengths</span>
+        <span class="n">ulens</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">lens</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ulens</span><span class="p">,</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">lens</span> <span class="o">==</span> <span class="n">l</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">ulens</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="Varray.split"><a class="viewcode-back" href="../ref/varray.html#varray.Varray.split">[docs]</a>    <span class="k">def</span> <span class="nf">split</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Split the Varray into 2D arrays.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">            A list of 2D arrays where all the rows of VA with the same number</span>
+<span class="sd">        of columns are collected. The list is sorted in order of increasing</span>
+<span class="sd">        number of columns.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; Va = Varray([[0],[1,2],[0,2,4],[0,2]])</span>
+<span class="sd">        &gt;&gt;&gt; for a in Va.split():</span>
+<span class="sd">        ...     print(a)</span>
+<span class="sd">        [[0]]</span>
+<span class="sd">        [[1 2]</span>
+<span class="sd">         [0 2]]</span>
+<span class="sd">        [[0 2 4]]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">ind</span><span class="p">)</span><span class="o">.</span><span class="n">toArray</span><span class="p">()</span> <span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sameLength</span><span class="p">()[</span><span class="mi">1</span><span class="p">]]</span></div>
+
+
+<div class="viewcode-block" id="Varray.toList"><a class="viewcode-back" href="../ref/varray.html#varray.Varray.toList">[docs]</a>    <span class="k">def</span> <span class="nf">toList</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Convert the Varray to a nested list.</span>
+
+<span class="sd">        Returns a list of lists of integers.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="Varray.inverse"><a class="viewcode-back" href="../ref/varray.html#varray.Varray.inverse">[docs]</a>    <span class="k">def</span> <span class="nf">inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the inverse of a Varray.</span>
+
+<span class="sd">        The inverse of a Varray is again a Varray. Values k on a row i will</span>
+<span class="sd">        become values i on row k. The number of data in both Varrays is thus</span>
+<span class="sd">        the same.</span>
+
+<span class="sd">        The inverse of the inverse is equal to the original. Two Varrays are</span>
+<span class="sd">        equal if they have the same number of rows and all rows contain the</span>
+<span class="sd">        same numbers, independent of their order.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        sort: bool</span>
+<span class="sd">            If True (default), the values on each row of the returned index</span>
+<span class="sd">            are sorted.</span>
+<span class="sd">            The default (False) will leave the values in the order obtained</span>
+<span class="sd">            by the algorithm, which depends on Python/numpy sorting, and</span>
+<span class="sd">            usually turns out to be sorted as well.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`Varray`</span>
+<span class="sd">        The inverse index, as a Varray (default).</span>
+<span class="sd">        Each row ``i`` of the inverse contains the numbers of the rows of the</span>
+<span class="sd">        input in which a value ``i`` appeared. The rows are sorted by default.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; a = Varray([[0,1],[2,0],[1,2],[4]])</span>
+<span class="sd">        &gt;&gt;&gt; b = a.inverse()</span>
+<span class="sd">        &gt;&gt;&gt; c = b.inverse()</span>
+<span class="sd">        &gt;&gt;&gt; print(a,b,c)</span>
+<span class="sd">        Varray (4, (1, 2))</span>
+<span class="sd">          [0 1]</span>
+<span class="sd">          [2 0]</span>
+<span class="sd">          [1 2]</span>
+<span class="sd">          [4]</span>
+<span class="sd">         Varray (5, (0, 2))</span>
+<span class="sd">          [0 1]</span>
+<span class="sd">          [0 2]</span>
+<span class="sd">          [1 2]</span>
+<span class="sd">          []</span>
+<span class="sd">          [3]</span>
+<span class="sd">         Varray (4, (1, 2))</span>
+<span class="sd">          [0 1]</span>
+<span class="sd">          [0 2]</span>
+<span class="sd">          [1 2]</span>
+<span class="sd">          [4]</span>
+<span class="sd">        &lt;BLANKLINE&gt;</span>
+<span class="sd">        &gt;&gt;&gt; a = Varray([[-1,0,1],[0,2,-1],[2,1,1],[3,-2,0]])</span>
+<span class="sd">        &gt;&gt;&gt; print(a.inverse())</span>
+<span class="sd">        Varray (4, (1, 3))</span>
+<span class="sd">          [0 1 3]</span>
+<span class="sd">          [0 2 2]</span>
+<span class="sd">          [1 2]</span>
+<span class="sd">          [3]</span>
+<span class="sd">        &lt;BLANKLINE&gt;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">nrows</span><span class="p">,</span> <span class="n">ncols</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span>
+        <span class="k">if</span> <span class="n">nrows</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># allow inverse of empty Varray</span>
+            <span class="n">va</span> <span class="o">=</span> <span class="n">Varray</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Create a row index for each value of the data</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nrows</span><span class="p">)</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lengths</span><span class="p">)</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">argsort</span><span class="p">()</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">s</span><span class="p">]</span>
+            <span class="n">u</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="n">s</span><span class="p">]</span>
+            <span class="c1"># Now search for the start of every row number</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># There were negative numbers: remove them</span>
+                <span class="n">u</span> <span class="o">=</span> <span class="n">u</span><span class="p">[</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]:]</span>
+                <span class="n">v</span> <span class="o">-=</span> <span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">va</span> <span class="o">=</span> <span class="n">Varray</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">sort</span><span class="p">:</span>
+                <span class="c1"># TODO: this could be avoided by using a stable</span>
+                <span class="c1"># sort algorithm above</span>
+                <span class="n">va</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">expand</span><span class="p">:</span>
+            <span class="n">va</span> <span class="o">=</span> <span class="n">va</span><span class="o">.</span><span class="n">toArray</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">va</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;String representation of the Varray&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">toList</span><span class="p">()</span><span class="si">}</span><span class="s2">)&quot;</span>
+
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Nicely print the Varray&quot;&quot;&quot;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">nrows</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="si">}</span><span class="s2">)</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;  &#39;</span> <span class="o">+</span> <span class="n">row</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="k">return</span> <span class="n">s</span>
+
+
+<div class="viewcode-block" id="Varray.concatenate"><a class="viewcode-back" href="../ref/varray.html#varray.Varray.concatenate">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">concatenate</span><span class="p">(</span><span class="n">clas</span><span class="p">,</span> <span class="n">varrays</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Concatenate a list of Varrays to a single Varray.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        varrays: list of Varray</span>
+<span class="sd">            The list of Varrays to concatenate.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Varray</span>
+<span class="sd">            The concatenated Varrays.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; VA0 = Varray([[0,1],[2,3,4]])</span>
+<span class="sd">        &gt;&gt;&gt; VA1 = Varray([[5,6]])</span>
+<span class="sd">        &gt;&gt;&gt; VA2 = Varray([[7,8],[9]])</span>
+<span class="sd">        &gt;&gt;&gt; VA = Varray.concatenate([VA0,VA1,VA2])</span>
+<span class="sd">        &gt;&gt;&gt; print(VA)</span>
+<span class="sd">        Varray (5, (1, 3))</span>
+<span class="sd">          [0 1]</span>
+<span class="sd">          [2 3 4]</span>
+<span class="sd">          [5 6]</span>
+<span class="sd">          [7 8]</span>
+<span class="sd">          [9]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">va</span><span class="o">.</span><span class="n">data</span> <span class="k">for</span> <span class="n">va</span> <span class="ow">in</span> <span class="n">varrays</span><span class="p">])</span>
+        <span class="n">ind</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">cumsum0</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">va</span><span class="o">.</span><span class="n">lengths</span> <span class="k">for</span> <span class="n">va</span> <span class="ow">in</span> <span class="n">varrays</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="n">Varray</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">ind</span><span class="o">=</span><span class="n">ind</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Varray.fromArrays"><a class="viewcode-back" href="../ref/varray.html#varray.Varray.fromArrays">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">fromArrays</span><span class="p">(</span><span class="n">clas</span><span class="p">,</span> <span class="n">arrays</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Concatenate a list of 2D int arrays into a Varray</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; VA = Varray.fromArrays([</span>
+<span class="sd">        ...     [[1,1], [2,2]],</span>
+<span class="sd">        ...     [[3,3,3], [4,4,4]],</span>
+<span class="sd">        ...     [[5,5], [6,6], [7,7]],</span>
+<span class="sd">        ... ])</span>
+<span class="sd">        &gt;&gt;&gt; print(VA)</span>
+<span class="sd">        Varray (7, (2, 3))</span>
+<span class="sd">          [1 1]</span>
+<span class="sd">          [2 2]</span>
+<span class="sd">          [3 3 3]</span>
+<span class="sd">          [4 4 4]</span>
+<span class="sd">          [5 5]</span>
+<span class="sd">          [6 6]</span>
+<span class="sd">          [7 7]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">arrays</span> <span class="o">=</span> <span class="p">[</span><span class="n">at</span><span class="o">.</span><span class="n">checkArray</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">ndim</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;i&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">arrays</span><span class="p">]</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="n">a</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">arrays</span><span class="p">]</span>
+        <span class="n">lengths</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span><span class="o">.</span><span class="n">size</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">arrays</span><span class="p">]</span>
+        <span class="n">offsets</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">cumsum0</span><span class="p">(</span><span class="n">lengths</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">a</span><span class="o">.</span><span class="n">flat</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">arrays</span><span class="p">])</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">i</span> <span class="o">+</span> <span class="n">o</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">o</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">offsets</span><span class="p">)])</span>
+        <span class="k">return</span> <span class="n">Varray</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">indices</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="graphColors"><a class="viewcode-back" href="../ref/varray.html#varray.graphColors">[docs]</a><span class="k">def</span> <span class="nf">graphColors</span><span class="p">(</span><span class="n">adj</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Colorizes all nodes of a graph using Welsh-Powell algorithm.</span>
+
+<span class="sd">    The algorithm determines a color scheme thus that no two connected</span>
+<span class="sd">    nodes of a graph have the same color. While not guaranteeing to be</span>
+<span class="sd">    the optimal solution, it usually is a very close. This function can</span>
+<span class="sd">    for example be used to determine a color scheme for different areas</span>
+<span class="sd">    on a planar map, such that no two touching regions will have the same</span>
+<span class="sd">    color.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    adj: :term:`varray_like`</span>
+<span class="sd">        An adjacency array where each row `i` lists the nodes connected</span>
+<span class="sd">        to node `i`. It can be a Varray or a regular 2d array padded with</span>
+<span class="sd">        -1 entries to have constant row length.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    int array:</span>
+<span class="sd">        An 1-d int array with the color palette numbers for the nodes.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">adj</span> <span class="o">=</span> <span class="n">Varray</span><span class="p">(</span><span class="n">adj</span><span class="p">)</span>
+    <span class="n">nnodes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">adj</span><span class="p">)</span>
+    <span class="n">order</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="o">-</span><span class="n">adj</span><span class="o">.</span><span class="n">lengths</span><span class="p">)</span>
+    <span class="n">colors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">nnodes</span><span class="p">,),</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">at</span><span class="o">.</span><span class="n">Int</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">order</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">color</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nnodes</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">adj</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">colors</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">==</span> <span class="n">color</span><span class="p">:</span>
+                    <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>  <span class="c1"># no break</span>
+                <span class="n">colors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">color</span>
+                <span class="k">break</span>
+    <span class="k">return</span> <span class="n">colors</span></div>
+
+<span class="c1"># End</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">varray</a></li--> 
+      </ul>
+    </div>
+    <div class="footer">
+    <span class="left">
+        &copy; Copyright 2004-2023, Benedict Verhegghe.
+    </span>
+      Last updated on Mar 27, 2023.
+    <span class="right">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.4.3.
+    </span>
+    </div>
+  </body>
+</html>

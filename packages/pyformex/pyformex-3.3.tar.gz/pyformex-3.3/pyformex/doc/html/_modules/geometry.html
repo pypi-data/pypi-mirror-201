@@ -1,0 +1,1472 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!--
+##
+##  This file is part of the pyFormex project.
+##  pyFormex is a tool for generating, manipulating and transforming 3D
+##  geometrical models by sequences of mathematical operations.
+##  Home page: http://pyformex.org
+##  Project page:  http://savannah.nongnu.org/projects/pyformex/
+##  Copyright (C) Benedict Verhegghe (benedict.verhegghe@ugent.be)
+##  Distributed under the GNU General Public License version 3 or later.
+##
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see http://www.gnu.org/licenses/.
+##
+-->
+    <title>geometry &#8212; pyFormex 3.3 documentation</title>
+
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pyformex.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+<link rel="icon" type="image/png" href="../_static/pyformex_fav.png" />
+
+  </head><body>
+
+<div class="header">
+  <a href="http://pyformex.org">
+  <img src="../_static/scallop_dome_small.png" alt="scallop dome" border="0" hspace="20" vspace="12" align="left" />
+  <img src="../_static/pyformex-logo-2.png" alt="pyformex logo" border="0" hspace="10" vspace="8" align="left" />
+  </a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">geometry</a></li--> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<!-- PYFORMEX_SIDEBAR_LOGO -->
+<!-- PYFORMEX_WEBSITE_SIDEBAR_TOP -->
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for geometry</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1">##</span>
+<span class="c1">##  SPDX-FileCopyrightText: © 2007-2023 Benedict Verhegghe &lt;bverheg@gmail.com&gt;</span>
+<span class="c1">##  SPDX-License-Identifier: GPL-3.0-or-later</span>
+<span class="c1">##</span>
+<span class="c1">##  This file is part of pyFormex 3.3  (Sun Mar 26 20:16:15 CEST 2023)</span>
+<span class="c1">##  pyFormex is a tool for generating, manipulating and transforming 3D</span>
+<span class="c1">##  geometrical models by sequences of mathematical operations.</span>
+<span class="c1">##  Home page: https://pyformex.org</span>
+<span class="c1">##  Project page: https://savannah.nongnu.org/projects/pyformex/</span>
+<span class="c1">##  Development: https://gitlab.com/bverheg/pyformex</span>
+<span class="c1">##  Distributed under the GNU General Public License version 3 or later.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is free software: you can redistribute it and/or modify</span>
+<span class="c1">##  it under the terms of the GNU General Public License as published by</span>
+<span class="c1">##  the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1">##  (at your option) any later version.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is distributed in the hope that it will be useful,</span>
+<span class="c1">##  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1">##  GNU General Public License for more details.</span>
+<span class="c1">##</span>
+<span class="c1">##  You should have received a copy of the GNU General Public License</span>
+<span class="c1">##  along with this program.  If not, see http://www.gnu.org/licenses/.</span>
+<span class="c1">##</span>
+<span class="sd">&quot;&quot;&quot;A generic interface to the Coords transformation methods</span>
+
+<span class="sd">This module defines a generic Geometry superclass which adds all the</span>
+<span class="sd">possibilities of coordinate transformations offered by the</span>
+<span class="sd">Coords class to the derived classes.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">import</span> <span class="nn">pyformex</span> <span class="k">as</span> <span class="nn">pf</span>
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">import</span> <span class="nn">pyformex.arraytools</span> <span class="k">as</span> <span class="nn">at</span>
+<span class="kn">from</span> <span class="nn">pyformex.coords</span> <span class="kn">import</span> <span class="n">Coords</span>
+<span class="kn">from</span> <span class="nn">pyformex.attributes</span> <span class="kn">import</span> <span class="n">Attributes</span>
+<span class="kn">from</span> <span class="nn">pyformex.olist</span> <span class="kn">import</span> <span class="n">List</span>
+
+
+<span class="c1">#####################</span>
+<span class="c1"># Decorators</span>
+
+<span class="k">def</span> <span class="nf">_coords_property1</span><span class="p">(</span><span class="n">funcname</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Export a property on the .coords attribute of the object.</span>
+
+<span class="sd">    This is NOT a decorator function.</span>
+<span class="sd">    It would be good to make it into a decorator though.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">doc</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;Return the `</span><span class="si">{</span><span class="n">funcname</span><span class="si">}</span><span class="s2">` property of the `coords` attribute of the Geometry object.</span>
+
+<span class="s2">    See :attr:`coords.Coords.</span><span class="si">{</span><span class="n">funcname</span><span class="si">}</span><span class="s2">` for details.</span>
+<span class="s2">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">property</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="n">funcname</span><span class="p">),</span> <span class="n">doc</span><span class="o">=</span><span class="n">doc</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">_coords_transform</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Perform a transformation on the .coords attribute of the object.&quot;&quot;&quot;</span>
+    <span class="n">coords_func</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">Coords</span><span class="p">,</span> <span class="n">func</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">newf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_coords</span><span class="p">(</span><span class="n">coords_func</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">))</span>
+    <span class="n">newf</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="vm">__name__</span>
+    <span class="n">newf</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Apply the :class:`~coords.Coords.</span><span class="si">{</span><span class="n">func</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">` transformation &quot;</span>
+        <span class="s2">&quot;to the Geometry object.</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;See :meth:`coords.Coords.</span><span class="si">{</span><span class="n">func</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">` for details.&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">newf</span>
+
+<span class="k">def</span> <span class="nf">_coords_method</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Call a method on the .coords attribute of the object.&quot;&quot;&quot;</span>
+    <span class="n">coords_func</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">Coords</span><span class="p">,</span> <span class="n">func</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">newf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">coords_func</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">)</span>
+    <span class="n">newf</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="vm">__name__</span>
+    <span class="n">newf</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Call Coords.</span><span class="si">{</span><span class="n">func</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> method &quot;</span>
+        <span class="s2">&quot;on the Geometry object&#39;s coords.</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;See :meth:`coords.Coords.</span><span class="si">{</span><span class="n">func</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">` for details.&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">newf</span>
+
+
+<span class="c1">################################</span>
+
+<div class="viewcode-block" id="Geometry"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry">[docs]</a><span class="k">class</span> <span class="nc">Geometry</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A virtual base class for all geometry classes in pyFormex.</span>
+
+<span class="sd">    The Geometry class is a generic parent class for all geometry classes</span>
+<span class="sd">    in pyFormex. It is not intended to be used directly, but only through</span>
+<span class="sd">    derived classes.</span>
+<span class="sd">    Examples of derived classes are :class:`~formex.Formex`,</span>
+<span class="sd">    :class:`~mesh.Mesh`, :class:`~trisurface.TriSurface`,</span>
+<span class="sd">    :class:`~curve.PolyLine`, :class:`~curve.BezierSpline`,</span>
+<span class="sd">    :class:`~plugins.nurbs.NurbsCurve, :class:`~plugins.nurbs.NurbsCurve,</span>
+<span class="sd">    :class:`~polygons.Polygons`.</span>
+
+<span class="sd">    The basic entity of geometry is the point, defined by its coordinates.</span>
+<span class="sd">    The Geometry class expects these to be stored in a :class:`~coords.Coords`</span>
+<span class="sd">    object assigned to the :attr:`coords` attribute (it is the responsability</span>
+<span class="sd">    of the derived class object initialisation to do this).</span>
+
+<span class="sd">    The Geometry class exposes the following attributes of the :attr:`coords`</span>
+<span class="sd">    attribute, so that they can be directly used on the Geometry object:</span>
+<span class="sd">    :attr:`xyz`,</span>
+<span class="sd">    :attr:`x`,</span>
+<span class="sd">    :attr:`y`,</span>
+<span class="sd">    :attr:`z`,</span>
+<span class="sd">    :attr:`xy`,</span>
+<span class="sd">    :attr:`yz`,</span>
+<span class="sd">    :attr:`xz`.</span>
+
+<span class="sd">    The Geometry class exposes a large set of Coords methods for direct use</span>
+<span class="sd">    on the derived class objects. These methods are automatically executed</span>
+<span class="sd">    on the ``coords`` attribute of the object. One set of such methods are</span>
+<span class="sd">    those returning some information about the Coords:</span>
+<span class="sd">    :meth:`points`,</span>
+<span class="sd">    :meth:`bbox`,</span>
+<span class="sd">    :meth:`center`,</span>
+<span class="sd">    :meth:`bboxPoint`,</span>
+<span class="sd">    :meth:`centroid`,</span>
+<span class="sd">    :meth:`sizes`,</span>
+<span class="sd">    :meth:`dsize`,</span>
+<span class="sd">    :meth:`bsphere`,</span>
+<span class="sd">    :meth:`bboxes`,</span>
+<span class="sd">    :meth:`inertia`,</span>
+<span class="sd">    :meth:`principalCS`,</span>
+<span class="sd">    :meth:`principalSizes`,</span>
+<span class="sd">    :meth:`distanceFromPlane`,</span>
+<span class="sd">    :meth:`distanceFromLine`,</span>
+<span class="sd">    :meth:`distanceFromPoint`,</span>
+<span class="sd">    :meth:`directionalSize`,</span>
+<span class="sd">    :meth:`directionalWidth`,</span>
+<span class="sd">    :meth:`directionalExtremes`.</span>
+<span class="sd">    Thus, if F is an instance of class :class:`~formex.Formex`, then one</span>
+<span class="sd">    can use ``F.center()`` as a convenient shorthand for ``F.coords.center()``.</span>
+
+<span class="sd">    Likewise, most of the transformation methods of the :class:~coords.Coords`</span>
+<span class="sd">    class are exported through the Geometry class to the derived classes.</span>
+<span class="sd">    When called, they will return a new object identical to the original,</span>
+<span class="sd">    except for the coordinates, which are transformed by the specified method.</span>
+<span class="sd">    Refer to the correponding :class:`~coords.Coords` method for the precise</span>
+<span class="sd">    arguments of these methods:</span>
+<span class="sd">    :meth:`scale`,</span>
+<span class="sd">    :meth:`adjust`,</span>
+<span class="sd">    :meth:`translate`,</span>
+<span class="sd">    :meth:`centered`,</span>
+<span class="sd">    :meth:`align`,</span>
+<span class="sd">    :meth:`rotate`,</span>
+<span class="sd">    :meth:`shear`,</span>
+<span class="sd">    :meth:`reflect`,</span>
+<span class="sd">    :meth:`affine`,</span>
+<span class="sd">    :meth:`toCS`,</span>
+<span class="sd">    :meth:`fromCS`,</span>
+<span class="sd">    :meth:`transformCS`,</span>
+<span class="sd">    :meth:`position`,</span>
+<span class="sd">    :meth:`cylindrical`,</span>
+<span class="sd">    :meth:`hyperCylindrical`,</span>
+<span class="sd">    :meth:`toCylindrical`,</span>
+<span class="sd">    :meth:`spherical`,</span>
+<span class="sd">    :meth:`superSpherical`,</span>
+<span class="sd">    :meth:`toSpherical`,</span>
+<span class="sd">    :meth:`circulize`,</span>
+<span class="sd">    :meth:`bump`,</span>
+<span class="sd">    :meth:`flare`,</span>
+<span class="sd">    :meth:`map`,</span>
+<span class="sd">    :meth:`map1`,</span>
+<span class="sd">    :meth:`mapd`,</span>
+<span class="sd">    :meth:`copyAxes`,</span>
+<span class="sd">    :meth:`swapAxes`,</span>
+<span class="sd">    :meth:`permuteAxes`,</span>
+<span class="sd">    :meth:`rollAxes`,</span>
+<span class="sd">    :meth:`projectOnPlane`,</span>
+<span class="sd">    :meth:`projectOnSphere`,</span>
+<span class="sd">    :meth:`projectOnCylinder`,</span>
+<span class="sd">    :meth:`isopar`,</span>
+<span class="sd">    :meth:`addNoise`,</span>
+<span class="sd">    :meth:`rot`,</span>
+<span class="sd">    :meth:`trl`.</span>
+
+<span class="sd">    Geometry is a lot more than points however. Therefore the Geometry</span>
+<span class="sd">    and its derived classes can represent higher level entities, such as</span>
+<span class="sd">    lines, planes, circles, triangles, cubes,... These entities are often</span>
+<span class="sd">    represented by multiple points: a line segment would e.g. need two points,</span>
+<span class="sd">    a triangle three. Geometry subclasses can implement collections</span>
+<span class="sd">    of many such entities, just like the :class:`~coords.Coords` can hold</span>
+<span class="sd">    many points. We call these geometric entities &#39;elements&#39;. The subclass</span>
+<span class="sd">    must at least define a method :meth:`nelems` returning the number</span>
+<span class="sd">    of elements in the object, even if there is only one.</span>
+
+<span class="sd">    The Geometry class allows the attribution of a property number</span>
+<span class="sd">    per element. This is an integer number that can be used as the subclass</span>
+<span class="sd">    or user wants. It could be just the element number, or a key into</span>
+<span class="sd">    a database with lots of more element attributes. The Geometry class</span>
+<span class="sd">    provides methods to handle these property numbers.</span>
+
+<span class="sd">    The Geometry class provides a separate mechanism to store attributes</span>
+<span class="sd">    related to how the geometry should be rendered. For this purpose</span>
+<span class="sd">    the class defines an ``attrib`` attribute which is an object of</span>
+<span class="sd">    class :class:`~attributes.Attributes`. This attribute is callable</span>
+<span class="sd">    to set any key/value pairs in its dict. For example,</span>
+<span class="sd">    ``F.attrib(color=yellow)`` will make the object F always be drawn</span>
+<span class="sd">    in yellow.</span>
+
+<span class="sd">    The Geometry class provides for adding fields to instances of the</span>
+<span class="sd">    derived classes. Fields are numerical data (scalar or vectorial)</span>
+<span class="sd">    that are defined over the geometry. For example, if the geometry</span>
+<span class="sd">    represents a surface, the gaussian curvature of that surface is a</span>
+<span class="sd">    field defined over the surface. Field data are stored in</span>
+<span class="sd">    :class:`~field.Field` objects and the Geometry object stores them</span>
+<span class="sd">    internally in a dict object with the field name as key. The dict is</span>
+<span class="sd">    kept in an attribute ``fields`` that is only created when the first</span>
+<span class="sd">    Field is added to the object.</span>
+
+<span class="sd">    Finally, the Geometry class also provides the interface for storing</span>
+<span class="sd">    the Geometry object on a file in pyFormex&#39;s own &#39;pgf&#39; format.</span>
+
+
+<span class="sd">    Note</span>
+<span class="sd">    ----</span>
+<span class="sd">    When subclassing the Geometry class, care should be taken to obey</span>
+<span class="sd">    some rules in order for all the above to work properly.</span>
+<span class="sd">    See `UserGuide`.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># REMOVED for new Sphinx</span>
+
+    <span class="c1"># Attributes</span>
+    <span class="c1"># ----------</span>
+    <span class="c1"># coords: :class:`~coords.Coords`</span>
+    <span class="c1">#     A Coords object that holds the coordinates of the points required</span>
+    <span class="c1">#     to describe the type of geometry.</span>
+    <span class="c1"># prop: int array</span>
+    <span class="c1">#     Element property numbers. This is a 1-dim int array with length</span>
+    <span class="c1">#     :meth:`nelems`. Each element of the</span>
+    <span class="c1">#     Geometry can thus be assigned an integer value. It is up the</span>
+    <span class="c1">#     the subclass to define if and how its instances are divided into</span>
+    <span class="c1">#     elements, and how to use this element property number.</span>
+    <span class="c1"># attrib: :class:`~attributes.Attributes`</span>
+    <span class="c1">#     An Attributes object that is primarily used to define persisting</span>
+    <span class="c1">#     drawing attributes (like color) for the Geometry object.</span>
+    <span class="c1"># fields: dict</span>
+    <span class="c1">#     A dict with the Fields defined on the object. This atribute only</span>
+    <span class="c1">#     exists when at least one Field has been defined. See :meth:`addField`.</span>
+
+    <span class="c1"># _attributes_ = [ &#39;xyz&#39;, &#39;x&#39;, &#39;y&#39;, &#39;z&#39;, &#39;xy&#39;, &#39;xz&#39;, &#39;yz&#39; ]</span>
+
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize a Geometry&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prop</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coords</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span> <span class="o">=</span> <span class="n">Attributes</span><span class="p">()</span>
+
+    <span class="c1"># TODO: put Attributes in self._attrib, make self.attrib a property</span>
+    <span class="c1">#       and setAttrib a property setter</span>
+
+<div class="viewcode-block" id="Geometry.setAttrib"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.setAttrib">[docs]</a>    <span class="k">def</span> <span class="nf">setAttrib</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set attributes on the Geometry.</span>
+
+<span class="sd">        While the attributes can be directly set by calling self.attrib,</span>
+<span class="sd">        using this function returns the parent object and can thus be chained</span>
+<span class="sd">        in a sequence of calls::</span>
+
+<span class="sd">            M = Mesh(...)</span>
+<span class="sd">            M.attrib(**kargs)</span>
+<span class="sd">            M = M.transform(...)</span>
+
+<span class="sd">        can thus be replaced by::</span>
+
+<span class="sd">            M = Mesh(...).setAttrib(**kargs).transform(...)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">(</span><span class="o">**</span><span class="n">kargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">&#39;name&#39;</span> <span class="ow">in</span> <span class="n">kargs</span><span class="p">:</span>
+            <span class="n">pf</span><span class="o">.</span><span class="n">PF</span><span class="p">[</span><span class="n">kargs</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="bp">self</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+    <span class="c1">##########################################################################</span>
+    <span class="c1">#</span>
+    <span class="c1">#   Set the coords</span>
+    <span class="c1">#</span>
+    <span class="c1">##########################################################################</span>
+
+
+    <span class="k">def</span> <span class="nf">_set_coords_inplace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coords</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Replace the current coords with new ones.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="n">Coords</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">coords</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">coords</span> <span class="o">=</span> <span class="n">coords</span>
+            <span class="k">return</span> <span class="bp">self</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid reinitialization of Geometry coords&quot;</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">_set_coords_copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coords</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a copy of the object with new coordinates replacing the old.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">_set_coords_inplace</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span>
+
+
+    <span class="c1"># The default _set_coords inherited by subclasses</span>
+    <span class="n">_set_coords</span> <span class="o">=</span> <span class="n">_set_coords_copy</span>
+
+
+
+    <span class="n">xyz</span> <span class="o">=</span> <span class="n">_coords_property1</span><span class="p">(</span><span class="s1">&#39;xyz&#39;</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">_coords_property1</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">_coords_property1</span><span class="p">(</span><span class="s1">&#39;y&#39;</span><span class="p">)</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">_coords_property1</span><span class="p">(</span><span class="s1">&#39;z&#39;</span><span class="p">)</span>
+    <span class="n">xy</span> <span class="o">=</span> <span class="n">_coords_property1</span><span class="p">(</span><span class="s1">&#39;xy&#39;</span><span class="p">)</span>
+    <span class="n">xz</span> <span class="o">=</span> <span class="n">_coords_property1</span><span class="p">(</span><span class="s1">&#39;xz&#39;</span><span class="p">)</span>
+    <span class="n">yz</span> <span class="o">=</span> <span class="n">_coords_property1</span><span class="p">(</span><span class="s1">&#39;yz&#39;</span><span class="p">)</span>
+
+    <span class="nd">@xyz</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">xyz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="o">.</span><span class="n">xyz</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@x</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@y</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">y</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@z</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">z</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@xy</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">xy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="o">.</span><span class="n">xy</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@yz</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">yz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="o">.</span><span class="n">yz</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@xz</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">xz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="o">.</span><span class="n">xz</span> <span class="o">=</span> <span class="n">value</span>
+
+
+    <span class="c1">##########################################################################</span>
+    <span class="c1">#</span>
+    <span class="c1">#   Return information about the coords</span>
+    <span class="c1">#</span>
+    <span class="c1">##########################################################################</span>
+
+
+<div class="viewcode-block" id="Geometry.nelems"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.nelems">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">nelems</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the number of elements in the Geometry.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            The number of elements in the Geometry. This is an abstract</span>
+<span class="sd">            method that should be reimplemented by the derived class.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="mi">0</span></div>
+
+
+<div class="viewcode-block" id="Geometry.level"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.level">[docs]</a>    <span class="k">def</span> <span class="nf">level</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the dimensionality of the Geometry</span>
+
+<span class="sd">        The level of a :class:`Geometry` is the dimensionality of the</span>
+<span class="sd">        geometric object(s) represented:</span>
+
+<span class="sd">        - 0: points</span>
+<span class="sd">        - 1: line objects</span>
+<span class="sd">        - 2: surface objects</span>
+<span class="sd">        - 3: volume objects</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            The level of the Geometry, or -1 if it is unknown. This</span>
+<span class="sd">            should be implemented by the derived class. The Geometry</span>
+<span class="sd">            base class always returns -1.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span></div>
+
+
+<div class="viewcode-block" id="Geometry.info"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.info">[docs]</a>    <span class="k">def</span> <span class="nf">info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a short string representation about the object</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Geometry: coords shape = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">; &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;level = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">level</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Geometry.points"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.points">[docs]</a>    <span class="nd">@_coords_method</span>
+    <span class="k">def</span> <span class="nf">points</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Geometry.bbox"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.bbox">[docs]</a>    <span class="nd">@_coords_method</span>
+    <span class="k">def</span> <span class="nf">bbox</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Geometry.center"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.center">[docs]</a>    <span class="nd">@_coords_method</span>
+    <span class="k">def</span> <span class="nf">center</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Geometry.bboxPoint"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.bboxPoint">[docs]</a>    <span class="nd">@_coords_method</span>
+    <span class="k">def</span> <span class="nf">bboxPoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Geometry.centroid"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.centroid">[docs]</a>    <span class="nd">@_coords_method</span>
+    <span class="k">def</span> <span class="nf">centroid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Geometry.sizes"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.sizes">[docs]</a>    <span class="nd">@_coords_method</span>
+    <span class="k">def</span> <span class="nf">sizes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Geometry.dsize"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.dsize">[docs]</a>    <span class="nd">@_coords_method</span>
+    <span class="k">def</span> <span class="nf">dsize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Geometry.bsphere"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.bsphere">[docs]</a>    <span class="nd">@_coords_method</span>
+    <span class="k">def</span> <span class="nf">bsphere</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Geometry.bboxes"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.bboxes">[docs]</a>    <span class="nd">@_coords_method</span>
+    <span class="k">def</span> <span class="nf">bboxes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Geometry.inertia"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.inertia">[docs]</a>    <span class="nd">@_coords_method</span>
+    <span class="k">def</span> <span class="nf">inertia</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Geometry.principalCS"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.principalCS">[docs]</a>    <span class="nd">@_coords_method</span>
+    <span class="k">def</span> <span class="nf">principalCS</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Geometry.principalSizes"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.principalSizes">[docs]</a>    <span class="nd">@_coords_method</span>
+    <span class="k">def</span> <span class="nf">principalSizes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Geometry.distanceFromPlane"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.distanceFromPlane">[docs]</a>    <span class="nd">@_coords_method</span>
+    <span class="k">def</span> <span class="nf">distanceFromPlane</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Geometry.distanceFromLine"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.distanceFromLine">[docs]</a>    <span class="nd">@_coords_method</span>
+    <span class="k">def</span> <span class="nf">distanceFromLine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Geometry.distanceFromPoint"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.distanceFromPoint">[docs]</a>    <span class="nd">@_coords_method</span>
+    <span class="k">def</span> <span class="nf">distanceFromPoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Geometry.directionalSize"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.directionalSize">[docs]</a>    <span class="nd">@_coords_method</span>
+    <span class="k">def</span> <span class="nf">directionalSize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Geometry.directionalWidth"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.directionalWidth">[docs]</a>    <span class="nd">@_coords_method</span>
+    <span class="k">def</span> <span class="nf">directionalWidth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Geometry.directionalExtremes"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.directionalExtremes">[docs]</a>    <span class="nd">@_coords_method</span>
+    <span class="k">def</span> <span class="nf">directionalExtremes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="Geometry.convexHull"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.convexHull">[docs]</a>    <span class="k">def</span> <span class="nf">convexHull</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">return_mesh</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the convex hull of a Geometry.</span>
+
+<span class="sd">        This is the :meth:`~coords.Coords.convexHull` applied to the</span>
+<span class="sd">        ``coords`` attribute, but it has ``return_mesh=True`` as</span>
+<span class="sd">        default.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Mesh</span>
+<span class="sd">            The convex hull of the geometry.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="o">.</span><span class="n">convexHull</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span> <span class="n">return_mesh</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Geometry.testPlane"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.testPlane">[docs]</a>    <span class="k">def</span> <span class="nf">testPlane</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Test what parts of a Formex or Mesh are at either side of a plane.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        p: :term:`array_like` (3,)</span>
+<span class="sd">            A point in the testing plane</span>
+<span class="sd">        n: :term:`array_like` (3,)</span>
+<span class="sd">            The positive normal on the plane</span>
+<span class="sd">        atol: float</span>
+<span class="sd">            Tolerance value to be added to the tests. Specifying a small</span>
+<span class="sd">            positive value will make sure that elements located at one</span>
+<span class="sd">            side of the plane, but having one or more points inside the</span>
+<span class="sd">            plane, will be considered completely at one side. A negative</span>
+<span class="sd">            value will include these elements with the ones vut by the</span>
+<span class="sd">            plane.</span>
+
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tp: bool array (nelems,)</span>
+<span class="sd">            True for the elements that are completely at the positive side</span>
+<span class="sd">            of the plane</span>
+<span class="sd">        tc: bool array (nelems,)</span>
+<span class="sd">            True for the elements that are cut by the plane</span>
+<span class="sd">        tn: bool array (nelems,)</span>
+<span class="sd">            True for the elements that are completely at the negative side</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">test</span><span class="p">(</span><span class="nb">dir</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="n">p</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">)</span>
+        <span class="n">tn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">test</span><span class="p">(</span><span class="nb">dir</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="n">p</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">)</span>
+        <span class="n">tc</span> <span class="o">=</span> <span class="o">~</span><span class="p">(</span><span class="n">tp</span><span class="o">+</span><span class="n">tn</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">tp</span><span class="p">,</span> <span class="n">tc</span><span class="p">,</span> <span class="n">tn</span></div>
+
+
+<div class="viewcode-block" id="Geometry.testBbox"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.testBbox">[docs]</a>    <span class="k">def</span> <span class="nf">testBbox</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bb</span><span class="p">,</span> <span class="n">dirs</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">nodes</span><span class="o">=</span><span class="s1">&#39;any&#39;</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">0.</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Test which part of a Formex or Mesh is inside a given bbox.</span>
+
+<span class="sd">        The Geometry object needs to have a :meth:`test` method,</span>
+<span class="sd">        This is the case for the :class:`~formex.Formex` and</span>
+<span class="sd">        :class:`~mesh.Mesh` classes.</span>
+<span class="sd">        The test can be applied in 1, 2 or 3 viewing directions.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        bb: Coords (2,3) or alike</span>
+<span class="sd">            The bounding box to test for.</span>
+<span class="sd">        dirs: tuple of ints (0,1,2)</span>
+<span class="sd">            The viewing directions in which to check the bbox bounds.</span>
+<span class="sd">        nodes:</span>
+<span class="sd">            Same as in :meth:`formex.Formex.test` or :meth:`mesh.Mesh.test`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool array</span>
+<span class="sd">            The array flags the elements that are inside the given</span>
+<span class="sd">            bounding box.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">test</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">test</span><span class="p">(</span><span class="n">nodes</span><span class="o">=</span><span class="n">nodes</span><span class="p">,</span> <span class="nb">dir</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="n">bb</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="nb">max</span><span class="o">=</span><span class="n">bb</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">i</span><span class="p">],</span>
+                          <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">dirs</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">test</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+
+
+    <span class="c1">########### Coords transformations #################</span>
+
+<div class="viewcode-block" id="Geometry.scale"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.scale">[docs]</a>    <span class="nd">@_coords_transform</span>
+    <span class="k">def</span> <span class="nf">scale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Geometry.resized"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.resized">[docs]</a>    <span class="k">def</span> <span class="nf">resized</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1.e-5</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a copy of the Geometry scaled to the given size.</span>
+
+<span class="sd">        size can be a single value or a list of three values for the</span>
+<span class="sd">        three coordinate directions. If it is a single value, all directions</span>
+<span class="sd">        are scaled to the same size.</span>
+<span class="sd">        Directions for which the geometry has a size smaller than tol times</span>
+<span class="sd">        the maximum size are not rescaled.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sizes</span><span class="p">()</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="n">Coords</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,)))</span>
+        <span class="n">ignore</span> <span class="o">=</span> <span class="n">s</span><span class="o">&lt;</span><span class="n">tol</span><span class="o">*</span><span class="n">s</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+        <span class="n">s</span><span class="p">[</span><span class="n">ignore</span><span class="p">]</span> <span class="o">=</span> <span class="n">size</span><span class="p">[</span><span class="n">ignore</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="n">size</span><span class="o">/</span><span class="n">s</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Geometry.adjust"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.adjust">[docs]</a>    <span class="nd">@_coords_transform</span>
+    <span class="k">def</span> <span class="nf">adjust</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Geometry.translate"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.translate">[docs]</a>    <span class="nd">@_coords_transform</span>
+    <span class="k">def</span> <span class="nf">translate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Geometry.centered"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.centered">[docs]</a>    <span class="nd">@_coords_transform</span>
+    <span class="k">def</span> <span class="nf">centered</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Geometry.align"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.align">[docs]</a>    <span class="nd">@_coords_transform</span>
+    <span class="k">def</span> <span class="nf">align</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Geometry.rotate"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.rotate">[docs]</a>    <span class="nd">@_coords_transform</span>
+    <span class="k">def</span> <span class="nf">rotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Geometry.shear"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.shear">[docs]</a>    <span class="nd">@_coords_transform</span>
+    <span class="k">def</span> <span class="nf">shear</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Geometry.reflect"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.reflect">[docs]</a>    <span class="nd">@_coords_transform</span>
+    <span class="k">def</span> <span class="nf">reflect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Geometry.affine"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.affine">[docs]</a>    <span class="nd">@_coords_transform</span>
+    <span class="k">def</span> <span class="nf">affine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Geometry.toCS"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.toCS">[docs]</a>    <span class="nd">@_coords_transform</span>
+    <span class="k">def</span> <span class="nf">toCS</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Geometry.fromCS"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.fromCS">[docs]</a>    <span class="nd">@_coords_transform</span>
+    <span class="k">def</span> <span class="nf">fromCS</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Geometry.transformCS"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.transformCS">[docs]</a>    <span class="nd">@_coords_transform</span>
+    <span class="k">def</span> <span class="nf">transformCS</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Geometry.position"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.position">[docs]</a>    <span class="nd">@_coords_transform</span>
+    <span class="k">def</span> <span class="nf">position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Geometry.cylindrical"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.cylindrical">[docs]</a>    <span class="nd">@_coords_transform</span>
+    <span class="k">def</span> <span class="nf">cylindrical</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Geometry.hyperCylindrical"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.hyperCylindrical">[docs]</a>    <span class="nd">@_coords_transform</span>
+    <span class="k">def</span> <span class="nf">hyperCylindrical</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Geometry.toCylindrical"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.toCylindrical">[docs]</a>    <span class="nd">@_coords_transform</span>
+    <span class="k">def</span> <span class="nf">toCylindrical</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Geometry.spherical"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.spherical">[docs]</a>    <span class="nd">@_coords_transform</span>
+    <span class="k">def</span> <span class="nf">spherical</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Geometry.superSpherical"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.superSpherical">[docs]</a>    <span class="nd">@_coords_transform</span>
+    <span class="k">def</span> <span class="nf">superSpherical</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Geometry.toSpherical"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.toSpherical">[docs]</a>    <span class="nd">@_coords_transform</span>
+    <span class="k">def</span> <span class="nf">toSpherical</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Geometry.circulize"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.circulize">[docs]</a>    <span class="nd">@_coords_transform</span>
+    <span class="k">def</span> <span class="nf">circulize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Geometry.bump"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.bump">[docs]</a>    <span class="nd">@_coords_transform</span>
+    <span class="k">def</span> <span class="nf">bump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Geometry.flare"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.flare">[docs]</a>    <span class="nd">@_coords_transform</span>
+    <span class="k">def</span> <span class="nf">flare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Geometry.map"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.map">[docs]</a>    <span class="nd">@_coords_transform</span>
+    <span class="k">def</span> <span class="nf">map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Geometry.map1"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.map1">[docs]</a>    <span class="nd">@_coords_transform</span>
+    <span class="k">def</span> <span class="nf">map1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Geometry.mapd"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.mapd">[docs]</a>    <span class="nd">@_coords_transform</span>
+    <span class="k">def</span> <span class="nf">mapd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Geometry.copyAxes"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.copyAxes">[docs]</a>    <span class="nd">@_coords_transform</span>
+    <span class="k">def</span> <span class="nf">copyAxes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Geometry.swapAxes"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.swapAxes">[docs]</a>    <span class="nd">@_coords_transform</span>
+    <span class="k">def</span> <span class="nf">swapAxes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Geometry.permuteAxes"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.permuteAxes">[docs]</a>    <span class="nd">@_coords_transform</span>
+    <span class="k">def</span> <span class="nf">permuteAxes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Geometry.rollAxes"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.rollAxes">[docs]</a>    <span class="nd">@_coords_transform</span>
+    <span class="k">def</span> <span class="nf">rollAxes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Geometry.projectOnPlane"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.projectOnPlane">[docs]</a>    <span class="nd">@_coords_transform</span>
+    <span class="k">def</span> <span class="nf">projectOnPlane</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Geometry.projectOnSphere"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.projectOnSphere">[docs]</a>    <span class="nd">@_coords_transform</span>
+    <span class="k">def</span> <span class="nf">projectOnSphere</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Geometry.projectOnCylinder"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.projectOnCylinder">[docs]</a>    <span class="nd">@_coords_transform</span>
+    <span class="k">def</span> <span class="nf">projectOnCylinder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Geometry.isopar"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.isopar">[docs]</a>    <span class="nd">@_coords_transform</span>
+    <span class="k">def</span> <span class="nf">isopar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Geometry.addNoise"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.addNoise">[docs]</a>    <span class="nd">@_coords_transform</span>
+    <span class="k">def</span> <span class="nf">addNoise</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+    <span class="n">rot</span> <span class="o">=</span> <span class="n">rotate</span>
+    <span class="n">trl</span> <span class="o">=</span> <span class="n">translate</span>
+
+
+    <span class="c1">##########################################################################</span>
+    <span class="c1">#</span>
+    <span class="c1">#  Operations on property numbers</span>
+    <span class="c1">#</span>
+    <span class="c1">##########################################################################</span>
+
+
+<div class="viewcode-block" id="Geometry.setProp"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.setProp">[docs]</a>    <span class="k">def</span> <span class="nf">setProp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prop</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create or destroy the property array for the Geometry.</span>
+
+<span class="sd">        A property array is a 1-dim integer array with length equal</span>
+<span class="sd">        to the number of elements in the Geometry. Each element thus has its</span>
+<span class="sd">        own property number. These numbers can be used for any purpose.</span>
+<span class="sd">        In derived classes like :class:`~formex.Formex` and :class`~mesh.Mesh`</span>
+<span class="sd">        they play an import role when creating new geometry: new elements</span>
+<span class="sd">        inherit the property number of their parent element.</span>
+<span class="sd">        Properties are also preserved on pure coordinate transformations.</span>
+
+<span class="sd">        Because elements with different property numbers can be drawn in</span>
+<span class="sd">        different colors, the property numbers are also often used to impose</span>
+<span class="sd">        color.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        prop: int, int :term:`array_like` or &#39;range&#39;</span>
+<span class="sd">            The property number(s) to assign to the elements. If a single int,</span>
+<span class="sd">            all elements get the same property value.</span>
+<span class="sd">            If the number of passed values is less than the number of elements,</span>
+<span class="sd">            the list will be repeated. If more values are passed than the</span>
+<span class="sd">            number of elements, the excess ones are ignored.</span>
+
+<span class="sd">            A special value ``&#39;range&#39;`` may be given to set the property</span>
+<span class="sd">            numbers equal to the element number. This is equivalent to</span>
+<span class="sd">            passing ``arange(self.nelems())``.</span>
+
+<span class="sd">            A value None (default) removes the properties from the Geometry.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">            The calling object ``self``, with the new properties inserted</span>
+<span class="sd">            or with the properties deleted if argument is None.</span>
+
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">        This is one of the few operations that change the object in-place.</span>
+<span class="sd">        It still returns the object itself, so that this operation can be</span>
+<span class="sd">        used in a chain with other operations.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        toProp: Create a valid set of properties for the object</span>
+<span class="sd">        whereProp: Find the elements having some property value</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">prop</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">prop</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">prop</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">prop</span> <span class="o">==</span> <span class="s1">&#39;range&#39;</span><span class="p">:</span>
+                    <span class="n">prop</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nelems</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">prop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">toProp</span><span class="p">(</span><span class="n">prop</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="Geometry.toProp"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.toProp">[docs]</a>    <span class="k">def</span> <span class="nf">toProp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prop</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a valid set of properties for the object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        prop: int or int :term:`array_like`</span>
+<span class="sd">            The property values to turn into a valid set for the object.</span>
+<span class="sd">            If a single int, all elements get the same property value.</span>
+<span class="sd">            If the number of passed values is less than the number of elements,</span>
+<span class="sd">            the list will be repeated. If more values are passed than the</span>
+<span class="sd">            number of elements, the excess ones are ignored.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int array</span>
+<span class="sd">            A 1-dim int array that is valid as a property array for</span>
+<span class="sd">            the Geometry object. The length of the array will is</span>
+<span class="sd">            ``self.nelems()`` and the dtype is :attr:`~arraytools.Int`.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        setProp: Set the properties for the object</span>
+<span class="sd">        whereProp: Find the elements having some property value</span>
+
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">        When you set the properties (using :meth:`setProp`) you do not</span>
+<span class="sd">        need to call this method to validate the properties. It is implicitely</span>
+<span class="sd">        called from :meth:`setProp`.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">prop</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">checkArray1D</span><span class="p">(</span><span class="n">prop</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;i&#39;</span><span class="p">,</span> <span class="n">allow</span><span class="o">=</span><span class="s1">&#39;u&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">prop</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nelems</span><span class="p">(),))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">at</span><span class="o">.</span><span class="n">Int</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Geometry.maxProp"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.maxProp">[docs]</a>    <span class="k">def</span> <span class="nf">maxProp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the highest property value used.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            The highest value used in the properties array, or -1</span>
+<span class="sd">            if there are no properties.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">prop</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">prop</span><span class="o">.</span><span class="n">max</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Geometry.propSet"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.propSet">[docs]</a>    <span class="k">def</span> <span class="nf">propSet</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a list with unique property values in use.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int array</span>
+<span class="sd">            The unique values in the properties array. If no</span>
+<span class="sd">            properties are defined, an empty array is returned.</span>
+
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">prop</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">at</span><span class="o">.</span><span class="n">Int</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prop</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Geometry.propDict"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.propDict">[docs]</a>    <span class="k">def</span> <span class="nf">propDict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a dict with the elements grouped per prop value.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            A dict where the keys are the unique prop values and the</span>
+<span class="sd">            values are the lists of element numbers having that prop value.</span>
+<span class="sd">            The dict is empty if the object doen&#39;t have prop numbers.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">prop</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">dict</span><span class="p">([(</span><span class="n">v</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prop</span> <span class="o">==</span> <span class="n">v</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+                         <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">propSet</span><span class="p">()])</span></div>
+
+
+<div class="viewcode-block" id="Geometry.whereProp"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.whereProp">[docs]</a>    <span class="k">def</span> <span class="nf">whereProp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prop</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Find the elements having some property value.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        prop: int or int :term:`array_like`</span>
+<span class="sd">            The property value(s) to be found.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int array</span>
+<span class="sd">           A 1-dim int array with the indices of all the elements that</span>
+<span class="sd">           have the property value ``prop``, or one of the values in ``prop``.</span>
+
+<span class="sd">           If the object has no properties, an empty array is returned.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        setProp: Set the properties for the object</span>
+<span class="sd">        toProp: Create a valid set of properties for the object</span>
+<span class="sd">        selectProp: Return a Geometry object with only the matching elements</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">prop</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">prop</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">prop</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">prop</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prop</span><span class="o">==</span><span class="n">v</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">prop</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">at</span><span class="o">.</span><span class="n">Int</span><span class="p">)</span></div>
+
+
+    <span class="c1">##########################################################################</span>
+    <span class="c1">#</span>
+    <span class="c1">#  Making copies and selections</span>
+    <span class="c1">#</span>
+    <span class="c1">##########################################################################</span>
+
+
+<div class="viewcode-block" id="Geometry.copy"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a deep copy of the Geometry  object.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Geometry (or subclass) object</span>
+<span class="sd">            An object of the same class as the caller, having all the</span>
+<span class="sd">            same data (for :attr:`coords`, :attr:`prop`, :attr:`attrib`,</span>
+<span class="sd">            :attr:`fields`, and any other attributes possibly set by the</span>
+<span class="sd">            subclass), but not sharing any data with the original object.</span>
+
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">        This is seldomly used, because it may cause wildly superfluous</span>
+<span class="sd">        copying of data. Only used it if you absolutely require data</span>
+<span class="sd">        that are independent of those of the caller.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
+        <span class="k">return</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">_select</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">selected</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Low level selection</span>
+
+<span class="sd">        This is an abstract method and has to be reimplemented by the</span>
+<span class="sd">        derived classes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+
+<div class="viewcode-block" id="Geometry.select"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.select">[docs]</a>    <span class="k">def</span> <span class="nf">select</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sel</span><span class="p">,</span> <span class="n">compact</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Select some element(s) from a Geometry.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        sel: index-like</span>
+<span class="sd">            The index of element(s) to be selected. This can be anything that</span>
+<span class="sd">            can be used as an index in an array:</span>
+
+<span class="sd">                - a single element number</span>
+<span class="sd">                - a list, or array, of element numbers</span>
+<span class="sd">                - a bool list, or array, of length self.nelems(),</span>
+<span class="sd">                  where True values flag the elements to be selected</span>
+<span class="sd">        compact: bool, optional</span>
+<span class="sd">            This option is only useful for subclasses that have a</span>
+<span class="sd">            ``compact`` method, such as :class:`mesh.Mesh` and its subclasses.</span>
+<span class="sd">            If True, the returned object will be compacted, i.e.</span>
+<span class="sd">            unused nodes are removed and the nodes are renumbered from</span>
+<span class="sd">            zero. If False (default), the node set and numbers</span>
+<span class="sd">            are returned unchanged.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Geometry (or subclass) object</span>
+<span class="sd">            An object of the same class as the caller, but only containing</span>
+<span class="sd">            the selected elements.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        cselect: Return all but the selected elements.</span>
+<span class="sd">        clip: Like select, but with compact=True as default.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;warn_select_changed&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_select</span><span class="p">(</span><span class="n">sel</span><span class="p">,</span> <span class="n">compact</span><span class="o">=</span><span class="n">compact</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Geometry.cselect"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.cselect">[docs]</a>    <span class="k">def</span> <span class="nf">cselect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sel</span><span class="p">,</span> <span class="n">compact</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the Geometry with the selected elements removed.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        sel: index-like</span>
+<span class="sd">            The index of element(s) to be selected. This can be anything that</span>
+<span class="sd">            can be used as an index in an array:</span>
+
+<span class="sd">                - a single element number</span>
+<span class="sd">                - a list, or array, of element numbers</span>
+<span class="sd">                - a bool list, or array, of length self.nelems(),</span>
+<span class="sd">                  where True values flag the elements to be selected</span>
+<span class="sd">        compact: bool, optional</span>
+<span class="sd">            This option is only useful for subclasses that have a</span>
+<span class="sd">            ``compact`` method, such as :class:`mesh.Mesh` and its subclasses.</span>
+<span class="sd">            If True, the returned object will be compacted, i.e.</span>
+<span class="sd">            unused nodes are removed and the nodes are renumbered from</span>
+<span class="sd">            zero. If False (default), the node set and numbers</span>
+<span class="sd">            are returned unchanged.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Geometry (or subclass) object</span>
+<span class="sd">            An object of the same class as the caller, but containing</span>
+<span class="sd">            all but the selected elements.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        select: Return a Geometry with only the selected elements.</span>
+<span class="sd">        cclip: Like cselect, but with compact=True as default.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;warn_select_changed&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_select</span><span class="p">(</span><span class="n">at</span><span class="o">.</span><span class="n">complement</span><span class="p">(</span><span class="n">sel</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nelems</span><span class="p">()),</span> <span class="n">compact</span><span class="o">=</span><span class="n">compact</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Geometry.clip"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.clip">[docs]</a>    <span class="k">def</span> <span class="nf">clip</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sel</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a Geometry only containing the selected elements.</span>
+
+<span class="sd">        This is equivalent to :meth:`select` with ``compact=True``.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        select: Return a Geometry with only the selected elements.</span>
+<span class="sd">        cclip: The complement of clip, returning all but the selected elements.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">sel</span><span class="p">,</span> <span class="n">compact</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Geometry.cclip"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.cclip">[docs]</a>    <span class="k">def</span> <span class="nf">cclip</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sel</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a Geometry with the selected elements removed.</span>
+
+<span class="sd">        This is equivalent to :meth:`select` with ``compact=True``.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        cselect: Return a Geometry with only the selected elements.</span>
+<span class="sd">        clip: The complement of cclip, returning only the selected elements.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cselect</span><span class="p">(</span><span class="n">sel</span><span class="p">,</span> <span class="n">compact</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Geometry.selectProp"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.selectProp">[docs]</a>    <span class="k">def</span> <span class="nf">selectProp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prop</span><span class="p">,</span> <span class="n">compact</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Select elements by their property value.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        prop: int or int :term:`array_like`</span>
+<span class="sd">            The property value(s) for which the elements should be selected.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Geometry (or subclass) object</span>
+<span class="sd">            An object of the same class as the caller, but only containing</span>
+<span class="sd">            the elements that have a property value equal to ``prop``, or</span>
+<span class="sd">            one of the values in ``prop``.</span>
+<span class="sd">            If the input object has no properties, a copy containing all</span>
+<span class="sd">            elements is returned.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        cselectProp: Return all but the elements with property ``prop``.</span>
+<span class="sd">        whereProp: Get the numbers of the elements having a specified property.</span>
+<span class="sd">        select: Select the elements with the specified indices.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">prop</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_select</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">whereProp</span><span class="p">(</span><span class="n">prop</span><span class="p">),</span> <span class="n">compact</span><span class="o">=</span><span class="n">compact</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Geometry.cselectProp"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.cselectProp">[docs]</a>    <span class="k">def</span> <span class="nf">cselectProp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prop</span><span class="p">,</span> <span class="n">compact</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return an object without the elements with property `val`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        prop: int or int :term:`array_like`</span>
+<span class="sd">            The property value(s) of the elements that should be left out.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Geometry (or subclass) object</span>
+<span class="sd">            An object of the same class as the caller, with all but</span>
+<span class="sd">            the elements that have a property value equal to ``prop``, or</span>
+<span class="sd">            one of the values in ``prop``.</span>
+<span class="sd">            If the input object has no properties, a copy containing all</span>
+<span class="sd">            elements is returned.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        selectProp: Return only the elements with property ``prop``.</span>
+<span class="sd">        whereProp: Get the numbers of the elements having a specified property.</span>
+<span class="sd">        cselect: Remove elements by their index.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">prop</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cselect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">whereProp</span><span class="p">(</span><span class="n">prop</span><span class="p">),</span> <span class="n">compact</span><span class="o">=</span><span class="n">compact</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Geometry.splitProp"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.splitProp">[docs]</a>    <span class="k">def</span> <span class="nf">splitProp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prop</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">compact</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Partition a Geometry according to the values in prop.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        prop: int :term:`array_like`, optional</span>
+<span class="sd">            A 1-dim int array with length ``self.nelems()`` to be used in place</span>
+<span class="sd">            of the objects own :attr:`prop` attribute. If None (default),</span>
+<span class="sd">            the latter will be used.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`~olist.List` of Geometry objects</span>
+<span class="sd">            A list of objects of the same class as the caller.</span>
+<span class="sd">            Each object in the list contains all the elements having the</span>
+<span class="sd">            same value of `prop`. The number of objects in the list is</span>
+<span class="sd">            equal to the number of unique values in `prop`. The list is</span>
+<span class="sd">            sorted in ascending order of the `prop` value.</span>
+
+<span class="sd">            If `prop` is None and the the object has no `prop` attribute,</span>
+<span class="sd">            an empty list is returned.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">prop</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">prop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prop</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">prop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">toProp</span><span class="p">(</span><span class="n">prop</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">prop</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">split</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">split</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">prop</span><span class="o">==</span><span class="n">p</span><span class="p">,</span> <span class="n">compact</span><span class="o">=</span><span class="n">compact</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">prop</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="n">List</span><span class="p">(</span><span class="n">split</span><span class="p">)</span></div>
+
+
+    <span class="c1">##########################################################################</span>
+    <span class="c1">#</span>
+    <span class="c1">#  Operations on fields</span>
+    <span class="c1">#</span>
+    <span class="c1">##########################################################################</span>
+
+
+<div class="viewcode-block" id="Geometry.addField"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.addField">[docs]</a>    <span class="k">def</span> <span class="nf">addField</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fldtype</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">fldname</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add :class:`~field.Field` data to the :class:`Geometry`.</span>
+
+<span class="sd">        Field data are scalar or vectorial data defined over the</span>
+<span class="sd">        Geometry. This convenience function creates a :class:`~field.Field`</span>
+<span class="sd">        object with the specified data and adds it to the Geometry object&#39;s</span>
+<span class="sd">        :attr:`fields` dict.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fldtype: str</span>
+<span class="sd">            The field type. See :class:`~field.Field` for details.</span>
+<span class="sd">        data: :term:`array_like`</span>
+<span class="sd">            The field data. See :class:`~field.Field` for details.</span>
+<span class="sd">        fldname: str</span>
+<span class="sd">            The field name. See :class:`~field.Field` for details. This name</span>
+<span class="sd">            is also used as key to store the Field in the :attr:`fields`</span>
+<span class="sd">            dict.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`~field.Field`</span>
+<span class="sd">            The constructed and stored Field object.</span>
+
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">        Whenever a Geometry object is exported to a PGF file,</span>
+<span class="sd">        all Fields stored inside the Geometry object are included</span>
+<span class="sd">        in the PGF file.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        fields: Return a dict with all Fields on the Geometry.</span>
+<span class="sd">        getField: Retrieve a Field by its name.</span>
+<span class="sd">        delField: Deleted a Field.</span>
+<span class="sd">        convertField: Convert the Field to another Field type.</span>
+<span class="sd">        fieldReport: Return a short overview of the stored Fields</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; from pyformex.mesh import Mesh</span>
+<span class="sd">        &gt;&gt;&gt; M = Mesh(eltype=&#39;quad4&#39;).subdivide(2)</span>
+<span class="sd">        &gt;&gt;&gt; fld1 = M.addField(&#39;elemc&#39;, np.asarray([0,1,1,2]), &#39;elemnr&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; print(fld1)</span>
+<span class="sd">        Field &#39;elemnr&#39;, type &#39;elemc&#39;, shape (4,), nnodes=9, nelems=4, nplex=4</span>
+<span class="sd">        [0 1 1 2]</span>
+<span class="sd">        &gt;&gt;&gt; fld2 = M.convertField(&#39;elemnr&#39;, &#39;node&#39;, &#39;onnodes&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; fld3 = M.getField(&#39;onnodes&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; print(fld3)</span>
+<span class="sd">        Field &#39;onnodes&#39;, type &#39;node&#39;, shape (9, 1), nnodes=9, nelems=4, nplex=4</span>
+<span class="sd">        [[0. ]</span>
+<span class="sd">         [0.5]</span>
+<span class="sd">         [1. ]</span>
+<span class="sd">         [0.5]</span>
+<span class="sd">         [1. ]</span>
+<span class="sd">         [1.5]</span>
+<span class="sd">         [1. ]</span>
+<span class="sd">         [1.5]</span>
+<span class="sd">         [2. ]]</span>
+<span class="sd">        &gt;&gt;&gt; print(M.fieldReport())</span>
+<span class="sd">        Field &#39;elemnr&#39;, fldtype &#39;elemc&#39;, dtype int64, shape (4,)</span>
+<span class="sd">        Field &#39;onnodes&#39;, fldtype &#39;node&#39;, dtype float64, shape (9, 1)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">pyformex.field</span> <span class="kn">import</span> <span class="n">Field</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;fieldtypes&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">fldtype</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fieldtypes</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Can not add field of type &#39;</span><span class="si">{</span><span class="n">fldtype</span><span class="si">}</span><span class="s2">&#39; &quot;</span>
+                             <span class="sa">f</span><span class="s2">&quot;to a </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">fld</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fldtype</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">fldname</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_field</span><span class="p">(</span><span class="n">fld</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_add_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Low level function to add a Field&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_fields&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_fields</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fields</span><span class="p">[</span><span class="n">field</span><span class="o">.</span><span class="n">fldname</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span>
+        <span class="k">return</span> <span class="n">field</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">fields</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the Fields dict of the Geometry.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            A dict with the :class:`term:`Field` objects that were</span>
+<span class="sd">            attached to the Geometry. The keys are the Field names.</span>
+<span class="sd">            If the Geometry has no Fields, an empty dict is returned.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_fields&#39;</span><span class="p">,</span> <span class="p">{})</span>
+
+
+<div class="viewcode-block" id="Geometry.getField"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.getField">[docs]</a>    <span class="k">def</span> <span class="nf">getField</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fldname</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the data field with the specified name.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fldname: str</span>
+<span class="sd">            The name of the Field to retrieve.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`~field.Field`</span>
+<span class="sd">            The data field with the specified name, if it exists</span>
+<span class="sd">            in the Geometry object&#39;s :attr:`fields`.</span>
+<span class="sd">            Returns None if no such key exists.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        See :meth:`addFields`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">fldname</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Geometry.delField"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.delField">[docs]</a>    <span class="k">def</span> <span class="nf">delField</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fldname</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Delete the Field with the specified name.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fldname: str</span>
+<span class="sd">            The name of the Field to delete from the Geometry object.</span>
+<span class="sd">            A nonexisting name is silently ignored.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">fldname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">:</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="n">fldname</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="Geometry.convertField"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.convertField">[docs]</a>    <span class="k">def</span> <span class="nf">convertField</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fldname</span><span class="p">,</span> <span class="n">totype</span><span class="p">,</span> <span class="n">toname</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Convert the data field with the specified name to another type.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fldname: str</span>
+<span class="sd">            The name of the data Field to convert to another type.</span>
+<span class="sd">            A nonexisting name is silently ignored.</span>
+<span class="sd">        totype: str</span>
+<span class="sd">            The field type to convert to.</span>
+<span class="sd">            See :class:`~field.Field` for details.</span>
+<span class="sd">        toname: str</span>
+<span class="sd">            The name of the new (converted) Field (and key to store it).</span>
+<span class="sd">            If the same name is specified as the old Field, that one will</span>
+<span class="sd">            be overwritten by the new. Otherwise, both will be kept in the</span>
+<span class="sd">            Geometry object&#39;s :attr:`fields` dict.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`~field.Field`</span>
+<span class="sd">            The converted and stored data field.</span>
+<span class="sd">            Returns None if the original data field does not exist.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        See :meth:`addFields`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">fldname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">:</span>
+            <span class="n">fld</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="n">fldname</span><span class="p">]</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="n">totype</span><span class="p">,</span> <span class="n">toname</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_field</span><span class="p">(</span><span class="n">fld</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Geometry.fieldReport"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.fieldReport">[docs]</a>    <span class="k">def</span> <span class="nf">fieldReport</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a short report of the stored fields</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            A multiline string with the stored Fields&#39; attributes:</span>
+<span class="sd">            name, type, dtype and shape.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span>
+            <span class="sa">f</span><span class="s2">&quot;Field &#39;</span><span class="si">{</span><span class="n">f</span><span class="o">.</span><span class="n">fldname</span><span class="si">}</span><span class="s2">&#39;, fldtype &#39;</span><span class="si">{</span><span class="n">f</span><span class="o">.</span><span class="n">fldtype</span><span class="si">}</span><span class="s2">&#39;, &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;dtype </span><span class="si">{</span><span class="n">f</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">dtype</span><span class="si">}</span><span class="s2">, shape </span><span class="si">{</span><span class="n">f</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">values</span><span class="p">()])</span></div>
+
+
+    <span class="c1">##########################################################################</span>
+    <span class="c1">#</span>
+    <span class="c1">#  Export/import to/from PGF/PZF files</span>
+    <span class="c1">#</span>
+    <span class="c1">##########################################################################</span>
+
+
+    <span class="c1"># TODO: this should allow pzf as well</span>
+<div class="viewcode-block" id="Geometry.write"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Write a Geometry object to a PGF file&quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">filewrite</span>
+        <span class="n">filewrite</span><span class="o">.</span><span class="n">writePGF</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="n">sep</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Geometry.read"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.read">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="n">clas</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read a single Geometry object from a PGF file&quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">fileread</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">fileread</span><span class="o">.</span><span class="n">readPGF</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span></div>
+
+
+    <span class="c1">###################</span>
+    <span class="c1">## PZF interface ##</span>
+
+<div class="viewcode-block" id="Geometry.pzf_dict"><a class="viewcode-back" href="../ref/geometry.html#geometry.Geometry.pzf_dict">[docs]</a>    <span class="k">def</span> <span class="nf">pzf_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Construct common part of all Geometry pzf dicts&quot;&quot;&quot;</span>
+        <span class="n">kargs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">kargs</span><span class="p">[</span><span class="s1">&#39;coords&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">prop</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">kargs</span><span class="p">[</span><span class="s1">&#39;prop&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prop</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">:</span>
+                <span class="n">fld</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+                <span class="n">kargs</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;field__</span><span class="si">{</span><span class="n">fld</span><span class="o">.</span><span class="n">fldtype</span><span class="si">}</span><span class="s1">__</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fld</span><span class="o">.</span><span class="n">data</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">kargs</span><span class="p">[</span><span class="s1">&#39;attrib:j&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span>
+        <span class="k">return</span> <span class="n">kargs</span></div></div>
+
+
+<span class="c1"># End</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">geometry</a></li--> 
+      </ul>
+    </div>
+    <div class="footer">
+    <span class="left">
+        &copy; Copyright 2004-2023, Benedict Verhegghe.
+    </span>
+      Last updated on Mar 27, 2023.
+    <span class="right">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.4.3.
+    </span>
+    </div>
+  </body>
+</html>

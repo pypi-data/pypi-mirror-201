@@ -1,0 +1,1052 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!--
+##
+##  This file is part of the pyFormex project.
+##  pyFormex is a tool for generating, manipulating and transforming 3D
+##  geometrical models by sequences of mathematical operations.
+##  Home page: http://pyformex.org
+##  Project page:  http://savannah.nongnu.org/projects/pyformex/
+##  Copyright (C) Benedict Verhegghe (benedict.verhegghe@ugent.be)
+##  Distributed under the GNU General Public License version 3 or later.
+##
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see http://www.gnu.org/licenses/.
+##
+-->
+    <title>script &#8212; pyFormex 3.3 documentation</title>
+
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pyformex.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+<link rel="icon" type="image/png" href="../_static/pyformex_fav.png" />
+
+  </head><body>
+
+<div class="header">
+  <a href="http://pyformex.org">
+  <img src="../_static/scallop_dome_small.png" alt="scallop dome" border="0" hspace="20" vspace="12" align="left" />
+  <img src="../_static/pyformex-logo-2.png" alt="pyformex logo" border="0" hspace="10" vspace="8" align="left" />
+  </a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">script</a></li--> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<!-- PYFORMEX_SIDEBAR_LOGO -->
+<!-- PYFORMEX_WEBSITE_SIDEBAR_TOP -->
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for script</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1">##</span>
+<span class="c1">##  SPDX-FileCopyrightText: © 2007-2023 Benedict Verhegghe &lt;bverheg@gmail.com&gt;</span>
+<span class="c1">##  SPDX-License-Identifier: GPL-3.0-or-later</span>
+<span class="c1">##</span>
+<span class="c1">##  This file is part of pyFormex 3.3  (Sun Mar 26 20:16:15 CEST 2023)</span>
+<span class="c1">##  pyFormex is a tool for generating, manipulating and transforming 3D</span>
+<span class="c1">##  geometrical models by sequences of mathematical operations.</span>
+<span class="c1">##  Home page: https://pyformex.org</span>
+<span class="c1">##  Project page: https://savannah.nongnu.org/projects/pyformex/</span>
+<span class="c1">##  Development: https://gitlab.com/bverheg/pyformex</span>
+<span class="c1">##  Distributed under the GNU General Public License version 3 or later.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is free software: you can redistribute it and/or modify</span>
+<span class="c1">##  it under the terms of the GNU General Public License as published by</span>
+<span class="c1">##  the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1">##  (at your option) any later version.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is distributed in the hope that it will be useful,</span>
+<span class="c1">##  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1">##  GNU General Public License for more details.</span>
+<span class="c1">##</span>
+<span class="c1">##  You should have received a copy of the GNU General Public License</span>
+<span class="c1">##  along with this program.  If not, see http://www.gnu.org/licenses/.</span>
+<span class="c1">##</span>
+<span class="sd">&quot;&quot;&quot;Basic pyFormex script functions</span>
+
+<span class="sd">The :mod:`script` module provides the basic functions available</span>
+<span class="sd">in all pyFormex scripts. These functions are available in GUI and NONGUI</span>
+<span class="sd">applications, without the need to explicitely importing the :mod:`script`</span>
+<span class="sd">module.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+
+<span class="kn">import</span> <span class="nn">pyformex</span> <span class="k">as</span> <span class="nn">pf</span>
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">pyformex.path</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">pyformex.timer</span> <span class="kn">import</span> <span class="n">Timer</span>
+<span class="kn">from</span> <span class="nn">pyformex.geometry</span> <span class="kn">import</span> <span class="n">Geometry</span>
+
+
+<span class="c1">######################### Exceptions #########################################</span>
+
+
+<span class="k">class</span> <span class="nc">_Exit</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Exception raised to exit from a running script.&quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+
+<span class="c1">############################# Globals for scripts ############################</span>
+
+
+<div class="viewcode-block" id="Globals"><a class="viewcode-back" href="../ref/script.html#script.Globals">[docs]</a><span class="k">def</span> <span class="nf">Globals</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Return the globals that are passed to the scripts on execution.</span>
+
+<span class="sd">    When running pyformex with the --nogui option, this contains all the</span>
+<span class="sd">    globals defined in the module formex (which include those from</span>
+<span class="sd">    coords, arraytools and numpy.</span>
+
+<span class="sd">    When running with the GUI, this also includes the globals from gui.draw</span>
+<span class="sd">    (including those from gui.color).</span>
+
+<span class="sd">    Furthermore, the global variable __name__ will be set to either &#39;draw&#39;</span>
+<span class="sd">    or &#39;script&#39; depending on whether the script was executed with the GUI</span>
+<span class="sd">    or not.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># :DEV it is not a good idea to put the pf.PF in the globals(),</span>
+    <span class="c1"># because pf.PF may contain keys that are not valid Python names</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">globals</span><span class="p">())</span>
+    <span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">core</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">core</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">pyformex.gui</span> <span class="kn">import</span> <span class="n">draw</span>
+        <span class="n">g</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">draw</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
+    <span class="c1"># Set module correct</span>
+    <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="p">:</span>
+        <span class="n">modname</span> <span class="o">=</span> <span class="s1">&#39;__draw__&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">modname</span> <span class="o">=</span> <span class="s1">&#39;__script__&#39;</span>
+    <span class="n">g</span><span class="p">[</span><span class="s1">&#39;__name__&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">modname</span>
+    <span class="k">return</span> <span class="n">g</span></div>
+
+
+<div class="viewcode-block" id="export"><a class="viewcode-back" href="../ref/script.html#script.export">[docs]</a><span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="n">dic</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Export the variables in the given dictionary.&quot;&quot;&quot;</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">PF</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dic</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="export2"><a class="viewcode-back" href="../ref/script.html#script.export2">[docs]</a><span class="k">def</span> <span class="nf">export2</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Export a list of names and values.&quot;&quot;&quot;</span>
+    <span class="n">export</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">values</span><span class="p">)))</span></div>
+
+
+<div class="viewcode-block" id="forget"><a class="viewcode-back" href="../ref/script.html#script.forget">[docs]</a><span class="k">def</span> <span class="nf">forget</span><span class="p">(</span><span class="n">names</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Remove the global variables specified in list.&quot;&quot;&quot;</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">PF</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">g</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">g</span><span class="p">[</span><span class="n">name</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="forgetAll"><a class="viewcode-back" href="../ref/script.html#script.forgetAll">[docs]</a><span class="k">def</span> <span class="nf">forgetAll</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Delete all the global variables.&quot;&quot;&quot;</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">PF</span> <span class="o">=</span> <span class="p">{}</span></div>
+
+
+<div class="viewcode-block" id="rename"><a class="viewcode-back" href="../ref/script.html#script.rename">[docs]</a><span class="k">def</span> <span class="nf">rename</span><span class="p">(</span><span class="n">oldnames</span><span class="p">,</span> <span class="n">newnames</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Rename the global variables in oldnames to newnames.&quot;&quot;&quot;</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">PF</span>
+    <span class="k">for</span> <span class="n">oldname</span><span class="p">,</span> <span class="n">newname</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">oldnames</span><span class="p">,</span> <span class="n">newnames</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">oldname</span> <span class="ow">in</span> <span class="n">g</span><span class="p">:</span>
+            <span class="n">g</span><span class="p">[</span><span class="n">newname</span><span class="p">]</span> <span class="o">=</span> <span class="n">g</span><span class="p">[</span><span class="n">oldname</span><span class="p">]</span>
+            <span class="k">del</span> <span class="n">g</span><span class="p">[</span><span class="n">oldname</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="listAll"><a class="viewcode-back" href="../ref/script.html#script.listAll">[docs]</a><span class="k">def</span> <span class="nf">listAll</span><span class="p">(</span><span class="n">clas</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">like</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filtr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dic</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return a name list of objects that match the given criteria.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    clas: class | list of classes</span>
+<span class="sd">        If provided, only instances of these class(es) will be returned.</span>
+<span class="sd">    like: str</span>
+<span class="sd">        If provided, only object names starting with this string</span>
+<span class="sd">        will be returned.</span>
+<span class="sd">    filtr: func</span>
+<span class="sd">        A function taking an object name as parameter and returning True</span>
+<span class="sd">        or False. If specified, only object names returning True will be</span>
+<span class="sd">        returned.</span>
+<span class="sd">    dic: mapping</span>
+<span class="sd">        A dictionary with strings as keys. Objects from this dict will</span>
+<span class="sd">        be returned. The default is the pyFormex global dict: pf.PF.</span>
+<span class="sd">    sort: bool</span>
+<span class="sd">        If True, the returned list will be sorted.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list</span>
+<span class="sd">        A list of keys from ``dic`` matching the criteria.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from pyformex.core import Mesh, TriSurface</span>
+<span class="sd">    &gt;&gt;&gt; pf.PF.clear()</span>
+<span class="sd">    &gt;&gt;&gt; M = Mesh()</span>
+<span class="sd">    &gt;&gt;&gt; M1 = Mesh(eltype=&#39;tri3&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; S = M1.toSurface()</span>
+<span class="sd">    &gt;&gt;&gt; F = S.toFormex()</span>
+<span class="sd">    &gt;&gt;&gt; export({&#39;Mint&#39;:2, &#39;M&#39;:M, &#39;S&#39;:S, &#39;F&#39;:F, &#39;M1&#39;:M1})</span>
+<span class="sd">    &gt;&gt;&gt; listAll()</span>
+<span class="sd">    [&#39;Mint&#39;, &#39;M&#39;, &#39;S&#39;, &#39;F&#39;, &#39;M1&#39;]</span>
+<span class="sd">    &gt;&gt;&gt; listAll(clas=Mesh)</span>
+<span class="sd">    [&#39;M&#39;, &#39;S&#39;, &#39;M1&#39;]</span>
+<span class="sd">    &gt;&gt;&gt; listAll(clas=Mesh, filtr=lambda o: isinstance(pf.PF[o], TriSurface))</span>
+<span class="sd">    [&#39;S&#39;]</span>
+<span class="sd">    &gt;&gt;&gt; listAll(like=&#39;M&#39;)</span>
+<span class="sd">    [&#39;Mint&#39;, &#39;M&#39;, &#39;M1&#39;]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">dic</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">dic</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">PF</span>
+
+    <span class="n">names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">dic</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="k">if</span> <span class="n">clas</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">names</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dic</span><span class="p">[</span><span class="n">n</span><span class="p">],</span> <span class="n">clas</span><span class="p">)]</span>
+    <span class="k">if</span> <span class="n">like</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">names</span> <span class="k">if</span> <span class="n">n</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">like</span><span class="p">)]</span>
+    <span class="k">if</span> <span class="n">filtr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">names</span> <span class="k">if</span> <span class="n">filtr</span><span class="p">(</span><span class="n">n</span><span class="p">)]</span>
+    <span class="k">if</span> <span class="n">sort</span><span class="p">:</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">names</span><span class="p">)</span>
+    <span class="c1"># TODO: can/should we return an iterator instead?</span>
+    <span class="k">return</span> <span class="n">names</span></div>
+
+
+<div class="viewcode-block" id="named"><a class="viewcode-back" href="../ref/script.html#script.named">[docs]</a><span class="k">def</span> <span class="nf">named</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns the global object named name.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">pf</span><span class="o">.</span><span class="n">PF</span><span class="p">:</span>
+        <span class="n">dic</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">PF</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NameError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Name </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> is not in pyformex.PF&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dic</span><span class="p">[</span><span class="n">name</span><span class="p">]</span></div>
+
+
+<span class="c1"># TODO: can we do this with a returnNone default_factory in pf.refcfg?</span>
+<div class="viewcode-block" id="getcfg"><a class="viewcode-back" href="../ref/script.html#script.getcfg">[docs]</a><span class="k">def</span> <span class="nf">getcfg</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return a value from the configuration or None if nonexistent.&quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">default</span></div>
+
+
+<span class="c1">#################### Interacting with the user ###############################</span>
+
+<div class="viewcode-block" id="ask"><a class="viewcode-back" href="../ref/script.html#script.ask">[docs]</a><span class="k">def</span> <span class="nf">ask</span><span class="p">(</span><span class="n">question</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Ask a question and present possible answers.</span>
+
+<span class="sd">    If no choices are presented, anything will be accepted.</span>
+<span class="sd">    Else, the question is repeated until one of the choices is selected.</span>
+<span class="sd">    If a default is given and the value entered is empty, the default is</span>
+<span class="sd">    substituted.</span>
+<span class="sd">    Case is not significant, but choices are presented unchanged.</span>
+<span class="sd">    If no choices are presented, the string typed by the user is returned.</span>
+<span class="sd">    Else the return value is the lowest matching index of the users answer</span>
+<span class="sd">    in the choices list. Thus, ask(&#39;Do you agree&#39;,[&#39;Y&#39;,&#39;n&#39;]) will return</span>
+<span class="sd">    0 on either &#39;y&#39; or &#39;Y&#39; and 1 on either &#39;n&#39; or &#39;N&#39;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">choices</span><span class="p">:</span>
+        <span class="n">question</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; (</span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">choices</span><span class="p">)</span><span class="si">}</span><span class="s2">) &quot;</span>
+        <span class="n">choices</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">choices</span><span class="p">]</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="n">question</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">res</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span> <span class="ow">and</span> <span class="n">default</span><span class="p">:</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">default</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">choices</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">res</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">choices</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="ack"><a class="viewcode-back" href="../ref/script.html#script.ack">[docs]</a><span class="k">def</span> <span class="nf">ack</span><span class="p">(</span><span class="n">question</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Show a Yes/No question and return True/False depending on answer.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">ask</span><span class="p">(</span><span class="n">question</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;Y&#39;</span><span class="p">,</span> <span class="s1">&#39;N&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span></div>
+
+
+<div class="viewcode-block" id="error"><a class="viewcode-back" href="../ref/script.html#script.error">[docs]</a><span class="k">def</span> <span class="nf">error</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Show an error message and wait for user acknowlegement.&quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;pyFormex Error: &quot;</span><span class="o">+</span><span class="n">message</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">ack</span><span class="p">(</span><span class="s2">&quot;Do you want to continue?&quot;</span><span class="p">):</span>
+        <span class="n">exit</span><span class="p">()</span></div>
+
+
+<span class="k">def</span> <span class="nf">warning</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;pyFormex Warning: &quot;</span><span class="o">+</span><span class="n">message</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">ack</span><span class="p">(</span><span class="s2">&quot;Do you want to continue?&quot;</span><span class="p">):</span>
+        <span class="n">exit</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">showInfo</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;pyFormex Info: &quot;</span><span class="o">+</span><span class="n">message</span><span class="p">)</span>
+
+
+<span class="c1">########################### PLAYING SCRIPTS ##############################</span>
+
+<span class="n">exitrequested</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">starttime</span> <span class="o">=</span> <span class="mf">0.0</span>
+<span class="n">scriptInit</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># can be set to execute something before each script</span>
+
+
+<div class="viewcode-block" id="playScript"><a class="viewcode-back" href="../ref/script.html#script.playScript">[docs]</a><span class="k">def</span> <span class="nf">playScript</span><span class="p">(</span><span class="n">scr</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">argv</span><span class="o">=</span><span class="p">[],</span> <span class="n">encoding</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Run a pyFormex script specified as text.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    scr: str</span>
+<span class="sd">        A multiline string holding a valid Python program, ususally a</span>
+<span class="sd">        pyFormex script. The program will be executed in an internal</span>
+<span class="sd">        interpreter, with the :func:`Globals` as local definitions.</span>
+<span class="sd">        There is a lock to prevent multiple scripts from being executed</span>
+<span class="sd">        at the same time. This implies that pyFormex scripts can not</span>
+<span class="sd">        start another script.</span>
+<span class="sd">    name: str, optional</span>
+<span class="sd">        If specified, this name is set in the global variable pf.scriptName</span>
+<span class="sd">        to identify the currently running script.</span>
+<span class="sd">    filename: :term:`path_like`, optional</span>
+<span class="sd">        If specified, this filename is set into the global variable __file__</span>
+<span class="sd">        in the script executing environment.</span>
+<span class="sd">    argv: list, optional</span>
+<span class="sd">        This value is set in the global variable _argv_.</span>
+<span class="sd">        It is mostly used to pass an argument list to the script in --nogui</span>
+<span class="sd">        mode.</span>
+<span class="sd">    encoding: str, optional</span>
+<span class="sd">        If specified, this is an encoding scheme for the script text provided</span>
+<span class="sd">        in ``scr``. The text will be decoded by the specified scheme prior to</span>
+<span class="sd">        execution. This is mostly intended to obfuscate the code for</span>
+<span class="sd">        occasional viewer.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">starttime</span>
+    <span class="k">global</span> <span class="n">exitrequested</span>
+
+    <span class="c1"># (We only allow one script executing at a time!)</span>
+    <span class="c1"># and scripts are non-reentrant</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">scriptlock</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;!!Not executing because a script lock has been set: &quot;</span>
+              <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">pf</span><span class="o">.</span><span class="n">scriptlock</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">1</span>
+
+    <span class="n">scriptLock</span><span class="p">(</span><span class="s1">&#39;__auto/script__&#39;</span><span class="p">)</span>
+    <span class="n">exitrequested</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="p">:</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">startRun</span><span class="p">()</span>
+
+    <span class="c1"># # Read the script, if a file was specified</span>
+    <span class="c1"># if not isinstance(scr, str):</span>
+    <span class="c1">#     # scr should be an open file/stream</span>
+    <span class="c1">#     if filename is None:</span>
+    <span class="c1">#         filename = scr.name</span>
+    <span class="c1">#     scr = scr.read() + &#39;\n&#39;</span>
+
+    <span class="c1"># Get the globals</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">Globals</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">filename</span><span class="p">:</span>
+        <span class="n">g</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;__file__&#39;</span><span class="p">:</span> <span class="n">filename</span><span class="p">})</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;_argv_&#39;</span><span class="p">:</span> <span class="n">argv</span><span class="p">})</span>
+
+    <span class="c1"># TODO: Should we continue support for this?</span>
+    <span class="k">if</span> <span class="n">encoding</span><span class="o">==</span><span class="s1">&#39;pye&#39;</span><span class="p">:</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">scr</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+        <span class="n">scr</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">mergeme</span><span class="p">(</span><span class="n">scr</span><span class="p">[:</span><span class="n">n</span><span class="p">],</span> <span class="n">scr</span><span class="p">[</span><span class="n">n</span><span class="p">:])</span>
+    <span class="k">elif</span> <span class="n">encoding</span><span class="o">==</span><span class="s1">&#39;egg&#39;</span><span class="p">:</span>
+        <span class="kn">import</span> <span class="nn">base64</span>
+        <span class="n">scr</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64decode</span><span class="p">(</span><span class="n">scr</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">scr</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
+        <span class="n">scr</span> <span class="o">=</span> <span class="n">scr</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Now we can execute the script using these collected globals</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">scriptName</span> <span class="o">=</span> <span class="n">name</span>
+    <span class="n">exitall</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">MEM</span> <span class="ow">in</span> <span class="n">pf</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">debuglevel</span><span class="p">:</span>
+        <span class="c1"># use a test to avoid evaluation of memUsed</span>
+        <span class="n">memu</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">memUsed</span><span class="p">()</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;MemUsed = </span><span class="si">{</span><span class="n">memu</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">MEM</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;&lt;string&gt;&#39;</span>
+
+    <span class="c1"># Execute the code</span>
+    <span class="c1"># TODO: Can we use a Timer() here?</span>
+    <span class="n">starttime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">interpreter</span><span class="o">.</span><span class="n">locals</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">interpreter</span><span class="o">.</span><span class="n">runsource</span><span class="p">(</span><span class="n">scr</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span> <span class="s1">&#39;exec&#39;</span><span class="p">)</span>
+
+    <span class="k">except</span> <span class="ne">SystemExit</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;EXIT FROM SCRIPT&quot;</span><span class="p">)</span>
+
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="c1"># honour the exit function</span>
+        <span class="k">if</span> <span class="s1">&#39;atExit&#39;</span> <span class="ow">in</span> <span class="n">g</span><span class="p">:</span>
+            <span class="n">atExit</span> <span class="o">=</span> <span class="n">g</span><span class="p">[</span><span class="s1">&#39;atExit&#39;</span><span class="p">]</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">atExit</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Error while calling script exit function&#39;</span><span class="p">,</span>
+                         <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">SCRIPT</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;autoglobals&#39;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span> <span class="ow">and</span> <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">console</span><span class="p">:</span>
+                <span class="n">g</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">interpreter</span><span class="o">.</span><span class="n">locals</span>
+            <span class="n">autoExport</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+        <span class="n">scriptRelease</span><span class="p">(</span><span class="s1">&#39;__auto/script__&#39;</span><span class="p">)</span>  <span class="c1"># release the lock</span>
+        <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="p">:</span>
+            <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">stopRun</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">MEM</span> <span class="ow">in</span> <span class="n">pf</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">debuglevel</span><span class="p">:</span>
+        <span class="c1"># use a test to avoid evaluation of memUsed</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;MemUsed = </span><span class="si">{</span><span class="n">utils</span><span class="o">.</span><span class="n">memUsed</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">MEM</span><span class="p">)</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Diff MemUsed = </span><span class="si">{</span><span class="n">utils</span><span class="o">.</span><span class="n">memUsed</span><span class="p">()</span><span class="o">-</span><span class="n">memu</span><span class="si">}</span><span class="s2">; &quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">MEM</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">exitall</span><span class="p">:</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Calling quit() from playScript&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">SCRIPT</span><span class="p">)</span>
+        <span class="n">quit</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="mi">0</span></div>
+
+
+<div class="viewcode-block" id="runScript"><a class="viewcode-back" href="../ref/script.html#script.runScript">[docs]</a><span class="k">def</span> <span class="nf">runScript</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">argv</span><span class="o">=</span><span class="p">[]):</span>
+    <span class="sd">&quot;&quot;&quot;Run a pyFormex script stored on a file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fn: :term:`path_like`</span>
+<span class="sd">        The name of a file holding a pyFormex script.</span>
+<span class="sd">    argv: list, optional</span>
+<span class="sd">        A list of arguments to be passed to the script. This argument list</span>
+<span class="sd">        becomes available in the script as the global variable _argv_.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This calls :func:`playScript` to execute the code read from the script file.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    runApp: run a pyFormex application</span>
+<span class="sd">    runAny: run a pyFormex script or app</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fn</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Running script (</span><span class="si">{</span><span class="n">fn</span><span class="si">}</span><span class="s2">)&quot;</span>
+    <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="p">:</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">scripthistory</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">fn</span><span class="p">))</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">msg</span><span class="o">+</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Executing with arguments: </span><span class="si">{</span><span class="n">argv</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">SCRIPT</span><span class="p">)</span>
+    <span class="n">encoding</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">fn</span><span class="o">.</span><span class="n">suffix</span> <span class="o">==</span> <span class="s1">&#39;.pye&#39;</span><span class="p">:</span>
+        <span class="n">encoding</span> <span class="o">=</span> <span class="s1">&#39;pye&#39;</span>
+
+    <span class="k">with</span> <span class="n">Timer</span><span class="p">()</span> <span class="k">as</span> <span class="n">t</span><span class="p">:</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">playScript</span><span class="p">(</span><span class="n">fn</span><span class="o">.</span><span class="n">read_text</span><span class="p">(),</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">argv</span><span class="p">,</span> <span class="n">encoding</span><span class="p">)</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Finished script </span><span class="si">{</span><span class="n">fn</span><span class="si">}</span><span class="s2"> in </span><span class="si">{</span><span class="n">t</span><span class="o">.</span><span class="n">lastread</span><span class="si">}</span><span class="s2"> seconds&quot;</span>
+    <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="p">:</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">msg</span><span class="o">+</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Arguments left after execution: </span><span class="si">{</span><span class="n">argv</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">SCRIPT</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">res</span></div>
+
+
+<div class="viewcode-block" id="runApp"><a class="viewcode-back" href="../ref/script.html#script.runApp">[docs]</a><span class="k">def</span> <span class="nf">runApp</span><span class="p">(</span><span class="n">appname</span><span class="p">,</span> <span class="n">argv</span><span class="o">=</span><span class="p">[],</span> <span class="n">refresh</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">lock</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Run a pyFormex application.</span>
+
+<span class="sd">    A pyFormex application is a Python module that can be loaded in</span>
+<span class="sd">    pyFormex and at least contains a function &#39;run()&#39;. Running the</span>
+<span class="sd">    application means execute this function.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    appname: str</span>
+<span class="sd">        The name of the module in Python dot notation. The module should</span>
+<span class="sd">        live in a path included in the &#39;appsdirs&#39; configuration variable.</span>
+<span class="sd">    argv: list, optional</span>
+<span class="sd">        A list of arguments to be passed to the app. This argument list</span>
+<span class="sd">        becomes available in the app as the global variable _argv_.</span>
+<span class="sd">    refresh: bool</span>
+<span class="sd">        If True, the app module will be reloaded before running it.</span>
+<span class="sd">    lock: bool</span>
+<span class="sd">        If True (default), the running of the app will be recorded so that</span>
+<span class="sd">        other apps can be locked out while this one has not finished.</span>
+<span class="sd">    check: bool</span>
+<span class="sd">        If True (default), check that no other app is running at this time.</span>
+<span class="sd">        If another app is running, either wait or return without executing.</span>
+<span class="sd">    wait: bool</span>
+<span class="sd">        If True, and check is True and another app is busy, wait until that</span>
+<span class="sd">        one has finished and then start execution.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    int</span>
+<span class="sd">        The return value of the run function. A zero value is supposed</span>
+<span class="sd">        to mean a normal exit.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    runScript: run a pyFormex script</span>
+<span class="sd">    runAny: run a pyFormex script or app</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;runApp &#39;</span><span class="si">{</span><span class="n">appname</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">APPS</span><span class="p">)</span>
+    <span class="k">global</span> <span class="n">exitrequested</span>
+    <span class="k">if</span> <span class="n">check</span><span class="p">:</span>
+        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">scriptlock</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">wait</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;!!Waiting for lock </span><span class="si">{</span><span class="n">pf</span><span class="o">.</span><span class="n">scriptlock</span><span class="si">}</span><span class="s2"> to be released&quot;</span><span class="p">)</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;!!Not executing because a script lock has been set: &quot;</span>
+                      <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">pf</span><span class="o">.</span><span class="n">scriptlock</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">return</span>
+
+    <span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">apps</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loading application </span><span class="si">{</span><span class="n">appname</span><span class="si">}</span><span class="s2"> with refresh=</span><span class="si">{</span><span class="n">refresh</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">app</span> <span class="o">=</span> <span class="n">apps</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">appname</span><span class="p">,</span> <span class="n">refresh</span><span class="o">=</span><span class="n">refresh</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">app</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">errmsg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;An error occurred while loading application </span><span class="si">{</span><span class="n">appname</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="n">apps</span><span class="o">.</span><span class="n">_traceback</span> <span class="ow">and</span> <span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;showapploaderrors&#39;</span><span class="p">]:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">apps</span><span class="o">.</span><span class="n">_traceback</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">pyformex.gui</span> <span class="kn">import</span> <span class="n">draw</span>
+            <span class="n">fn</span> <span class="o">=</span> <span class="n">apps</span><span class="o">.</span><span class="n">findAppSource</span><span class="p">(</span><span class="n">appname</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">fn</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="n">errmsg</span> <span class="o">+=</span> <span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">You may try executing the application &quot;</span>
+                           <span class="s2">&quot;as a script,</span><span class="se">\n</span><span class="s2">  or you can load the source &quot;</span>
+                           <span class="s2">&quot;file in the editor.&quot;</span><span class="p">)</span>
+                <span class="n">res</span> <span class="o">=</span> <span class="n">draw</span><span class="o">.</span><span class="n">ask</span><span class="p">(</span><span class="n">errmsg</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">[</span>
+                    <span class="s1">&#39;Run as script&#39;</span><span class="p">,</span> <span class="s1">&#39;Load in editor&#39;</span><span class="p">,</span> <span class="s2">&quot;Don&#39;t bother&quot;</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="s1">&#39;RL&#39;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;L&#39;</span><span class="p">:</span>
+                        <span class="n">draw</span><span class="o">.</span><span class="n">editFile</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;R&#39;</span><span class="p">:</span>
+                        <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">setcurfile</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
+                        <span class="n">runScript</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">errmsg</span> <span class="o">+=</span> <span class="s2">&quot;and I can not find the application source file.&quot;</span>
+                <span class="n">draw</span><span class="o">.</span><span class="n">showError</span><span class="p">(</span><span class="n">errmsg</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">error</span><span class="p">(</span><span class="n">errmsg</span><span class="p">)</span>
+
+        <span class="k">return</span>
+
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="s1">&#39;_status&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">app</span><span class="o">.</span><span class="n">_status</span> <span class="o">==</span> <span class="s1">&#39;unchecked&#39;</span><span class="p">:</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">&quot;This looks like an Example script that has been automatically &quot;</span>
+            <span class="s2">&quot;converted to the pyFormex Application model, but has not been &quot;</span>
+            <span class="s2">&quot;checked yet as to whether it is working correctly in App mode.</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;You can help here by running and rerunning the example, checking &quot;</span>
+            <span class="s2">&quot;that it works correctly, and where needed fixing it (or reporting &quot;</span>
+            <span class="s2">&quot;the failure to us). If the example runs well, you can change its &quot;</span>
+            <span class="s2">&quot;status to &#39;checked&#39;&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">lock</span><span class="p">:</span>
+        <span class="n">scriptLock</span><span class="p">(</span><span class="s1">&#39;__auto/app__&#39;</span><span class="p">)</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Running application &#39;</span><span class="si">{</span><span class="n">appname</span><span class="si">}</span><span class="s2">&#39; from </span><span class="si">{</span><span class="n">app</span><span class="o">.</span><span class="vm">__file__</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">scriptName</span> <span class="o">=</span> <span class="n">appname</span>
+    <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="p">:</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">startRun</span><span class="p">()</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">apphistory</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">appname</span><span class="p">)</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">msg</span><span class="o">+</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;green&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Passing arguments: </span><span class="si">{</span><span class="n">argv</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">SCRIPT</span><span class="p">)</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">_argv_</span> <span class="o">=</span> <span class="n">argv</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">Timer</span><span class="p">()</span> <span class="k">as</span> <span class="n">t</span><span class="p">:</span>
+                <span class="n">res</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">SystemExit</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;EXIT FROM APP&quot;</span><span class="p">)</span>
+            <span class="k">pass</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">raise</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="s1">&#39;atExit&#39;</span><span class="p">):</span>
+            <span class="n">app</span><span class="o">.</span><span class="n">atExit</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;autoglobals&#39;</span><span class="p">]:</span>
+            <span class="n">g</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="vm">__dict__</span>
+            <span class="n">autoExport</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">lock</span><span class="p">:</span>
+            <span class="n">scriptRelease</span><span class="p">(</span><span class="s1">&#39;__auto/app__&#39;</span><span class="p">)</span>  <span class="c1"># release the lock</span>
+        <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="p">:</span>
+            <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">stopRun</span><span class="p">()</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Arguments left after execution: </span><span class="si">{</span><span class="n">argv</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">SCRIPT</span><span class="p">)</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Finished </span><span class="si">{</span><span class="n">appname</span><span class="si">}</span><span class="s2"> in </span><span class="si">{</span><span class="n">t</span><span class="o">.</span><span class="n">lastread</span><span class="si">}</span><span class="s2"> seconds&quot;</span>
+    <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="p">:</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">msg</span><span class="o">+</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;green&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">res</span></div>
+
+
+<div class="viewcode-block" id="runAny"><a class="viewcode-back" href="../ref/script.html#script.runAny">[docs]</a><span class="k">def</span> <span class="nf">runAny</span><span class="p">(</span><span class="n">appname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">argv</span><span class="o">=</span><span class="p">[],</span> <span class="n">remember</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">refresh</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Run a pyFormex application or script file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    appname: str</span>
+<span class="sd">        Either the name of a pyFormex application (app) or the name of a file</span>
+<span class="sd">        containing a pyFormex script. An app name is specified in Python</span>
+<span class="sd">        fotted module format (pkg.module) and the path to the package</span>
+<span class="sd">        should be in the configuration variable &#39;appsdirs&#39;.</span>
+<span class="sd">        If no appname is provided, the current app/script set in the GUI</span>
+<span class="sd">        will be run, if it is set.</span>
+<span class="sd">    argv: list, optional</span>
+<span class="sd">        A list of arguments to be passed to the app. This argument list</span>
+<span class="sd">        becomes available in the script or app as the global variable _argv_.</span>
+<span class="sd">    remember: bool</span>
+<span class="sd">        If True (default), the app is set as the current app in the GUI, so</span>
+<span class="sd">        that the play button can be used to run it again.</span>
+<span class="sd">    refresh, wait: bool</span>
+<span class="sd">        Parameters passed to :func:`runApp`.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    runScript: run a pyFormex script</span>
+<span class="sd">    runApp: run a pyFormex application</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">appname</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">appname</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;curfile&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">appname</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="n">scriptInit</span><span class="p">):</span>
+        <span class="n">scriptInit</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span> <span class="ow">and</span> <span class="n">remember</span><span class="p">:</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">setcurfile</span><span class="p">(</span><span class="n">appname</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_script</span><span class="p">(</span><span class="n">appname</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">runScript</span><span class="p">(</span><span class="n">appname</span><span class="p">,</span> <span class="n">argv</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">runApp</span><span class="p">(</span><span class="n">appname</span><span class="p">,</span> <span class="n">argv</span><span class="p">,</span> <span class="n">refresh</span><span class="o">=</span><span class="n">refresh</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="n">wait</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="autoExport"><a class="viewcode-back" href="../ref/script.html#script.autoExport">[docs]</a><span class="k">def</span> <span class="nf">autoExport</span><span class="p">(</span><span class="n">g</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Autoexport globals from script/app globals.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    g: dict</span>
+<span class="sd">        A dictionary holding definitions topossibly autoexport.</span>
+<span class="sd">        Normally this is the globals dict from a script/app run enviroment.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This exports some objects from the script/app runtime globals</span>
+<span class="sd">    to the pf.PF session globals directory.</span>
+<span class="sd">    The default is to export all instances of :class:`Geometry`.</span>
+
+<span class="sd">    This can be customized in the script/app by setting the global</span>
+<span class="sd">    variables ``autoglobals`` and ``autoclasses``.</span>
+<span class="sd">    If ``autoglobals`` evaluates to False, no autoexport will be done.</span>
+<span class="sd">    If set to True, the default autoexport will be done: all instances</span>
+<span class="sd">    of :class:`Geometry`. If set to a list of names, only the specified</span>
+<span class="sd">    names will be exported.</span>
+<span class="sd">    The global variable ``autoclasses`` may be set to a list of class</span>
+<span class="sd">    names and all global instances of the specified classes</span>
+<span class="sd">    will be exported.</span>
+
+<span class="sd">    Remember that the variables need to be globals in your script/app</span>
+<span class="sd">    in order to be autoexported, and that the autoglobals feature</span>
+<span class="sd">    should not be disabled in your configuration (it is enabled by default).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ag</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;autoglobals&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ag</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">ag</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="c1"># default autoglobals: all Geometry instances</span>
+            <span class="n">ag</span> <span class="o">=</span> <span class="p">[</span><span class="n">Geometry</span><span class="p">]</span>
+        <span class="n">an</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">ag</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">g</span><span class="p">:</span>
+                <span class="n">an</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">an</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">listAll</span><span class="p">(</span><span class="n">clas</span><span class="o">=</span><span class="n">a</span><span class="p">,</span> <span class="n">dic</span><span class="o">=</span><span class="n">g</span><span class="p">))</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                    <span class="k">pass</span>
+        <span class="k">if</span> <span class="n">an</span><span class="p">:</span>
+            <span class="n">an</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">an</span><span class="p">)))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Autoglobals: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">an</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">pf</span><span class="o">.</span><span class="n">PF</span><span class="o">.</span><span class="n">update</span><span class="p">([(</span><span class="n">k</span><span class="p">,</span> <span class="n">g</span><span class="p">[</span><span class="n">k</span><span class="p">])</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">an</span><span class="p">])</span></div>
+
+
+<span class="k">def</span> <span class="nf">scriptLock</span><span class="p">(</span><span class="nb">id</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">_run_mode</span>
+    <span class="k">if</span> <span class="nb">id</span> <span class="o">==</span> <span class="s1">&#39;__auto/script__&#39;</span><span class="p">:</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">scriptMode</span> <span class="o">=</span> <span class="s1">&#39;script&#39;</span>
+    <span class="k">elif</span> <span class="nb">id</span> <span class="o">==</span> <span class="s1">&#39;__auto/app__&#39;</span><span class="p">:</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">scriptMode</span> <span class="o">=</span> <span class="s1">&#39;app&#39;</span>
+
+    <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Setting script lock </span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">SCRIPT</span><span class="p">)</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">scriptlock</span> <span class="o">|=</span> <span class="p">{</span><span class="nb">id</span><span class="p">}</span>
+
+
+<span class="k">def</span> <span class="nf">scriptRelease</span><span class="p">(</span><span class="nb">id</span><span class="p">):</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Releasing script lock </span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">SCRIPT</span><span class="p">)</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">scriptlock</span> <span class="o">-=</span> <span class="p">{</span><span class="nb">id</span><span class="p">}</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">scriptMode</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+<span class="k">def</span> <span class="nf">force_finish</span><span class="p">():</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">scriptlock</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>  <span class="c1"># release all script locks (in case of an error)</span>
+
+
+<div class="viewcode-block" id="breakpt"><a class="viewcode-back" href="../ref/script.html#script.breakpt">[docs]</a><span class="k">def</span> <span class="nf">breakpt</span><span class="p">(</span><span class="n">msg</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Set a breakpoint where the script can be halted on a signal.</span>
+
+<span class="sd">    If an argument is specified, it will be written to the message board.</span>
+
+<span class="sd">    The exitrequested signal is usually emitted by pressing a button in the GUI.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">exitrequested</span>
+    <span class="k">if</span> <span class="n">exitrequested</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">msg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="n">exitrequested</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># reset for next time</span>
+        <span class="k">raise</span> <span class="ne">SystemExit</span></div>
+
+
+<span class="k">def</span> <span class="nf">raiseExit</span><span class="p">():</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;RAISING SystemExit&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">SCRIPT</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="p">:</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">drawlock</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+    <span class="k">raise</span> <span class="n">_Exit</span><span class="p">(</span><span class="s2">&quot;EXIT REQUESTED FROM SCRIPT&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">enableBreak</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="p">:</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">enableButtons</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">actions</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;Stop&#39;</span><span class="p">],</span> <span class="n">mode</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="stopatbreakpt"><a class="viewcode-back" href="../ref/script.html#script.stopatbreakpt">[docs]</a><span class="k">def</span> <span class="nf">stopatbreakpt</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Set the exitrequested flag.&quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">exitrequested</span>
+    <span class="n">exitrequested</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="exit"><a class="viewcode-back" href="../ref/script.html#script.exit">[docs]</a><span class="k">def</span> <span class="nf">exit</span><span class="p">(</span><span class="nb">all</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Exit from the current script or from pyformex if no script running.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">scriptlock</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">all</span><span class="p">:</span>
+            <span class="n">utils</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;warn_exit_all&quot;</span><span class="p">)</span>
+            <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># This is the only exception we can use in script mode</span>
+            <span class="c1"># to stop the execution</span>
+            <span class="k">raise</span> <span class="ne">SystemExit</span></div>
+
+
+<div class="viewcode-block" id="quit"><a class="viewcode-back" href="../ref/script.html#script.quit">[docs]</a><span class="k">def</span> <span class="nf">quit</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Quit the pyFormex program</span>
+
+<span class="sd">    This is a hard exit from pyFormex. It is normally not called</span>
+<span class="sd">    directly, but results from an exit(True) call.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">app</span> <span class="ow">and</span> <span class="n">pf</span><span class="o">.</span><span class="n">app_started</span><span class="p">:</span>  <span class="c1"># quit the QT app</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;draw.exit called while no script running&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">SCRIPT</span><span class="p">)</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>  <span class="c1"># closes the GUI and exits pyformex</span>
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># the QT app didn&#39;t even start</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># use Python to exit pyformex</span></div>
+
+
+<div class="viewcode-block" id="processArgs"><a class="viewcode-back" href="../ref/script.html#script.processArgs">[docs]</a><span class="k">def</span> <span class="nf">processArgs</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Run pyFormex scripts/apps in batch mode.</span>
+
+<span class="sd">    Arguments are interpreted as names of script files, possibly interspersed</span>
+<span class="sd">    with arguments for the scripts.</span>
+<span class="sd">    Each running script should pop the required arguments from the list.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Remaining args: </span><span class="si">{</span><span class="n">args</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">SCRIPT</span><span class="p">)</span>
+        <span class="n">fn</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">fn</span> <span class="o">==</span> <span class="s1">&#39;-c&#39;</span><span class="p">:</span>
+            <span class="c1"># next arg is a script</span>
+            <span class="n">txt</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">&#39;++&#39;</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;++&#39;</span><span class="p">)</span>
+            <span class="n">argv</span> <span class="o">=</span> <span class="n">args</span><span class="p">[:</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">argv</span> <span class="o">=</span> <span class="n">args</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">fn</span> <span class="o">==</span> <span class="s1">&#39;-c&#39;</span><span class="p">:</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">playScript</span><span class="p">(</span><span class="n">txt</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;__inline__&#39;</span><span class="p">,</span> <span class="n">argv</span><span class="o">=</span><span class="n">argv</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">runAny</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">argv</span><span class="o">=</span><span class="n">argv</span><span class="p">,</span> <span class="n">remember</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">res</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error during execution of script/app </span><span class="si">{</span><span class="n">fn</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">res</span></div>
+
+
+<div class="viewcode-block" id="setPrefs"><a class="viewcode-back" href="../ref/script.html#script.setPrefs">[docs]</a><span class="k">def</span> <span class="nf">setPrefs</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Update the current settings (store) with the values in res.</span>
+
+<span class="sd">    res is a dictionary with configuration values.</span>
+<span class="sd">    The current settings will be update with the values in res.</span>
+
+<span class="sd">    If save is True, the changes will be stored to the user&#39;s</span>
+<span class="sd">    configuration file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Accepted settings:</span><span class="se">\n</span><span class="si">{</span><span class="n">res</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">CONFIG</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">res</span><span class="p">:</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">save</span> <span class="ow">and</span> <span class="n">pf</span><span class="o">.</span><span class="n">prefcfg</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">!=</span> <span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span>
+            <span class="n">pf</span><span class="o">.</span><span class="n">prefcfg</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+
+    <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;New settings:</span><span class="se">\n</span><span class="si">{</span><span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">CONFIG</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">save</span><span class="p">:</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;New preferences:</span><span class="se">\n</span><span class="si">{</span><span class="n">pf</span><span class="o">.</span><span class="n">prefcfg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">CONFIG</span><span class="p">)</span></div>
+
+
+<span class="c1">########################## print information ################################</span>
+
+
+<span class="k">def</span> <span class="nf">printConfig</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Reference Configuration: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">refcfg</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Preference Configuration: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">prefcfg</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;User Configuration: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">printLoadedApps</span><span class="p">():</span>
+    <span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">apps</span><span class="p">,</span> <span class="n">sys</span>
+    <span class="n">loaded</span> <span class="o">=</span> <span class="n">apps</span><span class="o">.</span><span class="n">listLoaded</span><span class="p">()</span>
+    <span class="n">refcnt</span> <span class="o">=</span> <span class="p">[</span><span class="n">sys</span><span class="o">.</span><span class="n">getrefcount</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">k</span><span class="p">])</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">loaded</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">r</span><span class="si">}</span><span class="s2">)&quot;</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">loaded</span><span class="p">,</span> <span class="n">refcnt</span><span class="p">)]))</span>
+
+
+<span class="c1">### Utilities</span>
+
+
+<div class="viewcode-block" id="chdir"><a class="viewcode-back" href="../ref/script.html#script.chdir">[docs]</a><span class="k">def</span> <span class="nf">chdir</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">create</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Change the current working directory.</span>
+
+<span class="sd">    If path exists and it is a directory name, make it the current directory.</span>
+<span class="sd">    If path exists and it is a file name, make the containing directory the</span>
+<span class="sd">    current directory.</span>
+<span class="sd">    If path does not exist and create is True, create the path and make it the</span>
+<span class="sd">    current directory. If create is False, raise an Error.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path: :term:`path_like`</span>
+<span class="sd">        The name of a directory or file. If it is a file, the name of</span>
+<span class="sd">        the directory containing the file is used. If the path exists, it is</span>
+<span class="sd">        made the current directory. The path can be an absolute</span>
+<span class="sd">        or a relative pathname. A &#39;~&#39; character at the start of the pathname will</span>
+<span class="sd">        be expanded to the user&#39;s home directory.</span>
+<span class="sd">    create: bool.</span>
+<span class="sd">        If True and the specified path does not exist, it will be created and</span>
+<span class="sd">        made the current directory. The default (False) will do nothing if the</span>
+<span class="sd">        specified path does not exist.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The new current directory is stored in the user&#39;s preferences file</span>
+<span class="sd">    for persistence between pyFormex invocations.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">create</span><span class="p">:</span>
+            <span class="n">mkdir</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The path </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2"> does not exist&quot;</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+        <span class="n">setPrefs</span><span class="p">({</span><span class="s1">&#39;workdir&#39;</span><span class="p">:</span> <span class="n">path</span><span class="p">},</span> <span class="n">save</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="n">pwdir</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="p">:</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">setcurdir</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="pwdir"><a class="viewcode-back" href="../ref/script.html#script.pwdir">[docs]</a><span class="k">def</span> <span class="nf">pwdir</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Print the current working directory.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Current workdir is </span><span class="si">{</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="mkdir"><a class="viewcode-back" href="../ref/script.html#script.mkdir">[docs]</a><span class="k">def</span> <span class="nf">mkdir</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">clear</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">new</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create a directory.</span>
+
+<span class="sd">    Create a directory, including any needed parent directories.</span>
+<span class="sd">    Any part of the path may already exist.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path: :term:`path_like`</span>
+<span class="sd">        The pathname of the directory to create, either an absolute</span>
+<span class="sd">        or relative path. A &#39;~&#39; character at the start of the pathname will</span>
+<span class="sd">        be expanded to the user&#39;s home directory.</span>
+<span class="sd">    clear: bool.</span>
+<span class="sd">        If True, and the directory already exists, its contents</span>
+<span class="sd">        will be deleted.</span>
+<span class="sd">    new: bool.</span>
+<span class="sd">        If True, requires the directory to be a new one. An error</span>
+<span class="sd">        will be raised if the path already exists.</span>
+
+<span class="sd">    The following table gives an overview of the actions for different</span>
+<span class="sd">    combinations of the parameters:</span>
+
+<span class="sd">    ======  ====  ===================  =============</span>
+<span class="sd">    clear   new   path does not exist  path exists</span>
+<span class="sd">    ======  ====  ===================  =============</span>
+<span class="sd">    F       F     newly created        kept as is</span>
+<span class="sd">    T       F     newly created        emptied</span>
+<span class="sd">    T/F     T     newly created        raise OSError</span>
+<span class="sd">    ======  ====  ===================  =============</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Path</span>
+<span class="sd">        The tilde-expanded path of the directory, if the operation was</span>
+<span class="sd">        successful.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    OSError:</span>
+<span class="sd">        in the following cases:</span>
+
+<span class="sd">        - the directory could not be created,</span>
+<span class="sd">        - ``clear=True``, and the existing directory could not be cleared,</span>
+<span class="sd">        - ``new=False, clear=False``, and the existing path is not a directory,</span>
+<span class="sd">        - ``new=True``, and the path exists.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">new</span> <span class="ow">and</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">OSError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Path already exists: </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">clear</span> <span class="ow">and</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="ow">not</span> <span class="n">new</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">path</span></div>
+
+
+<div class="viewcode-block" id="runtime"><a class="viewcode-back" href="../ref/script.html#script.runtime">[docs]</a><span class="k">def</span> <span class="nf">runtime</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Return the time elapsed since start of execution of the script.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span> <span class="o">-</span> <span class="n">starttime</span></div>
+
+
+<div class="viewcode-block" id="startGui"><a class="viewcode-back" href="../ref/script.html#script.startGui">[docs]</a><span class="k">def</span> <span class="nf">startGui</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Start the gui</span>
+
+<span class="sd">    This can be used to start the gui when pyFormex was loaded from</span>
+<span class="sd">    a Python shell.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Starting the pyFormex GUI&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">GUI</span><span class="p">)</span>
+        <span class="kn">from</span> <span class="nn">pyformex.gui</span> <span class="kn">import</span> <span class="n">guimain</span>
+        <span class="n">guimain</span><span class="o">.</span><span class="n">createGUI</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="p">:</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+    <span class="k">del</span> <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span>
+    <span class="k">del</span> <span class="n">pf</span><span class="o">.</span><span class="n">app</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">app</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+<span class="c1">#### End</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">script</a></li--> 
+      </ul>
+    </div>
+    <div class="footer">
+    <span class="left">
+        &copy; Copyright 2004-2023, Benedict Verhegghe.
+    </span>
+      Last updated on Mar 27, 2023.
+    <span class="right">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.4.3.
+    </span>
+    </div>
+  </body>
+</html>

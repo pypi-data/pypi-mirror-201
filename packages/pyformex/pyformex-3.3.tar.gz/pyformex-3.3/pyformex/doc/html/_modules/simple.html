@@ -1,0 +1,905 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!--
+##
+##  This file is part of the pyFormex project.
+##  pyFormex is a tool for generating, manipulating and transforming 3D
+##  geometrical models by sequences of mathematical operations.
+##  Home page: http://pyformex.org
+##  Project page:  http://savannah.nongnu.org/projects/pyformex/
+##  Copyright (C) Benedict Verhegghe (benedict.verhegghe@ugent.be)
+##  Distributed under the GNU General Public License version 3 or later.
+##
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see http://www.gnu.org/licenses/.
+##
+-->
+    <title>simple &#8212; pyFormex 3.3 documentation</title>
+
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pyformex.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+<link rel="icon" type="image/png" href="../_static/pyformex_fav.png" />
+
+  </head><body>
+
+<div class="header">
+  <a href="http://pyformex.org">
+  <img src="../_static/scallop_dome_small.png" alt="scallop dome" border="0" hspace="20" vspace="12" align="left" />
+  <img src="../_static/pyformex-logo-2.png" alt="pyformex logo" border="0" hspace="10" vspace="8" align="left" />
+  </a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">simple</a></li--> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<!-- PYFORMEX_SIDEBAR_LOGO -->
+<!-- PYFORMEX_WEBSITE_SIDEBAR_TOP -->
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for simple</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1">##</span>
+<span class="c1">##  SPDX-FileCopyrightText: © 2007-2023 Benedict Verhegghe &lt;bverheg@gmail.com&gt;</span>
+<span class="c1">##  SPDX-License-Identifier: GPL-3.0-or-later</span>
+<span class="c1">##</span>
+<span class="c1">##  This file is part of pyFormex 3.3  (Sun Mar 26 20:16:15 CEST 2023)</span>
+<span class="c1">##  pyFormex is a tool for generating, manipulating and transforming 3D</span>
+<span class="c1">##  geometrical models by sequences of mathematical operations.</span>
+<span class="c1">##  Home page: https://pyformex.org</span>
+<span class="c1">##  Project page: https://savannah.nongnu.org/projects/pyformex/</span>
+<span class="c1">##  Development: https://gitlab.com/bverheg/pyformex</span>
+<span class="c1">##  Distributed under the GNU General Public License version 3 or later.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is free software: you can redistribute it and/or modify</span>
+<span class="c1">##  it under the terms of the GNU General Public License as published by</span>
+<span class="c1">##  the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1">##  (at your option) any later version.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is distributed in the hope that it will be useful,</span>
+<span class="c1">##  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1">##  GNU General Public License for more details.</span>
+<span class="c1">##</span>
+<span class="c1">##  You should have received a copy of the GNU General Public License</span>
+<span class="c1">##  along with this program.  If not, see http://www.gnu.org/licenses/.</span>
+<span class="c1">##</span>
+<span class="sd">&quot;&quot;&quot;Predefined geometries with a simple shape.</span>
+
+<span class="sd">This module contains some functions, data and classes for generating</span>
+<span class="sd">Formex structures representing simple geometric shapes.</span>
+<span class="sd">You need to import this module in your scripts to have access to its</span>
+<span class="sd">contents.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">arraytools</span> <span class="k">as</span> <span class="n">at</span>
+<span class="kn">from</span> <span class="nn">pyformex.coords</span> <span class="kn">import</span> <span class="n">Coords</span>
+<span class="kn">from</span> <span class="nn">pyformex.formex</span> <span class="kn">import</span> <span class="n">Formex</span><span class="p">,</span> <span class="n">connect</span>
+
+<span class="c1"># A collection of Formex string input patterns to construct some simple</span>
+<span class="c1"># geometrical shapes</span>
+<span class="n">Pattern</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;line&#39;</span><span class="p">:</span>      <span class="s1">&#39;l:1&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;angle&#39;</span><span class="p">:</span>     <span class="s1">&#39;l:1+2&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;square&#39;</span><span class="p">:</span>    <span class="s1">&#39;l:1234&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;plus&#39;</span><span class="p">:</span>      <span class="s1">&#39;l:1+2+3+4&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;cross&#39;</span><span class="p">:</span>     <span class="s1">&#39;l:5+6+7+8&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;diamond&#39;</span><span class="p">:</span>   <span class="s1">&#39;l:/45678&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;rtriangle&#39;</span><span class="p">:</span> <span class="s1">&#39;l:164&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;cube&#39;</span><span class="p">:</span>      <span class="s1">&#39;l:1234I/aI/bI/cI/41234&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;star&#39;</span><span class="p">:</span>      <span class="s1">&#39;l:1+2+3+4+5+6+7+8&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;star3d&#39;</span><span class="p">:</span>    <span class="s1">&#39;l:1+2+3+4+5+6+7+8+A+B+C+D+E+F+G+H+a+b+c+d+e+f+g+h&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;triade&#39;</span><span class="p">:</span>    <span class="s1">&#39;2:01020I&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="shape"><a class="viewcode-back" href="../ref/simple.html#simple.shape">[docs]</a><span class="k">def</span> <span class="nf">shape</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return a Formex with one of the predefined named shapes.</span>
+
+<span class="sd">    This is a convenience function returning a plex-2 Formex constructed</span>
+<span class="sd">    from one of the patterns defined in the Pattern dictionary.</span>
+<span class="sd">    Currently, the following pattern names are defined:</span>
+<span class="sd">    &#39;line&#39;, &#39;angle&#39;, &#39;square&#39;, &#39;plus&#39;, &#39;cross&#39;, &#39;diamond&#39;, &#39;rtriangle&#39;, &#39;cube&#39;,</span>
+<span class="sd">    &#39;star&#39;, &#39;star3d&#39;.</span>
+<span class="sd">    See the Pattern example.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">Formex</span><span class="p">(</span><span class="n">Pattern</span><span class="p">[</span><span class="n">name</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="randomPoints"><a class="viewcode-back" href="../ref/simple.html#simple.randomPoints">[docs]</a><span class="k">def</span> <span class="nf">randomPoints</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">bbox</span><span class="o">=</span><span class="p">[[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">],</span> <span class="p">[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">]]):</span>
+    <span class="sd">&quot;&quot;&quot;Create n random points in a specified bbox.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; X = randomPoints(10)</span>
+<span class="sd">    &gt;&gt;&gt; X.shape</span>
+<span class="sd">    (10, 3)</span>
+<span class="sd">    &gt;&gt;&gt; np.asarray(X &gt;= 0.).all(), np.asarray(X &lt;= 1.).all()</span>
+<span class="sd">    (True, True)</span>
+<span class="sd">    &gt;&gt;&gt; X = randomPoints(15, bbox=[[1.,1.,1.],[2.,2.,2.]])</span>
+<span class="sd">    &gt;&gt;&gt; X.shape</span>
+<span class="sd">    (15, 3)</span>
+<span class="sd">    &gt;&gt;&gt; np.asarray(X &gt;= 1.).all(), np.asarray(X &lt;= 2.).all()</span>
+<span class="sd">    (True, True)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">bbox</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">checkArray</span><span class="p">(</span><span class="n">bbox</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="s1">&#39;f&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Coords</span><span class="p">(</span><span class="n">at</span><span class="o">.</span><span class="n">randomNoise</span><span class="p">((</span><span class="n">n</span><span class="p">,</span> <span class="mi">3</span><span class="p">)))</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="n">bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">trl</span><span class="p">(</span><span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="regularGrid"><a class="viewcode-back" href="../ref/simple.html#simple.regularGrid">[docs]</a><span class="k">def</span> <span class="nf">regularGrid</span><span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">nx</span><span class="p">,</span> <span class="n">swapaxes</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create a regular grid of points between two points x0 and x1.</span>
+
+<span class="sd">    Parameters:</span>
+
+<span class="sd">    - `x0`: n-dimensional float (usually 1D, 2D or 3D).</span>
+<span class="sd">    - `x1`: n-dimensional float with same dimension as `x0`.</span>
+<span class="sd">    - `nx`: n-dimensional int   with same dimension as `x0` and `x1`.</span>
+<span class="sd">      The space between `x0` and `x1` is subdivided in `nx[i]` equal parts</span>
+<span class="sd">      along the axis i.</span>
+<span class="sd">    - `swapaxes`: bool. If False(default), the points are number first in</span>
+<span class="sd">      the direction of the 0 axis, then the next axis,...</span>
+<span class="sd">      If True, numbering starts in the direction of the highest axis.</span>
+<span class="sd">      This is the legacy behavior.</span>
+
+<span class="sd">    Returns a rectangular grid of n-dimensional coordinates in an array with</span>
+<span class="sd">    shape ( nx[0]+1, nx[1]+1, ..., ndim ).</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    &gt;&gt;&gt; regularGrid(0.,1.,4)</span>
+<span class="sd">    array([[0.  ],</span>
+<span class="sd">           [0.25],</span>
+<span class="sd">           [0.5 ],</span>
+<span class="sd">           [0.75],</span>
+<span class="sd">           [1.  ]])</span>
+<span class="sd">    &gt;&gt;&gt; regularGrid((0.,0.),(1.,1.),(3,2))</span>
+<span class="sd">    array([[[0.    , 0.    ],</span>
+<span class="sd">            [0.3333, 0.    ],</span>
+<span class="sd">            [0.6667, 0.    ]],</span>
+<span class="sd">    &lt;BLANKLINE&gt;</span>
+<span class="sd">           [[1.    , 0.    ],</span>
+<span class="sd">            [0.    , 0.5   ],</span>
+<span class="sd">            [0.3333, 0.5   ]],</span>
+<span class="sd">    &lt;BLANKLINE&gt;</span>
+<span class="sd">           [[0.6667, 0.5   ],</span>
+<span class="sd">            [1.    , 0.5   ],</span>
+<span class="sd">            [0.    , 1.    ]],</span>
+<span class="sd">    &lt;BLANKLINE&gt;</span>
+<span class="sd">           [[0.3333, 1.    ],</span>
+<span class="sd">            [0.6667, 1.    ],</span>
+<span class="sd">            [1.    , 1.    ]]])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">swapaxes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># We do not use a decorator utils.warning, because</span>
+        <span class="c1"># this function gets called during startup (initialization of elements)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;warn_regular_grid&quot;</span><span class="p">)</span>
+        <span class="n">swapaxes</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="n">x0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">x0</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+    <span class="n">x1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">x1</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+    <span class="n">nx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">nx</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">x0</span><span class="o">.</span><span class="n">size</span> <span class="o">!=</span> <span class="n">x1</span><span class="o">.</span><span class="n">size</span> <span class="ow">or</span> <span class="n">nx</span><span class="o">.</span><span class="n">size</span> <span class="o">!=</span> <span class="n">x0</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expected equally sized 1D arrays x0,x1,nx&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">nx</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;nx values should be &gt;= 0&quot;</span><span class="p">)</span>
+    <span class="c1"># First construct a grid with integer coordinates</span>
+    <span class="n">ndim</span> <span class="o">=</span> <span class="n">x0</span><span class="o">.</span><span class="n">size</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">nx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="n">ndim</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">swapaxes</span><span class="p">:</span>
+        <span class="c1"># we can just use numpy.indices</span>
+        <span class="n">ind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">indices</span><span class="p">(</span><span class="n">nx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># we need to reverse the axes for numpy.indices</span>
+        <span class="n">ind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">indices</span><span class="p">(</span><span class="n">nx</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">ind</span> <span class="o">=</span> <span class="n">ind</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">ndim</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+    <span class="c1"># And a grid with the complementary indices</span>
+    <span class="n">nx</span><span class="p">[</span><span class="n">nx</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">jnd</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">ndim</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span> <span class="o">-</span> <span class="n">ind</span>
+    <span class="n">ind</span> <span class="o">=</span> <span class="n">ind</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+    <span class="n">jnd</span> <span class="o">=</span> <span class="n">jnd</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+    <span class="k">return</span> <span class="p">((</span><span class="n">x0</span> <span class="o">*</span> <span class="n">jnd</span> <span class="o">+</span> <span class="n">x1</span> <span class="o">*</span> <span class="n">ind</span><span class="p">)</span> <span class="o">/</span> <span class="n">nx</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="grid1"><a class="viewcode-back" href="../ref/simple.html#simple.grid1">[docs]</a><span class="k">def</span> <span class="nf">grid1</span><span class="p">(</span><span class="n">npts</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return a 1-D grid of points along the x-axis</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    npts: int</span>
+<span class="sd">        Number of points</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Coords</span>
+<span class="sd">        A Coords with shape (npts, 3) containing npts points along</span>
+<span class="sd">        the x-axis at equal distance 1. The first point is at the</span>
+<span class="sd">        origin, the last point is at x=npts-1.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">Coords</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">npts</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="point"><a class="viewcode-back" href="../ref/simple.html#simple.point">[docs]</a><span class="k">def</span> <span class="nf">point</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="mf">0.</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return a Formex which is a point, by default at the origin.</span>
+
+<span class="sd">    Each of the coordinates can be specified and is zero by default.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">Formex</span><span class="p">([[[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">]]])</span></div>
+
+
+<div class="viewcode-block" id="line"><a class="viewcode-back" href="../ref/simple.html#simple.line">[docs]</a><span class="k">def</span> <span class="nf">line</span><span class="p">(</span><span class="n">p1</span><span class="o">=</span><span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">],</span> <span class="n">p2</span><span class="o">=</span><span class="p">[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">],</span> <span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return a Formex which is a line between two specified points.</span>
+
+<span class="sd">    p1: first point, p2: second point</span>
+<span class="sd">    The line is split up in n segments.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">Formex</span><span class="p">([[</span><span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">]])</span><span class="o">.</span><span class="n">subdivide</span><span class="p">(</span><span class="n">n</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="rect"><a class="viewcode-back" href="../ref/simple.html#simple.rect">[docs]</a><span class="k">def</span> <span class="nf">rect</span><span class="p">(</span><span class="n">p1</span><span class="o">=</span><span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">],</span> <span class="n">p2</span><span class="o">=</span><span class="p">[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">],</span> <span class="n">nx</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ny</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return a Formex which is a the circumference of a rectangle.</span>
+
+<span class="sd">    p1 and p2 are two opposite corner points of the rectangle.</span>
+<span class="sd">    The edges of the rectangle are in planes parallel to the z-axis.</span>
+<span class="sd">    There will always be two opposite edges that are parallel with the x-axis.</span>
+<span class="sd">    The other two will only be parallel with the y-axis if both points</span>
+<span class="sd">    have the same z-value, but in any case they will be parallel with the</span>
+<span class="sd">    y-z plane.</span>
+
+<span class="sd">    The edges parallel with the x-axis are divide in nx parts, the other</span>
+<span class="sd">    ones in ny parts.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">p1</span> <span class="o">=</span> <span class="n">Coords</span><span class="p">(</span><span class="n">p1</span><span class="p">)</span>
+    <span class="n">p2</span> <span class="o">=</span> <span class="n">Coords</span><span class="p">(</span><span class="n">p2</span><span class="p">)</span>
+    <span class="n">p12</span> <span class="o">=</span> <span class="n">Coords</span><span class="p">([</span><span class="n">p2</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">p1</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">p1</span><span class="p">[</span><span class="mi">2</span><span class="p">]])</span>
+    <span class="n">p21</span> <span class="o">=</span> <span class="n">Coords</span><span class="p">([</span><span class="n">p1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">p2</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">p2</span><span class="p">[</span><span class="mi">2</span><span class="p">]])</span>
+    <span class="k">return</span> <span class="n">Formex</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span>
+        <span class="n">line</span><span class="p">(</span><span class="n">p1</span><span class="p">,</span> <span class="n">p12</span><span class="p">,</span> <span class="n">nx</span><span class="p">),</span>
+        <span class="n">line</span><span class="p">(</span><span class="n">p12</span><span class="p">,</span> <span class="n">p2</span><span class="p">,</span> <span class="n">ny</span><span class="p">),</span>
+        <span class="n">line</span><span class="p">(</span><span class="n">p2</span><span class="p">,</span> <span class="n">p21</span><span class="p">,</span> <span class="n">nx</span><span class="p">),</span>
+        <span class="n">line</span><span class="p">(</span><span class="n">p21</span><span class="p">,</span> <span class="n">p1</span><span class="p">,</span> <span class="n">ny</span><span class="p">)</span>
+    <span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="rectangle"><a class="viewcode-back" href="../ref/simple.html#simple.rectangle">[docs]</a><span class="k">def</span> <span class="nf">rectangle</span><span class="p">(</span><span class="n">nx</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ny</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">diag</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return a Formex representing a rectangular surface.</span>
+
+<span class="sd">    The rectangle has a size(b,h) divided into (nx,ny) cells.</span>
+
+<span class="sd">    The default b/h values are equal to nx/ny, resulting in a modular grid.</span>
+<span class="sd">    The rectangle lies in the (x,y) plane, with one corner at [0,0,0].</span>
+<span class="sd">    By default, the elements are quads. By setting diag=&#39;u&#39;,&#39;d&#39; of &#39;x&#39;,</span>
+<span class="sd">    diagonals are added in /, resp. \\ and both directions, to form triangles.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">diag</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">diag</span> <span class="o">=</span> <span class="n">diag</span><span class="p">[:</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">diag</span> <span class="o">==</span> <span class="s1">&#39;x&#39;</span><span class="p">:</span>
+        <span class="n">base</span> <span class="o">=</span> <span class="n">Formex</span><span class="p">(</span>
+            <span class="p">[[[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]]]</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">rosette</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mf">90.</span><span class="p">)</span><span class="o">.</span><span class="n">translate</span><span class="p">([</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">base</span> <span class="o">=</span> <span class="n">Formex</span><span class="p">({</span><span class="s1">&#39;u&#39;</span><span class="p">:</span> <span class="s1">&#39;3:012934&#39;</span><span class="p">,</span> <span class="s1">&#39;d&#39;</span><span class="p">:</span> <span class="s1">&#39;3:016823&#39;</span><span class="p">}</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">diag</span><span class="p">,</span> <span class="s1">&#39;4:0123&#39;</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">b</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">sx</span> <span class="o">=</span> <span class="mf">1.</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">sx</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="o">/</span> <span class="n">nx</span>
+    <span class="k">if</span> <span class="n">h</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">sy</span> <span class="o">=</span> <span class="mf">1.</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">sy</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">h</span><span class="p">)</span> <span class="o">/</span> <span class="n">ny</span>
+    <span class="k">return</span> <span class="n">base</span><span class="o">.</span><span class="n">replic2</span><span class="p">(</span><span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="n">bias</span><span class="p">)</span><span class="o">.</span><span class="n">scale</span><span class="p">([</span><span class="n">sx</span><span class="p">,</span> <span class="n">sy</span><span class="p">,</span> <span class="mf">0.</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="Cube"><a class="viewcode-back" href="../ref/simple.html#simple.Cube">[docs]</a><span class="k">def</span> <span class="nf">Cube</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create a cube</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    level: int</span>
+<span class="sd">        The geometric level (0..3) of the cube: 3 for volume, 2 for surfaces,</span>
+<span class="sd">        1 for edges, 0 for points.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Mesh</span>
+<span class="sd">        A Mesh with the representation of a unit cube, either as a volume,</span>
+<span class="sd">        as its 6 faces, as its 12 edges or as its 8 vertices.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">pyformex.elements</span> <span class="kn">import</span> <span class="n">Hex8</span>
+    <span class="k">if</span> <span class="n">level</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
+        <span class="n">level</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">M</span> <span class="o">=</span> <span class="n">Hex8</span><span class="o">.</span><span class="n">toMesh</span><span class="p">(</span><span class="n">level</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">M</span></div>
+
+
+<div class="viewcode-block" id="circle"><a class="viewcode-back" href="../ref/simple.html#simple.circle">[docs]</a><span class="k">def</span> <span class="nf">circle</span><span class="p">(</span><span class="n">a1</span><span class="o">=</span><span class="mf">2.</span><span class="p">,</span> <span class="n">a2</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">a3</span><span class="o">=</span><span class="mf">360.</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">eltype</span><span class="o">=</span><span class="s1">&#39;line2&#39;</span><span class="p">,</span>
+           <span class="n">angle_spec</span><span class="o">=</span><span class="n">at</span><span class="o">.</span><span class="n">DEG</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A polygonal approximation of a circle or arc.</span>
+
+<span class="sd">    All points generated by this function lie on a circle with unit radius at</span>
+<span class="sd">    the origin in the x-y-plane.</span>
+
+<span class="sd">    - `a1`: the angle enclosed between the start and end points of each line</span>
+<span class="sd">      segment (dash angle).</span>
+<span class="sd">    - `a2`: the angle enclosed between the start points of two subsequent line</span>
+<span class="sd">      segments (module angle). If ``a2==0.0``, `a2` will be taken equal to `a1`.</span>
+<span class="sd">    - `a3`: the total angle enclosed between the first point of the first</span>
+<span class="sd">      segment and the end point of the last segment (arc angle).</span>
+
+<span class="sd">    All angles are given in degrees and are measured in the direction from</span>
+<span class="sd">    x- to y-axis. The first point of the first segment is always on the x-axis.</span>
+
+<span class="sd">    The default values produce a full circle (approximately).</span>
+<span class="sd">    If $a3 &lt; 360$, the result is an arc.</span>
+<span class="sd">    Large values of `a1` and `a2` result in polygons. Thus</span>
+<span class="sd">    `circle(120.)` is an equilateral triangle and `circle(60.)`</span>
+<span class="sd">    is regular hexagon.</span>
+
+<span class="sd">    Remark that the default a2 == a1 produces a continuous line,</span>
+<span class="sd">    while a2 &gt; a1 results in a dashed line.</span>
+
+<span class="sd">    Three optional arguments can be added to scale and position the circle</span>
+<span class="sd">    in 3D space:</span>
+
+<span class="sd">    - `r`: the radius of the circle</span>
+<span class="sd">    - `n`: the normal on the plane of the circle</span>
+<span class="sd">    - `c`: the center of the circle</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; circle(90., 90.).coords</span>
+<span class="sd">    Coords([[[ 1.,  0.,  0.],</span>
+<span class="sd">             [ 0.,  1.,  0.]],</span>
+<span class="sd">    &lt;BLANKLINE&gt;</span>
+<span class="sd">            [[ 0.,  1.,  0.],</span>
+<span class="sd">             [-1.,  0.,  0.]],</span>
+<span class="sd">    &lt;BLANKLINE&gt;</span>
+<span class="sd">            [[-1.,  0.,  0.],</span>
+<span class="sd">             [-0., -1.,  0.]],</span>
+<span class="sd">    &lt;BLANKLINE&gt;</span>
+<span class="sd">            [[-0., -1.,  0.],</span>
+<span class="sd">             [ 1., -0.,  0.]]])</span>
+<span class="sd">    &gt;&gt;&gt; circle(90., 45.).coords</span>
+<span class="sd">    Coords([[[ 1.    ,  0.    ,  0.    ],</span>
+<span class="sd">             [ 0.    ,  1.    ,  0.    ]],</span>
+<span class="sd">    &lt;BLANKLINE&gt;</span>
+<span class="sd">            [[ 0.7071,  0.7071,  0.    ],</span>
+<span class="sd">             [-0.7071,  0.7071,  0.    ]],</span>
+<span class="sd">    &lt;BLANKLINE&gt;</span>
+<span class="sd">            [[ 0.    ,  1.    ,  0.    ],</span>
+<span class="sd">             [-1.    ,  0.    ,  0.    ]],</span>
+<span class="sd">    &lt;BLANKLINE&gt;</span>
+<span class="sd">            [[-0.7071,  0.7071,  0.    ],</span>
+<span class="sd">             [-0.7071, -0.7071,  0.    ]],</span>
+<span class="sd">    &lt;BLANKLINE&gt;</span>
+<span class="sd">            [[-1.    ,  0.    ,  0.    ],</span>
+<span class="sd">             [-0.    , -1.    ,  0.    ]],</span>
+<span class="sd">    &lt;BLANKLINE&gt;</span>
+<span class="sd">            [[-0.7071, -0.7071,  0.    ],</span>
+<span class="sd">             [ 0.7071, -0.7071,  0.    ]],</span>
+<span class="sd">    &lt;BLANKLINE&gt;</span>
+<span class="sd">            [[-0.    , -1.    ,  0.    ],</span>
+<span class="sd">             [ 1.    , -0.    ,  0.    ]],</span>
+<span class="sd">    &lt;BLANKLINE&gt;</span>
+<span class="sd">            [[ 0.7071, -0.7071,  0.    ],</span>
+<span class="sd">             [ 0.7071,  0.7071,  0.    ]]])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">a1</span> <span class="o">=</span> <span class="n">a1</span> <span class="o">*</span> <span class="n">angle_spec</span>
+    <span class="n">a2</span> <span class="o">=</span> <span class="n">a1</span> <span class="k">if</span> <span class="n">a2</span> <span class="o">==</span> <span class="mf">0.0</span> <span class="k">else</span> <span class="n">a2</span> <span class="o">*</span> <span class="n">angle_spec</span>
+    <span class="n">a3</span> <span class="o">=</span> <span class="n">a3</span> <span class="o">*</span> <span class="n">angle_spec</span>
+    <span class="n">ns</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">a3</span><span class="o">/</span><span class="n">a2</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">eltype</span><span class="o">==</span><span class="s1">&#39;line2&#39;</span><span class="p">:</span>
+        <span class="n">F</span> <span class="o">=</span> <span class="n">Formex</span><span class="p">([[[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">],</span>
+                     <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">a1</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">a1</span><span class="p">),</span> <span class="mf">0.</span><span class="p">]]])</span>
+
+    <span class="k">elif</span> <span class="n">eltype</span><span class="o">==</span><span class="s1">&#39;line3&#39;</span><span class="p">:</span>
+        <span class="n">F</span> <span class="o">=</span> <span class="n">Formex</span><span class="p">([[[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">],</span>
+                     <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">a1</span><span class="o">/</span><span class="mf">2.</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">a1</span><span class="o">/</span><span class="mf">2.</span><span class="p">),</span> <span class="mf">0.</span><span class="p">],</span>
+                     <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">a1</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">a1</span><span class="p">),</span> <span class="mf">0.</span><span class="p">]]],</span> <span class="n">eltype</span><span class="o">=</span><span class="n">eltype</span><span class="p">)</span>
+    <span class="n">F</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">rosette</span><span class="p">(</span><span class="n">ns</span><span class="p">,</span> <span class="n">a2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">around</span><span class="o">=</span><span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">],</span> <span class="n">angle_spec</span><span class="o">=</span><span class="n">at</span><span class="o">.</span><span class="n">RAD</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">r</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">F</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">F</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">at</span><span class="o">.</span><span class="n">rotMatrix2</span><span class="p">([</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">],</span> <span class="n">n</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">c</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">F</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">trl</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">F</span></div>
+
+
+<div class="viewcode-block" id="polygon"><a class="viewcode-back" href="../ref/simple.html#simple.polygon">[docs]</a><span class="k">def</span> <span class="nf">polygon</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A regular polygon with n sides.</span>
+
+<span class="sd">    Creates the circumference of a regular polygon with $n$ sides,</span>
+<span class="sd">    inscribed in a circle with radius 1 and center at the origin.</span>
+<span class="sd">    The first point lies on the axis 0. All points are in the (0,1) plane.</span>
+<span class="sd">    The return value is a plex-2 Formex.</span>
+<span class="sd">    This function is equivalent to circle(360./n).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">circle</span><span class="p">(</span><span class="mf">360.</span> <span class="o">/</span> <span class="n">n</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="polygonSector"><a class="viewcode-back" href="../ref/simple.html#simple.polygonSector">[docs]</a><span class="k">def</span> <span class="nf">polygonSector</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create one sector of a regular polygon with n sides&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;n should be at least 3&quot;</span><span class="p">)</span>
+    <span class="n">P0</span> <span class="o">=</span> <span class="n">Coords</span><span class="p">([</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">])</span>
+    <span class="n">P1</span> <span class="o">=</span> <span class="n">Coords</span><span class="p">([</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">])</span>
+    <span class="n">P2</span> <span class="o">=</span> <span class="n">P1</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="mf">360.</span><span class="o">/</span><span class="n">n</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Formex</span><span class="p">([[</span><span class="n">P0</span><span class="p">,</span> <span class="n">P1</span><span class="p">,</span> <span class="n">P2</span><span class="p">]])</span></div>
+
+
+<div class="viewcode-block" id="triangle"><a class="viewcode-back" href="../ref/simple.html#simple.triangle">[docs]</a><span class="k">def</span> <span class="nf">triangle</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;An equilateral triangle with base [0,1] on axis 0.</span>
+
+<span class="sd">    Returns an equilateral triangle with side length 1.</span>
+<span class="sd">    The first point is the origin, the second points is on the axis 0.</span>
+<span class="sd">    The return value is a plex-3 Formex.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">Formex</span><span class="p">([[[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">],</span> <span class="p">[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">3.</span><span class="p">),</span> <span class="mf">0.</span><span class="p">]]])</span></div>
+
+
+<div class="viewcode-block" id="quadraticCurve"><a class="viewcode-back" href="../ref/simple.html#simple.quadraticCurve">[docs]</a><span class="k">def</span> <span class="nf">quadraticCurve</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">8</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create a collection of curves.</span>
+
+<span class="sd">    x is a (3,3) shaped array of coordinates, specifying 3 points.</span>
+
+<span class="sd">    Return an array with 2*n+1 points lying on the quadratic curve through</span>
+<span class="sd">    the points x. Each of the intervals [x0,x1] and [x1,x2] will be divided</span>
+<span class="sd">    in n segments.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">checkArray</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;f&#39;</span><span class="p">)</span>
+    <span class="c1"># Interpolation functions in normalized coordinates (-1..1)</span>
+    <span class="n">h</span> <span class="o">=</span> <span class="p">[</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">*</span><span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="n">x</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">x</span><span class="p">),</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="n">x</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+    <span class="n">H</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">([</span><span class="n">hi</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">hi</span> <span class="ow">in</span> <span class="n">h</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="sphere"><a class="viewcode-back" href="../ref/simple.html#simple.sphere">[docs]</a><span class="k">def</span> <span class="nf">sphere</span><span class="p">(</span><span class="n">ndiv</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="s1">&#39;icosa&#39;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">equiv</span><span class="o">=</span><span class="s1">&#39;R&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create a triangulated surface approximating a sphere.</span>
+
+<span class="sd">    The approximation of a spherical surface is constructed as follows.</span>
+<span class="sd">    First a simple base triangulated surface is created. Its triangular</span>
+<span class="sd">    facets are subdivided into identical smaller triangles by dividing</span>
+<span class="sd">    all edges in `ndiv` parts. The resulting mesh is then projected on a</span>
+<span class="sd">    sphere with the specified radius.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ndiv: int</span>
+<span class="sd">        Number of divisions along the edges of the base surface. The higher</span>
+<span class="sd">        `ndiv` is taken, the better the approximation. With ``ndiv&lt;=1``,</span>
+<span class="sd">        the base surface is returned.</span>
+<span class="sd">    base: str</span>
+<span class="sd">        The type of base surface to be used. Currently available:</span>
+
+<span class="sd">        - &#39;icosa&#39;: icosahedron (20 faces): this offers the highest</span>
+<span class="sd">          quality with triangles of almost same size and shape.</span>
+<span class="sd">        - &#39;octa&#39;: octahedron (8 faces): this model will have the same</span>
+<span class="sd">          mesh on each of the quadrants of the global axes.</span>
+<span class="sd">          The coordinate planes do not cut any triangle. This model is</span>
+<span class="sd">          this fit to be split along coordinate planes.</span>
+<span class="sd">    radius: float, optional</span>
+<span class="sd">        The radius of the sphere. Default is 1.0.</span>
+<span class="sd">    equiv: &#39;R&#39; | &#39;A&#39; | &#39;V&#39;</span>
+<span class="sd">        The quantity that should be equivalent with the perfect sphere.</span>
+<span class="sd">        The default (&#39;R&#39;) places the points exactly at the specified radius.</span>
+<span class="sd">        The computed area and volume will obviously be less than</span>
+<span class="sd">        those of the perfect sphere. With &#39;A&#39; or &#39;V&#39;, the radius is</span>
+<span class="sd">        increased in such way that the triangular surface has the same</span>
+<span class="sd">        area, respectively volume, as the perfect sphere.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    TriSurface</span>
+<span class="sd">        A TriSurface representing a triangulated approximation of a</span>
+<span class="sd">        spherical surface with specified radius and center at the origin.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The number of elements is equal to 20*ndiv**2 for &#39;icosa&#39; and</span>
+<span class="sd">    8*ndiv**2 for &#39;octa&#39;.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    This computes the relative area and volume of the triangulated</span>
+<span class="sd">    surface with respect to the perfect sphere</span>
+
+<span class="sd">    &gt;&gt;&gt; for ndiv in range(1,9):</span>
+<span class="sd">    ...     S = sphere(ndiv)</span>
+<span class="sd">    ...     A = S.area() / (4*at.pi)</span>
+<span class="sd">    ...     V = S.volume() / (4/3*at.pi)</span>
+<span class="sd">    ...     np, nf = S.ncoords(), S.nelems()</span>
+<span class="sd">    ...     print(f&quot;ndiv: {ndiv}; npoints: {np:3}; nfaces: {nf:4}; &quot;</span>
+<span class="sd">    ...           f&quot;area: {A:.4f}; volume: {V:.4f}&quot;)</span>
+<span class="sd">    ndiv: 1; npoints:  12; nfaces:   20; area: 0.7619; volume: 0.6055</span>
+<span class="sd">    ndiv: 2; npoints:  42; nfaces:   80; area: 0.9283; volume: 0.8735</span>
+<span class="sd">    ndiv: 3; npoints:  92; nfaces:  180; area: 0.9669; volume: 0.9409</span>
+<span class="sd">    ndiv: 4; npoints: 162; nfaces:  320; area: 0.9811; volume: 0.9662</span>
+<span class="sd">    ndiv: 5; npoints: 252; nfaces:  500; area: 0.9878; volume: 0.9781</span>
+<span class="sd">    ndiv: 6; npoints: 362; nfaces:  720; area: 0.9915; volume: 0.9848</span>
+<span class="sd">    ndiv: 7; npoints: 492; nfaces:  980; area: 0.9938; volume: 0.9888</span>
+<span class="sd">    ndiv: 8; npoints: 642; nfaces: 1280; area: 0.9952; volume: 0.9914</span>
+
+<span class="sd">    Here is a comparison of the radius, area and volume equivalent surfaces</span>
+<span class="sd">    for ``ndiv=4``.</span>
+
+<span class="sd">    &gt;&gt;&gt; for equiv in [&#39;R&#39;, &#39;A&#39;, &#39;V&#39;]:</span>
+<span class="sd">    ...     S = sphere(4, equiv=equiv)</span>
+<span class="sd">    ...     R = S.coords.distanceFromPoint([0.,0.,0.]).mean()</span>
+<span class="sd">    ...     A = S.area() / (4*at.pi)</span>
+<span class="sd">    ...     V = S.volume() / (4/3*at.pi)</span>
+<span class="sd">    ...     print(f&quot;radius: {R:.4f}; area: {A:.4f}; volume: {V:.4f}&quot;)</span>
+<span class="sd">    radius: 1.0000; area: 0.9811; volume: 0.9662</span>
+<span class="sd">    radius: 1.0096; area: 1.0000; volume: 0.9942</span>
+<span class="sd">    radius: 1.0115; area: 1.0039; volume: 1.0000</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">pyformex.elements</span> <span class="kn">import</span> <span class="n">ElementType</span>
+    <span class="kn">from</span> <span class="nn">pyformex.trisurface</span> <span class="kn">import</span> <span class="n">TriSurface</span>
+
+    <span class="n">base</span> <span class="o">=</span> <span class="n">ElementType</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">base</span><span class="p">)</span>
+    <span class="n">S</span> <span class="o">=</span> <span class="n">TriSurface</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">vertices</span><span class="p">,</span> <span class="n">base</span><span class="o">.</span><span class="n">faces</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ndiv</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">S</span> <span class="o">=</span> <span class="n">S</span><span class="o">.</span><span class="n">subdivide</span><span class="p">(</span><span class="n">ndiv</span><span class="p">)</span><span class="o">.</span><span class="n">fuse</span><span class="p">()</span>
+    <span class="n">S</span> <span class="o">=</span> <span class="n">S</span><span class="o">.</span><span class="n">projectOnSphere</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">equiv</span> <span class="o">==</span> <span class="s1">&#39;A&#39;</span><span class="p">:</span>
+        <span class="n">radius</span> <span class="o">/=</span> <span class="p">(</span><span class="n">S</span><span class="o">.</span><span class="n">area</span><span class="p">()</span> <span class="o">/</span> <span class="p">(</span><span class="mi">4</span><span class="o">*</span><span class="n">at</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span> <span class="o">**</span> <span class="mf">0.5</span>
+    <span class="k">elif</span> <span class="n">equiv</span> <span class="o">==</span> <span class="s1">&#39;V&#39;</span><span class="p">:</span>
+        <span class="n">radius</span> <span class="o">/=</span> <span class="p">(</span><span class="n">S</span><span class="o">.</span><span class="n">volume</span><span class="p">()</span> <span class="o">/</span> <span class="p">(</span><span class="mi">4</span><span class="o">/</span><span class="mi">3</span><span class="o">*</span><span class="n">at</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="mi">3</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">radius</span> <span class="o">!=</span> <span class="mf">1.0</span><span class="p">:</span>
+        <span class="n">S</span> <span class="o">=</span> <span class="n">S</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="n">radius</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">S</span></div>
+
+
+<div class="viewcode-block" id="MoebiusRing"><a class="viewcode-back" href="../ref/simple.html#simple.MoebiusRing">[docs]</a><span class="k">def</span> <span class="nf">MoebiusRing</span><span class="p">(</span><span class="n">nturns</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">nw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">nl</span><span class="o">=</span><span class="mi">30</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create a model of a Möbius ring.</span>
+
+<span class="sd">    A Möbius ring is a strip where one end is turned over a number of times</span>
+<span class="sd">    and then glued to the other end.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    nturns: int</span>
+<span class="sd">        The number of turns to give to one end of the strip.</span>
+<span class="sd">    nl: int</span>
+<span class="sd">        The number of cells over the length of the strip.</span>
+<span class="sd">    nw: int</span>
+<span class="sd">        The number of cells over the width of the strip.</span>
+<span class="sd">    If uneven, the resulting surface</span>
+<span class="sd">        is not orientable: it has only one side. If even the surface</span>
+<span class="sd">        has two sides and is orientable.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Mesh</span>
+<span class="sd">        A quad4 Mesh representing a Möbius ring</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">cell</span> <span class="o">=</span> <span class="n">Formex</span><span class="p">(</span><span class="s1">&#39;4:0123&#39;</span><span class="p">)</span>
+    <span class="n">strip</span> <span class="o">=</span> <span class="n">cell</span><span class="o">.</span><span class="n">replicm</span><span class="p">((</span><span class="n">nl</span><span class="p">,</span> <span class="n">nw</span><span class="p">))</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5</span><span class="o">*</span><span class="n">nw</span><span class="p">)</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">nturns</span><span class="o">*</span><span class="mf">180.</span><span class="o">/</span><span class="n">nl</span>
+    <span class="n">torded</span> <span class="o">=</span> <span class="n">strip</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">:</span> <span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">*</span><span class="n">at</span><span class="o">.</span><span class="n">cosd</span><span class="p">(</span><span class="n">x</span><span class="o">*</span><span class="n">a</span><span class="p">),</span> <span class="n">y</span><span class="o">*</span><span class="n">at</span><span class="o">.</span><span class="n">sind</span><span class="p">(</span><span class="n">x</span><span class="o">*</span><span class="n">a</span><span class="p">)])</span>
+    <span class="n">ring</span> <span class="o">=</span> <span class="n">torded</span><span class="o">.</span><span class="n">trl</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">nl</span><span class="o">/</span><span class="n">at</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>\
+                 <span class="o">.</span><span class="n">scale</span><span class="p">([</span><span class="mf">360.</span><span class="o">/</span><span class="n">nl</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">])</span>\
+                 <span class="o">.</span><span class="n">trl</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">90</span><span class="p">)</span>\
+                 <span class="o">.</span><span class="n">cylindrical</span><span class="p">(</span><span class="nb">dir</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">ring</span><span class="o">.</span><span class="n">toMesh</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="sphere3"><a class="viewcode-back" href="../ref/simple.html#simple.sphere3">[docs]</a><span class="k">def</span> <span class="nf">sphere3</span><span class="p">(</span><span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bot</span><span class="o">=-</span><span class="mf">90.</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="mf">90.</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return a sphere consisting of surface triangles</span>
+
+<span class="sd">    A sphere with radius r is modeled by the triangles formed by a regular</span>
+<span class="sd">    grid of nx longitude circles, ny latitude circles and their diagonals.</span>
+
+<span class="sd">    The two sets of triangles can be distinguished by their property number:</span>
+<span class="sd">    1: horizontal at the bottom, 2: horizontal at the top.</span>
+
+<span class="sd">    The sphere caps can be cut off by specifying top and bottom latitude</span>
+<span class="sd">    angles (measured in degrees from 0 at north pole to 180 at south pole.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">base</span> <span class="o">=</span> <span class="n">Formex</span><span class="p">([[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span>
+                   <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]],</span>
+                  <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+    <span class="n">grid</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">replicm</span><span class="p">((</span><span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">),</span> <span class="p">(</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">))</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">top</span> <span class="o">-</span> <span class="n">bot</span><span class="p">)</span> <span class="o">/</span> <span class="n">ny</span>
+    <span class="k">return</span> <span class="n">grid</span><span class="o">.</span><span class="n">translate</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="n">bot</span> <span class="o">/</span> <span class="n">s</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">spherical</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="p">[</span><span class="mf">360.</span> <span class="o">/</span> <span class="n">nx</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">r</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="sphere2"><a class="viewcode-back" href="../ref/simple.html#simple.sphere2">[docs]</a><span class="k">def</span> <span class="nf">sphere2</span><span class="p">(</span><span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bot</span><span class="o">=-</span><span class="mi">90</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="mi">90</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return a sphere consisting of line elements.</span>
+
+<span class="sd">    A sphere with radius r is modeled by a regular grid of nx</span>
+<span class="sd">    longitude circles, ny latitude circles and their diagonals.</span>
+
+<span class="sd">    The 3 sets of lines can be distinguished by their property number:</span>
+<span class="sd">    1: diagonals, 2: meridionals, 3: horizontals.</span>
+
+<span class="sd">    The sphere caps can be cut off by specifying top and bottom latitude</span>
+<span class="sd">    angles (measured in degrees from 0 at north pole to 180 at south pole.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">base</span> <span class="o">=</span> <span class="n">Formex</span><span class="p">(</span><span class="s1">&#39;l:543&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>           <span class="c1"># single cell</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">replicm</span><span class="p">((</span><span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">))</span>      <span class="c1"># all diagonals</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">replicm</span><span class="p">((</span><span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">))</span>      <span class="c1"># all meridionals</span>
+    <span class="n">h</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="mi">2</span><span class="p">])</span><span class="o">.</span><span class="n">replicm</span><span class="p">((</span><span class="n">nx</span><span class="p">,</span> <span class="n">ny</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>  <span class="c1"># all horizontals</span>
+    <span class="n">grid</span> <span class="o">=</span> <span class="n">m</span> <span class="o">+</span> <span class="n">d</span> <span class="o">+</span> <span class="n">h</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">top</span> <span class="o">-</span> <span class="n">bot</span><span class="p">)</span> <span class="o">/</span> <span class="n">ny</span>
+    <span class="k">return</span> <span class="n">grid</span><span class="o">.</span><span class="n">translate</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="n">bot</span> <span class="o">/</span> <span class="n">s</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">spherical</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="p">[</span><span class="mf">360.</span> <span class="o">/</span> <span class="n">nx</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">r</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="connectCurves"><a class="viewcode-back" href="../ref/simple.html#simple.connectCurves">[docs]</a><span class="nd">@utils</span><span class="o">.</span><span class="n">deprecated_by</span><span class="p">(</span><span class="s1">&#39;simple.connectCurves&#39;</span><span class="p">,</span> <span class="s1">&#39;Mesh.connect&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">connectCurves</span><span class="p">(</span><span class="n">curve1</span><span class="p">,</span> <span class="n">curve2</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Connect two curves to form a surface.</span>
+
+<span class="sd">    curve1, curve2 are plex-2 Formices with the same number of elements.</span>
+<span class="sd">    The two curves are connected by a surface of quadrilaterals, with n</span>
+<span class="sd">    elements in the direction between the curves.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    Mesh.connect</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">curve1</span><span class="o">.</span><span class="n">toMesh</span><span class="p">()</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">curve2</span><span class="o">.</span><span class="n">toMesh</span><span class="p">(),</span> <span class="n">n</span><span class="p">)</span><span class="o">.</span><span class="n">toFormex</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="sector"><a class="viewcode-back" href="../ref/simple.html#simple.sector">[docs]</a><span class="k">def</span> <span class="nf">sector</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">nr</span><span class="p">,</span> <span class="n">nt</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">diag</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Constructs a Formex which is a sector of a circle/cone.</span>
+
+<span class="sd">    A sector with radius r and angle t is modeled by dividing the</span>
+<span class="sd">    radius in nr parts and the angle in nt parts and then creating</span>
+<span class="sd">    straight line segments.</span>
+<span class="sd">    If a nonzero value of h is given, a conical surface results with its</span>
+<span class="sd">    top at the origin and the base circle of the cone at z=h.</span>
+<span class="sd">    The default is for all points to be in the (x,y) plane.</span>
+
+
+<span class="sd">    By default, a plex-4 Formex results. The central quads will collapse</span>
+<span class="sd">    into triangles.</span>
+<span class="sd">    If diag=&#39;up&#39; or diag = &#39;down&#39;, all quads are divided by an up directed</span>
+<span class="sd">    diagonal and a plex-3 Formex results.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">Formex</span><span class="p">(</span><span class="n">regularGrid</span><span class="p">([</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">],</span> <span class="p">[</span><span class="n">r</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">],</span> <span class="p">[</span><span class="n">nr</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                           <span class="n">swapaxes</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">h</span> <span class="o">!=</span> <span class="mf">0.</span><span class="p">:</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">shear</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">h</span> <span class="o">/</span> <span class="n">r</span><span class="p">)</span>
+    <span class="n">q</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">t</span> <span class="o">/</span> <span class="n">nt</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">diag</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">diag</span> <span class="o">=</span> <span class="n">diag</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">diag</span> <span class="o">==</span> <span class="s1">&#39;u&#39;</span><span class="p">:</span>
+        <span class="n">F</span> <span class="o">=</span> <span class="n">connect</span><span class="p">([</span><span class="n">p</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">],</span> <span class="n">bias</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span> <span class="o">+</span> \
+            <span class="n">connect</span><span class="p">([</span><span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">q</span><span class="p">],</span> <span class="n">bias</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+    <span class="k">elif</span> <span class="n">diag</span> <span class="o">==</span> <span class="s1">&#39;d&#39;</span><span class="p">:</span>
+        <span class="n">F</span> <span class="o">=</span> <span class="n">connect</span><span class="p">([</span><span class="n">q</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">],</span> <span class="n">bias</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span> <span class="o">+</span> \
+            <span class="n">connect</span><span class="p">([</span><span class="n">p</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">],</span> <span class="n">bias</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">F</span> <span class="o">=</span> <span class="n">connect</span><span class="p">([</span><span class="n">p</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">q</span><span class="p">],</span> <span class="n">bias</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+
+    <span class="n">F</span> <span class="o">=</span> <span class="n">Formex</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">F</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">i</span> <span class="o">*</span> <span class="n">t</span> <span class="o">/</span> <span class="n">nt</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nt</span><span class="p">)])</span>
+    <span class="k">return</span> <span class="n">F</span></div>
+
+
+<div class="viewcode-block" id="cylinder"><a class="viewcode-back" href="../ref/simple.html#simple.cylinder">[docs]</a><span class="k">def</span> <span class="nf">cylinder</span><span class="p">(</span><span class="n">D</span><span class="p">,</span> <span class="n">L</span><span class="p">,</span> <span class="n">nt</span><span class="p">,</span> <span class="n">nl</span><span class="p">,</span> <span class="n">D1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="mf">360.</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">diag</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create a cylindrical, conical or truncated conical surface.</span>
+
+<span class="sd">    Returns a Formex representing (an approximation of) a cylindrical or</span>
+<span class="sd">    (possibly truncated) conical surface with its axis along the z-axis.</span>
+<span class="sd">    The resulting surface is actually a prism or pyramid, and only becomes</span>
+<span class="sd">    a good approximation of a cylinder or cone for high values of `nt`.</span>
+
+<span class="sd">    Parameters:</span>
+
+<span class="sd">    - `D`: base diameter (at z=0) of the cylinder/cone,</span>
+<span class="sd">    - `L`: length (along z-axis) of the cylinder/cone,</span>
+<span class="sd">    - `nt`: number of elements along the circumference,</span>
+<span class="sd">    - `nl`: number of elements along the length,</span>
+<span class="sd">    - `D1`: diameter at the top (z=L) of the cylinder/cone: if unspecified,</span>
+<span class="sd">      it is taken equal to `D` and a cylinder results.</span>
+<span class="sd">      Setting either `D1` or `D` to zero results in a cone,</span>
+<span class="sd">      other values will create a truncated cone.</span>
+<span class="sd">    - `diag`: by default, the elements are quads. Setting `diag` to &#39;u&#39; or &#39;d&#39;</span>
+<span class="sd">      will put in an &#39;up&#39; or &#39;down&#39; diagonal to create triangles.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">C</span> <span class="o">=</span> <span class="n">rectangle</span><span class="p">(</span><span class="n">nl</span><span class="p">,</span> <span class="n">nt</span><span class="p">,</span> <span class="n">L</span><span class="p">,</span> <span class="n">angle</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="n">bias</span><span class="p">,</span> <span class="n">diag</span><span class="o">=</span><span class="n">diag</span><span class="p">)</span><span class="o">.</span><span class="n">trl</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">D</span> <span class="o">/</span> <span class="mf">2.</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">D1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">D1</span> <span class="o">!=</span> <span class="n">D</span><span class="p">:</span>
+        <span class="n">C</span> <span class="o">=</span> <span class="n">C</span><span class="o">.</span><span class="n">shear</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="n">D1</span> <span class="o">-</span> <span class="n">D</span><span class="p">)</span> <span class="o">/</span> <span class="n">L</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">C</span><span class="o">.</span><span class="n">cylindrical</span><span class="p">(</span><span class="nb">dir</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="boxes"><a class="viewcode-back" href="../ref/simple.html#simple.boxes">[docs]</a><span class="k">def</span> <span class="nf">boxes</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create a set of cuboid boxes.</span>
+
+<span class="sd">    `x`: Coords with shape (nelems,2,3), usually with x[:,0,:] &lt; x[:,1,:]</span>
+
+<span class="sd">    Returns a Formex with shape (nelems,8,3) and of type &#39;hex8&#39;,</span>
+<span class="sd">    where each element is the cuboid box which has x[:,0,:]</span>
+<span class="sd">    as its minimum coordinates and x[:,1,:] as the maximum ones.</span>
+<span class="sd">    Note that the elements may be degenerate or reverted if the minimum</span>
+<span class="sd">    coordinates are not smaller than the maximum ones.</span>
+
+<span class="sd">    This function can be used to visualize the bboxes() of a geometry.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">Coords</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+         <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+         <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+         <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+         <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+         <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+         <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+         <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]</span>
+
+    <span class="n">j</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">Formex</span><span class="p">(</span><span class="n">x</span><span class="p">[:,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">],</span> <span class="n">eltype</span><span class="o">=</span><span class="s1">&#39;hex8&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="boxes2d"><a class="viewcode-back" href="../ref/simple.html#simple.boxes2d">[docs]</a><span class="k">def</span> <span class="nf">boxes2d</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create a set of rectangular boxes.</span>
+
+<span class="sd">    Parameters:</span>
+
+<span class="sd">    - `x`: Coords with shape (nelems,2,3), usually with x[:,0,:] &lt; x[:,1,:]</span>
+<span class="sd">      and x[:,:,2] == 0.</span>
+
+<span class="sd">    Returns a Formex with shape (nelems,4,3) and of type &#39;quad4&#39;,</span>
+<span class="sd">    where each element is the rectangular box which has x[:,0,:]</span>
+<span class="sd">    as its minimum coordinates and x[:,1,:] as the maximum ones.</span>
+<span class="sd">    Note that the elements may be degenerate or reverted if the minimum</span>
+<span class="sd">    coordinates are not smaller than the maximum ones.</span>
+
+<span class="sd">    This function is a 2D version of :meth:`bboxes`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">Coords</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+         <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+         <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+         <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]</span>
+
+    <span class="n">j</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">Formex</span><span class="p">(</span><span class="n">x</span><span class="p">[:,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">],</span> <span class="n">eltype</span><span class="o">=</span><span class="s1">&#39;quad4&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="cuboid"><a class="viewcode-back" href="../ref/simple.html#simple.cuboid">[docs]</a><span class="k">def</span> <span class="nf">cuboid</span><span class="p">(</span><span class="n">xmin</span><span class="o">=</span><span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">],</span> <span class="n">xmax</span><span class="o">=</span><span class="p">[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">],</span> <span class="n">cs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create a rectangular prism.</span>
+
+<span class="sd">    Create a rectangular prism from two opposite corners. The vertices</span>
+<span class="sd">    are specified in the global or a given coordinate system. The faces</span>
+<span class="sd">    are parallel to the coordinate planes.</span>
+
+<span class="sd">    Parameters:</span>
+
+<span class="sd">    - `xmin`: float(3): minimum coordinates</span>
+<span class="sd">    - `xmax`: float(3): maximum coordinates</span>
+<span class="sd">    - `cs`: CoordSys: if specified, the cuboid is constructed in this</span>
+<span class="sd">      coordinate system, and then transformed back to global axes.</span>
+
+<span class="sd">    Returns a single element Formex with eltype &#39;hex8&#39;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">F</span> <span class="o">=</span> <span class="n">boxes</span><span class="p">([</span><span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">cs</span><span class="p">:</span>
+        <span class="n">F</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">fromCS</span><span class="p">(</span><span class="n">cs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">F</span></div>
+
+
+<div class="viewcode-block" id="cuboid2d"><a class="viewcode-back" href="../ref/simple.html#simple.cuboid2d">[docs]</a><span class="k">def</span> <span class="nf">cuboid2d</span><span class="p">(</span><span class="n">xmin</span><span class="o">=</span><span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">],</span> <span class="n">xmax</span><span class="o">=</span><span class="p">[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Create a rectangle.</span>
+
+<span class="sd">    Creates a rectangle with sides parallel to the global y-axis</span>
+<span class="sd">    and global xz-plane, and having the points xmin and xmax as</span>
+<span class="sd">    opposite corner points.</span>
+
+<span class="sd">    Returns a single element Formex with eltype &#39;quad4&#39;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">boxes2d</span><span class="p">([</span><span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="boundingBox"><a class="viewcode-back" href="../ref/simple.html#simple.boundingBox">[docs]</a><span class="k">def</span> <span class="nf">boundingBox</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">cs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns a cuboid that is the bounding box of some geometry</span>
+
+<span class="sd">    The boundingBox is computed in the specified coordinate system.</span>
+<span class="sd">    The default is the global axes.</span>
+
+<span class="sd">    Returns a single hexahedral Formex object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">cs</span><span class="p">:</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">toCS</span><span class="p">(</span><span class="n">cs</span><span class="p">)</span>
+    <span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">bbox</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">cuboid</span><span class="p">(</span><span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">,</span> <span class="n">cs</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">principalBbox</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">boundingBox</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">cs</span><span class="o">=</span><span class="n">obj</span><span class="o">.</span><span class="n">principalCS</span><span class="p">())</span>
+
+
+<span class="c1"># End</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">simple</a></li--> 
+      </ul>
+    </div>
+    <div class="footer">
+    <span class="left">
+        &copy; Copyright 2004-2023, Benedict Verhegghe.
+    </span>
+      Last updated on Mar 27, 2023.
+    <span class="right">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.4.3.
+    </span>
+    </div>
+  </body>
+</html>

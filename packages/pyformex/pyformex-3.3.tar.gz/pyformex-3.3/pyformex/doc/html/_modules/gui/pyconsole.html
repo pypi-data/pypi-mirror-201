@@ -1,0 +1,664 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!--
+##
+##  This file is part of the pyFormex project.
+##  pyFormex is a tool for generating, manipulating and transforming 3D
+##  geometrical models by sequences of mathematical operations.
+##  Home page: http://pyformex.org
+##  Project page:  http://savannah.nongnu.org/projects/pyformex/
+##  Copyright (C) Benedict Verhegghe (benedict.verhegghe@ugent.be)
+##  Distributed under the GNU General Public License version 3 or later.
+##
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see http://www.gnu.org/licenses/.
+##
+-->
+    <title>gui.pyconsole &#8212; pyFormex 3.3 documentation</title>
+
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pyformex.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+<link rel="icon" type="image/png" href="../../_static/pyformex_fav.png" />
+
+  </head><body>
+
+<div class="header">
+  <a href="http://pyformex.org">
+  <img src="../../_static/scallop_dome_small.png" alt="scallop dome" border="0" hspace="20" vspace="12" align="left" />
+  <img src="../../_static/pyformex-logo-2.png" alt="pyformex logo" border="0" hspace="10" vspace="8" align="left" />
+  </a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">gui.pyconsole</a></li--> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<!-- PYFORMEX_SIDEBAR_LOGO -->
+<!-- PYFORMEX_WEBSITE_SIDEBAR_TOP -->
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for gui.pyconsole</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1">##</span>
+<span class="c1">##  SPDX-FileCopyrightText: © 2007-2023 Benedict Verhegghe &lt;bverheg@gmail.com&gt;</span>
+<span class="c1">##  SPDX-License-Identifier: GPL-3.0-or-later</span>
+<span class="c1">##</span>
+<span class="c1">##  This file is part of pyFormex 3.3  (Sun Mar 26 20:16:15 CEST 2023)</span>
+<span class="c1">##  pyFormex is a tool for generating, manipulating and transforming 3D</span>
+<span class="c1">##  geometrical models by sequences of mathematical operations.</span>
+<span class="c1">##  Home page: https://pyformex.org</span>
+<span class="c1">##  Project page: https://savannah.nongnu.org/projects/pyformex/</span>
+<span class="c1">##  Development: https://gitlab.com/bverheg/pyformex</span>
+<span class="c1">##  Distributed under the GNU General Public License version 3 or later.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is free software: you can redistribute it and/or modify</span>
+<span class="c1">##  it under the terms of the GNU General Public License as published by</span>
+<span class="c1">##  the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1">##  (at your option) any later version.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is distributed in the hope that it will be useful,</span>
+<span class="c1">##  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1">##  GNU General Public License for more details.</span>
+<span class="c1">##</span>
+<span class="c1">##  You should have received a copy of the GNU General Public License</span>
+<span class="c1">##  along with this program.  If not, see http://www.gnu.org/licenses/.</span>
+<span class="c1">##</span>
+<span class="sd">&quot;&quot;&quot;Interactive Python console in a Qt widget.</span>
+
+<span class="sd">This module provides the PyConsole class: an interactive Python interpreter</span>
+<span class="sd">embedded in a Qt widget.</span>
+<span class="sd">PyConsole was created for the pyFormex GUI, but can be used independently</span>
+<span class="sd">in any Python Qt application. It can even be run as a standalone application.</span>
+<span class="sd">PyConsole works with either PyQt5 or PySide2.</span>
+
+<span class="sd">Features:</span>
+
+<span class="sd">- accepts multiline statements</span>
+<span class="sd">- accepts continuation lines (ending in backslash)</span>
+<span class="sd">- keeps a command history with recall and save</span>
+<span class="sd">- colored output</span>
+<span class="sd">- indentation adjustement on multiple of 4 columns</span>
+<span class="sd">- built-in help function</span>
+<span class="sd">- built-in completer functionality</span>
+<span class="sd">- can be executed as a standalone program (see below)</span>
+<span class="sd">- easy to add more functionality</span>
+
+<span class="sd">Special Keys:</span>
+
+<span class="sd">- RETURN: move input to output and execute if statement complete</span>
+<span class="sd">- LEFT: go left</span>
+<span class="sd">- RIGHT: go right</span>
+<span class="sd">- CTRL-LEFT: go to beginning of line</span>
+<span class="sd">- CTRL-END: go to end of line</span>
+<span class="sd">- UP: go up in history</span>
+<span class="sd">- DOWN: go down in history</span>
+<span class="sd">- CTRL-UP: go to first line in history</span>
+<span class="sd">- CTRl-DOWN: go to last line in history</span>
+<span class="sd">- TAB: if cursor is at start or after a space: increase indent to next</span>
+<span class="sd">  multiple of 4; else: start completion of the text before the cursor</span>
+<span class="sd">- BACKTAB (SHIFT-TAB): if cursor is after a space: reduce indent to previous</span>
+<span class="sd">  multiple of 4</span>
+
+<span class="sd">Completion:</span>
+
+<span class="sd">If TAB is pressed when the cursor is after a non-space, the built-in completer</span>
+<span class="sd">is started. It first looks up the possible completions for the text before</span>
+<span class="sd">the cursor. If None is found, it does nothing. If just one is found, it is</span>
+<span class="sd">immediately filled in. Another TAB press will remove it again. If multiple</span>
+<span class="sd">completions were found, it prints the list of possible completions on the</span>
+<span class="sd">output. Hitting TAB again will fill in the first completion, and repeatedly</span>
+<span class="sd">pressing TAB cycles through the whole list of completions until the last</span>
+<span class="sd">possiblility is removed again. Pressing any other key but TAB during the</span>
+<span class="sd">completion process will accept the currently filled in completion. Note that</span>
+<span class="sd">any text following the cursor also keeps in place following the completion.</span>
+
+<span class="sd">To run the console as a standalone program, use the following command::</span>
+
+<span class="sd">    python3 pyconsole.py</span>
+
+<span class="sd">You can specify the window geometry in X11 style::</span>
+
+<span class="sd">    python pyconsole.py --qwindowgeometry 800x600-0+0</span>
+
+<span class="sd">This command will create a window of 800 by 600 pixels in the upper right corner</span>
+<span class="sd">of the screen.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">code</span>
+<span class="kn">import</span> <span class="nn">rlcompleter</span>
+
+<span class="k">if</span> <span class="s1">&#39;pyformex&#39;</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">pyformex.gui</span> <span class="kn">import</span> <span class="n">QtCore</span><span class="p">,</span> <span class="n">QtGui</span><span class="p">,</span> <span class="n">QtWidgets</span><span class="p">,</span> <span class="n">Signal</span><span class="c1">#, Slot</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">PySide2</span> <span class="kn">import</span> <span class="n">QtCore</span><span class="p">,</span> <span class="n">QtGui</span><span class="p">,</span> <span class="n">QtWidgets</span>
+        <span class="kn">from</span> <span class="nn">PySide2.QtCore</span> <span class="kn">import</span> <span class="n">Signal</span><span class="p">,</span> <span class="n">Slot</span>
+    <span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">PyQt5</span> <span class="kn">import</span> <span class="n">QtCore</span><span class="p">,</span> <span class="n">QtGui</span><span class="p">,</span> <span class="n">QtWidgets</span>
+            <span class="kn">from</span> <span class="nn">PyQt5.QtCore</span> <span class="kn">import</span> <span class="n">pyqtSignal</span> <span class="k">as</span> <span class="n">Signal</span>
+            <span class="c1"># from PyQt5.QtCore import pyqtSlot as Slot</span>
+        <span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;You need PySide2 or PyQt5 to run this&quot;</span><span class="p">)</span>
+
+
+
+<div class="viewcode-block" id="LineEdit"><a class="viewcode-back" href="../../ref/gui.pyconsole.html#gui.pyconsole.LineEdit">[docs]</a><span class="k">class</span> <span class="nc">LineEdit</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLineEdit</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Input line with a history buffer for recalling previous lines.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    historysize: int</span>
+<span class="sd">        Maximum number of lines kept in the history. If &lt;= 0, the history</span>
+<span class="sd">        size is unlimited.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">newline</span> <span class="o">=</span> <span class="n">Signal</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>  <span class="c1"># Signal when return key pressed</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">historysize</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">historymax</span> <span class="o">=</span> <span class="n">historysize</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clearhistory</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pending</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>        <span class="c1"># pending text not in the history yet</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">completer</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">completions</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">completertext</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">completerstate</span> <span class="o">=</span> <span class="mi">0</span>
+
+
+<div class="viewcode-block" id="LineEdit.clearhistory"><a class="viewcode-back" href="../../ref/gui.pyconsole.html#gui.pyconsole.LineEdit.clearhistory">[docs]</a>    <span class="k">def</span> <span class="nf">clearhistory</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Clear history buffer&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">history</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">historyindex</span> <span class="o">=</span> <span class="mi">0</span>   <span class="c1"># index of next line to append</span></div>
+
+    <span class="c1"># We need to override event() because we want to catch TAB</span>
+    <span class="c1"># otherwise, we could just use keyPressEvent</span>
+<div class="viewcode-block" id="LineEdit.event"><a class="viewcode-back" href="../../ref/gui.pyconsole.html#gui.pyconsole.LineEdit.event">[docs]</a>    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ev</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Event handler: handles special keys.&quot;&quot;&quot;</span>
+        <span class="n">Qt</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span>
+        <span class="k">if</span> <span class="n">ev</span><span class="o">.</span><span class="n">type</span><span class="p">()</span> <span class="o">==</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QEvent</span><span class="o">.</span><span class="n">KeyPress</span><span class="p">:</span>
+            <span class="c1"># First handle TAB</span>
+            <span class="k">if</span> <span class="n">ev</span><span class="o">.</span><span class="n">key</span><span class="p">()</span> <span class="o">==</span> <span class="n">Qt</span><span class="o">.</span><span class="n">Key_Tab</span><span class="p">:</span>
+                <span class="n">pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cursorPosition</span><span class="p">()</span>
+                <span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">()[:</span><span class="n">pos</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">text</span> <span class="ow">and</span> <span class="p">(</span><span class="n">text</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">:]</span> <span class="o">!=</span> <span class="s1">&#39; &#39;</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">completions</span><span class="p">):</span>
+                    <span class="c1"># Try completion</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">completions</span><span class="p">:</span>
+                        <span class="n">completions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getcompletions</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="n">completions</span><span class="p">:</span>
+                            <span class="k">return</span> <span class="kc">True</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">completions</span> <span class="o">=</span> <span class="n">completions</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">completerstate</span> <span class="o">=</span> <span class="mi">0</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">completerpos</span> <span class="o">=</span> <span class="n">pos</span>
+                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">completions</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Completions: </span><span class="si">{</span><span class="n">completions</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                            <span class="k">return</span> <span class="kc">True</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hasSelectedText</span><span class="p">():</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">backspace</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">completerstate</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">completions</span><span class="p">):</span>
+                        <span class="n">compl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">completions</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">completerstate</span><span class="p">]</span>
+                        <span class="n">compl</span> <span class="o">=</span> <span class="n">compl</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">completertext</span><span class="p">):]</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">setCursorPosition</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">completerpos</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">compl</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">setSelection</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">completerpos</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">compl</span><span class="p">))</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">completerstate</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">setCursorPosition</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">completerpos</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">deselect</span><span class="p">()</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">completerstate</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="k">return</span> <span class="kc">True</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">pass</span>  <span class="c1"># to use tab as indent</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">completions</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">deselect</span><span class="p">()</span>
+            <span class="c1"># First handle history navigation keys</span>
+            <span class="c1"># and keys that do not end it</span>
+            <span class="k">if</span> <span class="n">ev</span><span class="o">.</span><span class="n">key</span><span class="p">()</span> <span class="o">==</span> <span class="n">Qt</span><span class="o">.</span><span class="n">Key_Up</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">historyindex</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">pending</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">ev</span><span class="o">.</span><span class="n">modifiers</span><span class="p">()</span> <span class="o">==</span> <span class="n">Qt</span><span class="o">.</span><span class="n">NoModifier</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">recall</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">historyindex</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">ev</span><span class="o">.</span><span class="n">modifiers</span><span class="p">()</span> <span class="o">==</span> <span class="n">Qt</span><span class="o">.</span><span class="n">ControlModifier</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">recall</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">True</span>
+
+            <span class="k">elif</span> <span class="n">ev</span><span class="o">.</span><span class="n">key</span><span class="p">()</span> <span class="o">==</span> <span class="n">Qt</span><span class="o">.</span><span class="n">Key_Down</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">ev</span><span class="o">.</span><span class="n">modifiers</span><span class="p">()</span> <span class="o">==</span> <span class="n">Qt</span><span class="o">.</span><span class="n">NoModifier</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">historyindex</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">):</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">recall</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">historyindex</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">ev</span><span class="o">.</span><span class="n">modifiers</span><span class="p">()</span> <span class="o">==</span> <span class="n">Qt</span><span class="o">.</span><span class="n">ControlModifier</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">recall</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">True</span>
+
+            <span class="k">elif</span> <span class="n">ev</span><span class="o">.</span><span class="n">key</span><span class="p">()</span> <span class="o">==</span> <span class="n">Qt</span><span class="o">.</span><span class="n">Key_Tab</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">tabindent</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">True</span>
+
+            <span class="k">elif</span> <span class="n">ev</span><span class="o">.</span><span class="n">key</span><span class="p">()</span> <span class="o">==</span> <span class="n">Qt</span><span class="o">.</span><span class="n">Key_Backtab</span><span class="p">:</span>
+                 <span class="bp">self</span><span class="o">.</span><span class="n">tabindent</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+                 <span class="k">return</span> <span class="kc">True</span>
+
+            <span class="k">elif</span> <span class="n">ev</span><span class="o">.</span><span class="n">key</span><span class="p">()</span> <span class="o">==</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">&#39;?&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">ev</span><span class="o">.</span><span class="n">modifiers</span><span class="p">()</span> <span class="o">&amp;</span> <span class="n">Qt</span><span class="o">.</span><span class="n">ControlModifier</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">printhistory</span><span class="p">()</span>
+                <span class="k">return</span> <span class="kc">True</span>
+
+            <span class="c1"># Any other key turns off history navigation</span>
+            <span class="k">if</span> <span class="n">ev</span><span class="o">.</span><span class="n">key</span><span class="p">()</span> <span class="o">==</span> <span class="n">Qt</span><span class="o">.</span><span class="n">Key_Return</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">returnkey</span><span class="p">()</span>
+                <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">event</span><span class="p">(</span><span class="n">ev</span><span class="p">)</span>  <span class="c1"># pass on</span></div>
+
+<div class="viewcode-block" id="LineEdit.tabindent"><a class="viewcode-back" href="../../ref/gui.pyconsole.html#gui.pyconsole.LineEdit.tabindent">[docs]</a>    <span class="k">def</span> <span class="nf">tabindent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">forward</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add/remove blanks to next/previous multiple of 4 position&quot;&quot;&quot;</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+        <span class="n">pos</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">lstrip</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setCursorPosition</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">forward</span><span class="p">:</span>
+            <span class="n">add</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">-</span> <span class="p">(</span><span class="n">pos</span> <span class="o">%</span> <span class="mi">4</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="s1">&#39; &#39;</span> <span class="o">*</span> <span class="n">add</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">pos</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">delete</span> <span class="o">=</span> <span class="p">(</span><span class="n">pos</span><span class="o">+</span><span class="mi">3</span><span class="p">)</span> <span class="o">%</span> <span class="mi">4</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">setSelection</span><span class="p">(</span><span class="n">pos</span><span class="o">-</span><span class="n">delete</span><span class="p">,</span> <span class="n">delete</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">backspace</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="LineEdit.getcompletions"><a class="viewcode-back" href="../../ref/gui.pyconsole.html#gui.pyconsole.LineEdit.getcompletions">[docs]</a>    <span class="k">def</span> <span class="nf">getcompletions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return possible completions of text in context&quot;&quot;&quot;</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">rfind</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">completertext</span> <span class="o">=</span> <span class="n">text</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="n">completions</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">comp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">completer</span><span class="o">.</span><span class="n">complete</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">completertext</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">comp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="n">state</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">completions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">comp</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">completions</span></div>
+
+<div class="viewcode-block" id="LineEdit.returnkey"><a class="viewcode-back" href="../../ref/gui.pyconsole.html#gui.pyconsole.LineEdit.returnkey">[docs]</a>    <span class="k">def</span> <span class="nf">returnkey</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Handle return key. Record line and emit newline signal&quot;&quot;&quot;</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">()</span><span class="c1">#.rstrip()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">record</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">newline</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pending</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LineEdit.recall"><a class="viewcode-back" href="../../ref/gui.pyconsole.html#gui.pyconsole.LineEdit.recall">[docs]</a>    <span class="k">def</span> <span class="nf">recall</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Select a line from the history list&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># print(&quot;== Top of history ==&quot;)</span>
+            <span class="k">pass</span>
+        <span class="k">elif</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">historyindex</span> <span class="o">=</span> <span class="n">index</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pending</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">historyindex</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LineEdit.record"><a class="viewcode-back" href="../../ref/gui.pyconsole.html#gui.pyconsole.LineEdit.record">[docs]</a>    <span class="k">def</span> <span class="nf">record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add line to history buffer&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">historymax</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">historymax</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">line</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">historyindex</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LineEdit.printhistory"><a class="viewcode-back" href="../../ref/gui.pyconsole.html#gui.pyconsole.LineEdit.printhistory">[docs]</a>    <span class="k">def</span> <span class="nf">printhistory</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Print the history to stdout&quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;History:&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">):</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="s1">&#39;*&#39;</span> <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">historyindex</span> <span class="k">else</span> <span class="s1">&#39; &#39;</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">:</span><span class="s2">4</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">line</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Pending: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pending</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LineEdit.savehistory"><a class="viewcode-back" href="../../ref/gui.pyconsole.html#gui.pyconsole.LineEdit.savehistory">[docs]</a>    <span class="k">def</span> <span class="nf">savehistory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">maxlines</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Save the history to file&quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fil</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="o">-</span><span class="n">maxlines</span><span class="p">:]:</span>
+                <span class="n">fil</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span><span class="o">+</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LineEdit.loadhistory"><a class="viewcode-back" href="../../ref/gui.pyconsole.html#gui.pyconsole.LineEdit.loadhistory">[docs]</a>    <span class="k">def</span> <span class="nf">loadhistory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Load a history file&quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fil</span><span class="p">:</span>
+            <span class="n">hist</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">fil</span><span class="o">.</span><span class="n">readlines</span><span class="p">()]</span>
+            <span class="n">hist</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">hist</span> <span class="k">if</span> <span class="n">s</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">history</span> <span class="o">=</span> <span class="n">hist</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">historymax</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">history</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">historymax</span><span class="p">:]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">recall</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">))</span></div></div>
+
+<span class="c1"># TODO: add a method setcolor</span>
+
+
+<div class="viewcode-block" id="help"><a class="viewcode-back" href="../../ref/gui.pyconsole.html#gui.pyconsole.help">[docs]</a><span class="k">def</span> <span class="nf">help</span><span class="p">(</span><span class="n">obj</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Print help anbout any object&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">obj</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="vm">__doc__</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;help(object) will print the __doc__ of any object)&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="vm">__doc__</span><span class="p">)</span></div>
+
+
+<span class="c1">###########################################################################</span>
+
+<div class="viewcode-block" id="PyConsole"><a class="viewcode-back" href="../../ref/gui.pyconsole.html#gui.pyconsole.PyConsole">[docs]</a><span class="k">class</span> <span class="nc">PyConsole</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QWidget</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;An interactive Python console in a Qt widget.</span>
+
+<span class="sd">    PyConsole is a Qt5 widget exposing an interactive Python console.</span>
+<span class="sd">    It combines a read-only output area and a one line input area. When</span>
+<span class="sd">    pressing ENTER, it copies the input line to the output area and executes</span>
+<span class="sd">    the statement if it is complete.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    parent: QWidget</span>
+<span class="sd">        If provided, the PyConsole will be made a child of that widget.</span>
+<span class="sd">    context: :class:`InteractiveInterpreter` | dict</span>
+<span class="sd">        The context where the source will be executed. If an interpreter,</span>
+<span class="sd">        it is used as is. If a dict, a new interpreter will be created with</span>
+<span class="sd">        the specified dict as its locals.</span>
+<span class="sd">    historysize: int</span>
+<span class="sd">        Maximum number of lines in the history buffer. If 0, the history</span>
+<span class="sd">        buffer is unlimited.</span>
+<span class="sd">    blockcount: int</span>
+<span class="sd">        Maximum number of lines in the output buffer. If 0, the output</span>
+<span class="sd">        buffer is unlimited.</span>
+<span class="sd">    fontname: str</span>
+<span class="sd">        Name of the font to be used. It better be a monospace font!</span>
+<span class="sd">    fontsize: int</span>
+<span class="sd">        The font size</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># text colors</span>
+    <span class="n">COLOR_DEFAULT</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">COLOR_INPUT</span> <span class="o">=</span> <span class="s1">&#39;blue&#39;</span>     <span class="c1"># command input</span>
+    <span class="n">COLOR_OUTPUT</span> <span class="o">=</span> <span class="s1">&#39;black&#39;</span>   <span class="c1"># result output</span>
+    <span class="n">COLOR_ERROR</span> <span class="o">=</span> <span class="s1">&#39;red&#39;</span>      <span class="c1"># error messages</span>
+    <span class="c1"># input line prompts</span>
+    <span class="n">PROMPT_1</span> <span class="o">=</span> <span class="s1">&#39;&gt;&gt;&gt; &#39;</span>    <span class="c1"># single line prompt</span>
+    <span class="n">PROMPT_2</span> <span class="o">=</span> <span class="s1">&#39;... &#39;</span>    <span class="c1"># continuation line prompt</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="nb">dict</span><span class="p">(),</span>
+                 <span class="n">historysize</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">blockcount</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                 <span class="n">font</span><span class="o">=</span><span class="s2">&quot;DejaVu Sans Mono&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">errorproxy</span> <span class="o">=</span> <span class="n">ConsoleErrorProxy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QGridLayout</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">setContentsMargins</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">setSpacing</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># Display for output and stderr</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outdisplay</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QPlainTextEdit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outdisplay</span><span class="o">.</span><span class="n">setMaximumBlockCount</span><span class="p">(</span><span class="n">blockcount</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outdisplay</span><span class="o">.</span><span class="n">setReadOnly</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">outdisplay</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="c1"># Display input prompt left of input edit</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">promptdisp</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QLineEdit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">promptdisp</span><span class="o">.</span><span class="n">setReadOnly</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">promptdisp</span><span class="o">.</span><span class="n">setFixedWidth</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">promptdisp</span><span class="o">.</span><span class="n">setFrame</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">promptdisp</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># Enter commands here</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">editline</span> <span class="o">=</span> <span class="n">LineEdit</span><span class="p">(</span><span class="n">historysize</span><span class="o">=</span><span class="n">historysize</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">editline</span><span class="o">.</span><span class="n">newline</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">push</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">editline</span><span class="o">.</span><span class="n">setFrame</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">editline</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">lastline</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>   <span class="c1"># buffer for last line</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">setfont</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QFont</span><span class="p">(</span><span class="n">font</span><span class="p">,</span> <span class="n">fontsize</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setprompt</span><span class="p">(</span><span class="n">PyConsole</span><span class="o">.</span><span class="n">PROMPT_1</span><span class="p">)</span>
+
+        <span class="c1"># Set context</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setcontext</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+
+<div class="viewcode-block" id="PyConsole.setFocus"><a class="viewcode-back" href="../../ref/gui.pyconsole.html#gui.pyconsole.PyConsole.setFocus">[docs]</a>    <span class="k">def</span> <span class="nf">setFocus</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">editline</span><span class="o">.</span><span class="n">setFocus</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="PyConsole.setcontext"><a class="viewcode-back" href="../../ref/gui.pyconsole.html#gui.pyconsole.PyConsole.setcontext">[docs]</a>    <span class="k">def</span> <span class="nf">setcontext</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set context for interpreter&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">code</span><span class="o">.</span><span class="n">InteractiveInterpreter</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">interpreter</span> <span class="o">=</span> <span class="n">context</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">interpreter</span> <span class="o">=</span> <span class="n">code</span><span class="o">.</span><span class="n">InteractiveInterpreter</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interpreter</span><span class="o">.</span><span class="n">locals</span><span class="p">[</span><span class="s1">&#39;help&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">help</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">editline</span><span class="o">.</span><span class="n">completer</span> <span class="o">=</span> <span class="n">rlcompleter</span><span class="o">.</span><span class="n">Completer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">interpreter</span><span class="o">.</span><span class="n">locals</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PyConsole.resetbuffer"><a class="viewcode-back" href="../../ref/gui.pyconsole.html#gui.pyconsole.PyConsole.resetbuffer">[docs]</a>    <span class="k">def</span> <span class="nf">resetbuffer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Reset the input buffer.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span> <span class="o">=</span> <span class="p">[]</span></div>
+
+    <span class="k">def</span> <span class="nf">setprompt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prompt</span> <span class="o">=</span> <span class="n">text</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">promptdisp</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outdisplay</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">clearall</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">editline</span><span class="o">.</span><span class="n">clearhistory</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outdisplay</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">printhistory</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">editline</span><span class="o">.</span><span class="n">printhistory</span><span class="p">()</span>
+
+<div class="viewcode-block" id="PyConsole.savehistory"><a class="viewcode-back" href="../../ref/gui.pyconsole.html#gui.pyconsole.PyConsole.savehistory">[docs]</a>    <span class="k">def</span> <span class="nf">savehistory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Save history to a file&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">editline</span><span class="o">.</span><span class="n">savehistory</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PyConsole.saveoutput"><a class="viewcode-back" href="../../ref/gui.pyconsole.html#gui.pyconsole.PyConsole.saveoutput">[docs]</a>    <span class="k">def</span> <span class="nf">saveoutput</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">contents</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Save the console output to a file</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filename: str</span>
+<span class="sd">            File name fir the saved output. Existing file will be overwritten.</span>
+<span class="sd">        contents: str</span>
+<span class="sd">            One of &#39;all&#39;, &#39;commands&#39; or &#39;output&#39;. The first character suffices.</span>
+<span class="sd">            Determines what to write: all output, only commands, or only the</span>
+<span class="sd">            output resulting from the commands.</span>
+
+<span class="sd">        See also</span>
+<span class="sd">        --------</span>
+<span class="sd">        savehistory: save the command history to a file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">txt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">outdisplay</span><span class="o">.</span><span class="n">toPlainText</span><span class="p">()</span>
+        <span class="n">contents</span> <span class="o">=</span> <span class="n">contents</span><span class="p">[:</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">contents</span> <span class="o">==</span> <span class="s1">&#39;c&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">editline</span><span class="o">.</span><span class="n">savehistory</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="n">contents</span> <span class="o">==</span> <span class="s1">&#39;o&#39;</span><span class="p">:</span>
+            <span class="n">txt</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span>
+                <span class="n">line</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">txt</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span>
+                    <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">PyConsole</span><span class="o">.</span><span class="n">PROMPT_1</span><span class="p">)</span> <span class="ow">or</span>
+                    <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">PyConsole</span><span class="o">.</span><span class="n">PROMPT_2</span><span class="p">))</span>
+            <span class="p">])</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fil</span><span class="p">:</span>
+            <span class="n">fil</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">txt</span><span class="p">)</span>
+            <span class="n">fil</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PyConsole.push"><a class="viewcode-back" href="../../ref/gui.pyconsole.html#gui.pyconsole.PyConsole.push">[docs]</a>    <span class="k">def</span> <span class="nf">push</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Execute entered command.  Command may span multiple lines&quot;&quot;&quot;</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">lastline</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">writecolor</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">PyConsole</span><span class="o">.</span><span class="n">COLOR_INPUT</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">writecolor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prompt</span> <span class="o">+</span> <span class="n">line</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">PyConsole</span><span class="o">.</span><span class="n">COLOR_INPUT</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setprompt</span><span class="p">(</span><span class="n">PyConsole</span><span class="o">.</span><span class="n">PROMPT_2</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="c1"># Built a command string from lines in the buffer</span>
+        <span class="n">source</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">)</span>
+        <span class="n">more</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">interpreter</span><span class="o">.</span><span class="n">runsource</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="s1">&#39;&lt;PyConsole&gt;&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">more</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setprompt</span><span class="p">(</span><span class="n">PyConsole</span><span class="o">.</span><span class="n">PROMPT_1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">resetbuffer</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="PyConsole.setfont"><a class="viewcode-back" href="../../ref/gui.pyconsole.html#gui.pyconsole.PyConsole.setfont">[docs]</a>    <span class="k">def</span> <span class="nf">setfont</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">font</span><span class="p">:</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QFont</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set font for input and display widgets.  Should be monospaced&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outdisplay</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="n">font</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">promptdisp</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="n">font</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">editline</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="n">font</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PyConsole.write"><a class="viewcode-back" href="../../ref/gui.pyconsole.html#gui.pyconsole.PyConsole.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Capture stdout and display in outdisplay&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">color</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">color</span> <span class="o">=</span> <span class="n">PyConsole</span><span class="o">.</span><span class="n">COLOR_OUTPUT</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">writecolor</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">color</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PyConsole.writeerror"><a class="viewcode-back" href="../../ref/gui.pyconsole.html#gui.pyconsole.PyConsole.writeerror">[docs]</a>    <span class="k">def</span> <span class="nf">writeerror</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Capture stderr and display in outdisplay&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">writecolor</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">PyConsole</span><span class="o">.</span><span class="n">COLOR_ERROR</span><span class="p">)</span></div>
+
+    <span class="c1"># This should be the only method to write to the outdisplay</span>
+<div class="viewcode-block" id="PyConsole.writecolor"><a class="viewcode-back" href="../../ref/gui.pyconsole.html#gui.pyconsole.PyConsole.writecolor">[docs]</a>    <span class="k">def</span> <span class="nf">writecolor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Color can be anything accepted by QColor&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">color</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fmt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">outdisplay</span><span class="o">.</span><span class="n">currentCharFormat</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
+                <span class="n">color</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QColor</span><span class="o">.</span><span class="n">fromRgbF</span><span class="p">(</span><span class="o">*</span><span class="n">color</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">color</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QColor</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
+            <span class="n">fmt</span><span class="o">.</span><span class="n">setForeground</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QBrush</span><span class="p">(</span><span class="n">color</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">outdisplay</span><span class="o">.</span><span class="n">setCurrentCharFormat</span><span class="p">(</span><span class="n">fmt</span><span class="p">)</span>
+        <span class="n">lastnewline</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">rfind</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lastline</span> <span class="o">=</span> <span class="n">text</span><span class="p">[</span><span class="n">lastnewline</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outdisplay</span><span class="o">.</span><span class="n">insertPlainText</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">movetoend</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="PyConsole.movetoend"><a class="viewcode-back" href="../../ref/gui.pyconsole.html#gui.pyconsole.PyConsole.movetoend">[docs]</a>    <span class="k">def</span> <span class="nf">movetoend</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Move the output cursor to the end.&quot;&quot;&quot;</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">outdisplay</span><span class="o">.</span><span class="n">textCursor</span><span class="p">()</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">movePosition</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QTextCursor</span><span class="o">.</span><span class="n">End</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outdisplay</span><span class="o">.</span><span class="n">setTextCursor</span><span class="p">(</span><span class="n">cursor</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outdisplay</span><span class="o">.</span><span class="n">ensureCursorVisible</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="PyConsole.keyPressEvent"><a class="viewcode-back" href="../../ref/gui.pyconsole.html#gui.pyconsole.PyConsole.keyPressEvent">[docs]</a>    <span class="k">def</span> <span class="nf">keyPressEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ev</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">ev</span><span class="o">.</span><span class="n">key</span><span class="p">()</span> <span class="o">==</span> <span class="mi">17</span> <span class="ow">and</span> <span class="n">ev</span><span class="o">.</span><span class="n">modifiers</span><span class="p">()</span> <span class="o">&amp;</span> <span class="n">Qt</span><span class="o">.</span><span class="n">ControlModifier</span><span class="p">:</span> <span class="c1"># CTRL-Q</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span></div></div>
+
+<span class="k">class</span> <span class="nc">ConsoleErrorProxy</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">console</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">console</span> <span class="o">=</span> <span class="n">console</span>
+    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">writeerror</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">contextlib</span>
+    <span class="n">app</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QApplication</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span>
+    <span class="n">window</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QMainWindow</span><span class="p">()</span>
+    <span class="k">if</span> <span class="s1">&#39;--qwindowgeometry&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+        <span class="n">window</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="mi">600</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">window</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="mi">800</span><span class="p">,</span> <span class="mi">600</span><span class="p">)</span>
+    <span class="n">window</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="s1">&#39;Python Console&#39;</span><span class="p">)</span>
+    <span class="n">_central</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QWidget</span><span class="p">(</span><span class="n">window</span><span class="p">)</span>
+    <span class="n">_layout</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QGridLayout</span><span class="p">(</span><span class="n">_central</span><span class="p">)</span>
+    <span class="n">console</span> <span class="o">=</span> <span class="n">PyConsole</span><span class="p">(</span><span class="n">context</span><span class="o">=</span><span class="nb">locals</span><span class="p">())</span>
+    <span class="n">_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">console</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">window</span><span class="o">.</span><span class="n">setCentralWidget</span><span class="p">(</span><span class="n">_central</span><span class="p">)</span>
+    <span class="n">window</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="k">del</span> <span class="n">_layout</span>
+    <span class="k">del</span> <span class="n">_central</span>
+    <span class="n">console</span><span class="o">.</span><span class="n">setFocus</span><span class="p">()</span>
+    <span class="n">console</span><span class="o">.</span><span class="n">writecolor</span><span class="p">(</span><span class="s2">&quot;** Welcome to the Python Console **</span><span class="se">\n</span><span class="s2">&quot;</span>
+                       <span class="s2">&quot;** (c) 2022 Benedict Verhegghe ** GPLv3 **&quot;</span><span class="p">,</span> <span class="s1">&#39;red&#39;</span><span class="p">)</span>
+    <span class="k">with</span> <span class="p">(</span><span class="n">contextlib</span><span class="o">.</span><span class="n">redirect_stdout</span><span class="p">(</span><span class="n">console</span><span class="p">),</span>
+          <span class="n">contextlib</span><span class="o">.</span><span class="n">redirect_stderr</span><span class="p">(</span><span class="n">console</span><span class="o">.</span><span class="n">errorproxy</span><span class="p">)):</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">exec_</span><span class="p">())</span>
+
+<span class="c1"># End</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">gui.pyconsole</a></li--> 
+      </ul>
+    </div>
+    <div class="footer">
+    <span class="left">
+        &copy; Copyright 2004-2023, Benedict Verhegghe.
+    </span>
+      Last updated on Mar 27, 2023.
+    <span class="right">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.4.3.
+    </span>
+    </div>
+  </body>
+</html>

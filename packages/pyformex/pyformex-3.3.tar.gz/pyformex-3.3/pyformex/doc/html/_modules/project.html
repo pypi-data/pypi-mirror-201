@@ -1,0 +1,589 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!--
+##
+##  This file is part of the pyFormex project.
+##  pyFormex is a tool for generating, manipulating and transforming 3D
+##  geometrical models by sequences of mathematical operations.
+##  Home page: http://pyformex.org
+##  Project page:  http://savannah.nongnu.org/projects/pyformex/
+##  Copyright (C) Benedict Verhegghe (benedict.verhegghe@ugent.be)
+##  Distributed under the GNU General Public License version 3 or later.
+##
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see http://www.gnu.org/licenses/.
+##
+-->
+    <title>project &#8212; pyFormex 3.3 documentation</title>
+
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pyformex.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+<link rel="icon" type="image/png" href="../_static/pyformex_fav.png" />
+
+  </head><body>
+
+<div class="header">
+  <a href="http://pyformex.org">
+  <img src="../_static/scallop_dome_small.png" alt="scallop dome" border="0" hspace="20" vspace="12" align="left" />
+  <img src="../_static/pyformex-logo-2.png" alt="pyformex logo" border="0" hspace="10" vspace="8" align="left" />
+  </a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">project</a></li--> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<!-- PYFORMEX_SIDEBAR_LOGO -->
+<!-- PYFORMEX_WEBSITE_SIDEBAR_TOP -->
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for project</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1">##</span>
+<span class="c1">##  SPDX-FileCopyrightText: © 2007-2023 Benedict Verhegghe &lt;bverheg@gmail.com&gt;</span>
+<span class="c1">##  SPDX-License-Identifier: GPL-3.0-or-later</span>
+<span class="c1">##</span>
+<span class="c1">##  This file is part of pyFormex 3.3  (Sun Mar 26 20:16:15 CEST 2023)</span>
+<span class="c1">##  pyFormex is a tool for generating, manipulating and transforming 3D</span>
+<span class="c1">##  geometrical models by sequences of mathematical operations.</span>
+<span class="c1">##  Home page: https://pyformex.org</span>
+<span class="c1">##  Project page: https://savannah.nongnu.org/projects/pyformex/</span>
+<span class="c1">##  Development: https://gitlab.com/bverheg/pyformex</span>
+<span class="c1">##  Distributed under the GNU General Public License version 3 or later.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is free software: you can redistribute it and/or modify</span>
+<span class="c1">##  it under the terms of the GNU General Public License as published by</span>
+<span class="c1">##  the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1">##  (at your option) any later version.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is distributed in the hope that it will be useful,</span>
+<span class="c1">##  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1">##  GNU General Public License for more details.</span>
+<span class="c1">##</span>
+<span class="c1">##  You should have received a copy of the GNU General Public License</span>
+<span class="c1">##  along with this program.  If not, see http://www.gnu.org/licenses/.</span>
+<span class="c1">##</span>
+<span class="sd">&quot;&quot;&quot;project.py</span>
+
+<span class="sd">Functions for managing a project in pyFormex.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">gzip</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">importlib</span>
+
+<span class="kn">import</span> <span class="nn">pyformex</span> <span class="k">as</span> <span class="nn">pf</span>
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">utils</span>
+
+<span class="kn">from</span> <span class="nn">pyformex.track</span> <span class="kn">import</span> <span class="n">TrackedDict</span>
+
+<span class="n">_signature_</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">fullVersion</span><span class="p">()</span>
+<span class="n">default_protocol</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">DEFAULT_PROTOCOL</span>
+
+<span class="n">module_relocations</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;plugins.mesh&#39;</span><span class="p">:</span> <span class="s1">&#39;pyformex.mesh&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;plugins.surface&#39;</span><span class="p">:</span> <span class="s1">&#39;pyformex.trisurface&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;plugins.trisurface&#39;</span><span class="p">:</span> <span class="s1">&#39;pyformex.trisurface&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;pyformex.plugins.mesh&#39;</span><span class="p">:</span> <span class="s1">&#39;pyformex.mesh&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;pyformex.plugins.surface&#39;</span><span class="p">:</span> <span class="s1">&#39;pyformex.trisurface&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;pyformex.plugins.trisurface&#39;</span><span class="p">:</span> <span class="s1">&#39;pyformex.trisurface&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">class_relocations</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;coords.Coords&#39;</span><span class="p">:</span> <span class="s1">&#39;pyformex.coords.Coords&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;coords.BoundVectors&#39;</span><span class="p">:</span> <span class="s1">&#39;pyformex.plugins.alt.BoundVectors&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;elements.Element&#39;</span><span class="p">:</span> <span class="s1">&#39;pyformex.elements.ElementType&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;elements.Line2&#39;</span><span class="p">:</span> <span class="s1">&#39;pyformex.elements.Line2&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;elements.Tri3&#39;</span><span class="p">:</span> <span class="s1">&#39;pyformex.elements.Tri3&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;elements.Quad4&#39;</span><span class="p">:</span> <span class="s1">&#39;pyformex.elements.Quad4&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;mesh.Mesh&#39;</span><span class="p">:</span> <span class="s1">&#39;pyformex.mesh.Mesh&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;formex.Formex&#39;</span><span class="p">:</span> <span class="s1">&#39;pyformex.formex.Formex&#39;</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="find_class"><a class="viewcode-back" href="../ref/project.html#project.find_class">[docs]</a><span class="k">def</span> <span class="nf">find_class</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Find a class whose name or module has changed&quot;&quot;&quot;</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;I want to import </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> from </span><span class="si">{</span><span class="n">module</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">PROJECT</span><span class="p">)</span>
+    <span class="n">clas</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">module</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Object is </span><span class="si">{</span><span class="n">clas</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">PROJECT</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">clas</span> <span class="ow">in</span> <span class="n">class_relocations</span><span class="p">:</span>
+        <span class="n">module</span> <span class="o">=</span> <span class="n">class_relocations</span><span class="p">[</span><span class="n">clas</span><span class="p">]</span>
+        <span class="n">lastdot</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="n">rfind</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+        <span class="n">module</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="n">module</span><span class="p">[:</span><span class="n">lastdot</span><span class="p">],</span> <span class="n">module</span><span class="p">[</span><span class="n">lastdot</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  I will try </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> from module </span><span class="si">{</span><span class="n">module</span><span class="si">}</span><span class="s2"> instead&quot;</span><span class="p">,</span>
+                 <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">PROJECT</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">module</span> <span class="ow">in</span> <span class="n">module_relocations</span><span class="p">:</span>
+        <span class="n">module</span> <span class="o">=</span> <span class="n">module_relocations</span><span class="p">[</span><span class="n">module</span><span class="p">]</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  I will try module </span><span class="si">{</span><span class="n">module</span><span class="si">}</span><span class="s2"> instead&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">PROJECT</span><span class="p">)</span>
+    <span class="n">mod</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
+    <span class="n">clas</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Success: Got </span><span class="si">{</span><span class="n">clas</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">PROJECT</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">clas</span></div>
+
+
+<div class="viewcode-block" id="Unpickler"><a class="viewcode-back" href="../ref/project.html#project.Unpickler">[docs]</a><span class="k">class</span> <span class="nc">Unpickler</span><span class="p">(</span><span class="n">pickle</span><span class="o">.</span><span class="n">Unpickler</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Customized Unpickler class&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">try_resolve</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize the Unpickler&quot;&quot;&quot;</span>
+        <span class="n">pickle</span><span class="o">.</span><span class="n">Unpickler</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;latin1&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">try_resolve</span> <span class="o">=</span> <span class="n">try_resolve</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">try_resolve</span><span class="p">:</span>
+            <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;NOT TRYING TO RESOLVE RELOCATIONS: &quot;</span>
+                     <span class="s2">&quot;YOU MAY GET INTO TROUBLE&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">PROJECT</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Unpickler.find_class"><a class="viewcode-back" href="../ref/project.html#project.Unpickler.find_class">[docs]</a>    <span class="k">def</span> <span class="nf">find_class</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;FIND MODULE </span><span class="si">{</span><span class="n">module</span><span class="si">}</span><span class="s2"> NAME </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">PROJECT</span><span class="p">)</span>
+        <span class="n">clas</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">Unpickler</span><span class="o">.</span><span class="n">find_class</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">clas</span><span class="p">:</span>
+            <span class="n">clas</span> <span class="o">=</span> <span class="n">find_class</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">clas</span></div></div>
+
+
+<div class="viewcode-block" id="Project"><a class="viewcode-back" href="../ref/project.html#project.Project">[docs]</a><span class="k">class</span> <span class="nc">Project</span><span class="p">(</span><span class="n">TrackedDict</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Project: a persistent storage of pyFormex data.</span>
+
+<span class="sd">    A pyFormex Project is a regular Python dict that can contain named data</span>
+<span class="sd">    of any kind, and can be saved to a file to create persistence over</span>
+<span class="sd">    different pyFormex sessions.</span>
+
+<span class="sd">    The :class:`Project` class is used by pyFormex for the ``pyformex.PF``</span>
+<span class="sd">    global variable that collects variables exported from pyFormex scripts.</span>
+<span class="sd">    While projects are mostly handled through the pyFormex GUI, notably the</span>
+<span class="sd">    *File* menu, the user may also create and handle his own Project objects</span>
+<span class="sd">    from a script.</span>
+
+<span class="sd">    Because of the way pyFormex Projects are written to file,</span>
+<span class="sd">    there may be problems when trying to read a project file that was</span>
+<span class="sd">    created with another pyFormex version. Problems may occur if the</span>
+<span class="sd">    project contains data of a class whose implementation has changed,</span>
+<span class="sd">    or whose definition has been relocated. Our policy is to provide</span>
+<span class="sd">    backwards compatibility: newer versions of pyFormex will normally</span>
+<span class="sd">    read the older project formats. Saving is always done in the</span>
+<span class="sd">    newest format, and these can generally not be read back by older</span>
+<span class="sd">    program versions (unless you are prepared to do some hacking).</span>
+
+<span class="sd">    .. warning:: Compatibility issues.</span>
+
+<span class="sd">       Occasionally you may run into problems when reading back an</span>
+<span class="sd">       old project file, especially when it was created by an unreleased</span>
+<span class="sd">       (development) version of pyFormex. Because pyFormex is evolving fast,</span>
+<span class="sd">       we can not test the full compatibility with every revision</span>
+<span class="sd">       You can file a support request on the pyFormex `support tracker`_.</span>
+<span class="sd">       and we will try to add the required conversion code to</span>
+<span class="sd">       pyFormex.</span>
+
+<span class="sd">       The project files are mainly intended as a means to easily save lots</span>
+<span class="sd">       of data of any kind and to restore them in the same session or a later</span>
+<span class="sd">       session, to pass them to another user (with the same or later pyFormex</span>
+<span class="sd">       version), to store them over a medium time period. Occasionally opening</span>
+<span class="sd">       and saving back your project files with newer pyFormex versions may help</span>
+<span class="sd">       to avoid read-back problems over longer time.</span>
+
+<span class="sd">       For a problemless long time storage of Geometry type objects you may</span>
+<span class="sd">       consider to write them to a pyFormex Geometry file (.pgf) instead, since</span>
+<span class="sd">       this uses a stable ascii based format. It can however (currently) only</span>
+<span class="sd">       store obects of class Geometry or one of its subclasses.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename: :term:`path_like`</span>
+<span class="sd">        The name of the file where the Project data will be saved.</span>
+<span class="sd">        If the file exists (and `access` is not `w`), it should be a previously</span>
+<span class="sd">        saved Project and an attempt will be made to load the data from this</span>
+<span class="sd">        file into the Project. If this fails, an error is raised.</span>
+
+<span class="sd">        If the file exists and `access` is `w`, it will be overwritten,</span>
+<span class="sd">        destroying any previous contents.</span>
+
+<span class="sd">        If no filename is specified, a temporary file will be created when</span>
+<span class="sd">        the Project is saved for the first time. The file with not be</span>
+<span class="sd">        automatically deleted. The generated name can be retrieved from the</span>
+<span class="sd">        filename attribute.</span>
+
+<span class="sd">    access: str, optional</span>
+<span class="sd">        The access mode of the project file: &#39;wr&#39; (default), &#39;rw&#39;, &#39;w&#39; or &#39;r&#39;.</span>
+<span class="sd">        If the string contains an &#39;r&#39; the data from an existing file will be</span>
+<span class="sd">        read into the Project. If the string starts with an &#39;r&#39;, the file should</span>
+<span class="sd">        exist. If the string contains a &#39;w&#39;, the data can be written back to</span>
+<span class="sd">        the file. The &#39;r&#39; access mode is a read-only mode.</span>
+
+<span class="sd">        ======  ===============  ============  ===================</span>
+<span class="sd">        access  File must exist  File is read  File can be written</span>
+<span class="sd">        ======  ===============  ============  ===================</span>
+<span class="sd">          r           yes             yes             no</span>
+<span class="sd">          rw          yes             yes             yes</span>
+<span class="sd">          wr          no         if it exists         yes</span>
+<span class="sd">          w           no              no              yes</span>
+<span class="sd">        ======  ===============  ============  ===================</span>
+
+<span class="sd">    convert: bool, optional</span>
+<span class="sd">        If True (default), and the file is opened for reading, an</span>
+<span class="sd">        attempt is made to open old projects in a compatibility mode, doing the</span>
+<span class="sd">        necessary conversions to new data formats. If convert is set to False,</span>
+<span class="sd">        only the latest format can be read and older formats will generate</span>
+<span class="sd">        an error.</span>
+
+<span class="sd">    signature: str, optional</span>
+<span class="sd">        A text that will be written in the header record of the</span>
+<span class="sd">        file. This can e.g. be used to record format version info.</span>
+
+<span class="sd">    compression: int (0-9)</span>
+<span class="sd">        The compression level. For large data sets, compression leads</span>
+<span class="sd">        to much smaller files. 0 is no compression, 9 is maximal compression.</span>
+<span class="sd">        The default is 4.</span>
+
+<span class="sd">    binary: bool</span>
+<span class="sd">        If False and no compression is used, storage is done</span>
+<span class="sd">        in an ASCII format, allowing to edit the file. Otherwise, storage</span>
+<span class="sd">        uses a binary format. Using binary=False is deprecated.</span>
+
+<span class="sd">    data: dict, optional</span>
+<span class="sd">        A dict-like object to initialize the Project contents. These data</span>
+<span class="sd">        may override values read from the file.</span>
+
+<span class="sd">    protocol: int,optional</span>
+<span class="sd">        The protocol to be used in pickling the data to file. If not specified,</span>
+<span class="sd">        the highest protocol supported by the pickle module is used.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; d = dict(a=1,b=2,c=3,d=[1,2,3],e={&#39;f&#39;:4,&#39;g&#39;:5})</span>
+<span class="sd">    &gt;&gt;&gt; P = Project()</span>
+<span class="sd">    &gt;&gt;&gt; P.update(d)</span>
+<span class="sd">    &gt;&gt;&gt; print(P)</span>
+<span class="sd">    Project name: None</span>
+<span class="sd">      access: wr    mode: b     gzip: 5</span>
+<span class="sd">      signature: pyFormex ...</span>
+<span class="sd">      contents: [&#39;a&#39;, &#39;b&#39;, &#39;c&#39;, &#39;d&#39;, &#39;e&#39;]</span>
+<span class="sd">    &gt;&gt;&gt; print(repr(P))</span>
+<span class="sd">    {&#39;a&#39;: 1, &#39;b&#39;: 2, &#39;c&#39;: 3, &#39;d&#39;: [1, 2, 3], &#39;e&#39;: ...}</span>
+<span class="sd">    &gt;&gt;&gt; with utils.TempFile() as tmp:</span>
+<span class="sd">    ...     P.save(filename=tmp.path, quiet=True)</span>
+<span class="sd">    ...     P.clear()</span>
+<span class="sd">    ...     print(repr(P))</span>
+<span class="sd">    ...     P.load(quiet=True)</span>
+<span class="sd">    {}</span>
+<span class="sd">    &gt;&gt;&gt; print(repr(P))</span>
+<span class="sd">    {&#39;a&#39;: 1, &#39;b&#39;: 2, &#39;c&#39;: 3, &#39;d&#39;: [1, 2, 3], &#39;e&#39;: ...}</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Historically there have been a few different formats of the</span>
+    <span class="c1"># written Project files (.pyf). This variable holds the latest</span>
+    <span class="c1"># version.</span>
+    <span class="n">latest_format</span> <span class="o">=</span> <span class="mi">3</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">access</span><span class="o">=</span><span class="s1">&#39;wr&#39;</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">convert</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">signature</span><span class="o">=</span><span class="n">_signature_</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">binary</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">data</span><span class="o">=</span><span class="p">{},</span> <span class="n">protocol</span><span class="o">=</span><span class="n">default_protocol</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a new project.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">if</span> <span class="n">filename</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">access</span> <span class="o">=</span> <span class="n">access</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">signature</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">signature</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gzip</span> <span class="o">=</span> <span class="n">compression</span> <span class="k">if</span> <span class="n">compression</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="s1">&#39;b&#39;</span> <span class="k">if</span> <span class="n">binary</span> <span class="ow">or</span> <span class="n">compression</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">protocol</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">protocol</span> <span class="o">=</span> <span class="n">default_protocol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">protocol</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">protocol</span><span class="p">,</span> <span class="n">pickle</span><span class="o">.</span><span class="n">HIGHEST_PROTOCOL</span><span class="p">)</span> \
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;b&#39;</span> <span class="k">else</span> <span class="mi">0</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="s1">&#39;r&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">access</span><span class="p">:</span>
+            <span class="c1"># read existing contents</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">try_resolve</span><span class="o">=</span><span class="n">convert</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">hits</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">data</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">access</span><span class="o">==</span><span class="s1">&#39;w&#39;</span><span class="p">:</span>
+            <span class="c1"># destroy existing contents</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="o">.</span><span class="n">truncate</span><span class="p">()</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Initial hits = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">hits</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">PROJECT</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s2">Project name: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">  access: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">access</span><span class="si">}</span><span class="s2">    mode: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="si">}</span><span class="s2">     gzip: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">gzip</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">  signature: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">signature</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">  contents: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">contents</span><span class="p">()</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">contents</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+
+<div class="viewcode-block" id="Project.header_data"><a class="viewcode-back" href="../ref/project.html#project.Project.header_data">[docs]</a>    <span class="k">def</span> <span class="nf">header_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Construct the data to be saved in the header.&quot;&quot;&quot;</span>
+        <span class="n">store_attr</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;signature&#39;</span><span class="p">,</span> <span class="s1">&#39;gzip&#39;</span><span class="p">,</span> <span class="s1">&#39;mode&#39;</span><span class="p">,</span> <span class="s1">&#39;autofile&#39;</span><span class="p">,</span> <span class="s1">&#39;_autoscript_&#39;</span><span class="p">]</span>
+        <span class="n">store_vals</span> <span class="o">=</span> <span class="p">[</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">store_attr</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">([(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">store_attr</span><span class="p">,</span> <span class="n">store_vals</span><span class="p">)</span>
+                     <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="Project.save"><a class="viewcode-back" href="../ref/project.html#project.Project.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Save the project to file.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;No filename specified for the Project: can not save it&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">&#39;w&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">access</span><span class="p">:</span>
+            <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Not saving because Project file opened readonly&quot;</span><span class="p">,</span>
+                     <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">PROJECT</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">quiet</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Project variables changed: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">hits</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Saving project </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2"> with protocol </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">protocol</span><span class="si">}</span><span class="s2">, &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;mode </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="si">}</span><span class="s2"> and compression </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">gzip</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;w&#39;</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="c1"># write header</span>
+            <span class="n">header</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">header_data</span><span class="p">()</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gzip</span><span class="p">:</span>
+                <span class="n">pyf</span> <span class="o">=</span> <span class="n">gzip</span><span class="o">.</span><span class="n">GzipFile</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">,</span>
+                                    <span class="n">compresslevel</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">gzip</span><span class="p">,</span> <span class="n">fileobj</span><span class="o">=</span><span class="n">f</span><span class="p">)</span>
+                <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pyf</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">protocol</span><span class="p">)</span>
+                <span class="n">pyf</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">protocol</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hits</span> <span class="o">=</span> <span class="mi">0</span></div>
+
+
+<div class="viewcode-block" id="Project.readHeader"><a class="viewcode-back" href="../ref/project.html#project.Project.readHeader">[docs]</a>    <span class="k">def</span> <span class="nf">readHeader</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read the header from a project file.</span>
+
+<span class="sd">        f is the file opened for reading.</span>
+<span class="sd">        Tries to read the header from different legacy formats,</span>
+<span class="sd">        and if successful, adjusts the project attributes according</span>
+<span class="sd">        to the values in the header.</span>
+<span class="sd">        Returns the open file if successful.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">format</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">fpos</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">tell</span><span class="p">()</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Project Header: </span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">PROJECT</span><span class="p">)</span>
+        <span class="c1"># Try subsequent formats</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># newest format has header in text format</span>
+            <span class="n">header</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">format</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+
+            <span class="c1"># try OLD new format: the first pickle contains attributes</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">p</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">format</span> <span class="o">=</span> <span class="mi">2</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">quiet</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Header = &#39;</span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">s</span><span class="o">==</span><span class="s1">&#39;gzip&#39;</span> <span class="ow">or</span> <span class="n">s</span><span class="o">==</span><span class="s1">&#39;&#39;</span> <span class="ow">or</span> <span class="s1">&#39;pyFormex&#39;</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
+                    <span class="c1"># transitional format</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">gzip</span> <span class="o">=</span> <span class="mi">5</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">format</span> <span class="o">=</span> <span class="mi">1</span>
+                    <span class="c1"># NOT SURE IF THIS IS OK, NEED EXAMPLE FILE</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">fpos</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># headerless format</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">gzip</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">format</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">return</span> <span class="n">f</span></div>
+
+
+<div class="viewcode-block" id="Project.load"><a class="viewcode-back" href="../ref/project.html#project.Project.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">try_resolve</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Load a project from file.</span>
+
+<span class="sd">        The loaded definitions will update the current project.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;No filename specified for the Project: can not load&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">quiet</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Reading project file: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">readHeader</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">quiet</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">format</span> <span class="o">&lt;</span> <span class="n">Project</span><span class="o">.</span><span class="n">latest_format</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">quiet</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Format looks like </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">format</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">utils</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;warn_old_project&#39;</span><span class="p">)</span>
+            <span class="n">pos</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">tell</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gzip</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">quiet</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Unpickling gzip&quot;</span><span class="p">)</span>
+                <span class="n">pyf</span> <span class="o">=</span> <span class="n">gzip</span><span class="o">.</span><span class="n">GzipFile</span><span class="p">(</span><span class="n">fileobj</span><span class="o">=</span><span class="n">f</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;rb&#39;</span><span class="p">)</span>
+                <span class="n">p</span> <span class="o">=</span> <span class="n">Unpickler</span><span class="p">(</span><span class="n">pyf</span><span class="p">,</span> <span class="n">try_resolve</span><span class="p">)</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+                <span class="n">pyf</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">quiet</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Unpickling clear&quot;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
+                <span class="n">p</span> <span class="o">=</span> <span class="n">Unpickler</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">try_resolve</span><span class="p">)</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">p</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Project.convert"><a class="viewcode-back" href="../ref/project.html#project.Project.convert">[docs]</a>    <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Convert an old format project file.</span>
+
+<span class="sd">        The project file is read, and if successful, is immediately</span>
+<span class="sd">        saved. By default, this will overwrite the original file.</span>
+<span class="sd">        If a filename is specified, the converted data are saved to</span>
+<span class="sd">        that file.</span>
+<span class="sd">        In both cases, access is set to &#39;wr&#39;, so the tha saved data can</span>
+<span class="sd">        be read back immediately.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">try_resolve</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;GOT KEYS </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">access</span> <span class="o">=</span> <span class="s1">&#39;w&#39;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Will now save to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Project.uncompress"><a class="viewcode-back" href="../ref/project.html#project.Project.uncompress">[docs]</a>    <span class="k">def</span> <span class="nf">uncompress</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>  <span class="c1"># noqa: C901</span>
+        <span class="sd">&quot;&quot;&quot;Uncompress a compressed project file.</span>
+
+<span class="sd">        The project file is read, and if successful, is written</span>
+<span class="sd">        back in uncompressed format. This allows to make conversions</span>
+<span class="sd">        of the data inside.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Uncompressing project file: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">readHeader</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">format</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">gzip</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gzip</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">pyf</span> <span class="o">=</span> <span class="n">gzip</span><span class="o">.</span><span class="n">GzipFile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">gzip</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">gzip</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gzip</span><span class="p">:</span>
+                <span class="n">fn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.pyf&#39;</span><span class="p">,</span> <span class="s1">&#39;_uncompressed.pyf&#39;</span><span class="p">)</span>
+                <span class="n">fu</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">)</span>
+                <span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">header_data</span><span class="p">()</span>
+                <span class="n">h</span><span class="p">[</span><span class="s1">&#39;gzip&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">fu</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">h</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+                    <span class="n">x</span> <span class="o">=</span> <span class="n">pyf</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">x</span><span class="p">:</span>
+                        <span class="n">fu</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">break</span>
+                <span class="n">fu</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Uncompressed </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">fn</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">utils</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;warn_project_compression&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Project.delete"><a class="viewcode-back" href="../ref/project.html#project.Project.delete">[docs]</a>    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Unrecoverably delete the project file.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">:</span>
+            <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span></div></div>
+
+
+<span class="c1"># End</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">project</a></li--> 
+      </ul>
+    </div>
+    <div class="footer">
+    <span class="left">
+        &copy; Copyright 2004-2023, Benedict Verhegghe.
+    </span>
+      Last updated on Mar 27, 2023.
+    <span class="right">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.4.3.
+    </span>
+    </div>
+  </body>
+</html>

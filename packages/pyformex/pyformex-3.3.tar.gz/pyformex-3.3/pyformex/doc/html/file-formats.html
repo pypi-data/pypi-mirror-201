@@ -1,0 +1,1230 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!--
+##
+##  This file is part of the pyFormex project.
+##  pyFormex is a tool for generating, manipulating and transforming 3D
+##  geometrical models by sequences of mathematical operations.
+##  Home page: http://pyformex.org
+##  Project page:  http://savannah.nongnu.org/projects/pyformex/
+##  Copyright (C) Benedict Verhegghe (benedict.verhegghe@ugent.be)
+##  Distributed under the GNU General Public License version 3 or later.
+##
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see http://www.gnu.org/licenses/.
+##
+-->
+    <title>pyFormex file formats &#8212; pyFormex 3.3 documentation</title>
+
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pyformex.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="BuMPix Live GNU/Linux system" href="bumpix.html" />
+    <link rel="prev" title="pyFormex FAQ ‘n TRICKS" href="faq.html" />
+<link rel="icon" type="image/png" href="_static/pyformex_fav.png" />
+
+  </head><body>
+
+<div class="header">
+  <a href="http://pyformex.org">
+  <img src="_static/scallop_dome_small.png" alt="scallop dome" border="0" hspace="20" vspace="12" align="left" />
+  <img src="_static/pyformex-logo-2.png" alt="pyformex logo" border="0" hspace="10" vspace="8" align="left" />
+  </a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="bumpix.html" title="BuMPix Live GNU/Linux system"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="faq.html" title="pyFormex FAQ ‘n TRICKS"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pyFormex 3.3 documentation</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">pyFormex file formats</a></li--> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<!-- PYFORMEX_SIDEBAR_LOGO -->
+<!-- PYFORMEX_WEBSITE_SIDEBAR_TOP -->
+
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">pyFormex file formats</a><ul>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#pyformex-zip-file-format-pzf">pyFormex Zip File Format (PZF)</a><ul>
+<li><a class="reference internal" href="#api-for-saving-objects-to-pzf">API for saving objects to PZF</a><ul>
+<li><a class="reference internal" href="#pzf-dict">pzf_dict</a></li>
+<li><a class="reference internal" href="#file-names">File names</a></li>
+<li><a class="reference internal" href="#valid-keys">Valid keys</a></li>
+<li><a class="reference internal" href="#converting-dict-to-string">Converting dict to string</a></li>
+<li><a class="reference internal" href="#reserved-key-attrib">Reserved key <code class="docutils literal notranslate"><span class="pre">attrib*</span></code></a></li>
+<li><a class="reference internal" href="#reserved-key-kargs">Reserved key <code class="docutils literal notranslate"><span class="pre">kargs*</span></code></a></li>
+<li><a class="reference internal" href="#encoding-value-in-filename">Encoding value in filename</a></li>
+<li><a class="reference internal" href="#reserved-key-field">Reserved key <code class="docutils literal notranslate"><span class="pre">field*</span></code></a></li>
+<li><a class="reference internal" href="#summary-of-the-file-name-structure">Summary of the file name structure</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#api-for-loading-objects-from-pzf">API for loading objects from PZF</a><ul>
+<li><a class="reference internal" href="#handling-reserved-keywords">Handling reserved keywords</a></li>
+<li><a class="reference internal" href="#custom-pzf-load">Custom pzf_load</a></li>
+<li><a class="reference internal" href="#positional-arguments">Positional arguments</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#examples">Examples</a><ul>
+<li><a class="reference internal" href="#coords">Coords</a></li>
+<li><a class="reference internal" href="#formex">Formex</a></li>
+<li><a class="reference internal" href="#mesh">Mesh</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#trisurface">TriSurface</a></li>
+<li><a class="reference internal" href="#polygons">Polygons</a></li>
+<li><a class="reference internal" href="#bezierspline">BezierSpline</a></li>
+<li><a class="reference internal" href="#camera">Camera</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pyformex-project-file-format-pyf">pyFormex Project File Format (PYF)</a></li>
+<li><a class="reference internal" href="#pyformex-geometry-file-format-pgf">pyFormex Geometry File Format (PGF)</a><ul>
+<li><a class="reference internal" href="#general-principles">General principles</a></li>
+<li><a class="reference internal" href="#detailed-layout">Detailed layout</a><ul>
+<li><a class="reference internal" href="#object-type-specific-fields">Object type specific fields</a></li>
+<li><a class="reference internal" href="#optional-fields">Optional fields</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#example">Example</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="faq.html"
+                        title="previous chapter">pyFormex FAQ ‘n TRICKS</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="bumpix.html"
+                        title="next chapter">BuMPix Live GNU/Linux system</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="pyformex-file-formats">
+<span id="cha-fileformats"></span><h1>pyFormex file formats<a class="headerlink" href="#pyformex-file-formats" title="Permalink to this headline">¶</a></h1>
+<dl class="field-list simple">
+<dt class="field-odd">Date</dt>
+<dd class="field-odd"><p>Mar 27, 2023</p>
+</dd>
+<dt class="field-even">Version</dt>
+<dd class="field-even"><p>3.3</p>
+</dd>
+<dt class="field-odd">Author</dt>
+<dd class="field-odd"><p>Benedict Verhegghe &lt;<a class="reference external" href="mailto:bverheg&#37;&#52;&#48;gmail&#46;com">bverheg<span>&#64;</span>gmail<span>&#46;</span>com</a>&gt;</p>
+</dd>
+</dl>
+<div class="topic">
+<p class="topic-title">Abstract</p>
+<p>This document describes the native file formats used by pyFormex:
+the <a class="reference internal" href="#pzf-file-format"><span class="std std-ref">pyFormex Zip File Format (PZF)</span></a>, the <a class="reference internal" href="#pyf-file-format"><span class="std std-ref">pyFormex Project File Format (PYF)</span></a> and the
+<a class="reference internal" href="#pgf-file-format"><span class="std std-ref">pyFormex Geometry File Format (PGF)</span></a>.</p>
+</div>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>pyFormex can export geometrical data to many well-known file formats. However,
+objects in pyFormex often contain a lot more information, which can not be saved
+in these formats. For storing complete object information on a persistent medium
+pyFormex has three native file formats:
+the <a class="reference internal" href="#pzf-file-format"><span class="std std-ref">pyFormex Zip File Format (PZF)</span></a>, the <a class="reference internal" href="#pyf-file-format"><span class="std std-ref">pyFormex Project File Format (PYF)</span></a> and
+the <a class="reference internal" href="#pgf-file-format"><span class="std std-ref">pyFormex Geometry File Format (PGF)</span></a>.</p>
+<p>The PZF format is the most versatile: it can store any pyFormex
+<a class="reference internal" href="ref/geometry.html#geometry.Geometry" title="geometry.Geometry"><code class="xref py py-class docutils literal notranslate"><span class="pre">Geometry</span></code></a> object and most other data in an open, versatile and
+efficient format: that of a ZIP archive. It allows partial read, append,
+edit and remove operations. It is the most recent of the
+three pyFormex formats and is the prefered way to store your data
+for reuse in pyFormex or plain Python.</p>
+<p>The PYF format can store any data supported by the Python pickle
+protocol (which means almost everything). It is fast and compact, but
+is bound to the implementation of classes in pyFormex. Reading back
+with a very different version of pyFormex may require extra work.
+Therefore it is mostly recommended for short term storage.</p>
+<p>The PGF format can only store <a class="reference internal" href="ref/geometry.html#geometry.Geometry" title="geometry.Geometry"><code class="xref py py-class docutils literal notranslate"><span class="pre">Geometry</span></code></a> objects. The format
+is stable and well-defined and has a binary and ascii version.
+Since the introduction of the PZF format, there is no longer
+any advantage of using this format, except maybe that it is easier
+to write a reader in other programming languages but Python.
+There will likely be no further developments of the format,
+but it will continue to be supported.</p>
+<p>The following table gives an overview of the different capabilities of the
+three formats.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 69%" />
+<col style="width: 12%" />
+<col style="width: 9%" />
+<col style="width: 9%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Overview of capabilities</p></th>
+<th class="head"><p>PZF</p></th>
+<th class="head"><p>PYF</p></th>
+<th class="head"><p>PGF</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Can save Geometry objects</p></td>
+<td><p>yes</p></td>
+<td><p>yes</p></td>
+<td><p>yes</p></td>
+</tr>
+<tr class="row-odd"><td><p>Can save Geometry object’s Attributes</p></td>
+<td><p>yes</p></td>
+<td><p>yes</p></td>
+<td><p><a class="footnote-reference brackets" href="#id12" id="id1">1</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Can save Geometry object’s Fields</p></td>
+<td><p>yes</p></td>
+<td><p>yes</p></td>
+<td><p>yes</p></td>
+</tr>
+<tr class="row-odd"><td><p>Can save other objects</p></td>
+<td><p><a class="footnote-reference brackets" href="#id13" id="id2">2</a></p></td>
+<td><p>yes</p></td>
+<td><p>no</p></td>
+</tr>
+<tr class="row-even"><td><p>Can save Canvas layout and Camera</p></td>
+<td><p>yes</p></td>
+<td><p><a class="footnote-reference brackets" href="#id14" id="id3">3</a></p></td>
+<td><p>no</p></td>
+</tr>
+<tr class="row-odd"><td><p>Can load Geometry objects</p></td>
+<td><p>yes</p></td>
+<td><p>yes</p></td>
+<td><p>yes</p></td>
+</tr>
+<tr class="row-even"><td><p>Can load Geometry object’s Attributes</p></td>
+<td><p>yes</p></td>
+<td><p>yes</p></td>
+<td><p>yes</p></td>
+</tr>
+<tr class="row-odd"><td><p>Can load Geometry object’s Fields</p></td>
+<td><p>yes</p></td>
+<td><p>yes</p></td>
+<td><p>yes</p></td>
+</tr>
+<tr class="row-even"><td><p>Can load other objects</p></td>
+<td><p>yes</p></td>
+<td><p>yes</p></td>
+<td><p>no</p></td>
+</tr>
+<tr class="row-odd"><td><p>Can restore Canvas layout and Camera</p></td>
+<td><p>yes</p></td>
+<td><p><a class="footnote-reference brackets" href="#id14" id="id4">3</a></p></td>
+<td><p>no</p></td>
+</tr>
+<tr class="row-even"><td><p>Supports storing multiple objects</p></td>
+<td><p>yes</p></td>
+<td><p>yes</p></td>
+<td><p>yes</p></td>
+</tr>
+<tr class="row-odd"><td><p>Supports adding objects to the file</p></td>
+<td><p>yes</p></td>
+<td><p>no</p></td>
+<td><p>no</p></td>
+</tr>
+<tr class="row-even"><td><p>Supports removing objects from the file</p></td>
+<td><p>yes</p></td>
+<td><p>no</p></td>
+<td><p>no</p></td>
+</tr>
+<tr class="row-odd"><td><p>Supports listing contents without loading</p></td>
+<td><p>yes</p></td>
+<td><p>no</p></td>
+<td><p>no</p></td>
+</tr>
+<tr class="row-even"><td><p>Backwards compatible (load, not save, old versions)</p></td>
+<td><p>yes</p></td>
+<td><p><a class="footnote-reference brackets" href="#id15" id="id5">4</a></p></td>
+<td><p>yes</p></td>
+</tr>
+<tr class="row-odd"><td><p>Compatibility guaranteed on pyFormex upgrades</p></td>
+<td><p>yes</p></td>
+<td><p><a class="footnote-reference brackets" href="#id15" id="id6">4</a></p></td>
+<td><p>yes</p></td>
+</tr>
+<tr class="row-even"><td><p>Compatibility guaranteed on Python upgrades</p></td>
+<td><p>yes</p></td>
+<td><p><a class="footnote-reference brackets" href="#id15" id="id7">4</a></p></td>
+<td><p>yes</p></td>
+</tr>
+<tr class="row-odd"><td><p>Supports loading in Python (outside of pyFormex)</p></td>
+<td><p><a class="footnote-reference brackets" href="#id16" id="id8">5</a></p></td>
+<td><p>no</p></td>
+<td><p><a class="footnote-reference brackets" href="#id17" id="id9">6</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Supports loading outside of Python</p></td>
+<td><p><a class="footnote-reference brackets" href="#id18" id="id10">7</a></p></td>
+<td><p>no</p></td>
+<td><p><a class="footnote-reference brackets" href="#id19" id="id11">8</a></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="footnote brackets">
+<dt class="label" id="id12"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd><p>Some simple attributes (e.g. object color) can be stored.</p>
+</dd>
+<dt class="label" id="id13"><span class="brackets"><a class="fn-backref" href="#id2">2</a></span></dt>
+<dd><p>Some objects may need some customization.</p>
+</dd>
+<dt class="label" id="id14"><span class="brackets">3</span><span class="fn-backref">(<a href="#id3">1</a>,<a href="#id4">2</a>)</span></dt>
+<dd><p>Canvas and Camera can be saved/restored, but requires some scripting.</p>
+</dd>
+<dt class="label" id="id15"><span class="brackets">4</span><span class="fn-backref">(<a href="#id5">1</a>,<a href="#id6">2</a>,<a href="#id7">3</a>)</span></dt>
+<dd><p>Mostly, but bot fully guaranteed. Some extra scripting may be needed.</p>
+</dd>
+<dt class="label" id="id16"><span class="brackets"><a class="fn-backref" href="#id8">5</a></span></dt>
+<dd><p>Yes, it only requires the numpy module. Restoring the data to pyFormex
+objects obviously requires pyFormex.</p>
+</dd>
+<dt class="label" id="id17"><span class="brackets"><a class="fn-backref" href="#id9">6</a></span></dt>
+<dd><p>Yes, but requires scripting and understanding of the format.</p>
+</dd>
+<dt class="label" id="id18"><span class="brackets"><a class="fn-backref" href="#id10">7</a></span></dt>
+<dd><p>The PZF format writes arrays in numpy’s .npy format. There exist packages
+for some languages (I know of C, C++, Mathematica) to read such files.</p>
+</dd>
+<dt class="label" id="id19"><span class="brackets"><a class="fn-backref" href="#id11">8</a></span></dt>
+<dd><p>Doable but you have to program it yourself (the author has done it in
+JavaScript).</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="pyformex-zip-file-format-pzf">
+<span id="pzf-file-format"></span><h2>pyFormex Zip File Format (PZF)<a class="headerlink" href="#pyformex-zip-file-format-pzf" title="Permalink to this headline">¶</a></h2>
+<p>A pyFormex Zip File (PZF) is actually a ZIP archive, written with the
+standard Python <a class="reference external" href="https://docs.python.org/3/library/zipfile.html#zipfile.ZipFile" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">zipfile.ZipFile</span></code></a> class. Clearly, the user can insert
+any file in such an archive. But the pyFormex <a class="reference internal" href="ref/pzffile.html#pzffile.PzfFile" title="pzffile.PzfFile"><code class="xref py py-class docutils literal notranslate"><span class="pre">pzffile.PzfFile</span></code></a> class
+provides tools for storing pyFormex objects in such an archive,
+and for restoring the pyFormex objects from the stored data.
+The API is very general and extensible and allows any pyFormex class
+to be saved in PZF format and restored from it. The PZF format can
+therefore replace nearly all use cases of both the <a class="reference internal" href="#pgf-file-format"><span class="std std-ref">pyFormex Geometry File Format (PGF)</span></a> and
+the <a class="reference internal" href="#pyf-file-format"><span class="std std-ref">pyFormex Project File Format (PYF)</span></a>.</p>
+<p>The PZF format is very robust, is easy to implement and extend, provides
+easy ways to upgrade without losing contents, and guarantees openness to
+other softwares and portability to other OSes and architectures.
+PZF files can be opened with most modern file managers (if they can open
+a ZIP archive), allowing the user a view on what’s inside,
+and even to remove or edit parts of it or to add more contents.
+The format offers compression by default, and even password-protection
+might be added in future.
+It is recommended (but not enforced) to use file names with a suffix
+.pzf rather than .zip, to better recognize the specialized PZF format.</p>
+<p>Being a ZIP archive, the contents of the PZF file are individual files.
+Creating a PZF file is normally done using the <a class="reference internal" href="ref/pzffile.html#pzffile.PzfFile.save" title="pzffile.PzfFile.save"><code class="xref py py-meth docutils literal notranslate"><span class="pre">save()</span></code></a>
+method of the <a class="reference internal" href="ref/pzffile.html#pzffile.PzfFile" title="pzffile.PzfFile"><code class="xref py py-class docutils literal notranslate"><span class="pre">pzffile.PzfFile</span></code></a> class:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">PzfFile</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">name1</span><span class="o">=</span><span class="n">obj1</span><span class="p">,</span> <span class="n">name2</span><span class="o">=</span><span class="n">obj2</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Only keyword parameters are allowed and thus each object has a name that will
+be stored in the PZF file. The object’s class is stored as well, to enable
+restoring the original objects upon reading the PZF file.</p>
+<p>In order for an object to be saveable, it should have a method <code class="docutils literal notranslate"><span class="pre">pzf_dict</span></code>,
+returning a dict with all the object data to be saved. Each item in the
+dict will cause a file to be added in the PZF archive.
+Full details are given in <a class="reference internal" href="#save-api"><span class="std std-ref">API for saving objects to PZF</span></a>.</p>
+<p>In order for an object of some class to be loadable from a PZF format file,
+the class has to be registered with the <a class="reference internal" href="ref/pzffile.html#module-pzffile" title="pzffile: A multifunctional file format for saving pyFormex geometry or projects."><code class="xref py py-mod docutils literal notranslate"><span class="pre">pzffile</span></code></a> module:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pzffile</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">class</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This tells the PzfFile reader that <code class="docutils literal notranslate"><span class="pre">class</span></code> should be used for objects with
+the specified class name in the PZF file. The <a class="reference internal" href="ref/utils.html#utils.pzf_register" title="utils.pzf_register"><code class="xref py py-func docutils literal notranslate"><span class="pre">utils.pzf_register()</span></code></a>
+decorator can conveniently be used to automatically register the class with
+its own name (see example below).</p>
+<p>Finally, reading is done with:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">d</span> <span class="o">=</span> <span class="n">PzfFile</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The returned dict has the object names as keys and the restored objects
+as values. Only objects with a registered class name are restored.</p>
+<p>Here’s an example of a simple class that can be saved to PZF and restored:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@utils</span><span class="o">.</span><span class="n">pzf_register</span>
+<span class="k">class</span> <span class="nc">Person</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">first_name</span><span class="p">,</span> <span class="n">last_name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">first</span> <span class="o">=</span> <span class="n">first_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last</span> <span class="o">=</span> <span class="n">last_name</span>
+    <span class="k">def</span> <span class="nf">pzf_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span> <span class="s1">&#39;first_name&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">first</span><span class="p">,</span> <span class="s1">&#39;last_name: self.last }</span>
+</pre></div>
+</div>
+<div class="section" id="api-for-saving-objects-to-pzf">
+<span id="save-api"></span><h3>API for saving objects to PZF<a class="headerlink" href="#api-for-saving-objects-to-pzf" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="pzf-dict">
+<h4>pzf_dict<a class="headerlink" href="#pzf-dict" title="Permalink to this headline">¶</a></h4>
+<p>An object can be saved to PZF if it has a <code class="docutils literal notranslate"><span class="pre">pzf_dict</span></code> method returning a
+dict with the object data that should be saved. Each item in the dict causes a
+file to be written into the PZF archive. The key becomes part of the filename
+and the value is stored inside the file.</p>
+<p>The key is often an attribute of the object, though it doesn’t have to be.
+In most cases it is just the keyword parameter that will be passed to the
+object’s loader function when reading the PZF file. The default loader
+function is the object’s __init__ method. That’s why in the above example
+we made the keys in the pzf_dict match the keyword parameters of the __init__
+method. Note that if in the above example we use the same names for object
+attributes and __init__ arguments (as is often done), we can simply return the
+object’s __dict__ as pzf_dict:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@utils</span><span class="o">.</span><span class="n">pzf_register</span>
+<span class="k">class</span> <span class="nc">Person</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">first_name</span><span class="p">,</span> <span class="n">last_name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">first_name</span> <span class="o">=</span> <span class="n">first_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_name</span> <span class="o">=</span> <span class="n">last_name</span>
+    <span class="k">def</span> <span class="nf">pzf_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span>
+</pre></div>
+</div>
+<p>This hasn’t been made the default because
+objects often have a lot of computed attributes that are unneeded or even
+unwanted for restoring the object and because
+the pzf_dict items should be carefully crafted to allow storage
+in the PZF format.</p>
+<p>The value of the item should be one of these types:</p>
+<dl class="simple">
+<dt><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.24)"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></a></dt><dd><p>The value is written with <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.lib.format.write_array.html#numpy.lib.format.write_array" title="(in NumPy v1.24)"><code class="xref py py-func docutils literal notranslate"><span class="pre">numpy.lib.format.write_array()</span></code></a> to a
+file with suffix .npy. This is the format as created by <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.save.html#numpy.save" title="(in NumPy v1.24)"><code class="xref py py-func docutils literal notranslate"><span class="pre">numpy.save()</span></code></a>.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">str</span></code></dt><dd><p>The value is written as text to a file with suffix .txt and utf-8
+encoding.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">dict</span></code></dt><dd><p>The dict is converted to a string and then written to a file
+with suffix .txt like str type above. The key is required to hold a conversion
+specifier (see <a class="reference internal" href="#convert-dict-to-str"><span class="std std-ref">Converting dict to string</span></a>).</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">None</span></code></dt><dd><p>The value is part of the key (see <a class="reference internal" href="#value-in-filename"><span class="std std-ref">Encoding value in filename</span></a>).
+An empty file is created and the filename doesn’t get a suffix.</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="file-names">
+<h4>File names<a class="headerlink" href="#file-names" title="Permalink to this headline">¶</a></h4>
+<p>From the above, it follows that only three types of files are written into
+a PZF archive. They are marked by the filename suffix:</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">.npy</span></code></dt><dd><p>A file containing a single numpy.ndarray in NumPy’s .npy format.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">.txt</span></code></dt><dd><p>A file containing text in a utf-8 encoding.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">no</span> <span class="pre">suffix</span></code></dt><dd><p>An empty file: the info is in the file name.</p>
+</dd>
+</dl>
+<p>The file name is formed as follows: the object’s name and its class name are
+joined together with a colon as separator to form a directory entry, and the
+key from the pzf_dict with the appropriate suffix appended becomes the file
+name. In other words, the full file names in the PZF archive become one of
+these:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">name</span><span class="p">:</span><span class="n">class</span><span class="o">/</span><span class="n">key</span><span class="o">.</span><span class="n">npy</span>
+<span class="n">name</span><span class="p">:</span><span class="n">class</span><span class="o">/</span><span class="n">key</span><span class="o">.</span><span class="n">txt</span>
+<span class="n">name</span><span class="p">:</span><span class="n">class</span><span class="o">/</span><span class="n">key</span>
+</pre></div>
+</div>
+<p>This file name structure makes it easy to recognize the objects stored in a
+PZF and conveniently groups all the files belonging to that object in
+a subdirectory.</p>
+</div>
+<div class="section" id="valid-keys">
+<h4>Valid keys<a class="headerlink" href="#valid-keys" title="Permalink to this headline">¶</a></h4>
+<p>A key in the pzf_dict must be a str. It cannot start or end with an underscore
+and cannot contain double underscores excpet for the specific purposes
+described in</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#value-in-filename"><span class="std std-ref">Encoding value in filename</span></a></p></li>
+<li><p><a class="reference internal" href="#reserved-key-field"><span class="std std-ref">Reserved key field*</span></a></p></li>
+</ul>
+<p>It should also not contain a colon except for the purposes described in
+the following cases, where it is required:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#convert-dict-to-str"><span class="std std-ref">Converting dict to string</span></a></p></li>
+<li><p><a class="reference internal" href="#value-in-filename"><span class="std std-ref">Encoding value in filename</span></a></p></li>
+</ul>
+<p>The part of the key before the (first) double underscore or colon (or the whole
+key if it doesn’t contain any of them) will be passed as keyword argument to
+the loader function when reading a PZF file. We call (that part of) the key
+the karg. Obviously, the karg has to be a valid Python identifier.
+It is recommended to only use literals, numbers and underscore.</p>
+<p>The following karg values are reserved for special purposes:</p>
+<ul class="simple">
+<li><p>attrib: see <a class="reference internal" href="#reserved-key-attrib"><span class="std std-ref">Reserved key attrib*</span></a></p></li>
+<li><p>kargs: see <a class="reference internal" href="#reserved-key-kargs"><span class="std std-ref">Reserved key kargs*</span></a></p></li>
+<li><p>field: see <a class="reference internal" href="#reserved-key-field"><span class="std std-ref">Reserved key field*</span></a></p></li>
+</ul>
+</div>
+<div class="section" id="converting-dict-to-string">
+<span id="convert-dict-to-str"></span><h4>Converting dict to string<a class="headerlink" href="#converting-dict-to-string" title="Permalink to this headline">¶</a></h4>
+<p>Storing a dict on a file involves converting the dict to a string, and then
+writing the string to a text file.
+The PZF implementation provides a number of dict to str conversion methods,
+identified by a single character. The pzf_dict key for a dict value should
+specify this method and be of the form:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">karg</span><span class="p">:</span><span class="n">M</span>
+</pre></div>
+</div>
+<p>where M is the character identifying the conversion method and karg is the
+keyword that will be pass the decoded dict to the loader function on readback.
+Currently the following values for M are available:</p>
+<ul class="simple">
+<li><p>c: use the <a class="reference internal" href="ref/pzffile.html#pzffile.Config" title="pzffile.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">pzffile.Config</span></code></a> class</p></li>
+<li><p>j: use Python’s json module</p></li>
+<li><p>r: use Python’s repr function</p></li>
+<li><p>p: use Python’s pprint function</p></li>
+<li><p>P: use Python’s pickle module</p></li>
+</ul>
+<p>It is important to understand the limitations of each of these methods.
+The method should be choosen such that the whole dict can be converted to a
+string and restored from it.
+Another consideration is whether the resulting file should
+be easily editable or not (the P method is clearly not).
+If in doubt, use ‘r’ or ‘p’.</p>
+<p>One can also use any custom method, by pre-converting the dict to a string
+and passing the string as value in the pzf_dict method.
+The key doesn’t have a <code class="docutils literal notranslate"><span class="pre">:M</span></code> part in this case, as the item’s value is a str.
+For readback, a custom loader function should be provided, taking
+the string as input and properly initializing the object from it
+(see <a class="reference internal" href="#load-api"><span class="std std-ref">API for loading objects from PZF</span></a>).</p>
+</div>
+<div class="section" id="reserved-key-attrib">
+<span id="id20"></span><h4>Reserved key <code class="docutils literal notranslate"><span class="pre">attrib*</span></code><a class="headerlink" href="#reserved-key-attrib" title="Permalink to this headline">¶</a></h4>
+<p>pyFormex objects that are instances of a <code class="xref py py-class docutils literal notranslate"><span class="pre">Geometry</span></code> subclass
+can have an attribute <code class="docutils literal notranslate"><span class="pre">attrib</span></code> that is a dict-like object storing mostly
+drawing options (such as color) to be used with the rendering of the object.
+The <code class="xref py py-meth docutils literal notranslate"><span class="pre">Geometry.pzf_dict()</span></code> method contains this item, and subclasses
+using that method inherit it. On readback the attrib dict is not passed as
+an keyword parameter to the loader function, but the contained attributes
+are set on the loaded objects using the special <code class="docutils literal notranslate"><span class="pre">attrib</span></code> method. Therefore,
+this key should not be used for any other purpose.</p>
+</div>
+<div class="section" id="reserved-key-kargs">
+<span id="id21"></span><h4>Reserved key <code class="docutils literal notranslate"><span class="pre">kargs*</span></code><a class="headerlink" href="#reserved-key-kargs" title="Permalink to this headline">¶</a></h4>
+<p>The pzf_dict from the example above has two items, and thus creates two files
+in the PZF archive. If we run the following example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">somebody</span> <span class="o">=</span> <span class="n">Person</span><span class="p">(</span><span class="s1">&#39;John&#39;</span><span class="p">,</span> <span class="s1">&#39;Doe&#39;</span><span class="p">)</span>
+<span class="n">PzfFile</span><span class="p">(</span><span class="s1">&#39;test_api.pzf&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">johndoe</span><span class="o">=</span><span class="n">somebody</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>the PZF archive will contain two files:</p>
+<ul class="simple">
+<li><p>johndoe:Person/first_name.txt: a text file with contents ‘John’</p></li>
+<li><p>johndoe:Person/last_name.txt: a text file with contents ‘Doe’</p></li>
+</ul>
+<p>With simple attributes like this, the use of two files is clearly overshoot.
+However, most of the pyFormex classes contain attributes which are large NumPy
+arrays, and the PZF format was specifically created to store those in an
+effective way.</p>
+<p>Simple attributes like the above can better be collected in a dict
+and stored on a single file. On readback, a special loader function could be
+used to restore the individual values and argument names from the loaded dict.
+To make this process more easy (and to avoid the use of a special loader
+function), the reserved key name <code class="docutils literal notranslate"><span class="pre">kargs</span></code> can be used. Just collect
+all simple attributes in a dict and put that as value in the pzf_dict and
+use as key <code class="docutils literal notranslate"><span class="pre">kargs:M</span></code>,
+where M is again one of the methods from <a class="reference internal" href="#convert-dict-to-str"><span class="std std-ref">Converting dict to string</span></a>.
+On readback, the kargs dict will not be passed to
+the loader function (with <code class="docutils literal notranslate"><span class="pre">kargs</span></code> as keyword argument), but rather all
+individual items from the dict will be passed as keyword arguments. See
+<a class="reference internal" href="#load-api"><span class="std std-ref">API for loading objects from PZF</span></a>.</p>
+<p>Thus, in the example above we can simply implement the pzf_dict as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">pzf_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">{</span> <span class="s1">&#39;kargs:c&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span> <span class="p">}</span>
+</pre></div>
+</div>
+<p>and the PZF file then has a single file <code class="docutils literal notranslate"><span class="pre">johndoe:Person/kargs:c.txt</span></code>
+with the contents:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">first_name</span> <span class="o">=</span> <span class="s1">&#39;John&#39;</span>
+<span class="n">last_name</span> <span class="o">=</span> <span class="s1">&#39;Doe&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="encoding-value-in-filename">
+<span id="value-in-filename"></span><h4>Encoding value in filename<a class="headerlink" href="#encoding-value-in-filename" title="Permalink to this headline">¶</a></h4>
+<p>Information can also be encoded directly in the file name, instead of
+the file contents. It is normally only done when the
+following conditions are met:</p>
+<ul class="simple">
+<li><p>the string representation of the value is simple and short,</p></li>
+<li><p>only a few object attributes are encoded in filenames,</p></li>
+<li><p>it is interesting for the user to see the value from inspecting the
+contents of the PZF archive, without having to open and read a file.</p></li>
+</ul>
+<p>In order to encode a value into the filename, the pzf_dict should pass
+an item with value None and a key that contains the encoded value, in
+the following format:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">karg</span><span class="p">:</span><span class="n">N__value</span>
+</pre></div>
+</div>
+<p>where N is one of the following characters identifying the stored value
+type:</p>
+<ul class="simple">
+<li><p>b: bool</p></li>
+<li><p>i: int</p></li>
+<li><p>f: float</p></li>
+<li><p>s: str</p></li>
+</ul>
+<p>This generates an empty file and the filename has no suffix.</p>
+<p>Continuing on the example above, if we can implement the pzf_dict like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">pzf_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+      <span class="k">return</span> <span class="p">{</span><span class="sa">f</span><span class="s1">&#39;fullname:s__</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">first_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">last_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>the PZF archive will contain an empty file named:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">johndoe</span><span class="p">:</span><span class="n">Person</span><span class="o">/</span><span class="n">fullname</span><span class="p">:</span><span class="n">s__John_Doe</span>
+</pre></div>
+</div>
+<p>In this case, readback will require a special load function accepting
+the argument (see <a class="reference internal" href="#load-api"><span class="std std-ref">API for loading objects from PZF</span></a>):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fullname</span><span class="o">=</span><span class="s1">&#39;John_Doe&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="reserved-key-field">
+<span id="id22"></span><h4>Reserved key <code class="docutils literal notranslate"><span class="pre">field*</span></code><a class="headerlink" href="#reserved-key-field" title="Permalink to this headline">¶</a></h4>
+<p>pyFormex objects that are instances of a <code class="xref py py-class docutils literal notranslate"><span class="pre">Geometry</span></code> subclass
+have an attribute <code class="docutils literal notranslate"><span class="pre">fields</span></code> that stores one or more <code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code>
+instances defined over the geometry. These objects are stored using
+the reserved key <code class="docutils literal notranslate"><span class="pre">field*</span></code>. The key needs two extra parts of information:
+the Field type and the Field name. The Field data are a numpy array, and
+will be stored in a .npy file. This results in filenames like:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>name:class/field__fieldtype__fieldname.npy``.
+</pre></div>
+</div>
+<p>There can be any number of such files for the same object.</p>
+<p><code class="xref py py-class docutils literal notranslate"><span class="pre">Geometry</span></code> subclasses do not have to add these field items to the
+pzf_dict.
+The <code class="xref py py-meth docutils literal notranslate"><span class="pre">Geometry.pzf_dict()</span></code> method provides the proper pzf_dict items.
+The subclasses can just initialize their pzf_dict from it and add their
+specific items.</p>
+</div>
+<div class="section" id="summary-of-the-file-name-structure">
+<span id="filename-structure"></span><h4>Summary of the file name structure<a class="headerlink" href="#summary-of-the-file-name-structure" title="Permalink to this headline">¶</a></h4>
+<p>The filenames below have the following variable parts:</p>
+<dl class="simple">
+<dt>name</dt><dd><p>the name of the object</p>
+</dd>
+<dt>class</dt><dd><p>the name of the class of the restored object, which is usually
+(but not necessarily) the class of the object written</p>
+</dd>
+<dt>attr</dt><dd><p>the name of the attribute, which is not necessarily an attribute
+of the object written:</p>
+</dd>
+<dt>value</dt><dd><p>a value directly stored in the filename</p>
+</dd>
+<dt>M</dt><dd><p>a modifier character, specifying the way to store some value in the
+archive</p>
+</dd>
+</dl>
+<p>Some attribute names are reserved and are used in a special way on loading:</p>
+<dl class="simple">
+<dt>kargs</dt><dd><p>Defines a dict of keyword arguments to be passed to the loader. This is
+convenient when many simple attributes have to be stored. The ‘kargs’
+attribute can be combined with normal named attributes, but will overwrite
+those in case of name clashes.</p>
+</dd>
+<dt>attrib</dt><dd><p>Defines a dict of values that will be loaded via the ‘attrib’ method of
+the object. This usually contains drawing options for a Geometry object.</p>
+</dd>
+<dt>field</dt><dd><p>Defines a single Field value that will be attached to the Geometry object
+using the addField method.</p>
+</dd>
+</dl>
+<p>If the value of an attribute is a dict, the attribute name should have
+one of the following modifiers to specify what method is used to convert
+the dict to a string:</p>
+<ul class="simple">
+<li><p>‘:c’ use the <a class="reference internal" href="ref/pzffile.html#pzffile.Config" title="pzffile.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">pzffile.Config</span></code></a> class,</p></li>
+<li><p>‘:j’ use the json module to,</p></li>
+<li><p>‘:r’ use Python’s repr function.</p></li>
+<li><p>‘:p’ use Python’s pprint function.</p></li>
+</ul>
+<p>If a value is to be stored inside the file name, the attribute name
+should have one of the following modifiers attached:</p>
+<ul class="simple">
+<li><p>‘:b’ if the value is a boolean,</p></li>
+<li><p>‘:i’ if the value is an int,</p></li>
+<li><p>‘:f’ if the value is a float,</p></li>
+<li><p>‘:s’ if the value is a string.</p></li>
+</ul>
+<p>If an attribute name does not have a modifier attached, then its value
+is stored in numpy’s .npy format if the value is a numpy.ndarray, or
+as utf-8 text in a .txt file if the value os a string. Other values are
+invalid.</p>
+<p>Object, class or attribute should not start or end with an underscore
+or have a double underscore inside. Also, ‘class’ can not be use as
+attribute name, and ‘field’ and ‘attrib’ are reserved attribute names
+with a specific meaning for pyFormex Geometry classes. Likewise,
+object names ‘_camera’ and ‘_canvas’ are reserved.</p>
+<p>Here’s a list of the valid file name formats and their use:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">name:class/attr.npy</span></code>: attr is a numpy ndarray stored on .npy file</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">name:class/attr.txt</span></code>: attr is a str stored on .txt file</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">name:class/attr:M.txt</span></code>: attr is a dict stored  on .txt file</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">name:class/attr:M__value</span></code>: attr is stored in filename</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">name:class/kargs:M.txt</span></code>: attr is a dict stored on .txt file</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">name:class/attrib:M.txt</span></code>: attr is an attrib dict stored on .txt file</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">name:class/field__fieldtype__fieldname.npy</span></code>: an object’s Field data
+is stored on the .npy file, the filename contains the Field’s type and name.</p></li>
+</ul>
+<p>The reserved attribute name ‘kargs’ is handled differently than other names.
+Its purpose is to store multiple attributes on a single file using one of
+the dict modifiers. But while an other attribute with a dict value
+will be passed as ‘attr=dict_value’ argument to the object loader,
+the ‘kargs’ attribute will be passed as <code class="docutils literal notranslate"><span class="pre">**kargs</span></code>, thus making the
+contents of the dict individual items.</p>
+<p>As an example, the list of files in the ‘saveload.pzf’ archive in the
+pyformex/data folder is:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">__FORMAT__PZF__2</span><span class="o">.</span><span class="mi">0</span>
+<span class="n">__METADATA</span>
+<span class="n">F</span><span class="p">:</span><span class="n">Formex</span><span class="o">/</span><span class="n">coords</span><span class="o">.</span><span class="n">npy</span>
+<span class="n">F</span><span class="p">:</span><span class="n">Formex</span><span class="o">/</span><span class="n">prop</span><span class="o">.</span><span class="n">npy</span>
+<span class="n">M</span><span class="p">:</span><span class="n">Mesh</span><span class="o">/</span><span class="n">coords</span><span class="o">.</span><span class="n">npy</span>
+<span class="n">M</span><span class="p">:</span><span class="n">Mesh</span><span class="o">/</span><span class="n">field__node__dist</span><span class="o">.</span><span class="n">npy</span>
+<span class="n">M</span><span class="p">:</span><span class="n">Mesh</span><span class="o">/</span><span class="n">field__node__dist3n</span><span class="o">.</span><span class="n">npy</span>
+<span class="n">M</span><span class="p">:</span><span class="n">Mesh</span><span class="o">/</span><span class="n">field__elemc__dist3c</span><span class="o">.</span><span class="n">npy</span>
+<span class="n">M</span><span class="p">:</span><span class="n">Mesh</span><span class="o">/</span><span class="n">attrib</span><span class="p">:</span><span class="n">j</span><span class="o">.</span><span class="n">txt</span>
+<span class="n">M</span><span class="p">:</span><span class="n">Mesh</span><span class="o">/</span><span class="n">elems</span><span class="o">.</span><span class="n">npy</span>
+<span class="n">M</span><span class="p">:</span><span class="n">Mesh</span><span class="o">/</span><span class="n">eltype</span><span class="p">:</span><span class="n">s__quad4</span>
+<span class="n">T</span><span class="p">:</span><span class="n">TriSurface</span><span class="o">/</span><span class="n">coords</span><span class="o">.</span><span class="n">npy</span>
+<span class="n">T</span><span class="p">:</span><span class="n">TriSurface</span><span class="o">/</span><span class="n">attrib</span><span class="p">:</span><span class="n">j</span><span class="o">.</span><span class="n">txt</span>
+<span class="n">T</span><span class="p">:</span><span class="n">TriSurface</span><span class="o">/</span><span class="n">elems</span><span class="o">.</span><span class="n">npy</span>
+<span class="n">spiral</span><span class="p">:</span><span class="n">PolyLine</span><span class="o">/</span><span class="n">coords</span><span class="o">.</span><span class="n">npy</span>
+<span class="n">spiral</span><span class="p">:</span><span class="n">PolyLine</span><span class="o">/</span><span class="n">attrib</span><span class="p">:</span><span class="n">j</span><span class="o">.</span><span class="n">txt</span>
+<span class="n">spiral</span><span class="p">:</span><span class="n">PolyLine</span><span class="o">/</span><span class="n">closed</span><span class="p">:</span><span class="n">b__False</span>
+<span class="n">CS</span><span class="p">:</span><span class="n">CoordSys</span><span class="o">/</span><span class="n">rot</span><span class="o">.</span><span class="n">npy</span>
+<span class="n">CS</span><span class="p">:</span><span class="n">CoordSys</span><span class="o">/</span><span class="n">trl</span><span class="o">.</span><span class="n">npy</span>
+<span class="n">curve</span><span class="p">:</span><span class="n">BezierSpline</span><span class="o">/</span><span class="n">attrib</span><span class="p">:</span><span class="n">j</span><span class="o">.</span><span class="n">txt</span>
+<span class="n">curve</span><span class="p">:</span><span class="n">BezierSpline</span><span class="o">/</span><span class="n">closed</span><span class="p">:</span><span class="n">b__True</span>
+<span class="n">curve</span><span class="p">:</span><span class="n">BezierSpline</span><span class="o">/</span><span class="n">control</span><span class="o">.</span><span class="n">npy</span>
+<span class="n">curve</span><span class="p">:</span><span class="n">BezierSpline</span><span class="o">/</span><span class="n">degree</span><span class="p">:</span><span class="n">i__3</span>
+<span class="n">X</span><span class="p">:</span><span class="n">Coords</span><span class="o">/</span><span class="n">data</span><span class="o">.</span><span class="n">npy</span>
+<span class="n">_canvas</span><span class="p">:</span><span class="n">MultiCanvas</span><span class="o">/</span><span class="n">kargs</span><span class="p">:</span><span class="n">p</span><span class="o">.</span><span class="n">txt</span>
+</pre></div>
+</div>
+<p>From this list it is immediately obvious that the file is a PZF version 2.0
+archive and that it contains a Formex named ‘F’, a Mesh named ‘M’,
+a TriSurface ‘T’, a PolyLine ‘spiral’, and some more objects
+(among which there is one with a reserved object name: ‘_canvas’.
+We can also see that the Mesh ‘M’ has an element type ‘quad4’ and
+that the BezierSpline ‘curve’ is closed and of the third degree.
+Furthermore, the Mesh object has three Fields defined on it.</p>
+<p>This info can not only be got from the <code class="xref py py-meth docutils literal notranslate"><span class="pre">files()</span></code> method,
+but can also be seen outside of pyFormex by opening the pzf file in
+your file manager: the PZF file is a valid ZIP file and most modern
+file managers know how to open zuch an archive and list its contents.
+Opening the PZF will likely only show the top level:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">__FORMAT__PZF__2</span><span class="o">.</span><span class="mi">0</span>
+<span class="n">__METADATA</span>
+<span class="n">F</span><span class="p">:</span><span class="n">Formex</span>
+<span class="n">M</span><span class="p">:</span><span class="n">Mesh</span>
+<span class="n">T</span><span class="p">:</span><span class="n">TriSurface</span>
+<span class="n">spiral</span><span class="p">:</span><span class="n">PolyLine</span>
+<span class="n">CS</span><span class="p">:</span><span class="n">CoordSys</span>
+<span class="n">curve</span><span class="p">:</span><span class="n">BezierSpline</span>
+<span class="n">X</span><span class="p">:</span><span class="n">Coords</span>
+<span class="n">_canvas</span><span class="p">:</span><span class="n">MultiCanvas</span>
+</pre></div>
+</div>
+<p>and clicking on any of the subdirectories would show its contents.
+You can also use the file manager to delete some objects,
+extract the archive, rename the objects, edit some text files,
+zip some extracted files to a new pzf file. Just be careful to observe
+the file naming rules. Using the PzfFile methods is of course more
+secure.</p>
+<p>Hey, but what are these files that do not obey the above given file
+name rules: __FORMAT__PZF__2.0 and __METADATA?
+Filenames starting with double underscores are system files and should
+not be meddled with by the user. As you can guess, the __FORMAT__PZF__2.0
+declares this file to be a PZF version 2.0 format. Likewise, __METADATA
+contains some metadata about the archive. You can open it and read it.
+It may look like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">format</span> <span class="o">=</span> <span class="s1">&#39;PZF&#39;</span>
+<span class="n">version</span> <span class="o">=</span> <span class="s1">&#39;2.0&#39;</span>
+<span class="n">creator</span> <span class="o">=</span> <span class="s1">&#39;pyFormex 3.1.dev0&#39;</span>
+<span class="n">datetime</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2022</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">41</span><span class="p">,</span> <span class="mi">18</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The format info is repeated in the __METADATA file. We keep the
+__FORMAT… file to recognize the format immediately without the
+need to read __METADATA file from the archive.</p>
+</div>
+</div>
+<div class="section" id="api-for-loading-objects-from-pzf">
+<span id="load-api"></span><h3>API for loading objects from PZF<a class="headerlink" href="#api-for-loading-objects-from-pzf" title="Permalink to this headline">¶</a></h3>
+<p>Loading objects from a PZF file using <code class="xref py py-meth docutils literal notranslate"><span class="pre">PzfFile.load()</span></code>
+processes as follows:</p>
+<ul>
+<li><p>File names are decomposed into object name, class name,
+keyword and possibly extra items such as modifier, value, suffix.
+The subdirectory name defines the object name and class, the filename
+the other items.
+See <a class="reference internal" href="#filename-structure">filename_structure</a> for the full set of valid filenames.</p></li>
+<li><p>If the file name has no suffix, the value is set from the filename
+(see <a href="#id28"><span class="problematic" id="id29">`_value_in_filename`_</span></a>). If the file name has a suffix .npy,</p>
+<blockquote>
+<div><p>the file is read into a numpy array using</p>
+</div></blockquote>
+<p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.lib.format.read_array.html#numpy.lib.format.read_array" title="(in NumPy v1.24)"><code class="xref py py-func docutils literal notranslate"><span class="pre">numpy.lib.format.read_array()</span></code></a> and this becomes the value.
+If the suffix is .txt, the file is read as text, and if a modifier was used,
+the resulting string is transformed into a dict.
+Either way, we now have a keyword and a value, which are added to the object
+dict.</p>
+</li>
+<li><p>The class name should be a registered class for restoring PZF objects. This
+can have been registered by calling the <a class="reference internal" href="ref/pzffile.html#pzffile.register" title="pzffile.register"><code class="xref py py-func docutils literal notranslate"><span class="pre">pzffile.register()</span></code></a> function or
+by using the <a class="reference internal" href="ref/utils.html#utils.pzf_register" title="utils.pzf_register"><code class="xref py py-func docutils literal notranslate"><span class="pre">utils.pzf_register()</span></code></a> decorator on a class definition.
+Note that the registered class for some class name does not have to be the
+same class as the object’s class on storing the PZF (though it usually is).
+It is thus possibly to load a PZF into other objects than they were stored
+from.</p></li>
+<li><p>The registered class is used to create a Python object from the object dict.
+If the class does not have a <code class="docutils literal notranslate"><span class="pre">pzf_load</span></code> method, the class is instantiated
+with the object dict as keyword arguments and the object is an instance
+of the registered class. If a class method <code class="docutils literal notranslate"><span class="pre">pzf_load</span></code> exists, this method
+is called with the object dict as keyword args, and the resulting object
+is whatever this returns. See <a class="reference internal" href="#pzf-load">pzf_load</a>.</p></li>
+<li><p>The created objects are collected in a dict with the object names as keys
+and the resulting dict is returned.</p></li>
+</ul>
+<p>As an example, take the first PZF from <a class="reference internal" href="#reserved-key-kargs">reserved_key_kargs</a>, containing
+two files:</p>
+<ul class="simple">
+<li><p>johndoe:Person/first_name.txt: a text file with contents ‘John’</p></li>
+<li><p>johndoe:Person/last_name.txt: a text file with contents ‘Doe’</p></li>
+</ul>
+<p>After reading these files, there will be object named <code class="docutils literal notranslate"><span class="pre">johndoe</span></code> with class
+name <code class="docutils literal notranslate"><span class="pre">Person</span></code> and object dict <code class="docutils literal notranslate"><span class="pre">{'first_name':'John',</span> <span class="pre">'last_name':'Doe'}</span></code>.
+The object will be created as:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Person</span><span class="p">(</span><span class="n">first_name</span><span class="o">=</span><span class="s1">&#39;John&#39;</span><span class="p">,</span> <span class="n">last_name</span><span class="o">=</span><span class="s1">&#39;Doe&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="section" id="handling-reserved-keywords">
+<span id="load-reserved-keywords"></span><h4>Handling reserved keywords<a class="headerlink" href="#handling-reserved-keywords" title="Permalink to this headline">¶</a></h4>
+<p>The following reserved keywords are not put into the object dict like the
+others, but are handled in a special way: kargs, attrib, field.</p>
+<dl class="simple">
+<dt>kargs</dt><dd><p>The kargs keyword requires a dict as value. This dict is used to update
+the object dict (after all normal keywords for the object were added).
+Thus the contents of the kargs dict are keyword parameters passed to
+the object creation.
+Thus, in the second example from <a class="reference internal" href="#reserved-key-kargs">reserved_key_kargs</a>, the single file
+<code class="docutils literal notranslate"><span class="pre">johndoe:Person/kargs:c.txt</span></code> will lead to exactly the same object dict
+as above.</p>
+</dd>
+<dt>attrib</dt><dd><p>The attrib keyword requires a dict as value. This dict is not used in the
+creation of the object. Rather, after the object has been initialized,
+the objects <code class="docutils literal notranslate"><span class="pre">attrib</span></code> method will be called with this dict as the keyword
+arguments. Obviously, this requires a class that has an attrib method
+(such as all the Geometry subclasses in pyFormex).</p>
+</dd>
+<dt>field</dt><dd><p>The field keyword requires a field type and field name encoded in the
+file name, and a numpy array as value. All the field values are collected
+and after the object has been created, the corresponding data are applied
+to the object by calling its <code class="xref py py-meth docutils literal notranslate"><span class="pre">addField()</span></code> method.</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="custom-pzf-load">
+<span id="pzf-load"></span><h4>Custom pzf_load<a class="headerlink" href="#custom-pzf-load" title="Permalink to this headline">¶</a></h4>
+<p>In some cases the <a href="#id23"><span class="problematic" id="id24">``</span></a>__init__` method of the registered object class is not
+fit to reconstruct the object from the stored data. Therefore, a special
+method <cite>pzf_load</cite> may be defined in the class to process the object dict
+and produce whatever result is required. If an object’s registered class
+has such a method, it will be called with the contents of the object dict
+as keyword parameters, and whatever the method returns will be set as the
+object.</p>
+<p>In the example from <cite>value_in_filename</cite> there was one file with all
+information encoded in the filename:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">johndoe</span><span class="p">:</span><span class="n">Person</span><span class="o">/</span><span class="n">fullname</span><span class="p">:</span><span class="n">s__John_Doe</span>
+</pre></div>
+</div>
+<p>After reading the file, the object dict for johndoe will look like:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;fullname&#39;</span><span class="p">:</span> <span class="s1">&#39;John_Doe&#39;</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Obviously, we can not instantiate the Person class with these keyword
+parameters. Therefore, we add a custom loader method to the Person class.
+The method accepts the object dict as keyword parameters, and transforms
+the info into the proper arguments for the class initialization. Note that
+this has to be a class method:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@classmethod</span>
+<span class="k">def</span> <span class="nf">pzf_load</span><span class="p">(</span><span class="n">clas</span><span class="p">,</span> <span class="n">fullname</span><span class="p">):</span>
+    <span class="n">first</span><span class="p">,</span> <span class="n">last</span> <span class="o">=</span> <span class="n">fullname</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">clas</span><span class="p">(</span><span class="n">first</span><span class="p">,</span> <span class="n">last</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="positional-arguments">
+<span id="pzf-args"></span><h4>Positional arguments<a class="headerlink" href="#positional-arguments" title="Permalink to this headline">¶</a></h4>
+<p>In some cases the object class __init__ or pzf_load method may require the use
+of positional arguments. This can be achieved by declaring an attribute
+<code class="docutils literal notranslate"><span class="pre">pzf_args</span></code> containing a list of the keywords from the object dict that
+should be passed as positional arguments, in the order of that list.</p>
+<p>As an example, the TriSurface initialization signature is:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">prop</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>It accepts up to 3 positional arguments, covering these cases:</p>
+<ul class="simple">
+<li><p>none creates an empty object,</p></li>
+<li><p>1: convert from a Coords, Formex or Mesh object,</p></li>
+<li><p>2: coords, elems</p></li>
+<li><p>3: coords, edges, faces</p></li>
+</ul>
+<p>Internally the data are stored as (coords, elems), both being numpy arrays.
+It also has an optional <code class="docutils literal notranslate"><span class="pre">prop</span></code> keyword argument. The PZF storage mirrors
+this and stores coords, elems (and optionally prop). When the object is
+restored from PZF, we can not pass the coords and elems as keyword arguments:
+they should be passed as two positional arguments. This is achieved by
+declaring in the TriSurface class:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pzf_args</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;coords&#39;</span><span class="p">,</span> <span class="s1">&#39;elems&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>An alternative would be to use a pzf_load function:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@classmethod</span>
+<span class="k">def</span> <span class="nf">pzf_load</span><span class="p">(</span><span class="n">clas</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">elems</span><span class="p">,</span> <span class="n">prop</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">TriSurface</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">elems</span><span class="p">,</span> <span class="n">prop</span><span class="o">=</span><span class="n">prop</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>But obviously, in cases like this, using pzf_args is simpler.</p>
+</div>
+</div>
+<div class="section" id="examples">
+<span id="id25"></span><h3>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h3>
+<p>This section presents some cases from important pyFormex classes.
+For clarity they are shown here slightly different from the actual
+implementation, where many classes inherit part of their pzf_dict
+from a parent class.</p>
+<div class="section" id="coords">
+<h4>Coords<a class="headerlink" href="#coords" title="Permalink to this headline">¶</a></h4>
+<p>The Coords class is a subclass of a numpy.ndarray and does not contain
+other data, so we only have to store itself. The Coords __init__ method
+gets the data in an argument named data. Thus we just need to define
+this pzf_dict in the Coords class:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">pzf_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;data&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>and register the Coords class:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@utils</span><span class="o">.</span><span class="n">pzf_register</span>
+<span class="k">class</span> <span class="nc">Coords</span><span class="p">:</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="formex">
+<h4>Formex<a class="headerlink" href="#formex" title="Permalink to this headline">¶</a></h4>
+<p>A Formex has an attribute coords, which is a Coords (and thus an ndarray),
+and has an optional second data attribute, prop, which is also an ndarray.
+The pzf_dict looks like:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">pzf_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;coords&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">}</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">prop</span><span class="p">:</span>
+        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;prop&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prop</span>
+    <span class="k">return</span> <span class="n">d</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="mesh">
+<h4>Mesh<a class="headerlink" href="#mesh" title="Permalink to this headline">¶</a></h4>
+<p>A Mesh has attributes coords and elems that are ndarrays, an optional prop
+like in the Formex class and eltype, which is an ElementType, but can be
+specified by the ElementType’s name (a string) in the __init__ method.
+This name can be simply encoded in the file name.
+The pzf_dict then looks like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">pzf_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;coords&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span>
+        <span class="s1">&#39;elems&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">elems</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">eltype</span><span class="si">}</span><span class="s2">:s__</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">eltype</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">prop</span><span class="p">:</span>
+        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;prop&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prop</span>
+    <span class="k">return</span> <span class="n">d</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="trisurface">
+<h3>TriSurface<a class="headerlink" href="#trisurface" title="Permalink to this headline">¶</a></h3>
+<p>TriSurface is a subclass of Mesh with a fixed ElementType (‘tri3’).
+It’s pzf_dict is therefore the same as that of Mesh, but without the
+eltype entry. However, TriSurface.__init__ has a different signature.
+It does not have coords, elems arguments, but rather a list of
+positional arguments <a href="#id26"><span class="problematic" id="id27">*</span></a>args. Therefore it needs a pzf_args as
+discussed in <a class="reference internal" href="#pzf-args">pzf_args</a>.</p>
+</div>
+<div class="section" id="polygons">
+<h3>Polygons<a class="headerlink" href="#polygons" title="Permalink to this headline">¶</a></h3>
+<p>Polygons is like a Mesh, but without eltype and the elems attribute
+is a Varray, which itself has two ndarray attributes: data and ind.
+The pzf_dict becomes:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">pzf_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;coords&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span>
+        <span class="s1">&#39;elems&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">elems</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
+        <span class="s1">&#39;ind&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">elems</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">prop</span><span class="p">:</span>
+        <span class="n">d</span><span class="p">[</span><span class="s1">&#39;prop&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prop</span>
+    <span class="k">return</span> <span class="n">d</span>
+</pre></div>
+</div>
+<p>A pzf_load method is required to restore the Varray before passing
+it to the Polygons.__init__:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@classmethod</span>
+<span class="k">def</span> <span class="nf">pzf_load</span><span class="p">(</span><span class="n">clas</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">elems</span><span class="p">,</span> <span class="n">ind</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">clas</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">Varray</span><span class="p">(</span><span class="n">elems</span><span class="p">,</span> <span class="n">ind</span><span class="p">),</span> <span class="o">**</span><span class="n">kargs</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="bezierspline">
+<h3>BezierSpline<a class="headerlink" href="#bezierspline" title="Permalink to this headline">¶</a></h3>
+<p>A BezierSpline stores three attributes: an ndarray coords, an int degree
+and a bool closed. The latter two are encoded in the filename. The coords
+attribute has to be passed to the control argument when creating a new
+BezierSpline:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">pzf_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s1">&#39;control&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s1">&#39;degree:i__</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">degree</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s1">&#39;closed:b__</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">closed</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="camera">
+<h3>Camera<a class="headerlink" href="#camera" title="Permalink to this headline">¶</a></h3>
+<p>The Camera class has a method <code class="xref py py-meth docutils literal notranslate"><span class="pre">Camera.settings()</span></code> which returns a dict
+with all the parameters from which an identical Camera instance may be
+restored. All the parameters are simple enough to be restored from a
+string version of the dict. So the pzf_dict can be just:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">pzf_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">{</span> <span class="s1">&#39;kargs:p&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">()</span> <span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="pyformex-project-file-format-pyf">
+<span id="pyf-file-format"></span><h2>pyFormex Project File Format (PYF)<a class="headerlink" href="#pyformex-project-file-format-pyf" title="Permalink to this headline">¶</a></h2>
+<p>A pyFormex project file is just a pickled Python dictionary stored on file,
+possibly with compression. Any pyFormex objects can be exported and stored on
+the project file. The resulting file is normally not readable for humans and
+because all the class definitions of the exported data have to be present,
+the file can only be read back by pyFormex itself.</p>
+<p>The format of the project file is therefore currently not further documented.
+See <a class="reference internal" href="projects.html"><span class="doc">Using Projects</span></a> for the use of project files from within pyFormex.</p>
+</div>
+<div class="section" id="pyformex-geometry-file-format-pgf">
+<span id="pgf-file-format"></span><h2>pyFormex Geometry File Format (PGF)<a class="headerlink" href="#pyformex-geometry-file-format-pgf" title="Permalink to this headline">¶</a></h2>
+<p>This describes the pyFormex Geometry File Format (PGF) version 1.6 as
+drafted on 2013-03-10 and being used in pyFormex 0.9.0.
+The version numbering is such that implementations of a later
+version are able to read an older version with the same major numbering.
+Thus, the 1.6 version can still read version 1.5 files.</p>
+<p>The prefered filename extension for pyFormex geometry files is ‘.pgf’,
+though this is not a requirement.</p>
+<div class="section" id="general-principles">
+<h3>General principles<a class="headerlink" href="#general-principles" title="Permalink to this headline">¶</a></h3>
+<p>The PGF format consists of a sequence of records of two types: comment
+lines and data blocks. A record always ends with a newline character,
+but not all newline characters are record separators: data blocks may
+include multiple newlines as part of the data.</p>
+<p>Comment records are ascii and start with a ‘#’ character. Comment records
+are mostly used to announce the type and amount of data in the following
+data block(s). This is done by comment line containing a sequence of
+‘key=value’ statements, separated by semicolons (‘;’).</p>
+<p>Data blocks can be either ascii or binary, and are always announced by
+specially crafted comment lines preceding them. Note that even binary
+data blocks get a newline character at the end, to mark the end of the
+record.</p>
+</div>
+<div class="section" id="detailed-layout">
+<h3>Detailed layout<a class="headerlink" href="#detailed-layout" title="Permalink to this headline">¶</a></h3>
+<p>The pyFormex Geometry File starts with a header comment line identify
+the file type and version, and possibly specifying some global variables.
+For the version 1.6 format the first line may look like:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># pyFormex Geometry File (http://pyformex.org) version=&#39;1.6&#39;; sep=&#39; &#39;</span>
+</pre></div>
+</div>
+<p>The version number is used to read back legacy formats in newer versions
+of pyFormex. The <cite>sep = ‘ ‘</cite> defines the default data separator for
+data blocks that do not specify it (see below).</p>
+<p>The remainder of the file is a sequence of comment lines announcing
+data blocks, followed by those data blocks. The announcement line
+provides information about the number, type and size of data blocks
+that follow. This makes it possible to write and read the data using
+high speed functions (like <cite>numpy.tofile</cite> and <cite>numpy.fromfile</cite>) and without
+having to test any contents of the data.
+The data block information in the announcement line is provided by a number
+of ‘key=value’ strings separated with a semicolon and optional whitespace.</p>
+<div class="section" id="object-type-specific-fields">
+<h4>Object type specific fields<a class="headerlink" href="#object-type-specific-fields" title="Permalink to this headline">¶</a></h4>
+<p>For each object type that can be stored, there are some required fields
+and data blocks. In the examples below, <cite>&lt;int&gt;</cite> stands for an integer number,
+<cite>&lt;str&gt;</cite> for a string, and <cite>&lt;bool&gt;</cite> for either <cite>True</cite> or <cite>False</cite>.</p>
+<ul>
+<li><p>Formex: the announcement provides at least:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># objtype=&#39;Formex&#39;; nelems=&lt;int&gt;; nplex=&lt;int&gt;</span>
+</pre></div>
+</div>
+<p>The data block following this line should contain exactly <cite>nelems*nplex*3</cite>
+floating point values: the 3 coordinates of the <cite>nplex</cite> points of the
+<cite>nelems</cite> elements of the Formex.</p>
+</li>
+<li><p>Mesh: the announcement contains at least:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># objtype=&#39;Mesh&#39;; ncoords=&lt;int&gt;; nelems=&lt;int&gt;; nplex=&lt;int&gt;</span>
+</pre></div>
+</div>
+<p>In this case two data blocks will follow: first <cite>ncoords*3</cite> float values
+with the coordinates of the nodes; then a block with <cite>nelems*nplex</cite>
+integer values: the connectivity table of the mesh.</p>
+</li>
+<li><p>Curve:</p></li>
+</ul>
+</div>
+<div class="section" id="optional-fields">
+<h4>Optional fields<a class="headerlink" href="#optional-fields" title="Permalink to this headline">¶</a></h4>
+<p>The announcement line may contain other fields, usually to define extra
+attributes for the object:</p>
+<ul class="simple">
+<li><p><cite>props=&lt;bool&gt;</cite> : If the value is True, another data block with <cite>nelems</cite>
+integer values follows. These are the property numbers of the object.</p></li>
+<li><p><cite>eltype=&lt;str&gt;</cite> : Can also have the special value None. If specified and
+not None, it will be used to set the element type of the object.</p></li>
+<li><p><cite>name=&lt;str&gt;</cite> : Name of the object. If specified, pyFormex will use this
+value as a key when returning the restored object.</p></li>
+<li><p><cite>sep=&lt;str&gt;</cite> : This field defines how the data are stored. If it is not
+defined, the value from the file header is used.</p>
+<ul>
+<li><p>An empty string means that the data blocks are written in binary.
+Floating point values are stored as little-endian 4byte floats, while
+integer values are stored as 4 byte integers.</p></li>
+<li><p>Any other string makes the data being written in ascii mode, with the
+specified string used as a separator between any two values. When
+reading a PGF file, extra whitespace and newlines appearing around the
+separator are silently ignored.</p></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="example">
+<h3>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h3>
+<p>The following pyFormex script creates a PGF file containing two objects,
+a Formex with one square, and a Mesh with two triangles:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">F</span> <span class="o">=</span> <span class="n">Formex</span><span class="p">(</span><span class="s1">&#39;4:0123&#39;</span><span class="p">)</span>
+<span class="n">M</span> <span class="o">=</span> <span class="n">Formex</span><span class="p">(</span><span class="s1">&#39;3:112.34&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">setProp</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">toMesh</span><span class="p">()</span>
+<span class="n">writeGeomFile</span><span class="p">(</span><span class="s1">&#39;test.pgf&#39;</span><span class="p">,[</span><span class="n">F</span><span class="p">,</span><span class="n">M</span><span class="p">],</span><span class="n">sep</span><span class="o">=</span><span class="s1">&#39;, &#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The Mesh has property numbers defined on it, the Formex doesn’t.
+The data are written in ascii mode with ‘, ‘ as separator.
+Here is the resulting contents of the file ‘test.pgf’:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># pyFormex Geometry File (http://pyformex.org) version=&#39;1.6&#39;; sep=&#39;, &#39;</span>
+<span class="c1"># objtype=&#39;Formex&#39;; nelems=1; nplex=4; props=False; eltype=None; sep=&#39;, &#39;</span>
+<span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span>
+<span class="c1"># objtype=&#39;Mesh&#39;; ncoords=4; nelems=2; nplex=3; props=True; eltype=&#39;tri3&#39;; sep=&#39;, &#39;</span>
+<span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span>
+<span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span>
+<span class="mi">1</span><span class="p">,</span> <span class="mi">1</span>
+</pre></div>
+</div>
+<p>This file contains two objects: a Formex and a Mesh. The Formex has 1 element
+of plexitude 4 and no property numbers. Following its announcement is a single
+data block with 1x4x3 = 12 coordinate values.
+The Mesh contains 2 elements of plexitude 3, has element type ‘tri3’ and
+contains property numbers. Following the announcement are three data blocks:
+first the 4*3 nodal coordinates, then the 2*3 = 6 entries in the connectivity
+table, and finally 2 property numbers.</p>
+</div>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="bumpix.html" title="BuMPix Live GNU/Linux system"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="faq.html" title="pyFormex FAQ ‘n TRICKS"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pyFormex 3.3 documentation</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">pyFormex file formats</a></li--> 
+      </ul>
+    </div>
+    <div class="footer">
+    <span class="left">
+        &copy; Copyright 2004-2023, Benedict Verhegghe.
+    </span>
+      Last updated on Mar 27, 2023.
+    <span class="right">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.4.3.
+    </span>
+    </div>
+  </body>
+</html>

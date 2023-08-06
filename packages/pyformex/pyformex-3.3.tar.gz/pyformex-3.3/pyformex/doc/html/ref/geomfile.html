@@ -1,0 +1,550 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!--
+##
+##  This file is part of the pyFormex project.
+##  pyFormex is a tool for generating, manipulating and transforming 3D
+##  geometrical models by sequences of mathematical operations.
+##  Home page: http://pyformex.org
+##  Project page:  http://savannah.nongnu.org/projects/pyformex/
+##  Copyright (C) Benedict Verhegghe (benedict.verhegghe@ugent.be)
+##  Distributed under the GNU General Public License version 3 or later.
+##
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see http://www.gnu.org/licenses/.
+##
+-->
+    <title>25. geomfile — Export/import of files in pyFormex’s native PGF format &#8212; pyFormex 3.3 documentation</title>
+
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pyformex.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="26. geomtools — Basic geometrical operations." href="geomtools.html" />
+    <link rel="prev" title="24. geometry — A generic interface to the Coords transformation methods" href="geometry.html" />
+<link rel="icon" type="image/png" href="../_static/pyformex_fav.png" />
+
+  </head><body>
+
+<div class="header">
+  <a href="http://pyformex.org">
+  <img src="../_static/scallop_dome_small.png" alt="scallop dome" border="0" hspace="20" vspace="12" align="left" />
+  <img src="../_static/pyformex-logo-2.png" alt="pyformex logo" border="0" hspace="10" vspace="8" align="left" />
+  </a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="geomtools.html" title="26. geomtools — Basic geometrical operations."
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="geometry.html" title="24. geometry — A generic interface to the Coords transformation methods"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../refman.html" accesskey="U">pyFormex reference manual</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href=""><span class="section-number">25. </span><code class="xref py py-mod docutils literal notranslate"><span class="pre">geomfile</span></code> — Export/import of files in pyFormex’s native PGF format</a></li--> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<!-- PYFORMEX_SIDEBAR_LOGO -->
+<!-- PYFORMEX_WEBSITE_SIDEBAR_TOP -->
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="geometry.html"
+                        title="previous chapter"><span class="section-number">24. </span><code class="xref py py-mod docutils literal notranslate"><span class="pre">geometry</span></code> — A generic interface to the Coords transformation methods</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="geomtools.html"
+                        title="next chapter"><span class="section-number">26. </span><code class="xref py py-mod docutils literal notranslate"><span class="pre">geomtools</span></code> — Basic geometrical operations.</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-geomfile">
+<span id="geomfile-export-import-of-files-in-pyformex-s-native-pgf-format"></span><span id="sec-ref-geomfile"></span><h1><span class="section-number">25. </span><a class="reference internal" href="#module-geomfile" title="geomfile: Export/import of files in pyFormex's native PGF format"><code class="xref py py-mod docutils literal notranslate"><span class="pre">geomfile</span></code></a> — Export/import of files in pyFormex’s native PGF format<a class="headerlink" href="#module-geomfile" title="Permalink to this headline">¶</a></h1>
+<p>This module defines a class to work with files in the native
+pyFormex Geometry File (PGF) format.</p>
+<dl class="py class">
+<dt id="geomfile.GeometryFile">
+<em class="property">class </em><code class="sig-prename descclassname">geomfile.</code><code class="sig-name descname">GeometryFile</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">mode</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">compr</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">level</span><span class="o">=</span><span class="default_value">5</span></em>, <em class="sig-param"><span class="n">delete_temp</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">sep</span><span class="o">=</span><span class="default_value">' '</span></em>, <em class="sig-param"><span class="n">ifmt</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ffmt</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">version</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geomfile.html#GeometryFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geomfile.GeometryFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>A class to handle files in the pyFormex Geometry File format.</p>
+<p>The pyFormex Geometry File (PGF) format allows the persistent storage
+of most of the geometrical objects available in pyFormex using a format
+that is independent of the pyFormex version. It guarantees a possible read
+back in future versions. The format is simple and public, and hence
+also allows read back from other software.</p>
+<p>See <a class="reference external" href="http://pyformex.org/doc/file_format">http://pyformex.org/doc/file_format</a> for a full description
+of the file format(s). Older file formats are supported for reading.</p>
+<p>Other than just geometry, the pyFormex Geometry File format can also
+store some attributes of the objects, like names and colors.
+Future versions will also allow to store field variables.</p>
+<p>The GeometryFile class uses the utils.File class to access the files,
+and thus provides for transparent compression and decompression of the
+files. When making use of the compression, the PGF files will remain small
+even for complex models.</p>
+<p>A PGF file starts with a specific header identifying the format and
+version. When opening a file for reading, the PGF header is read
+automatically, and the file is thus positioned ready for reading
+the objects. When opening a file for writing (not appending!), the
+header is automatically written, and the file is ready for writing objects.</p>
+<p>In append mode however, nothing is currently done with the header.
+This means that it is possible to append to a file using a format
+different from that used to create the file initially. This is not a
+good practice, as it may hinder the proper read back of the data.
+Therefore, append mode should only be used when you are sure that
+your current pyFormex uses the same format as the already stored file.
+As a reminder, warning is written when opening the file in append mode.</p>
+<p>The <cite>filename</cite>, <cite>mode</cite>, <cite>compr</cite>, <cite>level</cite> and <cite>delete_temp</cite> arguments are
+passed to the utils.File class. See <a class="reference internal" href="utils.html#utils.File" title="utils.File"><code class="xref py py-class docutils literal notranslate"><span class="pre">utils.File</span></code></a> for more
+details.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<a class="reference internal" href="../glossary.html#term-path_like"><span class="xref std std-term">path_like</span></a>) – The name of the file to open. If the file name ends with ‘.gz’ or
+‘.bz2’, transparent (de)compression will be used, as provided by
+the <a class="reference internal" href="utils.html#utils.File" title="utils.File"><code class="xref py py-class docutils literal notranslate"><span class="pre">utils.File</span></code></a> class.</p></li>
+<li><p><strong>mode</strong> (<em>'rb'</em><em>, </em><em>'wb'</em><em> or </em><em>'ab'</em>) – Specifies that the file should be opened in read, write or append mode
+respectively. If omitted, an existing file will be opened in read mode
+and a non-existing in write mode. Opening an existing file in ‘wb’ mode
+will overwrite the file, while opening it in ‘ab’ mode will allow to
+append to the file.</p></li>
+<li><p><strong>compr</strong> (<em>'gz'</em><em> or </em><em>'bz2'</em>) – The compression type to be used: gzip or bzip2. If the file name is
+ending with ‘.gz’ or ‘.bz2’, this is set automatically from the
+suffix.</p></li>
+<li><p><strong>level</strong> (<em>int 1..9</em>) – Compression level for gzip/bzip2. Higher values result in smaller
+files, but require longer compression times. The default of 5 gives
+already a fairly good compression ratio.</p></li>
+<li><p><strong>delete_temp</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – If True (default), the temporary files needed to do the (de)compression
+are deleted when the GeometryFile is closed.</p></li>
+<li><p><strong>sep</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – Separator string to be used when writing numpy arrays to the file.
+An empty string will make the arrays being written in
+binary format. Any other string will force text mode, and the <code class="docutils literal notranslate"><span class="pre">sep</span></code>
+string is used as a separator between subsequent array elements.
+See also <code class="xref py py-func docutils literal notranslate"><span class="pre">numpy.tofile()</span></code>.</p></li>
+<li><p><strong>ifmt</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – Format for integer items. If provided, and sep is not empty, arrays
+will be written as in line per line text mode.
+If None (default), arrays are written as a single block, which
+resulting in very long lines.</p></li>
+<li><p><strong>ffmt</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – Format for float items. If provided, and sep is not empty, arrays
+will be written as in line per line text mode.
+If None (default), arrays are written as a single block, which
+resulting in very long lines.</p></li>
+<li><p><strong>version</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – Version of PGF format to use when writing. Currently available are
+‘1.9’, ‘2.0’, ‘2.1’. The default is ‘2.1’.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="geomfile.GeometryFile.readline">
+<code class="sig-name descname">readline</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geomfile.html#GeometryFile.readline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geomfile.GeometryFile.readline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read a line from the file</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geomfile.GeometryFile.writeline">
+<code class="sig-name descname">writeline</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">s</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geomfile.html#GeometryFile.writeline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geomfile.GeometryFile.writeline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write a text line to the file</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geomfile.GeometryFile.reopen">
+<code class="sig-name descname">reopen</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mode</span><span class="o">=</span><span class="default_value">'rb'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geomfile.html#GeometryFile.reopen"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geomfile.GeometryFile.reopen" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reopen the file, possibly changing the mode.</p>
+<p>The default mode for the reopen is ‘rb’</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geomfile.GeometryFile.close">
+<code class="sig-name descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geomfile.html#GeometryFile.close"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geomfile.GeometryFile.close" title="Permalink to this definition">¶</a></dt>
+<dd><p>Close the file.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geomfile.GeometryFile.writeHeader">
+<code class="sig-name descname">writeHeader</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geomfile.html#GeometryFile.writeHeader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geomfile.GeometryFile.writeHeader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write the header of a pyFormex geometry file.</p>
+<p>The header identifies the file as a pyFormex geometry file
+and sets the following global values:</p>
+<ul class="simple">
+<li><p><cite>version</cite>: the version of the geometry file format</p></li>
+<li><p><cite>sep</cite>: the default separator to be used when not specified in
+the data block</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geomfile.GeometryFile.writeData">
+<code class="sig-name descname">writeData</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">sep</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geomfile.html#GeometryFile.writeData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geomfile.GeometryFile.writeData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write an array of data to a pyFormex geometry file.</p>
+<p>If fmt is None, the data are written using numpy.tofile, with
+the specified separator. If sep is an empty string, the data block
+is written in binary mode, leading to smaller files.
+If fmt is specified, each</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geomfile.GeometryFile.write">
+<code class="sig-name descname">write</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">geom</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">sep</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geomfile.html#GeometryFile.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geomfile.GeometryFile.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write a collection of Geometry objects to the Geometry File.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>geom</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.11)"><em>object</em></a>) – An object of one the supported Geometry data types
+or a list or dict of such objects, or a WebGL objdict.
+Currently exported geometry objects are
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Coords</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Formex</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Mesh</span></code>,
+<code class="xref py py-class docutils literal notranslate"><span class="pre">PolyLine</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">BezierSpline</span></code>.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>int</em> – The number of objects written.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geomfile.GeometryFile.writeGeometry">
+<code class="sig-name descname">writeGeometry</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">geom</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">sep</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geomfile.html#GeometryFile.writeGeometry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geomfile.GeometryFile.writeGeometry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write a single Geometry object.</p>
+<p>Writes a single Geometry object to the Geometry File, using the
+specified name and separator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>geom</strong> (<em>a supported Geometry type object</em>) – Currently supported Geometry objects are
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Coords</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Formex</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Mesh</span></code>,
+<code class="xref py py-class docutils literal notranslate"><span class="pre">TriSurface</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">PolyLine</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">BezierSpline</span></code>.
+Other types are skipped, and a message is written, but processing
+continues.</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – The name of the object to be stored in the file.
+If not specified, and the object has an <cite>attrib</cite> dict containing
+a name, that value is used. Else an object name is generated
+from the file name.
+On readback, the object names are used as keys to store the objects
+in a dict.</p></li>
+<li><p><strong>sep</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – The separator to be used for writing this
+object. If not specified, the value given in the constructor will
+be used. This argument allows to override it on a per object base.</p></li>
+<li><p><strong>1 if the object has been written</strong> (<em>Returns</em>) – </p></li>
+<li><p><strong>otherwise.</strong> (<em>0</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geomfile.GeometryFile.writeFMT">
+<code class="sig-name descname">writeFMT</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">F</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">sep</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geomfile.html#GeometryFile.writeFMT"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geomfile.GeometryFile.writeFMT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write a Formex, Mesh or TriSurface.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>F</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Formex</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Mesh</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">TriSurface</span></code>) – The object to be written.</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – See <a class="reference internal" href="#geomfile.GeometryFile.writeGeometry" title="geomfile.GeometryFile.writeGeometry"><code class="xref py py-meth docutils literal notranslate"><span class="pre">writeGeometry()</span></code></a></p></li>
+<li><p><strong>sep</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – See <a class="reference internal" href="#geomfile.GeometryFile.writeGeometry" title="geomfile.GeometryFile.writeGeometry"><code class="xref py py-meth docutils literal notranslate"><span class="pre">writeGeometry()</span></code></a></p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This writes a header line with these attributes and arguments:
+objtype, ncoords, nelems, nplex, props(True/False),
+eltype, normals(True/False), color, sep, name.
+This is followed by the array data for: coords, elems, prop,
+normals, color</p>
+<p>The objtype can/should be overridden for subclasses.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geomfile.GeometryFile.writeCurve">
+<code class="sig-name descname">writeCurve</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">F</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">sep</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">objtype</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">extra</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geomfile.html#GeometryFile.writeCurve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geomfile.GeometryFile.writeCurve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write a Curve to a pyFormex geometry file.</p>
+<p>This function writes any curve type to the geometry file.
+The <cite>objtype</cite> is automatically detected but can be overridden.</p>
+<p>The following attributes and arguments are written in the header:
+ncoords, closed, name, sep.
+The following attributes are written as arrays: coords</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geomfile.GeometryFile.writePolyLine">
+<code class="sig-name descname">writePolyLine</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">F</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">sep</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geomfile.html#GeometryFile.writePolyLine"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geomfile.GeometryFile.writePolyLine" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write a PolyLine to a pyFormex geometry file.</p>
+<p>This is equivalent to writeCurve(F,name,sep,objtype=’PolyLine’)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geomfile.GeometryFile.writeBezierSpline">
+<code class="sig-name descname">writeBezierSpline</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">F</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">sep</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geomfile.html#GeometryFile.writeBezierSpline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geomfile.GeometryFile.writeBezierSpline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write a BezierSpline to a pyFormex geometry file.</p>
+<p>This is equivalent to writeCurve(F,name,sep,objtype=’BezierSpline’)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geomfile.GeometryFile.writeNurbsCurve">
+<code class="sig-name descname">writeNurbsCurve</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">F</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">sep</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">extra</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geomfile.html#GeometryFile.writeNurbsCurve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geomfile.GeometryFile.writeNurbsCurve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write a NurbsCurve to a pyFormex geometry file.</p>
+<p>This function writes a NurbsCurve instance to the geometry file.</p>
+<p>The following attributes and arguments are written in the header:
+ncoords, nknots, closed, name, sep.
+The following attributes are written as arrays: coords, knots</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geomfile.GeometryFile.writeNurbsSurface">
+<code class="sig-name descname">writeNurbsSurface</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">F</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">sep</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">extra</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geomfile.html#GeometryFile.writeNurbsSurface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geomfile.GeometryFile.writeNurbsSurface" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write a NurbsSurface to a pyFormex geometry file.</p>
+<p>This function writes a NurbsSurface instance to the geometry file.</p>
+<p>The following attributes and arguments are written in the header:
+ncoords, nknotsu, nknotsv, closedu, closedv, name, sep.
+The following attributes are written as arrays: coords, knotsu, knotsv</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geomfile.GeometryFile.writeAttrib">
+<code class="sig-name descname">writeAttrib</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">attrib</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geomfile.html#GeometryFile.writeAttrib"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geomfile.GeometryFile.writeAttrib" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write the Attributes block of the Geometry</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>attrib</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Attributes</span></code>) – The Attributes dict of a Geometry object.</p>
+</dd>
+</dl>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This is work in progress. Not all Attributes can currently
+be stored in the PGF format.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geomfile.GeometryFile.read">
+<code class="sig-name descname">read</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">count</span><span class="o">=</span><span class="default_value">- 1</span></em>, <em class="sig-param"><span class="n">warn_version</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geomfile.html#GeometryFile.read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geomfile.GeometryFile.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read objects from a pyFormex Geometry File.</p>
+<p>This function reads objects from a Geometry File until the file
+ends, or until <cite>count</cite> objects have been read.
+The File should have been opened for reading.</p>
+<p>A count may be specified to limit the number of objects read.</p>
+<p>Returns a dict with the objects read. The keys of the dict are the
+object names found in the file. If the file does not contain
+object names, they will be autogenerated from the file name.</p>
+<p>Note that PGF files of version 1.0 are no longer supported.
+The use of formats 1.1 to 1.5 is deprecated, and users are
+urged to upgrade these files to a newer format. Support for
+these formats may be removed in future.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geomfile.GeometryFile.decode">
+<code class="sig-name descname">decode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">s</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geomfile.html#GeometryFile.decode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geomfile.GeometryFile.decode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decode the announcement line.</p>
+<p>Returns a dict with the interpreted values of the line.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geomfile.GeometryFile.readHeader">
+<code class="sig-name descname">readHeader</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">s</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geomfile.html#GeometryFile.readHeader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geomfile.GeometryFile.readHeader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read the header of a pyFormex geometry file.</p>
+<p>Without argument, reads a line from the file and interpretes it as
+a header line. This is normally used to read the first line of the
+file. A string <cite>s</cite> may be specified to interprete further lines as
+a header line.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geomfile.GeometryFile.doHeader">
+<code class="sig-name descname">doHeader</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">version</span><span class="o">=</span><span class="default_value">'1.1'</span></em>, <em class="sig-param"><span class="n">sep</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geomfile.html#GeometryFile.doHeader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geomfile.GeometryFile.doHeader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read the header of a pyFormex geometry file.</p>
+<p>Sets detected default values</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geomfile.GeometryFile.readGeometry">
+<code class="sig-name descname">readGeometry</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">objtype</span><span class="o">=</span><span class="default_value">'Formex'</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">nelems</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ncoords</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">nplex</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">props</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">eltype</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">normals</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">color</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">colormap</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">closed</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">degree</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">nknots</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">sep</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">size</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geomfile.html#GeometryFile.readGeometry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geomfile.GeometryFile.readGeometry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read a geometry record of a pyFormex geometry file.</p>
+<p>If an object was successfully read, it is set in self.geometry</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geomfile.GeometryFile.readField">
+<code class="sig-name descname">readField</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">field</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fldtype</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">shape</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">sep</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geomfile.html#GeometryFile.readField"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geomfile.GeometryFile.readField" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read a Field defined on the last read geometry.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geomfile.GeometryFile.readAttrib">
+<code class="sig-name descname">readAttrib</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">attrib</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geomfile.html#GeometryFile.readAttrib"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geomfile.GeometryFile.readAttrib" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read an Attributes dict defined on the last read geometry.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geomfile.GeometryFile.readFormex">
+<code class="sig-name descname">readFormex</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nelems</span></em>, <em class="sig-param"><span class="n">nplex</span></em>, <em class="sig-param"><span class="n">props</span></em>, <em class="sig-param"><span class="n">eltype</span></em>, <em class="sig-param"><span class="n">sep</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geomfile.html#GeometryFile.readFormex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geomfile.GeometryFile.readFormex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read a Formex from a pyFormex geometry file.</p>
+<p>The coordinate array for nelems*nplex points is read from the file.
+If present, the property numbers for nelems elements are read.
+From the coords and props a Formex is created and returned.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geomfile.GeometryFile.readMesh">
+<code class="sig-name descname">readMesh</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ncoords</span></em>, <em class="sig-param"><span class="n">nelems</span></em>, <em class="sig-param"><span class="n">nplex</span></em>, <em class="sig-param"><span class="n">props</span></em>, <em class="sig-param"><span class="n">eltype</span></em>, <em class="sig-param"><span class="n">normals</span></em>, <em class="sig-param"><span class="n">sep</span></em>, <em class="sig-param"><span class="n">objtype</span><span class="o">=</span><span class="default_value">'Mesh'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geomfile.html#GeometryFile.readMesh"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geomfile.GeometryFile.readMesh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read a Mesh from a pyFormex geometry file.</p>
+<p>The following arrays are read from the file:
+- a coordinate array with <cite>ncoords</cite> points,
+- a connectivity array with <cite>nelems</cite> elements of plexitude <cite>nplex</cite>,
+- if present, a property number array for <cite>nelems</cite> elements.</p>
+<p>Returns the Mesh constructed from these data, or a subclass if
+an objtype is specified.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geomfile.GeometryFile.readPolyLine">
+<code class="sig-name descname">readPolyLine</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ncoords</span></em>, <em class="sig-param"><span class="n">closed</span></em>, <em class="sig-param"><span class="n">sep</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geomfile.html#GeometryFile.readPolyLine"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geomfile.GeometryFile.readPolyLine" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read a Curve from a pyFormex geometry file.</p>
+<p>The coordinate array for ncoords points is read from the file
+and a Curve of type <cite>objtype</cite> is returned.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geomfile.GeometryFile.readBezierSpline">
+<code class="sig-name descname">readBezierSpline</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ncoords</span></em>, <em class="sig-param"><span class="n">closed</span></em>, <em class="sig-param"><span class="n">degree</span></em>, <em class="sig-param"><span class="n">sep</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geomfile.html#GeometryFile.readBezierSpline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geomfile.GeometryFile.readBezierSpline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read a BezierSpline from a pyFormex geometry file.</p>
+<p>The coordinate array for ncoords points is read from the file
+and a BezierSpline of the given degree is returned.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geomfile.GeometryFile.readNurbsCurve">
+<code class="sig-name descname">readNurbsCurve</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ncoords</span></em>, <em class="sig-param"><span class="n">nknots</span></em>, <em class="sig-param"><span class="n">closed</span></em>, <em class="sig-param"><span class="n">sep</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geomfile.html#GeometryFile.readNurbsCurve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geomfile.GeometryFile.readNurbsCurve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read a NurbsCurve from a pyFormex geometry file.</p>
+<p>The coordinate array for ncoords control points and the nknots
+knot values are read from the file.
+A NurbsCurve of degree p = nknots - ncoords - 1 is returned.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geomfile.GeometryFile.readNurbsSurface">
+<code class="sig-name descname">readNurbsSurface</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ncoords</span></em>, <em class="sig-param"><span class="n">nuknots</span></em>, <em class="sig-param"><span class="n">nvknots</span></em>, <em class="sig-param"><span class="n">uclosed</span></em>, <em class="sig-param"><span class="n">vclosed</span></em>, <em class="sig-param"><span class="n">sep</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geomfile.html#GeometryFile.readNurbsSurface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geomfile.GeometryFile.readNurbsSurface" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read a NurbsSurface from a pyFormex geometry file.</p>
+<p>The coordinate array for ncoords control points and the nuknots and
+nvknots values of uknots and vknots are read from the file.
+A NurbsSurface of degree <code class="docutils literal notranslate"><span class="pre">pu</span> <span class="pre">=</span> <span class="pre">nuknots</span> <span class="pre">-</span> <span class="pre">ncoords</span> <span class="pre">-</span> <span class="pre">1</span></code>  and
+<code class="docutils literal notranslate"><span class="pre">pv</span> <span class="pre">=</span> <span class="pre">nvknots</span> <span class="pre">-</span> <span class="pre">ncoords</span> <span class="pre">-</span> <span class="pre">1</span></code> is returned.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geomfile.GeometryFile.readLegacy">
+<code class="sig-name descname">readLegacy</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">count</span><span class="o">=</span><span class="default_value">- 1</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geomfile.html#GeometryFile.readLegacy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geomfile.GeometryFile.readLegacy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read the objects from a pyFormex Geometry File format &lt;= 1.7.</p>
+<p>This function reads all the objects of a Geometry File.
+The File should have been opened for reading, and the header
+should have been read previously.</p>
+<p>A count may be specified to limit the number of objects read.</p>
+<p>Returns a dict with the objects read. The keys of the dict are the
+object names found in the file. If the file does not contain
+object names, they will be autogenerated from the file name.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geomfile.GeometryFile.oldReadBezierSpline">
+<code class="sig-name descname">oldReadBezierSpline</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ncoords</span></em>, <em class="sig-param"><span class="n">nparts</span></em>, <em class="sig-param"><span class="n">closed</span></em>, <em class="sig-param"><span class="n">sep</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geomfile.html#GeometryFile.oldReadBezierSpline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geomfile.GeometryFile.oldReadBezierSpline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read a BezierSpline from a pyFormex geometry file version 1.3.</p>
+<p>The coordinate array for ncoords points and control point array
+for (nparts,2) control points are read from the file.
+A BezierSpline of degree 3 is constructed and returned.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geomfile.GeometryFile.rewrite">
+<code class="sig-name descname">rewrite</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geomfile.html#GeometryFile.rewrite"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geomfile.GeometryFile.rewrite" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert the geometry file to the latest format.</p>
+<p>The conversion is done by reading all objects from the geometry file
+and writing them back. Parts that could not be successfully read will
+be skipped.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="geomtools.html" title="26. geomtools — Basic geometrical operations."
+             >next</a> |</li>
+        <li class="right" >
+          <a href="geometry.html" title="24. geometry — A generic interface to the Coords transformation methods"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../refman.html" >pyFormex reference manual</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href=""><span class="section-number">25. </span><code class="xref py py-mod docutils literal notranslate"><span class="pre">geomfile</span></code> — Export/import of files in pyFormex’s native PGF format</a></li--> 
+      </ul>
+    </div>
+    <div class="footer">
+    <span class="left">
+        &copy; Copyright 2004-2023, Benedict Verhegghe.
+    </span>
+      Last updated on Mar 27, 2023.
+    <span class="right">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.4.3.
+    </span>
+    </div>
+  </body>
+</html>

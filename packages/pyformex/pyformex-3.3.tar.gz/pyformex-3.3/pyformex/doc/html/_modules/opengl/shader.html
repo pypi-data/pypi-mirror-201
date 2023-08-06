@@ -1,0 +1,397 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!--
+##
+##  This file is part of the pyFormex project.
+##  pyFormex is a tool for generating, manipulating and transforming 3D
+##  geometrical models by sequences of mathematical operations.
+##  Home page: http://pyformex.org
+##  Project page:  http://savannah.nongnu.org/projects/pyformex/
+##  Copyright (C) Benedict Verhegghe (benedict.verhegghe@ugent.be)
+##  Distributed under the GNU General Public License version 3 or later.
+##
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see http://www.gnu.org/licenses/.
+##
+-->
+    <title>opengl.shader &#8212; pyFormex 3.3 documentation</title>
+
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pyformex.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+<link rel="icon" type="image/png" href="../../_static/pyformex_fav.png" />
+
+  </head><body>
+
+<div class="header">
+  <a href="http://pyformex.org">
+  <img src="../../_static/scallop_dome_small.png" alt="scallop dome" border="0" hspace="20" vspace="12" align="left" />
+  <img src="../../_static/pyformex-logo-2.png" alt="pyformex logo" border="0" hspace="10" vspace="8" align="left" />
+  </a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">opengl.shader</a></li--> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<!-- PYFORMEX_SIDEBAR_LOGO -->
+<!-- PYFORMEX_WEBSITE_SIDEBAR_TOP -->
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for opengl.shader</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1">##</span>
+<span class="c1">##  SPDX-FileCopyrightText: © 2007-2023 Benedict Verhegghe &lt;bverheg@gmail.com&gt;</span>
+<span class="c1">##  SPDX-License-Identifier: GPL-3.0-or-later</span>
+<span class="c1">##</span>
+<span class="c1">##  This file is part of pyFormex 3.3  (Sun Mar 26 20:16:15 CEST 2023)</span>
+<span class="c1">##  pyFormex is a tool for generating, manipulating and transforming 3D</span>
+<span class="c1">##  geometrical models by sequences of mathematical operations.</span>
+<span class="c1">##  Home page: https://pyformex.org</span>
+<span class="c1">##  Project page: https://savannah.nongnu.org/projects/pyformex/</span>
+<span class="c1">##  Development: https://gitlab.com/bverheg/pyformex</span>
+<span class="c1">##  Distributed under the GNU General Public License version 3 or later.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is free software: you can redistribute it and/or modify</span>
+<span class="c1">##  it under the terms of the GNU General Public License as published by</span>
+<span class="c1">##  the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1">##  (at your option) any later version.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is distributed in the hope that it will be useful,</span>
+<span class="c1">##  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1">##  GNU General Public License for more details.</span>
+<span class="c1">##</span>
+<span class="c1">##  You should have received a copy of the GNU General Public License</span>
+<span class="c1">##  along with this program.  If not, see http://www.gnu.org/licenses/.</span>
+<span class="c1">##</span>
+
+<span class="sd">&quot;&quot;&quot;OpenGL shader programs</span>
+
+<span class="sd">Python OpenGL framework for pyFormex</span>
+
+<span class="sd">This module is responsible for loading the shader programs</span>
+<span class="sd">and its data onto the graphics system.</span>
+
+<span class="sd">(C) 2013 Benedict Verhegghe and the pyFormex project.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">pyformex</span> <span class="k">as</span> <span class="nn">pf</span>
+<span class="kn">from</span> <span class="nn">pyformex.software</span> <span class="kn">import</span> <span class="n">SaneVersion</span>
+<span class="kn">from</span> <span class="nn">pyformex.gui</span> <span class="kn">import</span> <span class="n">qtgl</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">gl</span>
+<span class="kn">from</span> <span class="nn">.gl</span> <span class="kn">import</span> <span class="n">GL</span><span class="p">,</span> <span class="n">shaders</span>
+
+
+<div class="viewcode-block" id="defaultShaders"><a class="viewcode-back" href="../../ref/opengl.shader.html#opengl.shader.defaultShaders">[docs]</a><span class="k">def</span> <span class="nf">defaultShaders</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Determine the default shader programs&quot;&quot;&quot;</span>
+    <span class="n">glversion</span> <span class="o">=</span> <span class="n">gl</span><span class="o">.</span><span class="n">gl_version</span><span class="p">()</span>
+    <span class="n">vendor</span> <span class="o">=</span> <span class="n">glversion</span><span class="p">[</span><span class="s1">&#39;vendor&#39;</span><span class="p">]</span>
+    <span class="n">renderer</span> <span class="o">=</span> <span class="n">glversion</span><span class="p">[</span><span class="s1">&#39;renderer&#39;</span><span class="p">]</span>
+    <span class="n">version</span> <span class="o">=</span> <span class="n">glversion</span><span class="p">[</span><span class="s1">&#39;version&#39;</span><span class="p">]</span>
+    <span class="n">vmajor</span><span class="p">,</span> <span class="n">vminor</span> <span class="o">=</span> <span class="n">version</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[:</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">fmt</span> <span class="o">=</span> <span class="n">qtgl</span><span class="o">.</span><span class="n">getOpenGLFormat</span><span class="p">()</span>
+    <span class="n">major</span><span class="p">,</span> <span class="n">minor</span> <span class="o">=</span> <span class="n">fmt</span><span class="o">.</span><span class="n">majorVersion</span><span class="p">(),</span> <span class="n">fmt</span><span class="o">.</span><span class="n">minorVersion</span><span class="p">()</span>
+    <span class="n">availversion</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">vmajor</span><span class="p">,</span> <span class="n">vminor</span><span class="p">)</span>
+    <span class="n">activeversion</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">major</span><span class="p">,</span> <span class="n">minor</span><span class="p">)</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Vendor: </span><span class="si">%s</span><span class="s2">; Renderer: </span><span class="si">%s</span><span class="s2">; Available version: </span><span class="si">%s</span><span class="s2">; Active version </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">vendor</span><span class="p">,</span> <span class="n">renderer</span><span class="p">,</span> <span class="n">availversion</span><span class="p">,</span> <span class="n">activeversion</span><span class="p">),</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">OPENGL</span><span class="p">)</span>
+    <span class="c1">#shortversion = &quot;%s.%s&quot; % (major,minor)</span>
+    <span class="c1"># Default shaders</span>
+    <span class="n">dirname</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">pyformexdir</span> <span class="o">/</span> <span class="s1">&#39;glsl&#39;</span>
+    <span class="n">vertexshader</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">dirname</span> <span class="o">/</span> <span class="s2">&quot;vertex_shader&quot;</span><span class="p">)</span>
+    <span class="n">fragmentshader</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">dirname</span> <span class="o">/</span> <span class="s2">&quot;fragment_shader&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">pf</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">shader</span><span class="p">:</span>
+
+        <span class="k">if</span> <span class="n">SaneVersion</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;opengl/version&#39;</span><span class="p">])</span> <span class="o">&gt;=</span> <span class="n">SaneVersion</span><span class="p">(</span><span class="s1">&#39;3.3&#39;</span><span class="p">):</span>
+            <span class="n">pf</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">shader</span> <span class="o">=</span> <span class="s1">&#39;330&#39;</span>
+
+        <span class="c1"># Default shaders for some hardware</span>
+
+        <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Selecting best default shader&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">OPENGL</span><span class="p">)</span>
+
+        <span class="c1">#if &#39;Mesa&#39; in renderer or &#39;Mesa&#39; in version:</span>
+        <span class="c1">#    pf.options.shader = &#39;mesa&#39;</span>
+
+        <span class="c1"># For Radeon, select 330 if available</span>
+        <span class="k">if</span> <span class="s1">&#39;Radeon&#39;</span> <span class="ow">in</span> <span class="n">renderer</span> <span class="ow">and</span> <span class="n">SaneVersion</span><span class="p">(</span><span class="n">availversion</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">SaneVersion</span><span class="p">(</span><span class="s1">&#39;3.3&#39;</span><span class="p">):</span>
+            <span class="n">pf</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">shader</span> <span class="o">=</span> <span class="s1">&#39;330&#39;</span>
+
+
+    <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">shader</span><span class="p">:</span>
+        <span class="n">vertexshader</span> <span class="o">+=</span> <span class="s1">&#39;_</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">pf</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">shader</span>
+        <span class="n">fragmentshader</span> <span class="o">+=</span> <span class="s1">&#39;_</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">pf</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">shader</span>
+    <span class="n">vertexshader</span> <span class="o">+=</span> <span class="s1">&#39;.c&#39;</span>
+    <span class="n">fragmentshader</span> <span class="o">+=</span> <span class="s1">&#39;.c&#39;</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Using shaders </span><span class="si">{</span><span class="n">vertexshader</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">fragmentshader</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">OPENGL</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">vertexshader</span><span class="p">,</span> <span class="n">fragmentshader</span></div>
+
+
+<div class="viewcode-block" id="Shader"><a class="viewcode-back" href="../../ref/opengl.shader.html#opengl.shader.Shader">[docs]</a><span class="k">class</span> <span class="nc">Shader</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;An OpenGL shader consisting of a vertex and a fragment shader pair.</span>
+
+<span class="sd">    Class attributes:</span>
+
+<span class="sd">    - `_vertexshader` : the vertex shader source.</span>
+<span class="sd">      By default, a basic shader supporting vertex positions and vertex colors</span>
+<span class="sd">      is defined</span>
+
+<span class="sd">    - `_fragmentshader` : the fragment shader source.</span>
+<span class="sd">      By default, a basic shader supporting fragment colors is defined.</span>
+
+<span class="sd">    - `attributes`: the shaders&#39; vertex attributes.</span>
+<span class="sd">    - `uniforms`: the shaders&#39; uniforms.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Default attributes and uniforms</span>
+    <span class="n">attributes</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;pickColor&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;vertexCoords&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;vertexNormal&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;vertexColor&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;vertexTexturePos&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;vertexScalar&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;vertexOffset&#39;</span><span class="p">,</span>
+    <span class="p">]</span>
+
+    <span class="c1"># int and bool uniforms</span>
+    <span class="n">uniforms_int</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s1">&#39;highlight&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;useObjectColor&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;rgbamode&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;useTexture&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;texmode&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;rendertype&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;alphablend&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;drawface&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;lighting&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;nlights&#39;</span><span class="p">,</span>
+        <span class="p">]</span>
+
+    <span class="n">uniforms_float</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s1">&#39;pointsize&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;ambient&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;diffuse&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;specular&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;shininess&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;alpha&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;bkalpha&#39;</span><span class="p">,</span>
+        <span class="p">]</span>
+
+    <span class="n">uniforms_vec3</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s1">&#39;objectColor&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;objectBkColor&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;ambicolor&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;diffcolor&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;speccolor&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;lightdir&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;offset3&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;highlightColor&#39;</span><span class="p">,</span>
+    <span class="p">]</span>
+
+    <span class="n">uniforms</span> <span class="o">=</span> <span class="n">uniforms_int</span> <span class="o">+</span> <span class="n">uniforms_float</span> <span class="o">+</span>  <span class="n">uniforms_vec3</span> <span class="o">+</span> <span class="p">[</span>
+        <span class="s1">&#39;modelview&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;projection&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;modelviewprojection&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;normalstransform&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;picking&#39;</span><span class="p">,</span>
+    <span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">canvas</span><span class="p">,</span> <span class="n">vshader</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fshader</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">attributes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">uniforms</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">_vertexshader</span><span class="p">,</span> <span class="n">_fragmentshader</span> <span class="o">=</span> <span class="n">defaultShaders</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">vshader</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">vshader</span> <span class="o">=</span> <span class="n">_vertexshader</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Using vertex shader </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">vshader</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">OPENGL</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">vshader</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">VertexShader</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">fshader</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fshader</span> <span class="o">=</span> <span class="n">_fragmentshader</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Using fragment shader </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">fshader</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">OPENGL</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fshader</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">FragmentShader</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">attributes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">attributes</span> <span class="o">=</span> <span class="n">Shader</span><span class="o">.</span><span class="n">attributes</span>
+
+        <span class="k">if</span> <span class="n">uniforms</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">uniforms</span> <span class="o">=</span> <span class="n">Shader</span><span class="o">.</span><span class="n">uniforms</span>
+
+        <span class="n">vertex_shader</span> <span class="o">=</span> <span class="n">shaders</span><span class="o">.</span><span class="n">compileShader</span><span class="p">(</span><span class="n">VertexShader</span><span class="p">,</span> <span class="n">GL</span><span class="o">.</span><span class="n">GL_VERTEX_SHADER</span><span class="p">)</span>
+        <span class="n">fragment_shader</span> <span class="o">=</span> <span class="n">shaders</span><span class="o">.</span><span class="n">compileShader</span><span class="p">(</span><span class="n">FragmentShader</span><span class="p">,</span> <span class="n">GL</span><span class="o">.</span><span class="n">GL_FRAGMENT_SHADER</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shader</span> <span class="o">=</span> <span class="n">shaders</span><span class="o">.</span><span class="n">compileProgram</span><span class="p">(</span><span class="n">vertex_shader</span><span class="p">,</span> <span class="n">fragment_shader</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">attribute</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">locations</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">glGetAttribLocation</span><span class="p">,</span> <span class="n">attributes</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">uniform</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">locations</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">glGetUniformLocation</span><span class="p">,</span> <span class="n">uniforms</span><span class="p">)</span>
+        <span class="c1">#self.picking = 0  # Default render mode</span>
+
+
+<div class="viewcode-block" id="Shader.locations"><a class="viewcode-back" href="../../ref/opengl.shader.html#opengl.shader.Shader.locations">[docs]</a>    <span class="k">def</span> <span class="nf">locations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">keys</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a dict with the locations of the specified keys&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">([(</span><span class="n">k</span><span class="p">,</span> <span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shader</span><span class="p">,</span> <span class="n">k</span><span class="p">))</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="Shader.uniformInt"><a class="viewcode-back" href="../../ref/opengl.shader.html#opengl.shader.Shader.uniformInt">[docs]</a>    <span class="k">def</span> <span class="nf">uniformInt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Load a uniform integer or boolean into the shader&quot;&quot;&quot;</span>
+        <span class="n">loc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uniform</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="n">GL</span><span class="o">.</span><span class="n">glUniform1i</span><span class="p">(</span><span class="n">loc</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Shader.uniformFloat"><a class="viewcode-back" href="../../ref/opengl.shader.html#opengl.shader.Shader.uniformFloat">[docs]</a>    <span class="k">def</span> <span class="nf">uniformFloat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Load a uniform float into the shader&quot;&quot;&quot;</span>
+        <span class="n">loc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uniform</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="n">GL</span><span class="o">.</span><span class="n">glUniform1f</span><span class="p">(</span><span class="n">loc</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span></div>
+
+
+    <span class="c1">## def uniformVec3(self,name,value):</span>
+    <span class="c1">##     &quot;&quot;&quot;Load a uniform vec3 into the shader&quot;&quot;&quot;</span>
+    <span class="c1">##     loc = self.uniform[name]</span>
+    <span class="c1">##     GL.glUniform3fv(loc,1,value)</span>
+
+
+<div class="viewcode-block" id="Shader.uniformVec3"><a class="viewcode-back" href="../../ref/opengl.shader.html#opengl.shader.Shader.uniformVec3">[docs]</a>    <span class="k">def</span> <span class="nf">uniformVec3</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Load a uniform vec3[n] into the shader</span>
+
+<span class="sd">        The value should be a 1D array or list.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">loc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uniform</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">//</span> <span class="mi">3</span>
+        <span class="n">GL</span><span class="o">.</span><span class="n">glUniform3fv</span><span class="p">(</span><span class="n">loc</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Shader.uniformMat4"><a class="viewcode-back" href="../../ref/opengl.shader.html#opengl.shader.Shader.uniformMat4">[docs]</a>    <span class="k">def</span> <span class="nf">uniformMat4</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Load a uniform mat4 into the shader&quot;&quot;&quot;</span>
+        <span class="n">loc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uniform</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="n">GL</span><span class="o">.</span><span class="n">glUniformMatrix4fv</span><span class="p">(</span><span class="n">loc</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Shader.uniformMat3"><a class="viewcode-back" href="../../ref/opengl.shader.html#opengl.shader.Shader.uniformMat3">[docs]</a>    <span class="k">def</span> <span class="nf">uniformMat3</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Load a uniform mat3 into the shader&quot;&quot;&quot;</span>
+        <span class="n">loc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uniform</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="n">GL</span><span class="o">.</span><span class="n">glUniformMatrix3fv</span><span class="p">(</span><span class="n">loc</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Shader.bind"><a class="viewcode-back" href="../../ref/opengl.shader.html#opengl.shader.Shader.bind">[docs]</a>    <span class="k">def</span> <span class="nf">bind</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">picking</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Bind the shader program&quot;&quot;&quot;</span>
+        <span class="n">shaders</span><span class="o">.</span><span class="n">glUseProgram</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shader</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">uniformInt</span><span class="p">(</span><span class="s1">&#39;picking&#39;</span><span class="p">,</span> <span class="n">picking</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Shader.unbind"><a class="viewcode-back" href="../../ref/opengl.shader.html#opengl.shader.Shader.unbind">[docs]</a>    <span class="k">def</span> <span class="nf">unbind</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Unbind the shader program&quot;&quot;&quot;</span>
+        <span class="n">shaders</span><span class="o">.</span><span class="n">glUseProgram</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Shader.loadUniforms"><a class="viewcode-back" href="../../ref/opengl.shader.html#opengl.shader.Shader.loadUniforms">[docs]</a>    <span class="k">def</span> <span class="nf">loadUniforms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">D</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Load the uniform attributes defined in D</span>
+
+<span class="sd">        D is a dict with uniform attributes to be loaded into</span>
+<span class="sd">        the shader program. The attributes can be of type</span>
+<span class="sd">        int, float, or vec3.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">attribs</span><span class="p">,</span> <span class="n">func</span> <span class="ow">in</span> <span class="p">[</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uniforms_int</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">uniformInt</span><span class="p">),</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uniforms_float</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">uniformFloat</span><span class="p">),</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uniforms_vec3</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">uniformVec3</span><span class="p">),</span>
+            <span class="p">]:</span>
+            <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">attribs</span><span class="p">:</span>
+                <span class="n">v</span> <span class="o">=</span> <span class="n">D</span><span class="p">[</span><span class="n">a</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">func</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Delete a shader instance.</span>
+
+<span class="sd">        This will unbinf the shader program before deleting it.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">unbind</span><span class="p">()</span></div>
+
+<span class="c1"># End</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">opengl.shader</a></li--> 
+      </ul>
+    </div>
+    <div class="footer">
+    <span class="left">
+        &copy; Copyright 2004-2023, Benedict Verhegghe.
+    </span>
+      Last updated on Mar 27, 2023.
+    <span class="right">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.4.3.
+    </span>
+    </div>
+  </body>
+</html>

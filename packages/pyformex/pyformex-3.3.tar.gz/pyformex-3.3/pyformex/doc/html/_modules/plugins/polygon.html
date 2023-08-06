@@ -1,0 +1,437 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!--
+##
+##  This file is part of the pyFormex project.
+##  pyFormex is a tool for generating, manipulating and transforming 3D
+##  geometrical models by sequences of mathematical operations.
+##  Home page: http://pyformex.org
+##  Project page:  http://savannah.nongnu.org/projects/pyformex/
+##  Copyright (C) Benedict Verhegghe (benedict.verhegghe@ugent.be)
+##  Distributed under the GNU General Public License version 3 or later.
+##
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see http://www.gnu.org/licenses/.
+##
+-->
+    <title>plugins.polygon &#8212; pyFormex 3.3 documentation</title>
+
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pyformex.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+<link rel="icon" type="image/png" href="../../_static/pyformex_fav.png" />
+
+  </head><body>
+
+<div class="header">
+  <a href="http://pyformex.org">
+  <img src="../../_static/scallop_dome_small.png" alt="scallop dome" border="0" hspace="20" vspace="12" align="left" />
+  <img src="../../_static/pyformex-logo-2.png" alt="pyformex logo" border="0" hspace="10" vspace="8" align="left" />
+  </a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">plugins.polygon</a></li--> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<!-- PYFORMEX_SIDEBAR_LOGO -->
+<!-- PYFORMEX_WEBSITE_SIDEBAR_TOP -->
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for plugins.polygon</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1">##</span>
+<span class="c1">##  SPDX-FileCopyrightText: © 2007-2023 Benedict Verhegghe &lt;bverheg@gmail.com&gt;</span>
+<span class="c1">##  SPDX-License-Identifier: GPL-3.0-or-later</span>
+<span class="c1">##</span>
+<span class="c1">##  This file is part of pyFormex 3.3  (Sun Mar 26 20:16:15 CEST 2023)</span>
+<span class="c1">##  pyFormex is a tool for generating, manipulating and transforming 3D</span>
+<span class="c1">##  geometrical models by sequences of mathematical operations.</span>
+<span class="c1">##  Home page: https://pyformex.org</span>
+<span class="c1">##  Project page: https://savannah.nongnu.org/projects/pyformex/</span>
+<span class="c1">##  Development: https://gitlab.com/bverheg/pyformex</span>
+<span class="c1">##  Distributed under the GNU General Public License version 3 or later.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is free software: you can redistribute it and/or modify</span>
+<span class="c1">##  it under the terms of the GNU General Public License as published by</span>
+<span class="c1">##  the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1">##  (at your option) any later version.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is distributed in the hope that it will be useful,</span>
+<span class="c1">##  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1">##  GNU General Public License for more details.</span>
+<span class="c1">##</span>
+<span class="c1">##  You should have received a copy of the GNU General Public License</span>
+<span class="c1">##  along with this program.  If not, see http://www.gnu.org/licenses/.</span>
+<span class="c1">##</span>
+
+<span class="sd">&quot;&quot;&quot;Polygonal facets.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">import</span> <span class="nn">pyformex</span> <span class="k">as</span> <span class="nn">pf</span>
+<span class="kn">from</span> <span class="nn">pyformex.core</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">pyformex.geometry</span> <span class="kn">import</span> <span class="n">Geometry</span>
+<span class="kn">from</span> <span class="nn">pyformex.curve</span> <span class="kn">import</span> <span class="n">PolyLine</span>
+<span class="kn">from</span> <span class="nn">pyformex.trisurface</span> <span class="kn">import</span> <span class="n">TriSurface</span>
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">utils</span>
+
+<span class="c1">############################################################################</span>
+
+<span class="c1">#</span>
+<span class="c1"># TODO : this should be integrated with CoordSys</span>
+<span class="c1">#</span>
+<div class="viewcode-block" id="projected"><a class="viewcode-back" href="../../ref/plugins.polygon.html#plugins.polygon.projected">[docs]</a><span class="k">def</span> <span class="nf">projected</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">N</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns 2-D coordinates of a set of 3D coordinates.</span>
+
+<span class="sd">    The returned 2D coordinates are still stored in a 3D Coords object.</span>
+<span class="sd">    The last coordinate will however (approximately) be zero.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">pyformex.geomtools</span> <span class="kn">import</span> <span class="n">rotationAngle</span>
+    <span class="k">if</span> <span class="n">N</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normal</span>
+    <span class="n">a</span><span class="p">,</span> <span class="n">A</span> <span class="o">=</span> <span class="n">rotationAngle</span><span class="p">([</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">],</span> <span class="n">N</span><span class="p">)</span>
+    <span class="n">a</span><span class="p">,</span> <span class="n">A</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">A</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">angle</span><span class="o">=-</span><span class="n">a</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">A</span><span class="p">)</span>
+    <span class="n">C</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">center</span><span class="p">()</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="o">-</span><span class="n">C</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">X</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">a</span></div>
+
+
+<span class="c1"># TODO: replace with scipy delaunay/voronoi</span>
+
+<span class="c1">## def delaunay(X):</span>
+<span class="c1">##     &quot;&quot;&quot;Return a Delaunay triangulation of the specified Coords.</span>
+
+<span class="c1">##     While the Coords are 3d, only the first 2 components are used.</span>
+
+<span class="c1">##     Returns a TriSurface with the Delaunay triangulation in the x-y plane.</span>
+<span class="c1">##     &quot;&quot;&quot;</span>
+<span class="c1">##     from voronoi import voronoi</span>
+<span class="c1">##     return TriSurface(X, voronoi(X[:, :2]).triangles)</span>
+
+<span class="c1"># TODO: Use PolyLine to represent coords?</span>
+<span class="c1"># TODO: Subclass from PolyLine? : and block opening the curve</span>
+
+<div class="viewcode-block" id="Polygon"><a class="viewcode-back" href="../../ref/plugins.polygon.html#plugins.polygon.Polygon">[docs]</a><span class="k">class</span> <span class="nc">Polygon</span><span class="p">(</span><span class="n">Geometry</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A Polygon is a flat surface bounded by a closed PolyLine.</span>
+
+<span class="sd">    The border is specified as a Coords object with shape (nvertex,3)</span>
+<span class="sd">    specifying the vertex coordinates in order.</span>
+<span class="sd">    While the Coords are 3d, only the first 2 components are used.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">border</span><span class="p">,</span> <span class="n">normal</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">holes</span><span class="o">=</span><span class="p">[]):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize a Polygon instance&quot;&quot;&quot;</span>
+        <span class="n">Geometry</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prop</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coords</span> <span class="o">=</span> <span class="n">border</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+
+    <span class="c1"># implement abstractmethods</span>
+<div class="viewcode-block" id="Polygon.nelems"><a class="viewcode-back" href="../../ref/plugins.polygon.html#plugins.polygon.Polygon.nelems">[docs]</a>    <span class="k">def</span> <span class="nf">nelems</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mi">1</span></div>
+    <span class="k">def</span> <span class="nf">_select</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sel</span><span class="p">,</span> <span class="n">compact</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+
+<div class="viewcode-block" id="Polygon.npoints"><a class="viewcode-back" href="../../ref/plugins.polygon.html#plugins.polygon.Polygon.npoints">[docs]</a>    <span class="k">def</span> <span class="nf">npoints</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the number of points and edges.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="Polygon.vectors"><a class="viewcode-back" href="../../ref/plugins.polygon.html#plugins.polygon.Polygon.vectors">[docs]</a>    <span class="k">def</span> <span class="nf">vectors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the vectors from each point to the next one.&quot;&quot;&quot;</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="n">x</span></div>
+
+
+<div class="viewcode-block" id="Polygon.angles"><a class="viewcode-back" href="../../ref/plugins.polygon.html#plugins.polygon.Polygon.angles">[docs]</a>    <span class="k">def</span> <span class="nf">angles</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the angles of the line segments with the x-axis.&quot;&quot;&quot;</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vectors</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">at</span><span class="o">.</span><span class="n">arctand2</span><span class="p">(</span><span class="n">v</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">v</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="Polygon.externalAngles"><a class="viewcode-back" href="../../ref/plugins.polygon.html#plugins.polygon.Polygon.externalAngles">[docs]</a>    <span class="k">def</span> <span class="nf">externalAngles</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the angles between subsequent line segments.</span>
+
+<span class="sd">        The returned angles are the change in direction between the segment</span>
+<span class="sd">        ending at the vertex and the segment leaving.</span>
+<span class="sd">        The angles are given in degrees, in the range ]-180,180].</span>
+<span class="sd">        The sum of the external angles is always (a multiple of) 360.</span>
+<span class="sd">        A convex polygon has all angles of the same sign.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">angles</span><span class="p">()</span>
+        <span class="n">va</span> <span class="o">=</span>  <span class="n">a</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">va</span><span class="p">[</span><span class="n">va</span> <span class="o">&lt;=</span> <span class="o">-</span><span class="mf">180.</span><span class="p">]</span> <span class="o">+=</span> <span class="mf">360.</span>
+        <span class="n">va</span><span class="p">[</span><span class="n">va</span> <span class="o">&gt;</span> <span class="mf">180.</span><span class="p">]</span> <span class="o">-=</span> <span class="mf">360.</span>
+        <span class="k">return</span> <span class="n">va</span></div>
+
+
+<div class="viewcode-block" id="Polygon.isConvex"><a class="viewcode-back" href="../../ref/plugins.polygon.html#plugins.polygon.Polygon.isConvex">[docs]</a>    <span class="k">def</span> <span class="nf">isConvex</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check if the polygon is convex and turning anticlockwise.</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">        - +1 if the Polygon is convex and turning anticlockwise,</span>
+<span class="sd">        - -1 if the Polygon is convex, but turning clockwise,</span>
+<span class="sd">        - 0 if the Polygon is not convex.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">sign</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">externalAngles</span><span class="p">())</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">npoints</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Polygon.internalAngles"><a class="viewcode-back" href="../../ref/plugins.polygon.html#plugins.polygon.Polygon.internalAngles">[docs]</a>    <span class="k">def</span> <span class="nf">internalAngles</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the internal angles.</span>
+
+<span class="sd">        The returned angles are those between the two line segments at</span>
+<span class="sd">        each vertex.</span>
+<span class="sd">        The angles are given in degrees, in the range ]-180,180].</span>
+<span class="sd">        These angles are the complement of the</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="mf">180.</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">externalAngles</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Polygon.reverse"><a class="viewcode-back" href="../../ref/plugins.polygon.html#plugins.polygon.Polygon.reverse">[docs]</a>    <span class="k">def</span> <span class="nf">reverse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the Polygon with reversed order of vertices.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Polygon</span><span class="p">(</span><span class="n">Coords</span><span class="p">(</span><span class="n">at</span><span class="o">.</span><span class="n">reverseAxis</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="mi">0</span><span class="p">)))</span></div>
+
+
+<div class="viewcode-block" id="Polygon.fill"><a class="viewcode-back" href="../../ref/plugins.polygon.html#plugins.polygon.Polygon.fill">[docs]</a>    <span class="k">def</span> <span class="nf">fill</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Fill the surface inside the polygon with triangles.</span>
+
+<span class="sd">        Returns a TriSurface filling the surface inside the polygon.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1">#print(&quot;AREA(self) %s&quot; % self.area())</span>
+        <span class="c1"># creating elems array at once (more efficient than appending)</span>
+        <span class="c1">#from pyformex.gui.draw import draw, pause, undraw, drawNumbers</span>
+        <span class="kn">from</span> <span class="nn">pyformex.geomtools</span> <span class="kn">import</span> <span class="n">insideTriangle</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">tri</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">n</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">at</span><span class="o">.</span><span class="n">Int</span><span class="p">)</span>
+        <span class="c1"># compute all internal angles</span>
+        <span class="n">e</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">internalAngles</span><span class="p">()</span>
+        <span class="c1"># loop in order of smallest angles</span>
+        <span class="n">itri</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1">#draw(x)</span>
+        <span class="c1">#drawNumbers(x)</span>
+        <span class="k">while</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="c1">#print(&quot;ANGLES&quot;,c)</span>
+            <span class="c1"># try minimal angle</span>
+            <span class="n">srt</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">argsort</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">srt</span><span class="p">:</span>
+                <span class="c1">#print(&quot;ANGLE: %s&quot; % c[j])</span>
+                <span class="k">if</span> <span class="n">c</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">180.</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;OOPS, I GOT STUCK!</span><span class="se">\n</span><span class="s2">Maybe the curve is self-intersecting?&quot;</span><span class="p">)</span>
+                    <span class="c1">#print(&quot;Remaining points: %s&quot; % e)</span>
+                    <span class="c1">#raise</span>
+                    <span class="c1">#</span>
+                    <span class="c1"># We could return here also the remaining part</span>
+                    <span class="c1">#</span>
+                    <span class="k">return</span> <span class="n">TriSurface</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">tri</span><span class="p">[:</span><span class="n">itri</span><span class="p">])</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="p">(</span><span class="n">j</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">n</span>
+                <span class="n">k</span> <span class="o">=</span> <span class="p">(</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">n</span>
+                <span class="n">newtri</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">e</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">e</span><span class="p">[</span><span class="n">k</span><span class="p">]]</span>
+                <span class="c1"># remove the point j of triangle i,j,k</span>
+                <span class="c1"># recompute adjacent angles of edge i,k</span>
+                <span class="n">ii</span> <span class="o">=</span> <span class="p">(</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">n</span>
+                <span class="n">kk</span> <span class="o">=</span> <span class="p">(</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">n</span>
+                <span class="n">iq</span> <span class="o">=</span> <span class="n">e</span><span class="p">[[</span><span class="n">ii</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">kk</span><span class="p">]]</span>
+                <span class="n">PQ</span> <span class="o">=</span> <span class="n">Polygon</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">iq</span><span class="p">])</span>
+                <span class="n">cn</span> <span class="o">=</span> <span class="n">PQ</span><span class="o">.</span><span class="n">internalAngles</span><span class="p">()</span>
+                <span class="n">cnew</span> <span class="o">=</span> <span class="n">cn</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span>
+                <span class="n">reme</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="o">-</span><span class="n">j</span><span class="p">)[</span><span class="mi">2</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">T</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">newtri</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+                <span class="n">P</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">reme</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+                <span class="n">check</span> <span class="o">=</span> <span class="n">insideTriangle</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">check</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+                    <span class="c1"># Triangle is ok</span>
+                    <span class="k">break</span>
+            <span class="c1">#draw(TriSurface(x,newtri),bbox=&#39;last&#39;,color=&#39;red&#39;)</span>
+            <span class="c1"># accept new triangle</span>
+            <span class="n">tri</span><span class="p">[</span><span class="n">itri</span><span class="p">]</span> <span class="o">=</span> <span class="n">newtri</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">cnew</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="mi">1</span><span class="o">-</span><span class="n">j</span><span class="p">)[</span><span class="mi">3</span><span class="p">:]]),</span> <span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">e</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="o">-</span><span class="n">j</span><span class="p">)[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">j</span><span class="p">)</span>
+            <span class="n">n</span> <span class="o">-=</span> <span class="mi">1</span>
+            <span class="n">itri</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">tri</span><span class="p">[</span><span class="n">itri</span><span class="p">]</span> <span class="o">=</span> <span class="n">e</span>
+        <span class="k">return</span> <span class="n">TriSurface</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">tri</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Polygon.area"><a class="viewcode-back" href="../../ref/plugins.polygon.html#plugins.polygon.Polygon.area">[docs]</a>    <span class="k">def</span> <span class="nf">area</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Compute area inside a polygon.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">pyformex.plugins.section2d</span> <span class="kn">import</span> <span class="n">PlaneSection</span>
+        <span class="k">return</span> <span class="n">PlaneSection</span><span class="p">(</span><span class="n">Formex</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">))</span><span class="o">.</span><span class="n">sectionChar</span><span class="p">()[</span><span class="s1">&#39;A&#39;</span><span class="p">]</span></div>
+
+
+    <span class="k">def</span> <span class="nf">toMesh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">pyformex.mesh</span> <span class="kn">import</span> <span class="n">Mesh</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">e</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">([</span><span class="n">a</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)])</span>
+        <span class="k">return</span> <span class="n">Mesh</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">toFormex</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">pyformex.formex</span> <span class="kn">import</span> <span class="n">Formex</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Formex</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__draw__&#39;</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">randomPL</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">noise</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">randomNoise</span><span class="p">((</span><span class="n">n</span><span class="p">),</span> <span class="n">r</span><span class="o">*</span><span class="mf">3.</span><span class="p">,</span> <span class="mf">3.</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">at</span><span class="o">.</span><span class="n">randomNoise</span><span class="p">((</span><span class="n">n</span><span class="p">),</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">360.</span><span class="p">))</span>
+        <span class="c1">#y = y[::-1] # reverse</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">Coords</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">]))</span><span class="o">.</span><span class="n">cylindrical</span><span class="p">()</span><span class="o">.</span><span class="n">addNoise</span><span class="p">(</span><span class="n">noise</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">PolyLine</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">readPL</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">noise</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+        <span class="n">fn</span> <span class="o">=</span> <span class="n">askFilename</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">fn</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">G</span> <span class="o">=</span> <span class="n">fileread</span><span class="o">.</span><span class="n">readPGF</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">G</span><span class="o">.</span><span class="n">values</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">():</span>
+        <span class="kn">from</span> <span class="nn">pyformex.trisurface</span> <span class="kn">import</span> <span class="n">fillBorder</span>
+        <span class="n">clear</span><span class="p">()</span>
+
+        <span class="c1">## layout(3,2)</span>
+        <span class="c1">## for i in range(2):</span>
+        <span class="c1">##     viewport(i)</span>
+        <span class="c1">##     clear()</span>
+        <span class="c1">##     smoothwire()</span>
+
+        <span class="n">ans</span> <span class="o">=</span> <span class="n">ask</span><span class="p">(</span><span class="s2">&quot;Read curve or create random?&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;Read&quot;</span><span class="p">,</span> <span class="s2">&quot;Random&quot;</span><span class="p">,</span> <span class="s2">&quot;Cancel&quot;</span><span class="p">])</span>
+
+        <span class="n">PL</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">ans</span> <span class="o">==</span> <span class="s2">&quot;Random&quot;</span><span class="p">:</span>
+            <span class="n">PL</span> <span class="o">=</span> <span class="n">randomPL</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">noise</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">ans</span> <span class="o">==</span> <span class="s2">&quot;Read&quot;</span><span class="p">:</span>
+            <span class="n">PL</span> <span class="o">=</span> <span class="n">readPL</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">PL</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">PG</span> <span class="o">=</span> <span class="n">Polygon</span><span class="p">(</span><span class="n">PL</span><span class="o">.</span><span class="n">coords</span><span class="p">)</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">PG</span><span class="o">.</span><span class="n">coords</span>
+        <span class="c1">#drawNumbers(X)</span>
+        <span class="n">draw</span><span class="p">(</span><span class="n">PL</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">cyan</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+        <span class="n">v</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">PG</span><span class="o">.</span><span class="n">vectors</span><span class="p">())</span>
+        <span class="c1">#drawVectors(PG.coords,v,color=red,linewidth=2)</span>
+
+        <span class="n">a</span> <span class="o">=</span> <span class="n">PG</span><span class="o">.</span><span class="n">angles</span><span class="p">()</span>
+        <span class="n">ae</span> <span class="o">=</span> <span class="n">PG</span><span class="o">.</span><span class="n">externalAngles</span><span class="p">()</span>
+        <span class="n">ai</span> <span class="o">=</span> <span class="n">PG</span><span class="o">.</span><span class="n">internalAngles</span><span class="p">()</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Direction angles:&quot;</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;External angles:&quot;</span><span class="p">,</span> <span class="n">ae</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Internal angles:&quot;</span><span class="p">,</span> <span class="n">ai</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Sum of external angles: &quot;</span><span class="p">,</span> <span class="n">ae</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The polygon is convex: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">PG</span><span class="o">.</span><span class="n">isConvex</span><span class="p">())</span>
+
+        <span class="c1">## viewport(2)</span>
+        <span class="n">S</span> <span class="o">=</span> <span class="n">PG</span><span class="o">.</span><span class="n">fill</span><span class="p">()</span>
+        <span class="n">draw</span><span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">red</span><span class="p">)</span>
+        <span class="c1">#drawNumbers(S)</span>
+        <span class="n">drawText</span><span class="p">(</span><span class="n">S</span><span class="o">.</span><span class="n">check</span><span class="p">(),</span> <span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">20</span><span class="p">))</span>
+
+    <span class="n">run</span><span class="p">()</span>
+
+<span class="c1"># End</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">plugins.polygon</a></li--> 
+      </ul>
+    </div>
+    <div class="footer">
+    <span class="left">
+        &copy; Copyright 2004-2023, Benedict Verhegghe.
+    </span>
+      Last updated on Mar 27, 2023.
+    <span class="right">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.4.3.
+    </span>
+    </div>
+  </body>
+</html>

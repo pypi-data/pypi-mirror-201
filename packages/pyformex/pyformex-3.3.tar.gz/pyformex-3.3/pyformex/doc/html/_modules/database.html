@@ -1,0 +1,317 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!--
+##
+##  This file is part of the pyFormex project.
+##  pyFormex is a tool for generating, manipulating and transforming 3D
+##  geometrical models by sequences of mathematical operations.
+##  Home page: http://pyformex.org
+##  Project page:  http://savannah.nongnu.org/projects/pyformex/
+##  Copyright (C) Benedict Verhegghe (benedict.verhegghe@ugent.be)
+##  Distributed under the GNU General Public License version 3 or later.
+##
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see http://www.gnu.org/licenses/.
+##
+-->
+    <title>database &#8212; pyFormex 3.3 documentation</title>
+
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pyformex.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+<link rel="icon" type="image/png" href="../_static/pyformex_fav.png" />
+
+  </head><body>
+
+<div class="header">
+  <a href="http://pyformex.org">
+  <img src="../_static/scallop_dome_small.png" alt="scallop dome" border="0" hspace="20" vspace="12" align="left" />
+  <img src="../_static/pyformex-logo-2.png" alt="pyformex logo" border="0" hspace="10" vspace="8" align="left" />
+  </a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">database</a></li--> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<!-- PYFORMEX_SIDEBAR_LOGO -->
+<!-- PYFORMEX_WEBSITE_SIDEBAR_TOP -->
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for database</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1">##</span>
+<span class="c1">##  SPDX-FileCopyrightText: © 2007-2023 Benedict Verhegghe &lt;bverheg@gmail.com&gt;</span>
+<span class="c1">##  SPDX-License-Identifier: GPL-3.0-or-later</span>
+<span class="c1">##</span>
+<span class="c1">##  This file is part of pyFormex 3.3  (Sun Mar 26 20:16:15 CEST 2023)</span>
+<span class="c1">##  pyFormex is a tool for generating, manipulating and transforming 3D</span>
+<span class="c1">##  geometrical models by sequences of mathematical operations.</span>
+<span class="c1">##  Home page: https://pyformex.org</span>
+<span class="c1">##  Project page: https://savannah.nongnu.org/projects/pyformex/</span>
+<span class="c1">##  Development: https://gitlab.com/bverheg/pyformex</span>
+<span class="c1">##  Distributed under the GNU General Public License version 3 or later.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is free software: you can redistribute it and/or modify</span>
+<span class="c1">##  it under the terms of the GNU General Public License as published by</span>
+<span class="c1">##  the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1">##  (at your option) any later version.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is distributed in the hope that it will be useful,</span>
+<span class="c1">##  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1">##  GNU General Public License for more details.</span>
+<span class="c1">##</span>
+<span class="c1">##  You should have received a copy of the GNU General Public License</span>
+<span class="c1">##  along with this program.  If not, see http://www.gnu.org/licenses/.</span>
+<span class="c1">##</span>
+<span class="sd">&quot;&quot;&quot;A simple Database class</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">json</span>
+
+<span class="kn">import</span> <span class="nn">pyformex</span> <span class="k">as</span> <span class="nn">pf</span>
+<span class="kn">from</span> <span class="nn">pyformex.mydict</span> <span class="kn">import</span> <span class="n">Dict</span>
+
+
+<span class="k">class</span> <span class="nc">Record</span><span class="p">(</span><span class="n">Dict</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">Dict</span><span class="o">.</span><span class="n">returnNone</span><span class="p">,</span> <span class="o">**</span><span class="n">data</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Database"><a class="viewcode-back" href="../ref/database.html#database.Database">[docs]</a><span class="k">class</span> <span class="nc">Database</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A class for storing data in a database-like structure.</span>
+
+<span class="sd">    The Database is a Dict where each key is a unique identifier string</span>
+<span class="sd">    and each value is a record. A record is itself a Dict , where each</span>
+<span class="sd">    key is a string (the field name) and the value can be anything.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    default_factory: callable, optional</span>
+<span class="sd">        If provided, missing keys will be looked up by a call to the</span>
+<span class="sd">        default_factory.</span>
+<span class="sd">    data: dict | list | str, optional</span>
+<span class="sd">        The Database can be initialized from a dict, a list of records or</span>
+<span class="sd">        a file in a proper format.</span>
+
+<span class="sd">        If a dict, the Database will be directly initialized from it.</span>
+
+<span class="sd">        If a list, each record should have at least a key named &#39;name&#39;,</span>
+<span class="sd">        holding the string identifying the record. This value should be unique</span>
+<span class="sd">        in the list (or records will be overwritten). The &#39;name&#39; value will be</span>
+<span class="sd">        use as a key to store the record in the Database.</span>
+
+<span class="sd">        If a string, it is the name of a Database file in one of the</span>
+<span class="sd">        supported formats, from where it will be read. See :meth:`read`.</span>
+
+<span class="sd">        If not provided, an empty database is constructed.</span>
+<span class="sd">    key: str, optional</span>
+<span class="sd">        The field name to be used as a key, if list type data are specified.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; rec1 = {&#39;id&#39;: &#39;john&#39;, &#39;first_name&#39;: &#39;John&#39;, &#39;last_name&#39;: &#39;Doe&#39;}</span>
+<span class="sd">    &gt;&gt;&gt; rec2 = {&#39;id&#39;: &#39;jane&#39;, &#39;first_name&#39;: &#39;Jane&#39;, &#39;last_name&#39;: &#39;Roe&#39;}</span>
+<span class="sd">    &gt;&gt;&gt; db = Database(data=[rec1, rec2])</span>
+<span class="sd">    &gt;&gt;&gt; print(db)</span>
+<span class="sd">    {</span>
+<span class="sd">        &quot;john&quot;: {</span>
+<span class="sd">            &quot;id&quot;: &quot;john&quot;,</span>
+<span class="sd">            &quot;first_name&quot;: &quot;John&quot;,</span>
+<span class="sd">            &quot;last_name&quot;: &quot;Doe&quot;</span>
+<span class="sd">        },</span>
+<span class="sd">        &quot;jane&quot;: {</span>
+<span class="sd">            &quot;id&quot;: &quot;jane&quot;,</span>
+<span class="sd">            &quot;first_name&quot;: &quot;Jane&quot;,</span>
+<span class="sd">            &quot;last_name&quot;: &quot;Roe&quot;</span>
+<span class="sd">        }</span>
+<span class="sd">    }</span>
+<span class="sd">    &gt;&gt;&gt; db.write(&#39;test.json&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; db1 = Database(data=&#39;test.json&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; print(db1)</span>
+<span class="sd">    {</span>
+<span class="sd">        &quot;john&quot;: {</span>
+<span class="sd">            &quot;id&quot;: &quot;john&quot;,</span>
+<span class="sd">            &quot;first_name&quot;: &quot;John&quot;,</span>
+<span class="sd">            &quot;last_name&quot;: &quot;Doe&quot;</span>
+<span class="sd">        },</span>
+<span class="sd">        &quot;jane&quot;: {</span>
+<span class="sd">            &quot;id&quot;: &quot;jane&quot;,</span>
+<span class="sd">            &quot;first_name&quot;: &quot;Jane&quot;,</span>
+<span class="sd">            &quot;last_name&quot;: &quot;Roe&quot;</span>
+<span class="sd">        }</span>
+<span class="sd">    }</span>
+<span class="sd">    &gt;&gt;&gt; print(type(db1[&#39;john&#39;]))</span>
+<span class="sd">    &lt;class &#39;pyformex.database.Record&#39;&gt;</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">format</span> <span class="o">=</span> <span class="s1">&#39;pyfdb 1.0&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="n">record</span><span class="o">=</span><span class="n">Record</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize a database&quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_key</span> <span class="o">=</span> <span class="n">key</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_record</span> <span class="o">=</span> <span class="n">record</span>
+        <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Database.add"><a class="viewcode-back" href="../ref/database.html#database.Database.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add a list of records to the database.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data: list</span>
+<span class="sd">            A list of records. Each record should be a dict and have at least</span>
+<span class="sd">            a field name  equal to the value specified for ``key``.</span>
+<span class="sd">        key: str, optional</span>
+<span class="sd">            The field name in the records to be used as the key to store the</span>
+<span class="sd">            records in the Database.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_key</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">([(</span><span class="n">r</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_record</span><span class="p">(</span><span class="n">r</span><span class="p">))</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">data</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="Database.write"><a class="viewcode-back" href="../ref/database.html#database.Database.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Export the Database to a file.</span>
+
+<span class="sd">        The file is written in .json format and contains a dict</span>
+<span class="sd">        with two keys: &#39;key&#39; and &#39;records&#39;. The key is a</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">contents</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="n">contents</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s1">&#39;format&#39;</span><span class="p">:</span> <span class="n">Database</span><span class="o">.</span><span class="n">format</span><span class="p">,</span>
+            <span class="s1">&#39;creator&#39;</span><span class="p">:</span> <span class="n">pf</span><span class="o">.</span><span class="n">fullVersion</span><span class="p">(),</span>
+            <span class="s1">&#39;key&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_key</span><span class="p">,</span>
+            <span class="s1">&#39;nrecs&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">contents</span><span class="p">),</span>
+        <span class="p">})</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w+&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fil</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">contents</span><span class="p">,</span> <span class="n">fil</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">fil</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Database.read"><a class="viewcode-back" href="../ref/database.html#database.Database.read">[docs]</a>    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Import all records from a Database file.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filename: :term:`path_like`</span>
+<span class="sd">            The file holding the Database. The file should be in</span>
+<span class="sd">            .json format as written by :meth:`write`.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; db = Database()</span>
+<span class="sd">        &gt;&gt;&gt; db.read(pf.cfg[&#39;prop/matdb&#39;])</span>
+<span class="sd">        &gt;&gt;&gt; print(db)</span>
+<span class="sd">        {</span>
+<span class="sd">            &quot;steel&quot;: {</span>
+<span class="sd">                &quot;name&quot;: &quot;steel&quot;,</span>
+<span class="sd">                &quot;young_modulus&quot;: 207000.0,</span>
+<span class="sd">                &quot;poisson_ratio&quot;: 0.3,</span>
+<span class="sd">                &quot;density&quot;: 7.85e-09</span>
+<span class="sd">            },</span>
+<span class="sd">        ...</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fil</span><span class="p">:</span>
+            <span class="n">contents</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fil</span><span class="p">)</span>
+            <span class="n">header</span> <span class="o">=</span> <span class="n">contents</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">header</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;format&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="o">!=</span> <span class="n">Database</span><span class="o">.</span><span class="n">format</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2"> is not a pyFormex Database file&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">contents</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;key&#39;</span><span class="p">])</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span></div>
+
+<span class="c1"># End</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">database</a></li--> 
+      </ul>
+    </div>
+    <div class="footer">
+    <span class="left">
+        &copy; Copyright 2004-2023, Benedict Verhegghe.
+    </span>
+      Last updated on Mar 27, 2023.
+    <span class="right">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.4.3.
+    </span>
+    </div>
+  </body>
+</html>

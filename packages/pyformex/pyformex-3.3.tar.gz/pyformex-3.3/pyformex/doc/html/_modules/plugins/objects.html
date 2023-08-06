@@ -1,0 +1,676 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!--
+##
+##  This file is part of the pyFormex project.
+##  pyFormex is a tool for generating, manipulating and transforming 3D
+##  geometrical models by sequences of mathematical operations.
+##  Home page: http://pyformex.org
+##  Project page:  http://savannah.nongnu.org/projects/pyformex/
+##  Copyright (C) Benedict Verhegghe (benedict.verhegghe@ugent.be)
+##  Distributed under the GNU General Public License version 3 or later.
+##
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see http://www.gnu.org/licenses/.
+##
+-->
+    <title>plugins.objects &#8212; pyFormex 3.3 documentation</title>
+
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pyformex.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+<link rel="icon" type="image/png" href="../../_static/pyformex_fav.png" />
+
+  </head><body>
+
+<div class="header">
+  <a href="http://pyformex.org">
+  <img src="../../_static/scallop_dome_small.png" alt="scallop dome" border="0" hspace="20" vspace="12" align="left" />
+  <img src="../../_static/pyformex-logo-2.png" alt="pyformex logo" border="0" hspace="10" vspace="8" align="left" />
+  </a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">plugins.objects</a></li--> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<!-- PYFORMEX_SIDEBAR_LOGO -->
+<!-- PYFORMEX_WEBSITE_SIDEBAR_TOP -->
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for plugins.objects</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1">##</span>
+<span class="c1">##  SPDX-FileCopyrightText: © 2007-2023 Benedict Verhegghe &lt;bverheg@gmail.com&gt;</span>
+<span class="c1">##  SPDX-License-Identifier: GPL-3.0-or-later</span>
+<span class="c1">##</span>
+<span class="c1">##  This file is part of pyFormex 3.3  (Sun Mar 26 20:16:15 CEST 2023)</span>
+<span class="c1">##  pyFormex is a tool for generating, manipulating and transforming 3D</span>
+<span class="c1">##  geometrical models by sequences of mathematical operations.</span>
+<span class="c1">##  Home page: https://pyformex.org</span>
+<span class="c1">##  Project page: https://savannah.nongnu.org/projects/pyformex/</span>
+<span class="c1">##  Development: https://gitlab.com/bverheg/pyformex</span>
+<span class="c1">##  Distributed under the GNU General Public License version 3 or later.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is free software: you can redistribute it and/or modify</span>
+<span class="c1">##  it under the terms of the GNU General Public License as published by</span>
+<span class="c1">##  the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1">##  (at your option) any later version.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is distributed in the hope that it will be useful,</span>
+<span class="c1">##  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1">##  GNU General Public License for more details.</span>
+<span class="c1">##</span>
+<span class="c1">##  You should have received a copy of the GNU General Public License</span>
+<span class="c1">##  along with this program.  If not, see http://www.gnu.org/licenses/.</span>
+<span class="c1">##</span>
+
+<span class="sd">&quot;&quot;&quot;Selection of objects from the global dictionary.</span>
+
+<span class="sd">This is a support module for other pyFormex plugins.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
+
+<span class="kn">import</span> <span class="nn">pyformex</span> <span class="k">as</span> <span class="nn">pf</span>
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">geomfile</span>
+<span class="kn">from</span> <span class="nn">pyformex.coords</span> <span class="kn">import</span> <span class="n">bbox</span>
+<span class="kn">from</span> <span class="nn">pyformex.gui</span> <span class="kn">import</span> <span class="n">draw</span> <span class="k">as</span> <span class="n">gs</span>
+<span class="kn">from</span> <span class="nn">pyformex.gui.draw</span> <span class="kn">import</span> <span class="n">_I</span><span class="p">,</span> <span class="n">_G</span><span class="p">,</span> <span class="n">_C</span><span class="p">,</span> <span class="n">_T</span>
+
+
+<div class="viewcode-block" id="Objects"><a class="viewcode-back" href="../../ref/plugins.objects.html#plugins.objects.Objects">[docs]</a><span class="k">class</span> <span class="nc">Objects</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;A selection of objects from the pyFormex Globals().</span>
+
+<span class="sd">    The class provides facilities to filter the global objects by their type</span>
+<span class="sd">    and select one or more objects by their name(s). The values of these</span>
+<span class="sd">    objects can be changed and the changes can be undone.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from pyformex.core import Mesh, TriSurface</span>
+<span class="sd">    &gt;&gt;&gt; pf.PF.clear()</span>
+<span class="sd">    &gt;&gt;&gt; M = Mesh()</span>
+<span class="sd">    &gt;&gt;&gt; M1 = Mesh(eltype=&#39;tri3&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; S = M1.toSurface()</span>
+<span class="sd">    &gt;&gt;&gt; F = S.toFormex()</span>
+<span class="sd">    &gt;&gt;&gt; gs.export({&#39;a&#39;:2, &#39;M&#39;:M, &#39;S&#39;:S, &#39;F&#39;:F, &#39;M1&#39;:M1})</span>
+<span class="sd">    &gt;&gt;&gt; Objects(clas=Mesh).listAll()</span>
+<span class="sd">    [&#39;M&#39;, &#39;S&#39;, &#39;M1&#39;]</span>
+<span class="sd">    &gt;&gt;&gt; Objects(clas=Mesh,</span>
+<span class="sd">    ...     filter=lambda o: isinstance(pf.PF[o], TriSurface)).listAll()</span>
+<span class="sd">    [&#39;S&#39;]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clas</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">like</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">namelist</span><span class="o">=</span><span class="p">[]):</span>
+        <span class="sd">&quot;&quot;&quot;Create a new selection of objects.</span>
+
+<span class="sd">        If a filter is given, only objects passing it will be accepted.</span>
+<span class="sd">        The filter will be applied dynamically on the dict.</span>
+
+<span class="sd">        If a list of names is given, the current selection will be set to</span>
+<span class="sd">        those names (provided they are in the dictionary).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clas</span> <span class="o">=</span> <span class="n">clas</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">like</span> <span class="o">=</span> <span class="n">like</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filter</span> <span class="o">=</span> <span class="nb">filter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">names</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_values</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">namelist</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">namelist</span><span class="p">)</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">object_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the type of objects in this selection.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">clas</span><span class="o">.</span><span class="vm">__name__</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">clas</span> <span class="k">else</span> <span class="s1">&#39;Any&#39;</span>
+
+
+<div class="viewcode-block" id="Objects.set"><a class="viewcode-back" href="../../ref/plugins.objects.html#plugins.objects.Objects.set">[docs]</a>    <span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the selection to a list of names.</span>
+
+<span class="sd">        namelist can be a single object name or a list of names.</span>
+<span class="sd">        This will also store the current values of the variables.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">names</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">names</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="nb">str</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_values</span> <span class="o">=</span> <span class="p">[</span><span class="n">gs</span><span class="o">.</span><span class="n">named</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="Objects.append"><a class="viewcode-back" href="../../ref/plugins.objects.html#plugins.objects.Objects.append">[docs]</a>    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add a name,value to a selection.</span>
+
+<span class="sd">        If no value is given, its current value is used.</span>
+<span class="sd">        If a value is given, it is exported.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">gs</span><span class="o">.</span><span class="n">named</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">gs</span><span class="o">.</span><span class="n">export</span><span class="p">({</span><span class="n">name</span><span class="p">:</span> <span class="n">value</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Objects.clear"><a class="viewcode-back" href="../../ref/plugins.objects.html#plugins.objects.Objects.clear">[docs]</a>    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Clear the selection.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">([])</span></div>
+
+
+<div class="viewcode-block" id="Objects.narrow"><a class="viewcode-back" href="../../ref/plugins.objects.html#plugins.objects.Objects.narrow">[docs]</a>    <span class="k">def</span> <span class="nf">narrow</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">allowed</span><span class="o">=</span><span class="p">()):</span>
+        <span class="sd">&quot;&quot;&quot;Narrow the current selection to objects of the specified classes</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        allowed: type | tuple of type</span>
+<span class="sd">            The allowed instance types. All objects in the current selection</span>
+<span class="sd">            that are not instances of any of the allowed types, are removed.</span>
+<span class="sd">            The default (empty tuple) clears the selection. A value None leaves</span>
+<span class="sd">            the selection untouched.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">allowed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">allowed</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
+            <span class="n">allowed</span> <span class="o">=</span> <span class="p">(</span><span class="n">allowed</span><span class="p">,)</span>
+        <span class="n">oknames</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">names</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">gs</span><span class="o">.</span><span class="n">named</span><span class="p">(</span><span class="n">n</span><span class="p">),</span> <span class="n">allowed</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">oknames</span><span class="p">)</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Current selection is narrowed to: </span><span class="si">{</span><span class="n">oknames</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">oknames</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return selection item i&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="Objects.listAll"><a class="viewcode-back" href="../../ref/plugins.objects.html#plugins.objects.Objects.listAll">[docs]</a>    <span class="k">def</span> <span class="nf">listAll</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">allowed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a list with all selectable objects.</span>
+
+<span class="sd">        This lists all the global names in pyformex.PF that match</span>
+<span class="sd">        the class and/or filter (if specified).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">allowed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">allowed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clas</span>
+        <span class="k">return</span> <span class="n">gs</span><span class="o">.</span><span class="n">listAll</span><span class="p">(</span><span class="n">clas</span><span class="o">=</span><span class="n">allowed</span><span class="p">,</span> <span class="n">like</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">like</span><span class="p">,</span> <span class="n">filtr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">filter</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">selectAll</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">listAll</span><span class="p">())</span>
+
+
+<div class="viewcode-block" id="Objects.remember"><a class="viewcode-back" href="../../ref/plugins.objects.html#plugins.objects.Objects.remember">[docs]</a>    <span class="k">def</span> <span class="nf">remember</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Remember the current values of the variables in selection.</span>
+
+<span class="sd">        If copy==True, the values are copied, so that the variables&#39; current</span>
+<span class="sd">        values can be changed inplace without affecting the remembered values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_values</span> <span class="o">=</span> <span class="p">[</span><span class="n">gs</span><span class="o">.</span><span class="n">named</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">copy</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_values</span> <span class="o">=</span> <span class="p">[</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_values</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="Objects.changeValues"><a class="viewcode-back" href="../../ref/plugins.objects.html#plugins.objects.Objects.changeValues">[docs]</a>    <span class="k">def</span> <span class="nf">changeValues</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">newvalues</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Replace the current values of selection by new ones.</span>
+
+<span class="sd">        The old values are stored locally, to enable undo operations.</span>
+
+<span class="sd">        This is only needed to change the values of objects that can not</span>
+<span class="sd">        be changed inplace!</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">remember</span><span class="p">()</span>
+        <span class="n">gs</span><span class="o">.</span><span class="n">export2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">,</span> <span class="n">newvalues</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Objects.undoChanges"><a class="viewcode-back" href="../../ref/plugins.objects.html#plugins.objects.Objects.undoChanges">[docs]</a>    <span class="k">def</span> <span class="nf">undoChanges</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Undo the last changes of the values.&quot;&quot;&quot;</span>
+        <span class="n">gs</span><span class="o">.</span><span class="n">export2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_values</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Objects.check"><a class="viewcode-back" href="../../ref/plugins.objects.html#plugins.objects.Objects.check">[docs]</a>    <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">allowed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">single</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">warn</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check and return the current selection.</span>
+
+<span class="sd">        Checks that a current selection exists and conforms to the</span>
+<span class="sd">        provided requirements.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        allowed: type or tuple of type, optional</span>
+<span class="sd">            One or more object types. If provided, the current selection</span>
+<span class="sd">            will be narrowed down to objects of this type.</span>
+<span class="sd">        single: bool, optional</span>
+<span class="sd">            If True, only a single object should be selected. The default</span>
+<span class="sd">            allows a multiple objects selection.</span>
+<span class="sd">        warn: bool, optional</span>
+<span class="sd">            If True (default), a warning is displayed if the selection</span>
+<span class="sd">            is empty or there is more than one selected object when</span>
+<span class="sd">            ``single=True`` was specified. Setting to False suppresses</span>
+<span class="sd">            the warning, which may be useful in batch processing.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        object | list of objects | None</span>
+<span class="sd">            With ``single=True``, a single selected object, else a list</span>
+<span class="sd">            of objects. These objects constitute the current selection.</span>
+<span class="sd">            If there is no current selection, or more than one in case</span>
+<span class="sd">            of ``single=True``, None is returned.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">names</span> <span class="k">if</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">pf</span><span class="o">.</span><span class="n">PF</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">allowed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">narrow</span><span class="p">(</span><span class="n">allowed</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">warn</span><span class="p">:</span>
+                <span class="n">pf</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">object_type</span><span class="si">}</span><span class="s2"> objects were selected&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">single</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">warn</span><span class="p">:</span>
+                <span class="n">pf</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;You should select exactly one </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">object_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">single</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ret</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ret</span></div>
+
+
+    <span class="c1"># TODO: this could/should become an option of check</span>
+<div class="viewcode-block" id="Objects.checkOrAsk"><a class="viewcode-back" href="../../ref/plugins.objects.html#plugins.objects.Objects.checkOrAsk">[docs]</a>    <span class="k">def</span> <span class="nf">checkOrAsk</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">allowed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">single</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">warn</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check, ask and return the current selection.</span>
+
+<span class="sd">        This is like :meth:`check`, but if the selection does not</span>
+<span class="sd">        conform, lets the user change it.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">allowed</span><span class="o">=</span><span class="n">allowed</span><span class="p">,</span> <span class="n">single</span><span class="o">=</span><span class="n">single</span><span class="p">,</span> <span class="n">warn</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;AFTER CHECK: </span><span class="si">{</span><span class="n">sel</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">sel</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ask</span><span class="p">(</span><span class="n">single</span><span class="o">=</span><span class="n">single</span><span class="p">,</span> <span class="n">allowed</span><span class="o">=</span><span class="n">allowed</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">res</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">sel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">allowed</span><span class="o">=</span><span class="n">allowed</span><span class="p">,</span> <span class="n">single</span><span class="o">=</span><span class="n">single</span><span class="p">,</span> <span class="n">warn</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">sel</span></div>
+
+
+<div class="viewcode-block" id="Objects.keys"><a class="viewcode-back" href="../../ref/plugins.objects.html#plugins.objects.Objects.keys">[docs]</a>    <span class="k">def</span> <span class="nf">keys</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the names of the currently selected objects.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">names</span></div>
+
+
+<div class="viewcode-block" id="Objects.values"><a class="viewcode-back" href="../../ref/plugins.objects.html#plugins.objects.Objects.values">[docs]</a>    <span class="k">def</span> <span class="nf">values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the values of the currently selected objects.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">gs</span><span class="o">.</span><span class="n">named</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="Objects.odict"><a class="viewcode-back" href="../../ref/plugins.objects.html#plugins.objects.Objects.odict">[docs]</a>    <span class="k">def</span> <span class="nf">odict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the currently selected items as a dictionary.</span>
+
+<span class="sd">        Returns a dict with the currently selected objects in the order</span>
+<span class="sd">        of the selection.names.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span></div>
+
+
+<div class="viewcode-block" id="Objects.ask"><a class="viewcode-back" href="../../ref/plugins.objects.html#plugins.objects.Objects.ask">[docs]</a>    <span class="k">def</span> <span class="nf">ask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">single</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">allowed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Show the names of known objects and let the user select one or more.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        single: bool</span>
+<span class="sd">            If True, only one item can be selected.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list | None</span>
+<span class="sd">            A list with the selected name(s), possibly empty (if nothing</span>
+<span class="sd">            was selected by the user), or None if there is nothing to choose</span>
+<span class="sd">            from.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        This also sets the current selection to the selected names, unless</span>
+<span class="sd">        the return value is None, in which case the selection remains unchanged.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">allowed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">allowed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clas</span>
+        <span class="n">choices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">listAll</span><span class="p">(</span><span class="n">allowed</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">choices</span><span class="p">:</span>
+            <span class="n">pf</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;There are no objects of class </span><span class="si">{</span><span class="n">allowed</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">gs</span><span class="o">.</span><span class="n">selectItems</span><span class="p">(</span><span class="n">caption</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Known objects of type </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">object_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                          <span class="n">choices</span><span class="o">=</span><span class="n">choices</span><span class="p">,</span>
+                          <span class="n">default</span><span class="o">=</span><span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">names</span> <span class="k">if</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">choices</span><span class="p">],</span>
+                          <span class="n">single</span><span class="o">=</span><span class="n">single</span><span class="p">,</span>
+                          <span class="n">sort</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">res</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">res</span></div>
+
+
+<div class="viewcode-block" id="Objects.ask1"><a class="viewcode-back" href="../../ref/plugins.objects.html#plugins.objects.Objects.ask1">[docs]</a>    <span class="k">def</span> <span class="nf">ask1</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Select a single object from the list.</span>
+
+<span class="sd">        This is like :func:`ask` with the ``single=True`` parameter,</span>
+<span class="sd">        but returns the object instead of its name.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ask</span><span class="p">(</span><span class="n">single</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">gs</span><span class="o">.</span><span class="n">named</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="Objects.forget"><a class="viewcode-back" href="../../ref/plugins.objects.html#plugins.objects.Objects.forget">[docs]</a>    <span class="k">def</span> <span class="nf">forget</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Remove the selection from the globals.&quot;&quot;&quot;</span>
+        <span class="n">gs</span><span class="o">.</span><span class="n">forget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Objects.keep"><a class="viewcode-back" href="../../ref/plugins.objects.html#plugins.objects.Objects.keep">[docs]</a>    <span class="k">def</span> <span class="nf">keep</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Remove everything except the selection from the globals.&quot;&quot;&quot;</span>
+        <span class="n">gs</span><span class="o">.</span><span class="n">forget</span><span class="p">([</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">listAll</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="Objects.writeToFile"><a class="viewcode-back" href="../../ref/plugins.objects.html#plugins.objects.Objects.writeToFile">[docs]</a>    <span class="k">def</span> <span class="nf">writeToFile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Write objects to a geometry file.&quot;&quot;&quot;</span>
+        <span class="n">objects</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">odict</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">objects</span><span class="p">:</span>
+            <span class="n">filewrite</span><span class="o">.</span><span class="n">writePGF</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">objects</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Objects.readFromFile"><a class="viewcode-back" href="../../ref/plugins.objects.html#plugins.objects.Objects.readFromFile">[docs]</a>    <span class="k">def</span> <span class="nf">readFromFile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read objects from a geometry file.&quot;&quot;&quot;</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">fileread</span><span class="o">.</span><span class="n">readPGF</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="n">gs</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div></div>
+
+
+<span class="c1">###################### Drawable Objects #############################</span>
+
+<div class="viewcode-block" id="DrawableObjects"><a class="viewcode-back" href="../../ref/plugins.objects.html#plugins.objects.DrawableObjects">[docs]</a><span class="k">class</span> <span class="nc">DrawableObjects</span><span class="p">(</span><span class="n">Objects</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A selection of drawable objects from the globals().</span>
+
+<span class="sd">    This is a subclass of Objects. The constructor has the same arguments</span>
+<span class="sd">    as the Objects class. THe difference is that when a selection is made</span>
+<span class="sd">    in the DrawableObjects class, the selection is drawn automatically.</span>
+<span class="sd">    This is therefore well suited to do interactive modeling.</span>
+<span class="sd">    Furthermore it has provisions to add annotations to the rendering, like</span>
+<span class="sd">    node and element numbers, or surface normals.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Registered annotations</span>
+    <span class="n">Annotations</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">autodraw</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">annotations</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>  <span class="c1"># Active annotations (function names)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_annotations</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># Drawn annotations (Drawables/Actors)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_actors</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># Drawn objects (Actors)</span>
+
+
+<div class="viewcode-block" id="DrawableObjects.ask"><a class="viewcode-back" href="../../ref/plugins.objects.html#plugins.objects.DrawableObjects.ask">[docs]</a>    <span class="k">def</span> <span class="nf">ask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Interactively sets the current selection.&quot;&quot;&quot;</span>
+        <span class="n">new</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">ask</span><span class="p">(</span><span class="o">**</span><span class="n">kargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">new</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">new</span></div>
+
+
+    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="n">gs</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Drawing SELECTION: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">DRAW</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">gs</span><span class="o">.</span><span class="n">busyCursor</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_actors</span> <span class="o">=</span> <span class="n">gs</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">,</span> <span class="n">clear</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">annotations</span><span class="p">:</span>
+                <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Drawing ANNOTATION: </span><span class="si">{</span><span class="n">f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">DRAW</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">drawAnnotation</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="DrawableObjects.drawChanges"><a class="viewcode-back" href="../../ref/plugins.objects.html#plugins.objects.DrawableObjects.drawChanges">[docs]</a>    <span class="k">def</span> <span class="nf">drawChanges</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Draws old and new version of a Formex with different colors.</span>
+
+<span class="sd">        old and new can be a either Formex instances or names or lists thereof.</span>
+<span class="sd">        old are drawn in yellow, new in the current color.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+        <span class="n">gs</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_values</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;yellow&#39;</span><span class="p">,</span> <span class="n">bbox</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">clear</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DrawableObjects.undoChanges"><a class="viewcode-back" href="../../ref/plugins.objects.html#plugins.objects.DrawableObjects.undoChanges">[docs]</a>    <span class="k">def</span> <span class="nf">undoChanges</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Undo the last changes of the values.&quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">undoChanges</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="DrawableObjects.registerAnnotation"><a class="viewcode-back" href="../../ref/plugins.objects.html#plugins.objects.DrawableObjects.registerAnnotation">[docs]</a>    <span class="k">def</span> <span class="nf">registerAnnotation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Register annotation function.</span>
+
+<span class="sd">        An annotation function is a function that takes the name of an</span>
+<span class="sd">        object as parameter and draws something related to that object.</span>
+<span class="sd">        The annotations drawn by these functions can be toggled on and off.</span>
+<span class="sd">        Annotion functions should silently ignore objects for which they</span>
+<span class="sd">        can not draw the annptation</span>
+<span class="sd">        The Geometry menu has many examples of annotation functions.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        kargs:</span>
+<span class="sd">            A dict where each key ia an annotation name and the value</span>
+<span class="sd">            is an annotation function.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">DrawableObjects</span><span class="o">.</span><span class="n">Annotations</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kargs</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">registeredAnnotations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">DrawableObjects</span><span class="o">.</span><span class="n">Annotations</span>
+
+
+<div class="viewcode-block" id="DrawableObjects.hasAnnotation"><a class="viewcode-back" href="../../ref/plugins.objects.html#plugins.objects.DrawableObjects.hasAnnotation">[docs]</a>    <span class="k">def</span> <span class="nf">hasAnnotation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the status of annotation f&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="n">DrawableObjects</span><span class="o">.</span><span class="n">Annotations</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">annotations</span></div>
+
+
+<div class="viewcode-block" id="DrawableObjects.toggleAnnotation"><a class="viewcode-back" href="../../ref/plugins.objects.html#plugins.objects.DrawableObjects.toggleAnnotation">[docs]</a>    <span class="k">def</span> <span class="nf">toggleAnnotation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">onoff</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Toggle the display of an annotation On or Off.</span>
+
+<span class="sd">        If given, onoff is True or False.</span>
+<span class="sd">        If no onoff is given, this works as a toggle.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;toggleAnnotation </span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">f</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">onoff</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="n">DrawableObjects</span><span class="o">.</span><span class="n">Annotations</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">f</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="n">onoff</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># toggle</span>
+            <span class="n">active</span> <span class="o">=</span> <span class="n">f</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">annotations</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">active</span> <span class="o">=</span> <span class="n">onoff</span>
+        <span class="k">if</span> <span class="n">active</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">annotations</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">drawAnnotation</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">annotations</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">removeAnnotation</span><span class="p">(</span><span class="n">f</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DrawableObjects.drawAnnotation"><a class="viewcode-back" href="../../ref/plugins.objects.html#plugins.objects.DrawableObjects.drawAnnotation">[docs]</a>    <span class="k">def</span> <span class="nf">drawAnnotation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Draw some annotation for the current selection.&quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;drawAnnotation </span><span class="si">{</span><span class="n">f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_annotations</span><span class="p">[</span><span class="n">f</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="DrawableObjects.removeAnnotation"><a class="viewcode-back" href="../../ref/plugins.objects.html#plugins.objects.DrawableObjects.removeAnnotation">[docs]</a>    <span class="k">def</span> <span class="nf">removeAnnotation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Remove the annotation f.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_annotations</span><span class="p">:</span>
+            <span class="c1"># pf.canvas.removeAnnotation(self._annotations[f])</span>
+            <span class="c1"># Use removeAny, because some annotations are not canvas</span>
+            <span class="c1"># annotations but actors!</span>
+            <span class="n">pf</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">removeAny</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_annotations</span><span class="p">[</span><span class="n">f</span><span class="p">])</span>
+            <span class="n">pf</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_annotations</span><span class="p">[</span><span class="n">f</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="DrawableObjects.editAnnotations"><a class="viewcode-back" href="../../ref/plugins.objects.html#plugins.objects.DrawableObjects.editAnnotations">[docs]</a>    <span class="k">def</span> <span class="nf">editAnnotations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ontop</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Edit the annotation properties</span>
+
+<span class="sd">        Currently only changes the ontop attribute for all drawn</span>
+<span class="sd">        annotations. Values: True, False or &#39;&#39; (toggle).</span>
+<span class="sd">        Other values have no effect.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_annotations</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">ontop</span> <span class="ow">in</span> <span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                   <span class="n">f</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">ontop</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                        <span class="n">ontop</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">a</span><span class="o">.</span><span class="n">ontop</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">ontop</span><span class="p">)</span>
+                    <span class="n">a</span><span class="o">.</span><span class="n">ontop</span> <span class="o">=</span> <span class="n">ontop</span></div>
+
+
+<div class="viewcode-block" id="DrawableObjects.setProp"><a class="viewcode-back" href="../../ref/plugins.objects.html#plugins.objects.DrawableObjects.setProp">[docs]</a>    <span class="k">def</span> <span class="nf">setProp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prop</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the property of the current selection.</span>
+
+<span class="sd">        prop should be a single integer value or None.</span>
+<span class="sd">        If None is given, a value will be asked from the user.</span>
+<span class="sd">        If a negative value is given, the property is removed.</span>
+<span class="sd">        If a selected object does not have a setProp method, it is ignored.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">objects</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">objects</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">prop</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">res</span> <span class="o">=</span> <span class="n">gs</span><span class="o">.</span><span class="n">askItems</span><span class="p">(</span><span class="n">caption</span> <span class="o">=</span> <span class="s1">&#39;Set Property Value&#39;</span><span class="p">,</span> <span class="n">items</span><span class="o">=</span><span class="p">[</span>
+                    <span class="n">_I</span><span class="p">(</span><span class="s1">&#39;method&#39;</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;single&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="s1">&#39;object&#39;</span><span class="p">,</span>
+                                          <span class="s1">&#39;element&#39;</span><span class="p">,</span> <span class="s1">&#39;none&#39;</span><span class="p">]),</span>
+                    <span class="n">_I</span><span class="p">(</span><span class="s1">&#39;value&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+                       <span class="n">tooltip</span><span class="o">=</span><span class="s1">&#39;A single value given to all elements&#39;</span><span class="p">),</span>
+                    <span class="n">_I</span><span class="p">(</span><span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+                       <span class="n">tooltip</span><span class="o">=</span><span class="s1">&#39;A list of values, repeated if needed&#39;</span><span class="p">),</span>
+                <span class="p">],</span> <span class="n">enablers</span><span class="o">=</span><span class="p">[</span>
+                    <span class="p">(</span><span class="s1">&#39;method&#39;</span><span class="p">,</span> <span class="s1">&#39;single&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">),</span>
+                    <span class="p">(</span><span class="s1">&#39;method&#39;</span><span class="p">,</span> <span class="s1">&#39;object&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">),</span>
+                    <span class="p">(</span><span class="s1">&#39;method&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span> <span class="s1">&#39;list&#39;</span><span class="p">),</span>
+                <span class="p">])</span>
+                <span class="k">if</span> <span class="n">res</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;method&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;single&#39;</span><span class="p">:</span>
+                        <span class="n">prop</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span>
+                    <span class="k">elif</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;method&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;list&#39;</span><span class="p">:</span>
+                        <span class="n">prop</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;list&#39;</span><span class="p">]</span>
+                    <span class="k">elif</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;method&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;object&#39;</span><span class="p">:</span>
+                        <span class="n">prop</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span>
+                    <span class="k">elif</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;method&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;element&#39;</span><span class="p">:</span>
+                        <span class="n">prop</span> <span class="o">=</span> <span class="s1">&#39;range&#39;</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">prop</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">objects</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="s1">&#39;setProp&#39;</span><span class="p">):</span>
+                            <span class="n">o</span><span class="o">.</span><span class="n">setProp</span><span class="p">(</span><span class="n">prop</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;method&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;object&#39;</span><span class="p">:</span>
+                            <span class="n">prop</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="DrawableObjects.delProp"><a class="viewcode-back" href="../../ref/plugins.objects.html#plugins.objects.DrawableObjects.delProp">[docs]</a>    <span class="k">def</span> <span class="nf">delProp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Delete the property of the current selection.</span>
+
+<span class="sd">        Resets the `prop` attribute of all selected objects to None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">objects</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">objects</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">objects</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="s1">&#39;prop&#39;</span><span class="p">):</span>
+                    <span class="n">o</span><span class="o">.</span><span class="n">prop</span><span class="o">=</span><span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span></div></div>
+
+
+<span class="c1"># End</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">plugins.objects</a></li--> 
+      </ul>
+    </div>
+    <div class="footer">
+    <span class="left">
+        &copy; Copyright 2004-2023, Benedict Verhegghe.
+    </span>
+      Last updated on Mar 27, 2023.
+    <span class="right">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.4.3.
+    </span>
+    </div>
+  </body>
+</html>

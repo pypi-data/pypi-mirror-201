@@ -1,0 +1,1382 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!--
+##
+##  This file is part of the pyFormex project.
+##  pyFormex is a tool for generating, manipulating and transforming 3D
+##  geometrical models by sequences of mathematical operations.
+##  Home page: http://pyformex.org
+##  Project page:  http://savannah.nongnu.org/projects/pyformex/
+##  Copyright (C) Benedict Verhegghe (benedict.verhegghe@ugent.be)
+##  Distributed under the GNU General Public License version 3 or later.
+##
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see http://www.gnu.org/licenses/.
+##
+-->
+    <title>24. geometry — A generic interface to the Coords transformation methods &#8212; pyFormex 3.3 documentation</title>
+
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pyformex.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="25. geomfile — Export/import of files in pyFormex’s native PGF format" href="geomfile.html" />
+    <link rel="prev" title="23. flatkeydb — Flat Text File Database." href="flatkeydb.html" />
+<link rel="icon" type="image/png" href="../_static/pyformex_fav.png" />
+
+  </head><body>
+
+<div class="header">
+  <a href="http://pyformex.org">
+  <img src="../_static/scallop_dome_small.png" alt="scallop dome" border="0" hspace="20" vspace="12" align="left" />
+  <img src="../_static/pyformex-logo-2.png" alt="pyformex logo" border="0" hspace="10" vspace="8" align="left" />
+  </a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="geomfile.html" title="25. geomfile — Export/import of files in pyFormex’s native PGF format"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="flatkeydb.html" title="23. flatkeydb — Flat Text File Database."
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../refman.html" accesskey="U">pyFormex reference manual</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href=""><span class="section-number">24. </span><code class="xref py py-mod docutils literal notranslate"><span class="pre">geometry</span></code> — A generic interface to the Coords transformation methods</a></li--> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<!-- PYFORMEX_SIDEBAR_LOGO -->
+<!-- PYFORMEX_WEBSITE_SIDEBAR_TOP -->
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="flatkeydb.html"
+                        title="previous chapter"><span class="section-number">23. </span><code class="xref py py-mod docutils literal notranslate"><span class="pre">flatkeydb</span></code> — Flat Text File Database.</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="geomfile.html"
+                        title="next chapter"><span class="section-number">25. </span><code class="xref py py-mod docutils literal notranslate"><span class="pre">geomfile</span></code> — Export/import of files in pyFormex’s native PGF format</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-geometry">
+<span id="geometry-a-generic-interface-to-the-coords-transformation-methods"></span><span id="sec-ref-geometry"></span><h1><span class="section-number">24. </span><a class="reference internal" href="#module-geometry" title="geometry: A generic interface to the Coords transformation methods"><code class="xref py py-mod docutils literal notranslate"><span class="pre">geometry</span></code></a> — A generic interface to the Coords transformation methods<a class="headerlink" href="#module-geometry" title="Permalink to this headline">¶</a></h1>
+<p>This module defines a generic Geometry superclass which adds all the
+possibilities of coordinate transformations offered by the
+Coords class to the derived classes.</p>
+<dl class="py class">
+<dt id="geometry.Geometry">
+<em class="property">class </em><code class="sig-prename descclassname">geometry.</code><code class="sig-name descname">Geometry</code><a class="reference internal" href="../_modules/geometry.html#Geometry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry" title="Permalink to this definition">¶</a></dt>
+<dd><p>A virtual base class for all geometry classes in pyFormex.</p>
+<p>The Geometry class is a generic parent class for all geometry classes
+in pyFormex. It is not intended to be used directly, but only through
+derived classes.
+Examples of derived classes are <a class="reference internal" href="formex.html#formex.Formex" title="formex.Formex"><code class="xref py py-class docutils literal notranslate"><span class="pre">Formex</span></code></a>,
+<a class="reference internal" href="mesh.html#mesh.Mesh" title="mesh.Mesh"><code class="xref py py-class docutils literal notranslate"><span class="pre">Mesh</span></code></a>, <a class="reference internal" href="trisurface.html#trisurface.TriSurface" title="trisurface.TriSurface"><code class="xref py py-class docutils literal notranslate"><span class="pre">TriSurface</span></code></a>,
+<a class="reference internal" href="curve.html#curve.PolyLine" title="curve.PolyLine"><code class="xref py py-class docutils literal notranslate"><span class="pre">PolyLine</span></code></a>, <a class="reference internal" href="curve.html#curve.BezierSpline" title="curve.BezierSpline"><code class="xref py py-class docutils literal notranslate"><span class="pre">BezierSpline</span></code></a>,
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Polygons</span></code>.</p>
+<p>The basic entity of geometry is the point, defined by its coordinates.
+The Geometry class expects these to be stored in a <a class="reference internal" href="coords.html#coords.Coords" title="coords.Coords"><code class="xref py py-class docutils literal notranslate"><span class="pre">Coords</span></code></a>
+object assigned to the <a class="reference internal" href="coords.html#module-coords" title="coords: A structured collection of 3D coordinates."><code class="xref py py-attr docutils literal notranslate"><span class="pre">coords</span></code></a> attribute (it is the responsability
+of the derived class object initialisation to do this).</p>
+<p>The Geometry class exposes the following attributes of the <a class="reference internal" href="coords.html#module-coords" title="coords: A structured collection of 3D coordinates."><code class="xref py py-attr docutils literal notranslate"><span class="pre">coords</span></code></a>
+attribute, so that they can be directly used on the Geometry object:
+<a class="reference internal" href="#geometry.Geometry.xyz" title="geometry.Geometry.xyz"><code class="xref py py-attr docutils literal notranslate"><span class="pre">xyz</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.x" title="geometry.Geometry.x"><code class="xref py py-attr docutils literal notranslate"><span class="pre">x</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.y" title="geometry.Geometry.y"><code class="xref py py-attr docutils literal notranslate"><span class="pre">y</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.z" title="geometry.Geometry.z"><code class="xref py py-attr docutils literal notranslate"><span class="pre">z</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.xy" title="geometry.Geometry.xy"><code class="xref py py-attr docutils literal notranslate"><span class="pre">xy</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.yz" title="geometry.Geometry.yz"><code class="xref py py-attr docutils literal notranslate"><span class="pre">yz</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.xz" title="geometry.Geometry.xz"><code class="xref py py-attr docutils literal notranslate"><span class="pre">xz</span></code></a>.</p>
+<p>The Geometry class exposes a large set of Coords methods for direct use
+on the derived class objects. These methods are automatically executed
+on the <code class="docutils literal notranslate"><span class="pre">coords</span></code> attribute of the object. One set of such methods are
+those returning some information about the Coords:
+<a class="reference internal" href="#geometry.Geometry.points" title="geometry.Geometry.points"><code class="xref py py-meth docutils literal notranslate"><span class="pre">points()</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.bbox" title="geometry.Geometry.bbox"><code class="xref py py-meth docutils literal notranslate"><span class="pre">bbox()</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.center" title="geometry.Geometry.center"><code class="xref py py-meth docutils literal notranslate"><span class="pre">center()</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.bboxPoint" title="geometry.Geometry.bboxPoint"><code class="xref py py-meth docutils literal notranslate"><span class="pre">bboxPoint()</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.centroid" title="geometry.Geometry.centroid"><code class="xref py py-meth docutils literal notranslate"><span class="pre">centroid()</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.sizes" title="geometry.Geometry.sizes"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sizes()</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.dsize" title="geometry.Geometry.dsize"><code class="xref py py-meth docutils literal notranslate"><span class="pre">dsize()</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.bsphere" title="geometry.Geometry.bsphere"><code class="xref py py-meth docutils literal notranslate"><span class="pre">bsphere()</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.bboxes" title="geometry.Geometry.bboxes"><code class="xref py py-meth docutils literal notranslate"><span class="pre">bboxes()</span></code></a>,
+<a class="reference internal" href="inertia.html#module-inertia" title="inertia: Compute inertia related quantities of geometrical models."><code class="xref py py-meth docutils literal notranslate"><span class="pre">inertia()</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.principalCS" title="geometry.Geometry.principalCS"><code class="xref py py-meth docutils literal notranslate"><span class="pre">principalCS()</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.principalSizes" title="geometry.Geometry.principalSizes"><code class="xref py py-meth docutils literal notranslate"><span class="pre">principalSizes()</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.distanceFromPlane" title="geometry.Geometry.distanceFromPlane"><code class="xref py py-meth docutils literal notranslate"><span class="pre">distanceFromPlane()</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.distanceFromLine" title="geometry.Geometry.distanceFromLine"><code class="xref py py-meth docutils literal notranslate"><span class="pre">distanceFromLine()</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.distanceFromPoint" title="geometry.Geometry.distanceFromPoint"><code class="xref py py-meth docutils literal notranslate"><span class="pre">distanceFromPoint()</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.directionalSize" title="geometry.Geometry.directionalSize"><code class="xref py py-meth docutils literal notranslate"><span class="pre">directionalSize()</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.directionalWidth" title="geometry.Geometry.directionalWidth"><code class="xref py py-meth docutils literal notranslate"><span class="pre">directionalWidth()</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.directionalExtremes" title="geometry.Geometry.directionalExtremes"><code class="xref py py-meth docutils literal notranslate"><span class="pre">directionalExtremes()</span></code></a>.
+Thus, if F is an instance of class <a class="reference internal" href="formex.html#formex.Formex" title="formex.Formex"><code class="xref py py-class docutils literal notranslate"><span class="pre">Formex</span></code></a>, then one
+can use <code class="docutils literal notranslate"><span class="pre">F.center()</span></code> as a convenient shorthand for <code class="docutils literal notranslate"><span class="pre">F.coords.center()</span></code>.</p>
+<p>Likewise, most of the transformation methods of the :class:~coords.Coords`
+class are exported through the Geometry class to the derived classes.
+When called, they will return a new object identical to the original,
+except for the coordinates, which are transformed by the specified method.
+Refer to the correponding <a class="reference internal" href="coords.html#coords.Coords" title="coords.Coords"><code class="xref py py-class docutils literal notranslate"><span class="pre">Coords</span></code></a> method for the precise
+arguments of these methods:
+<a class="reference internal" href="#geometry.Geometry.scale" title="geometry.Geometry.scale"><code class="xref py py-meth docutils literal notranslate"><span class="pre">scale()</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.adjust" title="geometry.Geometry.adjust"><code class="xref py py-meth docutils literal notranslate"><span class="pre">adjust()</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.translate" title="geometry.Geometry.translate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">translate()</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.centered" title="geometry.Geometry.centered"><code class="xref py py-meth docutils literal notranslate"><span class="pre">centered()</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.align" title="geometry.Geometry.align"><code class="xref py py-meth docutils literal notranslate"><span class="pre">align()</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.rotate" title="geometry.Geometry.rotate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">rotate()</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.shear" title="geometry.Geometry.shear"><code class="xref py py-meth docutils literal notranslate"><span class="pre">shear()</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.reflect" title="geometry.Geometry.reflect"><code class="xref py py-meth docutils literal notranslate"><span class="pre">reflect()</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.affine" title="geometry.Geometry.affine"><code class="xref py py-meth docutils literal notranslate"><span class="pre">affine()</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.toCS" title="geometry.Geometry.toCS"><code class="xref py py-meth docutils literal notranslate"><span class="pre">toCS()</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.fromCS" title="geometry.Geometry.fromCS"><code class="xref py py-meth docutils literal notranslate"><span class="pre">fromCS()</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.transformCS" title="geometry.Geometry.transformCS"><code class="xref py py-meth docutils literal notranslate"><span class="pre">transformCS()</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.position" title="geometry.Geometry.position"><code class="xref py py-meth docutils literal notranslate"><span class="pre">position()</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.cylindrical" title="geometry.Geometry.cylindrical"><code class="xref py py-meth docutils literal notranslate"><span class="pre">cylindrical()</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.hyperCylindrical" title="geometry.Geometry.hyperCylindrical"><code class="xref py py-meth docutils literal notranslate"><span class="pre">hyperCylindrical()</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.toCylindrical" title="geometry.Geometry.toCylindrical"><code class="xref py py-meth docutils literal notranslate"><span class="pre">toCylindrical()</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.spherical" title="geometry.Geometry.spherical"><code class="xref py py-meth docutils literal notranslate"><span class="pre">spherical()</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.superSpherical" title="geometry.Geometry.superSpherical"><code class="xref py py-meth docutils literal notranslate"><span class="pre">superSpherical()</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.toSpherical" title="geometry.Geometry.toSpherical"><code class="xref py py-meth docutils literal notranslate"><span class="pre">toSpherical()</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.circulize" title="geometry.Geometry.circulize"><code class="xref py py-meth docutils literal notranslate"><span class="pre">circulize()</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.bump" title="geometry.Geometry.bump"><code class="xref py py-meth docutils literal notranslate"><span class="pre">bump()</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.flare" title="geometry.Geometry.flare"><code class="xref py py-meth docutils literal notranslate"><span class="pre">flare()</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.map" title="geometry.Geometry.map"><code class="xref py py-meth docutils literal notranslate"><span class="pre">map()</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.map1" title="geometry.Geometry.map1"><code class="xref py py-meth docutils literal notranslate"><span class="pre">map1()</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.mapd" title="geometry.Geometry.mapd"><code class="xref py py-meth docutils literal notranslate"><span class="pre">mapd()</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.copyAxes" title="geometry.Geometry.copyAxes"><code class="xref py py-meth docutils literal notranslate"><span class="pre">copyAxes()</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.swapAxes" title="geometry.Geometry.swapAxes"><code class="xref py py-meth docutils literal notranslate"><span class="pre">swapAxes()</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.permuteAxes" title="geometry.Geometry.permuteAxes"><code class="xref py py-meth docutils literal notranslate"><span class="pre">permuteAxes()</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.rollAxes" title="geometry.Geometry.rollAxes"><code class="xref py py-meth docutils literal notranslate"><span class="pre">rollAxes()</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.projectOnPlane" title="geometry.Geometry.projectOnPlane"><code class="xref py py-meth docutils literal notranslate"><span class="pre">projectOnPlane()</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.projectOnSphere" title="geometry.Geometry.projectOnSphere"><code class="xref py py-meth docutils literal notranslate"><span class="pre">projectOnSphere()</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.projectOnCylinder" title="geometry.Geometry.projectOnCylinder"><code class="xref py py-meth docutils literal notranslate"><span class="pre">projectOnCylinder()</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.isopar" title="geometry.Geometry.isopar"><code class="xref py py-meth docutils literal notranslate"><span class="pre">isopar()</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.addNoise" title="geometry.Geometry.addNoise"><code class="xref py py-meth docutils literal notranslate"><span class="pre">addNoise()</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.rot" title="geometry.Geometry.rot"><code class="xref py py-meth docutils literal notranslate"><span class="pre">rot()</span></code></a>,
+<a class="reference internal" href="#geometry.Geometry.trl" title="geometry.Geometry.trl"><code class="xref py py-meth docutils literal notranslate"><span class="pre">trl()</span></code></a>.</p>
+<p>Geometry is a lot more than points however. Therefore the Geometry
+and its derived classes can represent higher level entities, such as
+lines, planes, circles, triangles, cubes,… These entities are often
+represented by multiple points: a line segment would e.g. need two points,
+a triangle three. Geometry subclasses can implement collections
+of many such entities, just like the <a class="reference internal" href="coords.html#coords.Coords" title="coords.Coords"><code class="xref py py-class docutils literal notranslate"><span class="pre">Coords</span></code></a> can hold
+many points. We call these geometric entities ‘elements’. The subclass
+must at least define a method <a class="reference internal" href="#geometry.Geometry.nelems" title="geometry.Geometry.nelems"><code class="xref py py-meth docutils literal notranslate"><span class="pre">nelems()</span></code></a> returning the number
+of elements in the object, even if there is only one.</p>
+<p>The Geometry class allows the attribution of a property number
+per element. This is an integer number that can be used as the subclass
+or user wants. It could be just the element number, or a key into
+a database with lots of more element attributes. The Geometry class
+provides methods to handle these property numbers.</p>
+<p>The Geometry class provides a separate mechanism to store attributes
+related to how the geometry should be rendered. For this purpose
+the class defines an <code class="docutils literal notranslate"><span class="pre">attrib</span></code> attribute which is an object of
+class <a class="reference internal" href="attributes.html#attributes.Attributes" title="attributes.Attributes"><code class="xref py py-class docutils literal notranslate"><span class="pre">Attributes</span></code></a>. This attribute is callable
+to set any key/value pairs in its dict. For example,
+<code class="docutils literal notranslate"><span class="pre">F.attrib(color=yellow)</span></code> will make the object F always be drawn
+in yellow.</p>
+<p>The Geometry class provides for adding fields to instances of the
+derived classes. Fields are numerical data (scalar or vectorial)
+that are defined over the geometry. For example, if the geometry
+represents a surface, the gaussian curvature of that surface is a
+field defined over the surface. Field data are stored in
+<a class="reference internal" href="field.html#field.Field" title="field.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a> objects and the Geometry object stores them
+internally in a dict object with the field name as key. The dict is
+kept in an attribute <code class="docutils literal notranslate"><span class="pre">fields</span></code> that is only created when the first
+Field is added to the object.</p>
+<p>Finally, the Geometry class also provides the interface for storing
+the Geometry object on a file in pyFormex’s own ‘pgf’ format.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>When subclassing the Geometry class, care should be taken to obey
+some rules in order for all the above to work properly.
+See <cite>UserGuide</cite>.</p>
+</div>
+<dl class="py method">
+<dt id="geometry.Geometry.setAttrib">
+<code class="sig-name descname">setAttrib</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.setAttrib"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.setAttrib" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set attributes on the Geometry.</p>
+<p>While the attributes can be directly set by calling self.attrib,
+using this function returns the parent object and can thus be chained
+in a sequence of calls:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">M</span> <span class="o">=</span> <span class="n">Mesh</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="n">M</span><span class="o">.</span><span class="n">attrib</span><span class="p">(</span><span class="o">**</span><span class="n">kargs</span><span class="p">)</span>
+<span class="n">M</span> <span class="o">=</span> <span class="n">M</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>can thus be replaced by:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">M</span> <span class="o">=</span> <span class="n">Mesh</span><span class="p">(</span><span class="o">...</span><span class="p">)</span><span class="o">.</span><span class="n">setAttrib</span><span class="p">(</span><span class="o">**</span><span class="n">kargs</span><span class="p">)</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.xyz">
+<em class="property">property </em><code class="sig-name descname">xyz</code><a class="headerlink" href="#geometry.Geometry.xyz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the <cite>xyz</cite> property of the <cite>coords</cite> attribute of the Geometry object.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.xyz" title="coords.Coords.xyz"><code class="xref py py-attr docutils literal notranslate"><span class="pre">coords.Coords.xyz</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.x">
+<em class="property">property </em><code class="sig-name descname">x</code><a class="headerlink" href="#geometry.Geometry.x" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the <cite>x</cite> property of the <cite>coords</cite> attribute of the Geometry object.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.x" title="coords.Coords.x"><code class="xref py py-attr docutils literal notranslate"><span class="pre">coords.Coords.x</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.y">
+<em class="property">property </em><code class="sig-name descname">y</code><a class="headerlink" href="#geometry.Geometry.y" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the <cite>y</cite> property of the <cite>coords</cite> attribute of the Geometry object.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.y" title="coords.Coords.y"><code class="xref py py-attr docutils literal notranslate"><span class="pre">coords.Coords.y</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.z">
+<em class="property">property </em><code class="sig-name descname">z</code><a class="headerlink" href="#geometry.Geometry.z" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the <cite>z</cite> property of the <cite>coords</cite> attribute of the Geometry object.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.z" title="coords.Coords.z"><code class="xref py py-attr docutils literal notranslate"><span class="pre">coords.Coords.z</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.xy">
+<em class="property">property </em><code class="sig-name descname">xy</code><a class="headerlink" href="#geometry.Geometry.xy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the <cite>xy</cite> property of the <cite>coords</cite> attribute of the Geometry object.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.xy" title="coords.Coords.xy"><code class="xref py py-attr docutils literal notranslate"><span class="pre">coords.Coords.xy</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.yz">
+<em class="property">property </em><code class="sig-name descname">yz</code><a class="headerlink" href="#geometry.Geometry.yz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the <cite>yz</cite> property of the <cite>coords</cite> attribute of the Geometry object.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.yz" title="coords.Coords.yz"><code class="xref py py-attr docutils literal notranslate"><span class="pre">coords.Coords.yz</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.xz">
+<em class="property">property </em><code class="sig-name descname">xz</code><a class="headerlink" href="#geometry.Geometry.xz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the <cite>xz</cite> property of the <cite>coords</cite> attribute of the Geometry object.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.xz" title="coords.Coords.xz"><code class="xref py py-attr docutils literal notranslate"><span class="pre">coords.Coords.xz</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.nelems">
+<em class="property">abstract </em><code class="sig-name descname">nelems</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.nelems"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.nelems" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the number of elements in the Geometry.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><em>int</em> – The number of elements in the Geometry. This is an abstract
+method that should be reimplemented by the derived class.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.level">
+<code class="sig-name descname">level</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.level"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.level" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the dimensionality of the Geometry</p>
+<p>The level of a <a class="reference internal" href="#geometry.Geometry" title="geometry.Geometry"><code class="xref py py-class docutils literal notranslate"><span class="pre">Geometry</span></code></a> is the dimensionality of the
+geometric object(s) represented:</p>
+<ul class="simple">
+<li><p>0: points</p></li>
+<li><p>1: line objects</p></li>
+<li><p>2: surface objects</p></li>
+<li><p>3: volume objects</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><em>int</em> – The level of the Geometry, or -1 if it is unknown. This
+should be implemented by the derived class. The Geometry
+base class always returns -1.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.info">
+<code class="sig-name descname">info</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a short string representation about the object</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.points">
+<code class="sig-name descname">points</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.points"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.points" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call Coords.points method on the Geometry object’s coords.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.points" title="coords.Coords.points"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coords.Coords.points()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.bbox">
+<code class="sig-name descname">bbox</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.bbox"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.bbox" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call Coords.bbox method on the Geometry object’s coords.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.bbox" title="coords.Coords.bbox"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coords.Coords.bbox()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.center">
+<code class="sig-name descname">center</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.center"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.center" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call Coords.center method on the Geometry object’s coords.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.center" title="coords.Coords.center"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coords.Coords.center()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.bboxPoint">
+<code class="sig-name descname">bboxPoint</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.bboxPoint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.bboxPoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call Coords.bboxPoint method on the Geometry object’s coords.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.bboxPoint" title="coords.Coords.bboxPoint"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coords.Coords.bboxPoint()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.centroid">
+<code class="sig-name descname">centroid</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.centroid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.centroid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call Coords.centroid method on the Geometry object’s coords.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.centroid" title="coords.Coords.centroid"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coords.Coords.centroid()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.sizes">
+<code class="sig-name descname">sizes</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.sizes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.sizes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call Coords.sizes method on the Geometry object’s coords.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.sizes" title="coords.Coords.sizes"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coords.Coords.sizes()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.dsize">
+<code class="sig-name descname">dsize</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.dsize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.dsize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call Coords.dsize method on the Geometry object’s coords.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.dsize" title="coords.Coords.dsize"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coords.Coords.dsize()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.bsphere">
+<code class="sig-name descname">bsphere</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.bsphere"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.bsphere" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call Coords.bsphere method on the Geometry object’s coords.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.bsphere" title="coords.Coords.bsphere"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coords.Coords.bsphere()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.bboxes">
+<code class="sig-name descname">bboxes</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.bboxes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.bboxes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call Coords.bboxes method on the Geometry object’s coords.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.bboxes" title="coords.Coords.bboxes"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coords.Coords.bboxes()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.inertia">
+<code class="sig-name descname">inertia</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.inertia"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.inertia" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call Coords.inertia method on the Geometry object’s coords.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.inertia" title="coords.Coords.inertia"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coords.Coords.inertia()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.principalCS">
+<code class="sig-name descname">principalCS</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.principalCS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.principalCS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call Coords.principalCS method on the Geometry object’s coords.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.principalCS" title="coords.Coords.principalCS"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coords.Coords.principalCS()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.principalSizes">
+<code class="sig-name descname">principalSizes</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.principalSizes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.principalSizes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call Coords.principalSizes method on the Geometry object’s coords.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.principalSizes" title="coords.Coords.principalSizes"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coords.Coords.principalSizes()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.distanceFromPlane">
+<code class="sig-name descname">distanceFromPlane</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.distanceFromPlane"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.distanceFromPlane" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call Coords.distanceFromPlane method on the Geometry object’s coords.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.distanceFromPlane" title="coords.Coords.distanceFromPlane"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coords.Coords.distanceFromPlane()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.distanceFromLine">
+<code class="sig-name descname">distanceFromLine</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.distanceFromLine"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.distanceFromLine" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call Coords.distanceFromLine method on the Geometry object’s coords.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.distanceFromLine" title="coords.Coords.distanceFromLine"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coords.Coords.distanceFromLine()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.distanceFromPoint">
+<code class="sig-name descname">distanceFromPoint</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.distanceFromPoint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.distanceFromPoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call Coords.distanceFromPoint method on the Geometry object’s coords.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.distanceFromPoint" title="coords.Coords.distanceFromPoint"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coords.Coords.distanceFromPoint()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.directionalSize">
+<code class="sig-name descname">directionalSize</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.directionalSize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.directionalSize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call Coords.directionalSize method on the Geometry object’s coords.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.directionalSize" title="coords.Coords.directionalSize"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coords.Coords.directionalSize()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.directionalWidth">
+<code class="sig-name descname">directionalWidth</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.directionalWidth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.directionalWidth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call Coords.directionalWidth method on the Geometry object’s coords.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.directionalWidth" title="coords.Coords.directionalWidth"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coords.Coords.directionalWidth()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.directionalExtremes">
+<code class="sig-name descname">directionalExtremes</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.directionalExtremes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.directionalExtremes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call Coords.directionalExtremes method on the Geometry object’s coords.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.directionalExtremes" title="coords.Coords.directionalExtremes"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coords.Coords.directionalExtremes()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.convexHull">
+<code class="sig-name descname">convexHull</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dir</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">return_mesh</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.convexHull"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.convexHull" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the convex hull of a Geometry.</p>
+<p>This is the <a class="reference internal" href="coords.html#coords.Coords.convexHull" title="coords.Coords.convexHull"><code class="xref py py-meth docutils literal notranslate"><span class="pre">convexHull()</span></code></a> applied to the
+<code class="docutils literal notranslate"><span class="pre">coords</span></code> attribute, but it has <code class="docutils literal notranslate"><span class="pre">return_mesh=True</span></code> as
+default.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><em>Mesh</em> – The convex hull of the geometry.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.testPlane">
+<code class="sig-name descname">testPlane</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">p</span></em>, <em class="sig-param"><span class="n">n</span></em>, <em class="sig-param"><span class="n">atol</span><span class="o">=</span><span class="default_value">0.0</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.testPlane"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.testPlane" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test what parts of a Formex or Mesh are at either side of a plane.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>p</strong> (<a class="reference internal" href="../glossary.html#term-array_like"><span class="xref std std-term">array_like</span></a> (3,)) – A point in the testing plane</p></li>
+<li><p><strong>n</strong> (<a class="reference internal" href="../glossary.html#term-array_like"><span class="xref std std-term">array_like</span></a> (3,)) – The positive normal on the plane</p></li>
+<li><p><strong>atol</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – Tolerance value to be added to the tests. Specifying a small
+positive value will make sure that elements located at one
+side of the plane, but having one or more points inside the
+plane, will be considered completely at one side. A negative
+value will include these elements with the ones vut by the
+plane.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>tp</strong> (<em>bool array (nelems,)</em>) – True for the elements that are completely at the positive side
+of the plane</p></li>
+<li><p><strong>tc</strong> (<em>bool array (nelems,)</em>) – True for the elements that are cut by the plane</p></li>
+<li><p><strong>tn</strong> (<em>bool array (nelems,)</em>) – True for the elements that are completely at the negative side</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.testBbox">
+<code class="sig-name descname">testBbox</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bb</span></em>, <em class="sig-param"><span class="n">dirs</span><span class="o">=</span><span class="default_value">(0, 1, 2)</span></em>, <em class="sig-param"><span class="n">nodes</span><span class="o">=</span><span class="default_value">'any'</span></em>, <em class="sig-param"><span class="n">atol</span><span class="o">=</span><span class="default_value">0.0</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.testBbox"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.testBbox" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test which part of a Formex or Mesh is inside a given bbox.</p>
+<p>The Geometry object needs to have a <code class="xref py py-meth docutils literal notranslate"><span class="pre">test()</span></code> method,
+This is the case for the <a class="reference internal" href="formex.html#formex.Formex" title="formex.Formex"><code class="xref py py-class docutils literal notranslate"><span class="pre">Formex</span></code></a> and
+<a class="reference internal" href="mesh.html#mesh.Mesh" title="mesh.Mesh"><code class="xref py py-class docutils literal notranslate"><span class="pre">Mesh</span></code></a> classes.
+The test can be applied in 1, 2 or 3 viewing directions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bb</strong> (<a class="reference internal" href="coords.html#coords.Coords" title="coords.Coords"><em>Coords</em></a><em> (</em><em>2</em><em>,</em><em>3</em><em>) or </em><em>alike</em>) – The bounding box to test for.</p></li>
+<li><p><strong>dirs</strong> (<em>tuple of ints</em><em> (</em><em>0</em><em>,</em><em>1</em><em>,</em><em>2</em><em>)</em>) – The viewing directions in which to check the bbox bounds.</p></li>
+<li><p><strong>nodes</strong> – Same as in <a class="reference internal" href="formex.html#formex.Formex.test" title="formex.Formex.test"><code class="xref py py-meth docutils literal notranslate"><span class="pre">formex.Formex.test()</span></code></a> or <a class="reference internal" href="mesh.html#mesh.Mesh.test" title="mesh.Mesh.test"><code class="xref py py-meth docutils literal notranslate"><span class="pre">mesh.Mesh.test()</span></code></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>bool array</em> – The array flags the elements that are inside the given
+bounding box.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.scale">
+<code class="sig-name descname">scale</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.scale"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.scale" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the <a class="reference internal" href="coords.html#coords.Coords.scale" title="coords.Coords.scale"><code class="xref py py-class docutils literal notranslate"><span class="pre">scale</span></code></a> transformation to the Geometry object.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.scale" title="coords.Coords.scale"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coords.Coords.scale()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.resized">
+<code class="sig-name descname">resized</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">size</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">tol</span><span class="o">=</span><span class="default_value">1e-05</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.resized"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.resized" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a copy of the Geometry scaled to the given size.</p>
+<p>size can be a single value or a list of three values for the
+three coordinate directions. If it is a single value, all directions
+are scaled to the same size.
+Directions for which the geometry has a size smaller than tol times
+the maximum size are not rescaled.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.adjust">
+<code class="sig-name descname">adjust</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.adjust"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.adjust" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the <a class="reference internal" href="coords.html#coords.Coords.adjust" title="coords.Coords.adjust"><code class="xref py py-class docutils literal notranslate"><span class="pre">adjust</span></code></a> transformation to the Geometry object.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.adjust" title="coords.Coords.adjust"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coords.Coords.adjust()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.translate">
+<code class="sig-name descname">translate</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.translate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.translate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the <a class="reference internal" href="coords.html#coords.Coords.translate" title="coords.Coords.translate"><code class="xref py py-class docutils literal notranslate"><span class="pre">translate</span></code></a> transformation to the Geometry object.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.translate" title="coords.Coords.translate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coords.Coords.translate()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.centered">
+<code class="sig-name descname">centered</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.centered"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.centered" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the <a class="reference internal" href="coords.html#coords.Coords.centered" title="coords.Coords.centered"><code class="xref py py-class docutils literal notranslate"><span class="pre">centered</span></code></a> transformation to the Geometry object.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.centered" title="coords.Coords.centered"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coords.Coords.centered()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.align">
+<code class="sig-name descname">align</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.align"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.align" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the <a class="reference internal" href="coords.html#coords.Coords.align" title="coords.Coords.align"><code class="xref py py-class docutils literal notranslate"><span class="pre">align</span></code></a> transformation to the Geometry object.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.align" title="coords.Coords.align"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coords.Coords.align()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.rotate">
+<code class="sig-name descname">rotate</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.rotate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.rotate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the <a class="reference internal" href="coords.html#coords.Coords.rotate" title="coords.Coords.rotate"><code class="xref py py-class docutils literal notranslate"><span class="pre">rotate</span></code></a> transformation to the Geometry object.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.rotate" title="coords.Coords.rotate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coords.Coords.rotate()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.shear">
+<code class="sig-name descname">shear</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.shear"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.shear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the <a class="reference internal" href="coords.html#coords.Coords.shear" title="coords.Coords.shear"><code class="xref py py-class docutils literal notranslate"><span class="pre">shear</span></code></a> transformation to the Geometry object.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.shear" title="coords.Coords.shear"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coords.Coords.shear()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.reflect">
+<code class="sig-name descname">reflect</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.reflect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.reflect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the <a class="reference internal" href="coords.html#coords.Coords.reflect" title="coords.Coords.reflect"><code class="xref py py-class docutils literal notranslate"><span class="pre">reflect</span></code></a> transformation to the Geometry object.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.reflect" title="coords.Coords.reflect"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coords.Coords.reflect()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.affine">
+<code class="sig-name descname">affine</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.affine"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.affine" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the <a class="reference internal" href="coords.html#coords.Coords.affine" title="coords.Coords.affine"><code class="xref py py-class docutils literal notranslate"><span class="pre">affine</span></code></a> transformation to the Geometry object.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.affine" title="coords.Coords.affine"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coords.Coords.affine()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.toCS">
+<code class="sig-name descname">toCS</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.toCS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.toCS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the <a class="reference internal" href="coords.html#coords.Coords.toCS" title="coords.Coords.toCS"><code class="xref py py-class docutils literal notranslate"><span class="pre">toCS</span></code></a> transformation to the Geometry object.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.toCS" title="coords.Coords.toCS"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coords.Coords.toCS()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.fromCS">
+<code class="sig-name descname">fromCS</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.fromCS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.fromCS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the <a class="reference internal" href="coords.html#coords.Coords.fromCS" title="coords.Coords.fromCS"><code class="xref py py-class docutils literal notranslate"><span class="pre">fromCS</span></code></a> transformation to the Geometry object.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.fromCS" title="coords.Coords.fromCS"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coords.Coords.fromCS()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.transformCS">
+<code class="sig-name descname">transformCS</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.transformCS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.transformCS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the <a class="reference internal" href="coords.html#coords.Coords.transformCS" title="coords.Coords.transformCS"><code class="xref py py-class docutils literal notranslate"><span class="pre">transformCS</span></code></a> transformation to the Geometry object.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.transformCS" title="coords.Coords.transformCS"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coords.Coords.transformCS()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.position">
+<code class="sig-name descname">position</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.position"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.position" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the <a class="reference internal" href="coords.html#coords.Coords.position" title="coords.Coords.position"><code class="xref py py-class docutils literal notranslate"><span class="pre">position</span></code></a> transformation to the Geometry object.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.position" title="coords.Coords.position"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coords.Coords.position()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.cylindrical">
+<code class="sig-name descname">cylindrical</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.cylindrical"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.cylindrical" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the <a class="reference internal" href="coords.html#coords.Coords.cylindrical" title="coords.Coords.cylindrical"><code class="xref py py-class docutils literal notranslate"><span class="pre">cylindrical</span></code></a> transformation to the Geometry object.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.cylindrical" title="coords.Coords.cylindrical"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coords.Coords.cylindrical()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.hyperCylindrical">
+<code class="sig-name descname">hyperCylindrical</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.hyperCylindrical"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.hyperCylindrical" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the <a class="reference internal" href="coords.html#coords.Coords.hyperCylindrical" title="coords.Coords.hyperCylindrical"><code class="xref py py-class docutils literal notranslate"><span class="pre">hyperCylindrical</span></code></a> transformation to the Geometry object.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.hyperCylindrical" title="coords.Coords.hyperCylindrical"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coords.Coords.hyperCylindrical()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.toCylindrical">
+<code class="sig-name descname">toCylindrical</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.toCylindrical"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.toCylindrical" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the <a class="reference internal" href="coords.html#coords.Coords.toCylindrical" title="coords.Coords.toCylindrical"><code class="xref py py-class docutils literal notranslate"><span class="pre">toCylindrical</span></code></a> transformation to the Geometry object.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.toCylindrical" title="coords.Coords.toCylindrical"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coords.Coords.toCylindrical()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.spherical">
+<code class="sig-name descname">spherical</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.spherical"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.spherical" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the <a class="reference internal" href="coords.html#coords.Coords.spherical" title="coords.Coords.spherical"><code class="xref py py-class docutils literal notranslate"><span class="pre">spherical</span></code></a> transformation to the Geometry object.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.spherical" title="coords.Coords.spherical"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coords.Coords.spherical()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.superSpherical">
+<code class="sig-name descname">superSpherical</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.superSpherical"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.superSpherical" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the <a class="reference internal" href="coords.html#coords.Coords.superSpherical" title="coords.Coords.superSpherical"><code class="xref py py-class docutils literal notranslate"><span class="pre">superSpherical</span></code></a> transformation to the Geometry object.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.superSpherical" title="coords.Coords.superSpherical"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coords.Coords.superSpherical()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.toSpherical">
+<code class="sig-name descname">toSpherical</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.toSpherical"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.toSpherical" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the <a class="reference internal" href="coords.html#coords.Coords.toSpherical" title="coords.Coords.toSpherical"><code class="xref py py-class docutils literal notranslate"><span class="pre">toSpherical</span></code></a> transformation to the Geometry object.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.toSpherical" title="coords.Coords.toSpherical"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coords.Coords.toSpherical()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.circulize">
+<code class="sig-name descname">circulize</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.circulize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.circulize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the <a class="reference internal" href="coords.html#coords.Coords.circulize" title="coords.Coords.circulize"><code class="xref py py-class docutils literal notranslate"><span class="pre">circulize</span></code></a> transformation to the Geometry object.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.circulize" title="coords.Coords.circulize"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coords.Coords.circulize()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.bump">
+<code class="sig-name descname">bump</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.bump"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.bump" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the <a class="reference internal" href="coords.html#coords.Coords.bump" title="coords.Coords.bump"><code class="xref py py-class docutils literal notranslate"><span class="pre">bump</span></code></a> transformation to the Geometry object.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.bump" title="coords.Coords.bump"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coords.Coords.bump()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.flare">
+<code class="sig-name descname">flare</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.flare"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.flare" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the <a class="reference internal" href="coords.html#coords.Coords.flare" title="coords.Coords.flare"><code class="xref py py-class docutils literal notranslate"><span class="pre">flare</span></code></a> transformation to the Geometry object.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.flare" title="coords.Coords.flare"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coords.Coords.flare()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.map">
+<code class="sig-name descname">map</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.map" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the <a class="reference internal" href="coords.html#coords.Coords.map" title="coords.Coords.map"><code class="xref py py-class docutils literal notranslate"><span class="pre">map</span></code></a> transformation to the Geometry object.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.map" title="coords.Coords.map"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coords.Coords.map()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.map1">
+<code class="sig-name descname">map1</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.map1"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.map1" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the <a class="reference internal" href="coords.html#coords.Coords.map1" title="coords.Coords.map1"><code class="xref py py-class docutils literal notranslate"><span class="pre">map1</span></code></a> transformation to the Geometry object.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.map1" title="coords.Coords.map1"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coords.Coords.map1()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.mapd">
+<code class="sig-name descname">mapd</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.mapd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.mapd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the <a class="reference internal" href="coords.html#coords.Coords.mapd" title="coords.Coords.mapd"><code class="xref py py-class docutils literal notranslate"><span class="pre">mapd</span></code></a> transformation to the Geometry object.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.mapd" title="coords.Coords.mapd"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coords.Coords.mapd()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.copyAxes">
+<code class="sig-name descname">copyAxes</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.copyAxes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.copyAxes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the <a class="reference internal" href="coords.html#coords.Coords.copyAxes" title="coords.Coords.copyAxes"><code class="xref py py-class docutils literal notranslate"><span class="pre">copyAxes</span></code></a> transformation to the Geometry object.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.copyAxes" title="coords.Coords.copyAxes"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coords.Coords.copyAxes()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.swapAxes">
+<code class="sig-name descname">swapAxes</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.swapAxes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.swapAxes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the <a class="reference internal" href="coords.html#coords.Coords.swapAxes" title="coords.Coords.swapAxes"><code class="xref py py-class docutils literal notranslate"><span class="pre">swapAxes</span></code></a> transformation to the Geometry object.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.swapAxes" title="coords.Coords.swapAxes"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coords.Coords.swapAxes()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.permuteAxes">
+<code class="sig-name descname">permuteAxes</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.permuteAxes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.permuteAxes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the <a class="reference internal" href="coords.html#coords.Coords.permuteAxes" title="coords.Coords.permuteAxes"><code class="xref py py-class docutils literal notranslate"><span class="pre">permuteAxes</span></code></a> transformation to the Geometry object.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.permuteAxes" title="coords.Coords.permuteAxes"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coords.Coords.permuteAxes()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.rollAxes">
+<code class="sig-name descname">rollAxes</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.rollAxes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.rollAxes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the <a class="reference internal" href="coords.html#coords.Coords.rollAxes" title="coords.Coords.rollAxes"><code class="xref py py-class docutils literal notranslate"><span class="pre">rollAxes</span></code></a> transformation to the Geometry object.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.rollAxes" title="coords.Coords.rollAxes"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coords.Coords.rollAxes()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.projectOnPlane">
+<code class="sig-name descname">projectOnPlane</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.projectOnPlane"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.projectOnPlane" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the <a class="reference internal" href="coords.html#coords.Coords.projectOnPlane" title="coords.Coords.projectOnPlane"><code class="xref py py-class docutils literal notranslate"><span class="pre">projectOnPlane</span></code></a> transformation to the Geometry object.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.projectOnPlane" title="coords.Coords.projectOnPlane"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coords.Coords.projectOnPlane()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.projectOnSphere">
+<code class="sig-name descname">projectOnSphere</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.projectOnSphere"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.projectOnSphere" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the <a class="reference internal" href="coords.html#coords.Coords.projectOnSphere" title="coords.Coords.projectOnSphere"><code class="xref py py-class docutils literal notranslate"><span class="pre">projectOnSphere</span></code></a> transformation to the Geometry object.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.projectOnSphere" title="coords.Coords.projectOnSphere"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coords.Coords.projectOnSphere()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.projectOnCylinder">
+<code class="sig-name descname">projectOnCylinder</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.projectOnCylinder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.projectOnCylinder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the <a class="reference internal" href="coords.html#coords.Coords.projectOnCylinder" title="coords.Coords.projectOnCylinder"><code class="xref py py-class docutils literal notranslate"><span class="pre">projectOnCylinder</span></code></a> transformation to the Geometry object.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.projectOnCylinder" title="coords.Coords.projectOnCylinder"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coords.Coords.projectOnCylinder()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.isopar">
+<code class="sig-name descname">isopar</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.isopar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.isopar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the <a class="reference internal" href="coords.html#coords.Coords.isopar" title="coords.Coords.isopar"><code class="xref py py-class docutils literal notranslate"><span class="pre">isopar</span></code></a> transformation to the Geometry object.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.isopar" title="coords.Coords.isopar"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coords.Coords.isopar()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.addNoise">
+<code class="sig-name descname">addNoise</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.addNoise"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.addNoise" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the <a class="reference internal" href="coords.html#coords.Coords.addNoise" title="coords.Coords.addNoise"><code class="xref py py-class docutils literal notranslate"><span class="pre">addNoise</span></code></a> transformation to the Geometry object.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.addNoise" title="coords.Coords.addNoise"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coords.Coords.addNoise()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.rot">
+<code class="sig-name descname">rot</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#geometry.Geometry.rot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the <a class="reference internal" href="coords.html#coords.Coords.rotate" title="coords.Coords.rotate"><code class="xref py py-class docutils literal notranslate"><span class="pre">rotate</span></code></a> transformation to the Geometry object.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.rotate" title="coords.Coords.rotate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coords.Coords.rotate()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.trl">
+<code class="sig-name descname">trl</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#geometry.Geometry.trl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the <a class="reference internal" href="coords.html#coords.Coords.translate" title="coords.Coords.translate"><code class="xref py py-class docutils literal notranslate"><span class="pre">translate</span></code></a> transformation to the Geometry object.</p>
+<p>See <a class="reference internal" href="coords.html#coords.Coords.translate" title="coords.Coords.translate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coords.Coords.translate()</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.setProp">
+<code class="sig-name descname">setProp</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prop</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.setProp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.setProp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create or destroy the property array for the Geometry.</p>
+<p>A property array is a 1-dim integer array with length equal
+to the number of elements in the Geometry. Each element thus has its
+own property number. These numbers can be used for any purpose.
+In derived classes like <a class="reference internal" href="formex.html#formex.Formex" title="formex.Formex"><code class="xref py py-class docutils literal notranslate"><span class="pre">Formex</span></code></a> and :class`~mesh.Mesh`
+they play an import role when creating new geometry: new elements
+inherit the property number of their parent element.
+Properties are also preserved on pure coordinate transformations.</p>
+<p>Because elements with different property numbers can be drawn in
+different colors, the property numbers are also often used to impose
+color.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>prop</strong> (int, int <a class="reference internal" href="../glossary.html#term-array_like"><span class="xref std std-term">array_like</span></a> or ‘range’) – <p>The property number(s) to assign to the elements. If a single int,
+all elements get the same property value.
+If the number of passed values is less than the number of elements,
+the list will be repeated. If more values are passed than the
+number of elements, the excess ones are ignored.</p>
+<p>A special value <code class="docutils literal notranslate"><span class="pre">'range'</span></code> may be given to set the property
+numbers equal to the element number. This is equivalent to
+passing <code class="docutils literal notranslate"><span class="pre">arange(self.nelems())</span></code>.</p>
+<p>A value None (default) removes the properties from the Geometry.</p>
+</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p>The calling object <code class="docutils literal notranslate"><span class="pre">self</span></code>, with the new properties inserted</p></li>
+<li><p><em>or with the properties deleted if argument is None.</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is one of the few operations that change the object in-place.
+It still returns the object itself, so that this operation can be
+used in a chain with other operations.</p>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#geometry.Geometry.toProp" title="geometry.Geometry.toProp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">toProp</span></code></a></dt><dd><p>Create a valid set of properties for the object</p>
+</dd>
+<dt><a class="reference internal" href="#geometry.Geometry.whereProp" title="geometry.Geometry.whereProp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">whereProp</span></code></a></dt><dd><p>Find the elements having some property value</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.toProp">
+<code class="sig-name descname">toProp</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prop</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.toProp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.toProp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a valid set of properties for the object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>prop</strong> (int or int <a class="reference internal" href="../glossary.html#term-array_like"><span class="xref std std-term">array_like</span></a>) – The property values to turn into a valid set for the object.
+If a single int, all elements get the same property value.
+If the number of passed values is less than the number of elements,
+the list will be repeated. If more values are passed than the
+number of elements, the excess ones are ignored.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>int array</em> – A 1-dim int array that is valid as a property array for
+the Geometry object. The length of the array will is
+<code class="docutils literal notranslate"><span class="pre">self.nelems()</span></code> and the dtype is <a class="reference internal" href="arraytools.html#arraytools.Int" title="arraytools.Int"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Int</span></code></a>.</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#geometry.Geometry.setProp" title="geometry.Geometry.setProp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setProp</span></code></a></dt><dd><p>Set the properties for the object</p>
+</dd>
+<dt><a class="reference internal" href="#geometry.Geometry.whereProp" title="geometry.Geometry.whereProp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">whereProp</span></code></a></dt><dd><p>Find the elements having some property value</p>
+</dd>
+</dl>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>When you set the properties (using <a class="reference internal" href="#geometry.Geometry.setProp" title="geometry.Geometry.setProp"><code class="xref py py-meth docutils literal notranslate"><span class="pre">setProp()</span></code></a>) you do not
+need to call this method to validate the properties. It is implicitely
+called from <a class="reference internal" href="#geometry.Geometry.setProp" title="geometry.Geometry.setProp"><code class="xref py py-meth docutils literal notranslate"><span class="pre">setProp()</span></code></a>.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.maxProp">
+<code class="sig-name descname">maxProp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.maxProp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.maxProp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the highest property value used.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><em>int</em> – The highest value used in the properties array, or -1
+if there are no properties.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.propSet">
+<code class="sig-name descname">propSet</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.propSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.propSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list with unique property values in use.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><em>int array</em> – The unique values in the properties array. If no
+properties are defined, an empty array is returned.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.propDict">
+<code class="sig-name descname">propDict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.propDict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.propDict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dict with the elements grouped per prop value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><em>dict</em> – A dict where the keys are the unique prop values and the
+values are the lists of element numbers having that prop value.
+The dict is empty if the object doen’t have prop numbers.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.whereProp">
+<code class="sig-name descname">whereProp</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prop</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.whereProp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.whereProp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the elements having some property value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>prop</strong> (int or int <a class="reference internal" href="../glossary.html#term-array_like"><span class="xref std std-term">array_like</span></a>) – The property value(s) to be found.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p><em>int array</em> – A 1-dim int array with the indices of all the elements that
+have the property value <code class="docutils literal notranslate"><span class="pre">prop</span></code>, or one of the values in <code class="docutils literal notranslate"><span class="pre">prop</span></code>.</p>
+<p>If the object has no properties, an empty array is returned.</p>
+</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#geometry.Geometry.setProp" title="geometry.Geometry.setProp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setProp</span></code></a></dt><dd><p>Set the properties for the object</p>
+</dd>
+<dt><a class="reference internal" href="#geometry.Geometry.toProp" title="geometry.Geometry.toProp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">toProp</span></code></a></dt><dd><p>Create a valid set of properties for the object</p>
+</dd>
+<dt><a class="reference internal" href="#geometry.Geometry.selectProp" title="geometry.Geometry.selectProp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">selectProp</span></code></a></dt><dd><p>Return a Geometry object with only the matching elements</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.copy">
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a deep copy of the Geometry  object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><em>Geometry (or subclass) object</em> – An object of the same class as the caller, having all the
+same data (for <a class="reference internal" href="coords.html#module-coords" title="coords: A structured collection of 3D coordinates."><code class="xref py py-attr docutils literal notranslate"><span class="pre">coords</span></code></a>, <code class="xref py py-attr docutils literal notranslate"><span class="pre">prop</span></code>, <code class="xref py py-attr docutils literal notranslate"><span class="pre">attrib</span></code>,
+<a class="reference internal" href="#geometry.Geometry.fields" title="geometry.Geometry.fields"><code class="xref py py-attr docutils literal notranslate"><span class="pre">fields</span></code></a>, and any other attributes possibly set by the
+subclass), but not sharing any data with the original object.</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is seldomly used, because it may cause wildly superfluous
+copying of data. Only used it if you absolutely require data
+that are independent of those of the caller.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.select">
+<code class="sig-name descname">select</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sel</span></em>, <em class="sig-param"><span class="n">compact</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.select"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.select" title="Permalink to this definition">¶</a></dt>
+<dd><p>Select some element(s) from a Geometry.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sel</strong> (<em>index-like</em>) – <p>The index of element(s) to be selected. This can be anything that
+can be used as an index in an array:</p>
+<blockquote>
+<div><ul>
+<li><p>a single element number</p></li>
+<li><p>a list, or array, of element numbers</p></li>
+<li><p>a bool list, or array, of length self.nelems(),
+where True values flag the elements to be selected</p></li>
+</ul>
+</div></blockquote>
+</p></li>
+<li><p><strong>compact</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – This option is only useful for subclasses that have a
+<code class="docutils literal notranslate"><span class="pre">compact</span></code> method, such as <a class="reference internal" href="mesh.html#mesh.Mesh" title="mesh.Mesh"><code class="xref py py-class docutils literal notranslate"><span class="pre">mesh.Mesh</span></code></a> and its subclasses.
+If True, the returned object will be compacted, i.e.
+unused nodes are removed and the nodes are renumbered from
+zero. If False (default), the node set and numbers
+are returned unchanged.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>Geometry (or subclass) object</em> – An object of the same class as the caller, but only containing
+the selected elements.</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#geometry.Geometry.cselect" title="geometry.Geometry.cselect"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cselect</span></code></a></dt><dd><p>Return all but the selected elements.</p>
+</dd>
+<dt><a class="reference internal" href="#geometry.Geometry.clip" title="geometry.Geometry.clip"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clip</span></code></a></dt><dd><p>Like select, but with compact=True as default.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.cselect">
+<code class="sig-name descname">cselect</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sel</span></em>, <em class="sig-param"><span class="n">compact</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.cselect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.cselect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the Geometry with the selected elements removed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sel</strong> (<em>index-like</em>) – <p>The index of element(s) to be selected. This can be anything that
+can be used as an index in an array:</p>
+<blockquote>
+<div><ul>
+<li><p>a single element number</p></li>
+<li><p>a list, or array, of element numbers</p></li>
+<li><p>a bool list, or array, of length self.nelems(),
+where True values flag the elements to be selected</p></li>
+</ul>
+</div></blockquote>
+</p></li>
+<li><p><strong>compact</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – This option is only useful for subclasses that have a
+<code class="docutils literal notranslate"><span class="pre">compact</span></code> method, such as <a class="reference internal" href="mesh.html#mesh.Mesh" title="mesh.Mesh"><code class="xref py py-class docutils literal notranslate"><span class="pre">mesh.Mesh</span></code></a> and its subclasses.
+If True, the returned object will be compacted, i.e.
+unused nodes are removed and the nodes are renumbered from
+zero. If False (default), the node set and numbers
+are returned unchanged.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>Geometry (or subclass) object</em> – An object of the same class as the caller, but containing
+all but the selected elements.</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#geometry.Geometry.select" title="geometry.Geometry.select"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select</span></code></a></dt><dd><p>Return a Geometry with only the selected elements.</p>
+</dd>
+<dt><a class="reference internal" href="#geometry.Geometry.cclip" title="geometry.Geometry.cclip"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cclip</span></code></a></dt><dd><p>Like cselect, but with compact=True as default.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.clip">
+<code class="sig-name descname">clip</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sel</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.clip"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.clip" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a Geometry only containing the selected elements.</p>
+<p>This is equivalent to <a class="reference internal" href="#geometry.Geometry.select" title="geometry.Geometry.select"><code class="xref py py-meth docutils literal notranslate"><span class="pre">select()</span></code></a> with <code class="docutils literal notranslate"><span class="pre">compact=True</span></code>.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#geometry.Geometry.select" title="geometry.Geometry.select"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select</span></code></a></dt><dd><p>Return a Geometry with only the selected elements.</p>
+</dd>
+<dt><a class="reference internal" href="#geometry.Geometry.cclip" title="geometry.Geometry.cclip"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cclip</span></code></a></dt><dd><p>The complement of clip, returning all but the selected elements.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.cclip">
+<code class="sig-name descname">cclip</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sel</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.cclip"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.cclip" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a Geometry with the selected elements removed.</p>
+<p>This is equivalent to <a class="reference internal" href="#geometry.Geometry.select" title="geometry.Geometry.select"><code class="xref py py-meth docutils literal notranslate"><span class="pre">select()</span></code></a> with <code class="docutils literal notranslate"><span class="pre">compact=True</span></code>.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#geometry.Geometry.cselect" title="geometry.Geometry.cselect"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cselect</span></code></a></dt><dd><p>Return a Geometry with only the selected elements.</p>
+</dd>
+<dt><a class="reference internal" href="#geometry.Geometry.clip" title="geometry.Geometry.clip"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clip</span></code></a></dt><dd><p>The complement of cclip, returning only the selected elements.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.selectProp">
+<code class="sig-name descname">selectProp</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prop</span></em>, <em class="sig-param"><span class="n">compact</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.selectProp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.selectProp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Select elements by their property value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>prop</strong> (int or int <a class="reference internal" href="../glossary.html#term-array_like"><span class="xref std std-term">array_like</span></a>) – The property value(s) for which the elements should be selected.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>Geometry (or subclass) object</em> – An object of the same class as the caller, but only containing
+the elements that have a property value equal to <code class="docutils literal notranslate"><span class="pre">prop</span></code>, or
+one of the values in <code class="docutils literal notranslate"><span class="pre">prop</span></code>.
+If the input object has no properties, a copy containing all
+elements is returned.</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#geometry.Geometry.cselectProp" title="geometry.Geometry.cselectProp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cselectProp</span></code></a></dt><dd><p>Return all but the elements with property <code class="docutils literal notranslate"><span class="pre">prop</span></code>.</p>
+</dd>
+<dt><a class="reference internal" href="#geometry.Geometry.whereProp" title="geometry.Geometry.whereProp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">whereProp</span></code></a></dt><dd><p>Get the numbers of the elements having a specified property.</p>
+</dd>
+<dt><a class="reference internal" href="#geometry.Geometry.select" title="geometry.Geometry.select"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select</span></code></a></dt><dd><p>Select the elements with the specified indices.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.cselectProp">
+<code class="sig-name descname">cselectProp</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prop</span></em>, <em class="sig-param"><span class="n">compact</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.cselectProp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.cselectProp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an object without the elements with property <cite>val</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>prop</strong> (int or int <a class="reference internal" href="../glossary.html#term-array_like"><span class="xref std std-term">array_like</span></a>) – The property value(s) of the elements that should be left out.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>Geometry (or subclass) object</em> – An object of the same class as the caller, with all but
+the elements that have a property value equal to <code class="docutils literal notranslate"><span class="pre">prop</span></code>, or
+one of the values in <code class="docutils literal notranslate"><span class="pre">prop</span></code>.
+If the input object has no properties, a copy containing all
+elements is returned.</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#geometry.Geometry.selectProp" title="geometry.Geometry.selectProp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">selectProp</span></code></a></dt><dd><p>Return only the elements with property <code class="docutils literal notranslate"><span class="pre">prop</span></code>.</p>
+</dd>
+<dt><a class="reference internal" href="#geometry.Geometry.whereProp" title="geometry.Geometry.whereProp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">whereProp</span></code></a></dt><dd><p>Get the numbers of the elements having a specified property.</p>
+</dd>
+<dt><a class="reference internal" href="#geometry.Geometry.cselect" title="geometry.Geometry.cselect"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cselect</span></code></a></dt><dd><p>Remove elements by their index.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.splitProp">
+<code class="sig-name descname">splitProp</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">prop</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">compact</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.splitProp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.splitProp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Partition a Geometry according to the values in prop.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>prop</strong> (int <a class="reference internal" href="../glossary.html#term-array_like"><span class="xref std std-term">array_like</span></a>, optional) – A 1-dim int array with length <code class="docutils literal notranslate"><span class="pre">self.nelems()</span></code> to be used in place
+of the objects own <code class="xref py py-attr docutils literal notranslate"><span class="pre">prop</span></code> attribute. If None (default),
+the latter will be used.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p><a class="reference internal" href="olist.html#olist.List" title="olist.List"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a> of Geometry objects – A list of objects of the same class as the caller.
+Each object in the list contains all the elements having the
+same value of <cite>prop</cite>. The number of objects in the list is
+equal to the number of unique values in <cite>prop</cite>. The list is
+sorted in ascending order of the <cite>prop</cite> value.</p>
+<p>If <cite>prop</cite> is None and the the object has no <cite>prop</cite> attribute,
+an empty list is returned.</p>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.addField">
+<code class="sig-name descname">addField</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fldtype</span></em>, <em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">fldname</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.addField"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.addField" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add <a class="reference internal" href="field.html#field.Field" title="field.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a> data to the <a class="reference internal" href="#geometry.Geometry" title="geometry.Geometry"><code class="xref py py-class docutils literal notranslate"><span class="pre">Geometry</span></code></a>.</p>
+<p>Field data are scalar or vectorial data defined over the
+Geometry. This convenience function creates a <a class="reference internal" href="field.html#field.Field" title="field.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a>
+object with the specified data and adds it to the Geometry object’s
+<a class="reference internal" href="#geometry.Geometry.fields" title="geometry.Geometry.fields"><code class="xref py py-attr docutils literal notranslate"><span class="pre">fields</span></code></a> dict.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fldtype</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – The field type. See <a class="reference internal" href="field.html#field.Field" title="field.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a> for details.</p></li>
+<li><p><strong>data</strong> (<a class="reference internal" href="../glossary.html#term-array_like"><span class="xref std std-term">array_like</span></a>) – The field data. See <a class="reference internal" href="field.html#field.Field" title="field.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a> for details.</p></li>
+<li><p><strong>fldname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – The field name. See <a class="reference internal" href="field.html#field.Field" title="field.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a> for details. This name
+is also used as key to store the Field in the <a class="reference internal" href="#geometry.Geometry.fields" title="geometry.Geometry.fields"><code class="xref py py-attr docutils literal notranslate"><span class="pre">fields</span></code></a>
+dict.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><a class="reference internal" href="field.html#field.Field" title="field.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a> – The constructed and stored Field object.</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Whenever a Geometry object is exported to a PGF file,
+all Fields stored inside the Geometry object are included
+in the PGF file.</p>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#geometry.Geometry.fields" title="geometry.Geometry.fields"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fields</span></code></a></dt><dd><p>Return a dict with all Fields on the Geometry.</p>
+</dd>
+<dt><a class="reference internal" href="#geometry.Geometry.getField" title="geometry.Geometry.getField"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getField</span></code></a></dt><dd><p>Retrieve a Field by its name.</p>
+</dd>
+<dt><a class="reference internal" href="#geometry.Geometry.delField" title="geometry.Geometry.delField"><code class="xref py py-obj docutils literal notranslate"><span class="pre">delField</span></code></a></dt><dd><p>Deleted a Field.</p>
+</dd>
+<dt><a class="reference internal" href="#geometry.Geometry.convertField" title="geometry.Geometry.convertField"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convertField</span></code></a></dt><dd><p>Convert the Field to another Field type.</p>
+</dd>
+<dt><a class="reference internal" href="#geometry.Geometry.fieldReport" title="geometry.Geometry.fieldReport"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fieldReport</span></code></a></dt><dd><p>Return a short overview of the stored Fields</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyformex.mesh</span> <span class="kn">import</span> <span class="n">Mesh</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">M</span> <span class="o">=</span> <span class="n">Mesh</span><span class="p">(</span><span class="n">eltype</span><span class="o">=</span><span class="s1">&#39;quad4&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">subdivide</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fld1</span> <span class="o">=</span> <span class="n">M</span><span class="o">.</span><span class="n">addField</span><span class="p">(</span><span class="s1">&#39;elemc&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]),</span> <span class="s1">&#39;elemnr&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">fld1</span><span class="p">)</span>
+<span class="go">Field &#39;elemnr&#39;, type &#39;elemc&#39;, shape (4,), nnodes=9, nelems=4, nplex=4</span>
+<span class="go">[0 1 1 2]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fld2</span> <span class="o">=</span> <span class="n">M</span><span class="o">.</span><span class="n">convertField</span><span class="p">(</span><span class="s1">&#39;elemnr&#39;</span><span class="p">,</span> <span class="s1">&#39;node&#39;</span><span class="p">,</span> <span class="s1">&#39;onnodes&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fld3</span> <span class="o">=</span> <span class="n">M</span><span class="o">.</span><span class="n">getField</span><span class="p">(</span><span class="s1">&#39;onnodes&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">fld3</span><span class="p">)</span>
+<span class="go">Field &#39;onnodes&#39;, type &#39;node&#39;, shape (9, 1), nnodes=9, nelems=4, nplex=4</span>
+<span class="go">[[0. ]</span>
+<span class="go"> [0.5]</span>
+<span class="go"> [1. ]</span>
+<span class="go"> [0.5]</span>
+<span class="go"> [1. ]</span>
+<span class="go"> [1.5]</span>
+<span class="go"> [1. ]</span>
+<span class="go"> [1.5]</span>
+<span class="go"> [2. ]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">M</span><span class="o">.</span><span class="n">fieldReport</span><span class="p">())</span>
+<span class="go">Field &#39;elemnr&#39;, fldtype &#39;elemc&#39;, dtype int64, shape (4,)</span>
+<span class="go">Field &#39;onnodes&#39;, fldtype &#39;node&#39;, dtype float64, shape (9, 1)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.fields">
+<em class="property">property </em><code class="sig-name descname">fields</code><a class="headerlink" href="#geometry.Geometry.fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the Fields dict of the Geometry.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><em>dict</em> – A dict with the <code class="xref py py-class docutils literal notranslate"><span class="pre">term:`Field</span></code> objects that were
+attached to the Geometry. The keys are the Field names.
+If the Geometry has no Fields, an empty dict is returned.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.getField">
+<code class="sig-name descname">getField</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fldname</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.getField"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.getField" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the data field with the specified name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>fldname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – The name of the Field to retrieve.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><a class="reference internal" href="field.html#field.Field" title="field.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a> – The data field with the specified name, if it exists
+in the Geometry object’s <a class="reference internal" href="#geometry.Geometry.fields" title="geometry.Geometry.fields"><code class="xref py py-attr docutils literal notranslate"><span class="pre">fields</span></code></a>.
+Returns None if no such key exists.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>See <code class="xref py py-meth docutils literal notranslate"><span class="pre">addFields()</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.delField">
+<code class="sig-name descname">delField</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fldname</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.delField"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.delField" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete the Field with the specified name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>fldname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – The name of the Field to delete from the Geometry object.
+A nonexisting name is silently ignored.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.convertField">
+<code class="sig-name descname">convertField</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fldname</span></em>, <em class="sig-param"><span class="n">totype</span></em>, <em class="sig-param"><span class="n">toname</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.convertField"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.convertField" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert the data field with the specified name to another type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fldname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – The name of the data Field to convert to another type.
+A nonexisting name is silently ignored.</p></li>
+<li><p><strong>totype</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – The field type to convert to.
+See <a class="reference internal" href="field.html#field.Field" title="field.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a> for details.</p></li>
+<li><p><strong>toname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – The name of the new (converted) Field (and key to store it).
+If the same name is specified as the old Field, that one will
+be overwritten by the new. Otherwise, both will be kept in the
+Geometry object’s <a class="reference internal" href="#geometry.Geometry.fields" title="geometry.Geometry.fields"><code class="xref py py-attr docutils literal notranslate"><span class="pre">fields</span></code></a> dict.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><a class="reference internal" href="field.html#field.Field" title="field.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a> – The converted and stored data field.
+Returns None if the original data field does not exist.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>See <code class="xref py py-meth docutils literal notranslate"><span class="pre">addFields()</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.fieldReport">
+<code class="sig-name descname">fieldReport</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.fieldReport"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.fieldReport" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a short report of the stored fields</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><em>str</em> – A multiline string with the stored Fields’ attributes:
+name, type, dtype and shape.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.write">
+<code class="sig-name descname">write</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">sep</span><span class="o">=</span><span class="default_value">' '</span></em>, <em class="sig-param"><span class="n">mode</span><span class="o">=</span><span class="default_value">'w'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write a Geometry object to a PGF file</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.read">
+<em class="property">classmethod </em><code class="sig-name descname">read</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read a single Geometry object from a PGF file</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="geometry.Geometry.pzf_dict">
+<code class="sig-name descname">pzf_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry.html#Geometry.pzf_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.Geometry.pzf_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct common part of all Geometry pzf dicts</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="geomfile.html" title="25. geomfile — Export/import of files in pyFormex’s native PGF format"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="flatkeydb.html" title="23. flatkeydb — Flat Text File Database."
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../refman.html" >pyFormex reference manual</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href=""><span class="section-number">24. </span><code class="xref py py-mod docutils literal notranslate"><span class="pre">geometry</span></code> — A generic interface to the Coords transformation methods</a></li--> 
+      </ul>
+    </div>
+    <div class="footer">
+    <span class="left">
+        &copy; Copyright 2004-2023, Benedict Verhegghe.
+    </span>
+      Last updated on Mar 27, 2023.
+    <span class="right">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.4.3.
+    </span>
+    </div>
+  </body>
+</html>

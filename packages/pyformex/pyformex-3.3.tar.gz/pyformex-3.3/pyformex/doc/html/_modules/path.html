@@ -1,0 +1,1735 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!--
+##
+##  This file is part of the pyFormex project.
+##  pyFormex is a tool for generating, manipulating and transforming 3D
+##  geometrical models by sequences of mathematical operations.
+##  Home page: http://pyformex.org
+##  Project page:  http://savannah.nongnu.org/projects/pyformex/
+##  Copyright (C) Benedict Verhegghe (benedict.verhegghe@ugent.be)
+##  Distributed under the GNU General Public License version 3 or later.
+##
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see http://www.gnu.org/licenses/.
+##
+-->
+    <title>path &#8212; pyFormex 3.3 documentation</title>
+
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pyformex.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+<link rel="icon" type="image/png" href="../_static/pyformex_fav.png" />
+
+  </head><body>
+
+<div class="header">
+  <a href="http://pyformex.org">
+  <img src="../_static/scallop_dome_small.png" alt="scallop dome" border="0" hspace="20" vspace="12" align="left" />
+  <img src="../_static/pyformex-logo-2.png" alt="pyformex logo" border="0" hspace="10" vspace="8" align="left" />
+  </a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">path</a></li--> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<!-- PYFORMEX_SIDEBAR_LOGO -->
+<!-- PYFORMEX_WEBSITE_SIDEBAR_TOP -->
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for path</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1">##</span>
+<span class="c1">##  SPDX-FileCopyrightText: © 2007-2023 Benedict Verhegghe &lt;bverheg@gmail.com&gt;</span>
+<span class="c1">##  SPDX-License-Identifier: GPL-3.0-or-later</span>
+<span class="c1">##</span>
+<span class="c1">##  This file is part of pyFormex 3.3  (Sun Mar 26 20:16:15 CEST 2023)</span>
+<span class="c1">##  pyFormex is a tool for generating, manipulating and transforming 3D</span>
+<span class="c1">##  geometrical models by sequences of mathematical operations.</span>
+<span class="c1">##  Home page: https://pyformex.org</span>
+<span class="c1">##  Project page: https://savannah.nongnu.org/projects/pyformex/</span>
+<span class="c1">##  Development: https://gitlab.com/bverheg/pyformex</span>
+<span class="c1">##  Distributed under the GNU General Public License version 3 or later.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is free software: you can redistribute it and/or modify</span>
+<span class="c1">##  it under the terms of the GNU General Public License as published by</span>
+<span class="c1">##  the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1">##  (at your option) any later version.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is distributed in the hope that it will be useful,</span>
+<span class="c1">##  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1">##  GNU General Public License for more details.</span>
+<span class="c1">##</span>
+<span class="c1">##  You should have received a copy of the GNU General Public License</span>
+<span class="c1">##  along with this program.  If not, see http://www.gnu.org/licenses/.</span>
+<span class="c1">##</span>
+<span class="sd">&quot;&quot;&quot;Object oriented filesystem paths.</span>
+
+<span class="sd">This module defines the Path class providing object oriented handling</span>
+<span class="sd">of filesystem paths.</span>
+<span class="sd">It has many similarities to the classes in the :mod:`pathlib` module of</span>
+<span class="sd">Python3. But we had some good reasons to not use that module and create</span>
+<span class="sd">our own instead:</span>
+
+<span class="sd">- Python&#39;s pathlib is overly complex, with classes as Path, PosixPath,</span>
+<span class="sd">  WindowsPath, PurePath, PurePosixPath, PureWindowsPath. We just have one</span>
+<span class="sd">  class (Path) that does it all.</span>
+<span class="sd">- Despite nearly all OSes implementing paths as strings, Python&#39;s</span>
+<span class="sd">  pathlib.Path is not a string (str), and this creates a lot of problems</span>
+<span class="sd">  for transforming a program to the use of pathlib.Path. All file related</span>
+<span class="sd">  functions and methods need to be changed to accept str as well as</span>
+<span class="sd">  pathlib.Path as arguments.</span>
+<span class="sd">- By contrast, our Path class is subclassed from Python&#39;s :class:`str`.</span>
+<span class="sd">  This was set forward as a requirement, as it was developed for pyFormex</span>
+<span class="sd">  (https://pyformex.org), which does a lot of string manipulations on</span>
+<span class="sd">  file paths, and uses a lot of external libraries using strings for</span>
+<span class="sd">  paths. In initially we tried to use pathlib, but the constant switching</span>
+<span class="sd">  between Path and str was a real hindrance and we decided to develop our</span>
+<span class="sd">  own Path class instead. Being a str, a Path can immediately be used in</span>
+<span class="sd">  all places where a str is used, and all str methods can be applied on a</span>
+<span class="sd">  Path.</span>
+<span class="sd">- We did not require compatibility with other OSes but Linux. Though the</span>
+<span class="sd">  class could likely be ported to other OSes with minor adjustments, the</span>
+<span class="sd">  author never did consider doing it by lack of knowledge about Windows file</span>
+<span class="sd">  systems. (I know it&#39;s case insensitive, but that&#39;s about it).</span>
+<span class="sd">- Our Path class offers a lot more functionality than Python&#39;s, as we have</span>
+<span class="sd">  concentrated all path related code of pyFormex into this single module.</span>
+<span class="sd">  Clearly, this could help a lot in porting pyFormex to other OSes.</span>
+
+<span class="sd">Despite the differences, there are also many similarities with</span>
+<span class="sd">the pathlib classes. We have tried as much as possible to use methods</span>
+<span class="sd">with the same name and functionality.</span>
+
+<span class="sd">Because we wanted this module to be of general use, the only dependencies</span>
+<span class="sd">are some Python standard library modules.</span>
+
+<span class="sd">This version is for Python3 only. See pyFormex 1.0.7 for an older version</span>
+<span class="sd">(with less functionality) that supports both Python2.7 and Python3.x.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+
+<div class="viewcode-block" id="hsortkey"><a class="viewcode-back" href="../ref/path.html#path.hsortkey">[docs]</a><span class="k">def</span> <span class="nf">hsortkey</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create a key for human sorting.</span>
+
+<span class="sd">    When humans sort a list of strings, they tend to interprete the</span>
+<span class="sd">    numerical fields as numbers and sort these parts numerically,</span>
+<span class="sd">    instead of using the lexicographic sorting as done by a computer.</span>
+
+<span class="sd">    This splits a string in digits and non-digits parts, and converts</span>
+<span class="sd">    the digits parts to int. The resulting list can be used to compare</span>
+<span class="sd">    the input strings for use in human sorting. This function can be</span>
+<span class="sd">    used in Python&#39;s list.sort method and in the sorted builtin function.</span>
+<span class="sd">    This version also splits the string at the last occurring dot, and</span>
+<span class="sd">    makes sure that a numeric part before the dot is sorted after the</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    s: str</span>
+<span class="sd">        The string for which to compute a human sorting key.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list</span>
+<span class="sd">        A list of items which can be used in sorting methods to compare</span>
+<span class="sd">        two strings and sort them in a human way. The items are alternatively</span>
+<span class="sd">        of type str and int. There are always an odd number of items. The</span>
+<span class="sd">        last item may be an empty string.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    hsortkey_ignore: similar, but ignores the case of the alphabetic parts</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; hsortkey(&#39;abc23def45ghi&#39;)</span>
+<span class="sd">    [&#39;abc&#39;, 23, &#39;def&#39;, 45, &#39;ghi&#39;]</span>
+<span class="sd">    &gt;&gt;&gt; hsortkey(&#39;abc23def45&#39;)</span>
+<span class="sd">    [&#39;abc&#39;, 23, &#39;def&#39;, 45, &#39;&#39;]</span>
+<span class="sd">    &gt;&gt;&gt; hsortkey(&#39;abc.def&#39;)</span>
+<span class="sd">    [&#39;abc&#39;, -1, &#39;def&#39;]</span>
+<span class="sd">    &gt;&gt;&gt; hsortkey(&#39;abc23.def&#39;)</span>
+<span class="sd">    [&#39;abc&#39;, 23, &#39;&#39;, -1, &#39;def&#39;]</span>
+<span class="sd">    &gt;&gt;&gt; sorted([&#39;.b&#39;, &#39;0b&#39;, &#39;.0b&#39;, &#39;_b&#39;, &#39;Ab&#39;, &#39;ab&#39;], key=hsortkey)</span>
+<span class="sd">    [&#39;.0b&#39;, &#39;.b&#39;, &#39;0b&#39;, &#39;Ab&#39;, &#39;_b&#39;, &#39;ab&#39;]</span>
+<span class="sd">    &gt;&gt;&gt; sorted([&#39;a&#39;, &#39;ab&#39;, &#39;a.b&#39;, &#39;a1.b&#39;, &#39;a2.b&#39;, &#39;a10.b&#39;])</span>
+<span class="sd">    [&#39;a&#39;, &#39;a.b&#39;, &#39;a1.b&#39;, &#39;a10.b&#39;, &#39;a2.b&#39;, &#39;ab&#39;]</span>
+<span class="sd">    &gt;&gt;&gt; sorted([&#39;a&#39;, &#39;ab&#39;, &#39;a.b&#39;, &#39;a1.b&#39;, &#39;a2.b&#39;, &#39;a10.b&#39;], key=hsortkey)</span>
+<span class="sd">    [&#39;a&#39;, &#39;a.b&#39;, &#39;a1.b&#39;, &#39;a2.b&#39;, &#39;a10.b&#39;, &#39;ab&#39;]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="n">maxsplit</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(\d+)&#39;</span><span class="p">,</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">key</span> <span class="o">+</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(\d+)&#39;</span><span class="p">,</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">key</span><span class="p">),</span> <span class="mi">2</span><span class="p">):</span>
+        <span class="n">key</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">key</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">key</span></div>
+
+
+<div class="viewcode-block" id="hsortkey_ignore"><a class="viewcode-back" href="../ref/path.html#path.hsortkey_ignore">[docs]</a><span class="k">def</span> <span class="nf">hsortkey_ignore</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create a key for human sorting while ignoring case.</span>
+
+<span class="sd">    This is like hsortkey but ignores case.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; hsortkey_ignore(&#39;abc23DEF45ghi&#39;)</span>
+<span class="sd">    [&#39;abc&#39;, 23, &#39;def&#39;, 45, &#39;ghi&#39;]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="n">hsortkey</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">key</span><span class="p">),</span> <span class="mi">2</span><span class="p">):</span>
+        <span class="n">key</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">key</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">key</span></div>
+
+
+<div class="viewcode-block" id="matchAny"><a class="viewcode-back" href="../ref/path.html#path.matchAny">[docs]</a><span class="k">def</span> <span class="nf">matchAny</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="o">*</span><span class="n">regexps</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Check whether target matches any of the regular expressions.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    target: str</span>
+<span class="sd">        String to match with the regular expressions.</span>
+<span class="sd">    *regexp: sequence of regular expressions.</span>
+<span class="sd">        The regular expressions to match the target string.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+<span class="sd">        True, if target matches at least one of the provided regular</span>
+<span class="sd">        expressions. False if no matches.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; matchAny(&#39;test.jpg&#39;, &#39;.*[.]png&#39;, &#39;.*[.]jpg&#39;)</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; matchAny(&#39;test.jpeg&#39;, &#39;.*[.]png&#39;, &#39;.*[.]jpg&#39;)</span>
+<span class="sd">    False</span>
+<span class="sd">    &gt;&gt;&gt; matchAny(&#39;test.jpg&#39;)</span>
+<span class="sd">    False</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">regexps</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="Path"><a class="viewcode-back" href="../ref/path.html#path.Path">[docs]</a><span class="k">class</span> <span class="nc">Path</span><span class="p">(</span><span class="nb">str</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A filesystem path which also behaves like a str.</span>
+
+<span class="sd">    A Path instance represents a valid path to a file in the filesystem,</span>
+<span class="sd">    existing or not. Path is thus a subclass of str that can only represent</span>
+<span class="sd">    strings that are valid as file paths. The constructor will always</span>
+<span class="sd">    normalize the path.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    args: :term:`path_like`, ...</span>
+<span class="sd">        One or more path components that will be concatenated to form the</span>
+<span class="sd">        new Path. Each component can be a str or a Path.</span>
+<span class="sd">        It can be relative or absolute. If multiple absolute components are</span>
+<span class="sd">        specified, the last one is used.</span>
+
+
+<span class="sd">    The following all create the same Path:</span>
+
+<span class="sd">    &gt;&gt;&gt; Path(&#39;/pyformex/gui/menus&#39;)</span>
+<span class="sd">    Path(&#39;/pyformex/gui/menus&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; Path(&#39;/pyformex&#39;, &#39;gui&#39;, &#39;menus&#39;)</span>
+<span class="sd">    Path(&#39;/pyformex/gui/menus&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; Path(&#39;/pyformex&#39;, Path(&#39;gui&#39;), &#39;menus&#39;)</span>
+<span class="sd">    Path(&#39;/pyformex/gui/menus&#39;)</span>
+
+<span class="sd">    But this is different:</span>
+
+<span class="sd">    &gt;&gt;&gt; Path(&#39;/pyformex&#39;, &#39;/gui&#39;, &#39;menus&#39;)</span>
+<span class="sd">    Path(&#39;/gui/menus&#39;)</span>
+
+<span class="sd">    Spurious slashes and single and double dots are collapsed:</span>
+
+<span class="sd">    &gt;&gt;&gt; Path(&#39;/pyformex//gui///menus&#39;)</span>
+<span class="sd">    Path(&#39;/pyformex/gui/menus&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; Path(&#39;/pyformex/./gui/menus&#39;)</span>
+<span class="sd">    Path(&#39;/pyformex/gui/menus&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; Path(&#39;/pyformex/../gui/menus&#39;)</span>
+<span class="sd">    Path(&#39;/gui/menus&#39;)</span>
+
+<span class="sd">    Note</span>
+<span class="sd">    ----</span>
+<span class="sd">    The collapsing of double dots is different from the :mod:`pathlib` behavior.</span>
+<span class="sd">    Our Path class follows the :func:`os.path.normpath` behavior here.</span>
+
+<span class="sd">    Empty string and no arguments create a Path to the current directory:</span>
+
+<span class="sd">    &gt;&gt;&gt; Path(&#39;&#39;)</span>
+<span class="sd">    Path(&#39;.&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; Path()</span>
+<span class="sd">    Path(&#39;.&#39;)</span>
+
+<span class="sd">    **Operators**:</span>
+<span class="sd">    The slash operator helps create child paths, similarly to</span>
+<span class="sd">    :func:`os.path.join`.</span>
+<span class="sd">    The plus operator can be used to add a trailing part without a slash</span>
+<span class="sd">    separator. The equal operator allows comparing paths.</span>
+
+<span class="sd">    &gt;&gt;&gt; p = Path(&#39;/etc&#39;) / &#39;init.d&#39; / &#39;apache2&#39;</span>
+<span class="sd">    &gt;&gt;&gt; p</span>
+<span class="sd">    Path(&#39;/etc/init.d/apache2&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; p + &#39;.d&#39;</span>
+<span class="sd">    Path(&#39;/etc/init.d/apache2.d&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; p1 = Path(&#39;/etc&#39;) + &#39;/init.d/apache2&#39;</span>
+<span class="sd">    &gt;&gt;&gt; p1 == p</span>
+<span class="sd">    True</span>
+
+<span class="sd">    Note</span>
+<span class="sd">    ----</span>
+<span class="sd">    Unlike the :mod:`pathlib`, our Path class does not provide the possibility</span>
+<span class="sd">    to join a str and a Path with a slash operator: the first component must</span>
+<span class="sd">    be a Path.</span>
+
+
+<span class="sd">    **Properties**:</span>
+<span class="sd">    The following properties give access to different components of the Path:</span>
+
+<span class="sd">    - :attr:`parts`: a tuple with the various parts of the Path,</span>
+<span class="sd">    - :attr:`parent`: the parent directory of the Path</span>
+<span class="sd">    - :attr:`parents`: a tuple with the subsequent parent Paths</span>
+<span class="sd">    - :attr:`name`: a string with the final component of the Path</span>
+<span class="sd">    - :attr:`suffix`: the file extension of the final component, if any</span>
+<span class="sd">    - :attr:`stem`: the final component without its suffix</span>
+<span class="sd">    - :attr:`lsuffix`: the suffix in lower case</span>
+<span class="sd">    - :attr:`ftype`: the suffix in lower case and without the leading dot</span>
+
+<span class="sd">    Note</span>
+<span class="sd">    ----</span>
+<span class="sd">    We currently do not have the following properties available with</span>
+<span class="sd">    pathlib: drive, root, anchor, suffixes</span>
+
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    sortkey: callable</span>
+<span class="sd">        This class attribute is a callable used as the key in sorting file</span>
+<span class="sd">        names. The default is set to :func:`path.hsortkey`, but it can be</span>
+<span class="sd">        changed in case the user want to have another sorting method by</span>
+<span class="sd">        default. Setting it to None will use lexical sorting.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; Path(&#39;/a/b&#39;)</span>
+<span class="sd">    Path(&#39;/a/b&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; Path(&#39;a/b//c&#39;)</span>
+<span class="sd">    Path(&#39;a/b/c&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; Path(&#39;a/b/./c&#39;)</span>
+<span class="sd">    Path(&#39;a/b/c&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; Path(&#39;a/b/../c&#39;)</span>
+<span class="sd">    Path(&#39;a/c&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; Path(&#39;a/b/.../c&#39;)</span>
+<span class="sd">    Path(&#39;a/b/.../c&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; Path(&#39;//a/b&#39;)</span>
+<span class="sd">    Path(&#39;//a/b&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; Path(&#39;///a/b&#39;)</span>
+<span class="sd">    Path(&#39;/a/b&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; p = Path(&#39;/etc/init.d/&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; p.parts</span>
+<span class="sd">    (&#39;/&#39;, &#39;etc&#39;, &#39;init.d&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; p.parent</span>
+<span class="sd">    Path(&#39;/etc&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; p.parents</span>
+<span class="sd">    (Path(&#39;/etc&#39;), Path(&#39;/&#39;))</span>
+<span class="sd">    &gt;&gt;&gt; p0 = Path(&#39;pyformex/gui/menus&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; p0.parts</span>
+<span class="sd">    (&#39;pyformex&#39;, &#39;gui&#39;, &#39;menus&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; p0.parents</span>
+<span class="sd">    (Path(&#39;pyformex/gui&#39;), Path(&#39;pyformex&#39;), Path(&#39;.&#39;))</span>
+<span class="sd">    &gt;&gt;&gt; Path(&#39;../pyformex&#39;).parents</span>
+<span class="sd">    (Path(&#39;..&#39;), Path(&#39;.&#39;))</span>
+<span class="sd">    &gt;&gt;&gt; p.name</span>
+<span class="sd">    &#39;init.d&#39;</span>
+<span class="sd">    &gt;&gt;&gt; p.stem</span>
+<span class="sd">    &#39;init&#39;</span>
+<span class="sd">    &gt;&gt;&gt; p.suffix</span>
+<span class="sd">    &#39;.d&#39;</span>
+<span class="sd">    &gt;&gt;&gt; p1 = Path(&#39;Aa.Bb&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; p1.suffix, p1.lsuffix, p1.ftype</span>
+<span class="sd">    (&#39;.Bb&#39;, &#39;.bb&#39;, &#39;bb&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; p.exists()</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; p.is_dir()</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; p.is_file()</span>
+<span class="sd">    False</span>
+<span class="sd">    &gt;&gt;&gt; p.is_symlink()</span>
+<span class="sd">    False</span>
+<span class="sd">    &gt;&gt;&gt; p.is_absolute()</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; Path(&#39;/var/run&#39;).is_symlink()</span>
+<span class="sd">    True</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># This is here to avoid double index (we have explicit Attribute above</span>
+    <span class="c1"># Maybe define a property/setter with that doc and the remove this</span>
+    <span class="n">_exclude_members_</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;sortkey&#39;</span><span class="p">]</span>
+    <span class="n">sortkey</span> <span class="o">=</span> <span class="n">hsortkey</span>
+
+    <span class="c1"># @property</span>
+    <span class="c1"># @classmethod</span>
+    <span class="c1"># def sortkey(clas):</span>
+    <span class="c1">#     return clas._sortkey</span>
+    <span class="c1"># @sortkey.setter</span>
+    <span class="c1"># @classmethod</span>
+    <span class="c1"># def sortkey(clas, key):</span>
+    <span class="c1">#     _sortkey = key</span>
+
+
+    <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="n">clas</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a new Path instance&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">Path</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="n">clas</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)))</span>
+
+    <span class="k">def</span> <span class="fm">__truediv__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Defines / operator for joining path components&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">))</span>
+
+    <span class="c1"># We do not define __rtruediv__: use Path(&#39;...&#39;) / instead</span>
+
+    <span class="k">def</span> <span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">suffix</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Defines + operator for joining path suffixes&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">+</span><span class="n">suffix</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;String representation of a path&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;Path(&#39;&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;&#39;)&quot;</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">parts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Split the Path in its components.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple of str</span>
+<span class="sd">            The various components of the Path</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; Path(&#39;/a/b/c/d&#39;).parts</span>
+<span class="sd">        (&#39;/&#39;, &#39;a&#39;, &#39;b&#39;, &#39;c&#39;, &#39;d&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; Path(&#39;a/b//d&#39;).parts</span>
+<span class="sd">        (&#39;a&#39;, &#39;b&#39;, &#39;d&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; Path(&#39;a/b/./d&#39;).parts</span>
+<span class="sd">        (&#39;a&#39;, &#39;b&#39;, &#39;d&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; Path(&#39;a/b/../d&#39;).parts</span>
+<span class="sd">        (&#39;a&#39;, &#39;d&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; Path(&#39;a/b/.../d&#39;).parts</span>
+<span class="sd">        (&#39;a&#39;, &#39;b&#39;, &#39;...&#39;, &#39;d&#39;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">parts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">head</span><span class="p">,</span> <span class="n">tail</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">tail</span><span class="p">:</span>
+                <span class="n">parts</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">tail</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">head</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="k">if</span> <span class="n">head</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;/&#39;</span><span class="p">:</span>
+                <span class="n">parts</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">head</span><span class="p">)</span>
+                <span class="k">break</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">head</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">parents</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the parents of the Path.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple of Path</span>
+<span class="sd">            The subsequent parent directories of the Path</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">parents</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">]</span>
+        <span class="k">while</span> <span class="n">parents</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;/&#39;</span> <span class="ow">and</span> <span class="n">parents</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;.&#39;</span><span class="p">:</span>
+            <span class="n">parents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">parents</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">parents</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">parent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the parent directory.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Path</span>
+<span class="sd">            The parent directory of the Path.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the final path component.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            The final component of the Path.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">stem</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the final path component without its suffix.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            The final component of the Path without its :attr:`suffix`.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; Path(&#39;aA.bB&#39;).stem</span>
+<span class="sd">        &#39;aA&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">stem</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ext</span> <span class="o">==</span> <span class="s1">&#39;.&#39;</span><span class="p">:</span>
+            <span class="n">stem</span> <span class="o">+=</span> <span class="n">ext</span>
+        <span class="k">return</span> <span class="n">stem</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">suffix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the file extension of the Path component.</span>
+
+<span class="sd">        The file extension is the last substring of the final component</span>
+<span class="sd">        starting at a dot that is neither the start nor the end</span>
+<span class="sd">        of the component.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            The file extension of the Path, including the leading dot.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; Path(&#39;aA.bB&#39;).suffix</span>
+<span class="sd">        &#39;.bB&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="bp">self</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">ext</span> <span class="o">==</span> <span class="s1">&#39;.&#39;</span><span class="p">:</span>
+            <span class="n">ext</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">ext</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">lsuffix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the file extension in lower case.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            The suffix of the Path, converted to lower case.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; Path(&#39;aA.bB&#39;).lsuffix</span>
+<span class="sd">        &#39;.bb&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">suffix</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ftype</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the file extension in lower case and with the leading dot.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            The lsuffix of the Path without the leading dot.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; Path(&#39;aA.bB&#39;).ftype</span>
+<span class="sd">        &#39;bb&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">suffix</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">without_suffix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the Path without the suffix.</span>
+
+<span class="sd">        The file suffix is the last substring of the final component</span>
+<span class="sd">        starting at a dot that is neither the start nor the end</span>
+<span class="sd">        of the component.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Path</span>
+<span class="sd">            The Path without the suffix.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        This is equivalent to::</span>
+
+<span class="sd">            self.parent / self.stem</span>
+
+<span class="sd">        If the path has no suffix, the output is identical to the input.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; f = Path(&#39;/dD/aA.bB&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; f.without_suffix</span>
+<span class="sd">        Path(&#39;/dD/aA&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; f.parent / f.stem</span>
+<span class="sd">        Path(&#39;/dD/aA&#39;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="bp">self</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+
+<div class="viewcode-block" id="Path.exists"><a class="viewcode-back" href="../ref/path.html#path.Path.exists">[docs]</a>    <span class="k">def</span> <span class="nf">exists</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return True if the Path exists&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Path.is_dir"><a class="viewcode-back" href="../ref/path.html#path.Path.is_dir">[docs]</a>    <span class="k">def</span> <span class="nf">is_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return True if the Path exists and is a directory&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Path.is_readable_dir"><a class="viewcode-back" href="../ref/path.html#path.Path.is_readable_dir">[docs]</a>    <span class="k">def</span> <span class="nf">is_readable_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return True if the Path exists and is a readable directory&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">and</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">access</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">R_OK</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">X_OK</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Path.is_writable_dir"><a class="viewcode-back" href="../ref/path.html#path.Path.is_writable_dir">[docs]</a>    <span class="k">def</span> <span class="nf">is_writable_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return True if the Path exists and is a writable directory&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">and</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">access</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">R_OK</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">W_OK</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">X_OK</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Path.is_file"><a class="viewcode-back" href="../ref/path.html#path.Path.is_file">[docs]</a>    <span class="k">def</span> <span class="nf">is_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return True if the Path exists and is a file&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Path.is_readable_file"><a class="viewcode-back" href="../ref/path.html#path.Path.is_readable_file">[docs]</a>    <span class="k">def</span> <span class="nf">is_readable_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return True if the Path exists and is a readable file&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">and</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">access</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">R_OK</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Path.is_writable_file"><a class="viewcode-back" href="../ref/path.html#path.Path.is_writable_file">[docs]</a>    <span class="k">def</span> <span class="nf">is_writable_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return True if the Path exists and is a writable directory&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">and</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">access</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">R_OK</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">W_OK</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Path.is_readable"><a class="viewcode-back" href="../ref/path.html#path.Path.is_readable">[docs]</a>    <span class="k">def</span> <span class="nf">is_readable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return True if the Path exists and is readable (dir or file)&quot;&quot;&quot;</span>
+        <span class="n">perm</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">R_OK</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+            <span class="n">perm</span> <span class="o">|=</span> <span class="n">os</span><span class="o">.</span><span class="n">X_OK</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">access</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">perm</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s2"> is readable: </span><span class="si">{</span><span class="n">res</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">res</span></div>
+
+<div class="viewcode-block" id="Path.is_writable"><a class="viewcode-back" href="../ref/path.html#path.Path.is_writable">[docs]</a>    <span class="k">def</span> <span class="nf">is_writable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return True if the Path is writable (dir or file)&quot;&quot;&quot;</span>
+        <span class="n">perm</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">R_OK</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">W_OK</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+            <span class="n">perm</span> <span class="o">|=</span> <span class="n">os</span><span class="o">.</span><span class="n">X_OK</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">access</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">perm</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Path.is_symlink"><a class="viewcode-back" href="../ref/path.html#path.Path.is_symlink">[docs]</a>    <span class="k">def</span> <span class="nf">is_symlink</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return True if the Path exists and is a symlink&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">islink</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Path.is_badlink"><a class="viewcode-back" href="../ref/path.html#path.Path.is_badlink">[docs]</a>    <span class="k">def</span> <span class="nf">is_badlink</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return True if the Path exists and is a bad symlink</span>
+
+<span class="sd">        A bad symlink is a symlink that points to a non-existing file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">islink</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">resolve</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="Path.is_absolute"><a class="viewcode-back" href="../ref/path.html#path.Path.is_absolute">[docs]</a>    <span class="k">def</span> <span class="nf">is_absolute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return True if the Path is absolute.</span>
+
+<span class="sd">        The Path is absolute if it start with a &#39;/&#39;.</span>
+
+<span class="sd">        &gt;&gt;&gt; Path(&#39;/a/b&#39;).is_absolute()</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; Path(&#39;a/b&#39;).is_absolute()</span>
+<span class="sd">        False</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isabs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Path.with_name"><a class="viewcode-back" href="../ref/path.html#path.Path.with_name">[docs]</a>    <span class="k">def</span> <span class="nf">with_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a new Path with the filename changed.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name: str</span>
+<span class="sd">            Name to replace the last component of the Path</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Path</span>
+<span class="sd">            A Path where the last component has been changed to ``name``.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; Path(&#39;data/testrun.inp&#39;).with_name(&#39;testimg.png&#39;)</span>
+<span class="sd">        Path(&#39;data/testimg.png&#39;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="n">name</span>    <span class="c1"># noqa</span></div>
+
+<div class="viewcode-block" id="Path.with_suffix"><a class="viewcode-back" href="../ref/path.html#path.Path.with_suffix">[docs]</a>    <span class="k">def</span> <span class="nf">with_suffix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">suffix</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a new Path with the suffix changed.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        suffix: str</span>
+<span class="sd">            Suffix to replace the last component&#39;s :meth:`suffix`.</span>
+<span class="sd">            The replacement string will normally start with a dot.</span>
+<span class="sd">            If it doesn&#39;t, no dot is added. See Examples.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Path</span>
+<span class="sd">            A Path where the suffix of the last component has been changed</span>
+<span class="sd">            to ``suffix``.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; Path(&#39;data/testrun.inp&#39;).with_suffix(&#39;.cfg&#39;)</span>
+<span class="sd">        Path(&#39;data/testrun.cfg&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; Path(&#39;data/testrun.inp&#39;).with_suffix(&#39;_1.inp&#39;)</span>
+<span class="sd">        Path(&#39;data/testrun_1.inp&#39;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="bp">self</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">suffix</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Path.absolute"><a class="viewcode-back" href="../ref/path.html#path.Path.absolute">[docs]</a>    <span class="k">def</span> <span class="nf">absolute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return an absolute version of the path.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Path</span>
+<span class="sd">            The absolute filesystem path of the Path. This alsorks if the</span>
+<span class="sd">            Path does not exist. It does not resolve symlinks.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        resolve: return an absolute path resolving any symlinks.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; Path(&#39;.&#39;).absolute() # doctest: +ELLIPSIS</span>
+<span class="sd">        Path(&#39;...&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; Path(&#39;something&#39;).absolute() # doctest: +ELLIPSIS</span>
+<span class="sd">        Path(&#39;.../something&#39;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Path.resolve"><a class="viewcode-back" href="../ref/path.html#path.Path.resolve">[docs]</a>    <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return absolute path resolving all symlinks.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Path</span>
+<span class="sd">            The absolute filesystem path of the Path, resolving all symlinks.</span>
+<span class="sd">            This also works if any of the Path components does not exist.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; p = Path(&#39;something/inside&#39;).resolve()</span>
+<span class="sd">        &gt;&gt;&gt; p == Path(f&quot;{os.getcwd()}/something/inside&quot;)</span>
+<span class="sd">        True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Path.expanduser"><a class="viewcode-back" href="../ref/path.html#path.Path.expanduser">[docs]</a>    <span class="k">def</span> <span class="nf">expanduser</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Expand the ~ and ~user in Path.</span>
+
+<span class="sd">        A leading &#39;~&#39; in the Path is expanded tot the home directory</span>
+<span class="sd">        of the user executing the code. A leading &#39;~user&#39; is expanded</span>
+<span class="sd">        to the home directory of the user named &#39;user&#39;.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Path</span>
+<span class="sd">            The Path with ~ and ~user expanded, the latter only if user</span>
+<span class="sd">            exists.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; import getpass</span>
+<span class="sd">        &gt;&gt;&gt; user = getpass.getuser()</span>
+<span class="sd">        &gt;&gt;&gt; p = Path(&#39;~&#39;).expanduser()</span>
+<span class="sd">        &gt;&gt;&gt; p1 = Path(f&quot;~{user}&quot;).expanduser()</span>
+<span class="sd">        &gt;&gt;&gt; p2 = Path(f&quot;{os.environ[&#39;HOME&#39;]}&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; p == p1 == p2</span>
+<span class="sd">        True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Path.as_uri"><a class="viewcode-back" href="../ref/path.html#path.Path.as_uri">[docs]</a>    <span class="k">def</span> <span class="nf">as_uri</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the Path as an URI.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            A string starting with &#39;file://&#39; followed by the resolved</span>
+<span class="sd">            absolute path of the Path. Also ~ and ~user are expanded</span>
+<span class="sd">            (if user exists).</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; p = Path(&#39;~/some/file.html&#39;).as_uri()</span>
+<span class="sd">        &gt;&gt;&gt; p == f&quot;file://{os.environ[&#39;HOME&#39;]}/some/file.html&quot;</span>
+<span class="sd">        True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s1">&#39;file://&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Path.samefile"><a class="viewcode-back" href="../ref/path.html#path.Path.samefile">[docs]</a>    <span class="k">def</span> <span class="nf">samefile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other_file</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Test whether two pathnames reference the same actual file</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        other: :term:`path_like`</span>
+<span class="sd">            Another file path to compare with.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True if the other file is actually the same file as self.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; Path.home().samefile(Path(&#39;~&#39;).expanduser())</span>
+<span class="sd">        True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">samefile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other_file</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Path.commonprefix"><a class="viewcode-back" href="../ref/path.html#path.Path.commonprefix">[docs]</a>    <span class="k">def</span> <span class="nf">commonprefix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the longest common leading part in a list of paths.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        *other: one or more :term:`path_like`</span>
+<span class="sd">            Other file path(s) to compare with.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Path</span>
+<span class="sd">            The longest common leading part in all the file paths.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; p = Path(&#39;/etc/password&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; q = Path(&#39;/etc/profile&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; p.commonprefix(p,q,&#39;/etc/pam.d&#39;)</span>
+<span class="sd">        Path(&#39;/etc/p&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; p.commonprefix(p,q,&#39;/etc/group&#39;)</span>
+<span class="sd">        Path(&#39;/etc&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; p.commonpath(p,q,&#39;/etc/pam.d&#39;)</span>
+<span class="sd">        Path(&#39;/etc&#39;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">commonprefix</span><span class="p">([</span><span class="bp">self</span><span class="p">]</span><span class="o">+</span><span class="nb">list</span><span class="p">(</span><span class="n">other</span><span class="p">)))</span></div>
+
+<div class="viewcode-block" id="Path.commonpath"><a class="viewcode-back" href="../ref/path.html#path.Path.commonpath">[docs]</a>    <span class="k">def</span> <span class="nf">commonpath</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the longest common sub-path in a list of paths.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        *other: one or more :term:`path_like`</span>
+<span class="sd">            Other file path(s) to compare with.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Path</span>
+<span class="sd">            The longest common sub-path in all the file paths.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; p = Path(&#39;/etc/password&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; p.commonpath(p,&#39;/etc/pam.d&#39;)</span>
+<span class="sd">        Path(&#39;/etc&#39;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">commonpath</span><span class="p">([</span><span class="bp">self</span><span class="p">]</span><span class="o">+</span><span class="nb">list</span><span class="p">(</span><span class="n">other</span><span class="p">)))</span></div>
+
+<div class="viewcode-block" id="Path.joinpath"><a class="viewcode-back" href="../ref/path.html#path.Path.joinpath">[docs]</a>    <span class="k">def</span> <span class="nf">joinpath</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Join two or more path components.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        *other: one or more :term:`path_like`</span>
+<span class="sd">            Other path components to join to self.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        This alternative to using the slash operator is especially</span>
+<span class="sd">        useful if the components are a computed and/or long sequence.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; home = Path.home()</span>
+<span class="sd">        &gt;&gt;&gt; p1 = home.joinpath(&#39;.config&#39;, &#39;pyformex&#39;, &#39;pyformex.conf&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; p2 = home / &#39;.config&#39; / &#39;pyformex&#39; / &#39;pyformex.conf&#39;</span>
+<span class="sd">        &gt;&gt;&gt; p1 == p2</span>
+<span class="sd">        True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">other</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Path.relative_to"><a class="viewcode-back" href="../ref/path.html#path.Path.relative_to">[docs]</a>    <span class="k">def</span> <span class="nf">relative_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a relative path version of a path.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        other: :term:`path_like`</span>
+<span class="sd">            Another file path to compare with.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Path:</span>
+<span class="sd">            Path relative to other pointing to same file as self.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        absolute: make a Path absolute</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; Path(&#39;/usr/local/bin&#39;).relative_to(&#39;/usr/bin&#39;)</span>
+<span class="sd">        Path(&#39;../local/bin&#39;)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">other</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Path.mkdir"><a class="viewcode-back" href="../ref/path.html#path.Path.mkdir">[docs]</a>    <span class="k">def</span> <span class="nf">mkdir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="mo">0o775</span><span class="p">,</span> <span class="n">parents</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a directory.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        mode: int</span>
+<span class="sd">            The mode to be set on the created directory.</span>
+<span class="sd">        parents: bool</span>
+<span class="sd">            If True, nonexisting intermediate directories will also be</span>
+<span class="sd">            created. The default requires all parent directories to exist.</span>
+<span class="sd">        exist_ok: bool</span>
+<span class="sd">            If True and the target already exist and is a directory, it will</span>
+<span class="sd">            be silently accepted. The default (False) will raise an exeption</span>
+<span class="sd">            if the target exists.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">exist_ok</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">chmod</span><span class="p">(</span><span class="n">mode</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="si">!r}</span><span class="s2"> exists already&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">parents</span><span class="p">:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Path.rmdir"><a class="viewcode-back" href="../ref/path.html#path.Path.rmdir">[docs]</a>    <span class="k">def</span> <span class="nf">rmdir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Remove an empty directory.&quot;&quot;&quot;</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">rmdir</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Path.unlink"><a class="viewcode-back" href="../ref/path.html#path.Path.unlink">[docs]</a>    <span class="k">def</span> <span class="nf">unlink</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Remove an existing file.&quot;&quot;&quot;</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Path.remove"><a class="viewcode-back" href="../ref/path.html#path.Path.remove">[docs]</a>    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Remove a file, but silently ignores non-existing.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Path.removeTree"><a class="viewcode-back" href="../ref/path.html#path.Path.removeTree">[docs]</a>    <span class="k">def</span> <span class="nf">removeTree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Recursively delete a directory tree.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        top: bool</span>
+<span class="sd">            If True (default), the top level directory will be removed as well.</span>
+<span class="sd">            If False, the top level directory will be kept, and only its</span>
+<span class="sd">            contents will be removed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">top</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Path.move"><a class="viewcode-back" href="../ref/path.html#path.Path.move">[docs]</a>    <span class="k">def</span> <span class="nf">move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dst</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Rename or move a file or directory</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        dst: :term:`path_like`</span>
+<span class="sd">            Destination path.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Path</span>
+<span class="sd">            The new Path.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        Changing a directory component will move the file. Moving a file</span>
+<span class="sd">        accross file system boundaries may not work. If the destination</span>
+<span class="sd">        is an existing file, it will be overwritten.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dst</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">dst</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Path.copy"><a class="viewcode-back" href="../ref/path.html#path.Path.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dst</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Copy the file under another name.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        dst: :term:`path_like`</span>
+<span class="sd">            Destination path.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dst</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Path.symlink"><a class="viewcode-back" href="../ref/path.html#path.Path.symlink">[docs]</a>    <span class="k">def</span> <span class="nf">symlink</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dst</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a symlink for this Path.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        dst: :term:`path_like`</span>
+<span class="sd">            Path of the symlink, which will point to self if successfully</span>
+<span class="sd">            created.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">symlink</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dst</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">dst</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Path.touch"><a class="viewcode-back" href="../ref/path.html#path.Path.touch">[docs]</a>    <span class="k">def</span> <span class="nf">touch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create an empty file or update an existing file&#39;s timestamp.</span>
+
+<span class="sd">        If the file does not exist, it is create as an empty file.</span>
+<span class="sd">        If the file exists, it remains unchanged but its time of last</span>
+<span class="sd">        modification is set to the current time.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Path.truncate"><a class="viewcode-back" href="../ref/path.html#path.Path.truncate">[docs]</a>    <span class="k">def</span> <span class="nf">truncate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create an empty file or truncate an existing file.</span>
+
+<span class="sd">        If the file does not exist, it is create as an empty file.</span>
+<span class="sd">        If the file exists, its contents is erased.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;w&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Path.chmod"><a class="viewcode-back" href="../ref/path.html#path.Path.chmod">[docs]</a>    <span class="k">def</span> <span class="nf">chmod</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Change the access permissions of a file.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        mode: int</span>
+<span class="sd">            Permission mode to set on the file. This is usually given as</span>
+<span class="sd">            an octal number reflecting the access mode bitfield. Typical</span>
+<span class="sd">            values in a trusted environment are 0o664 for files and 0o775</span>
+<span class="sd">            for directories. If you want to deny all access for others,</span>
+<span class="sd">            the values are 0o660 and 0o770 respectively.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">chmod</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">stat</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the full stat info for the file.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        stat_result</span>
+<span class="sd">            The full stat results for the file Path.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        The return value can be interrogated using Python&#39;s stat module.</span>
+<span class="sd">        Often used values can also be got from Path methods :meth:`mtime`,</span>
+<span class="sd">        :meth:`size`, :meth:`owner`, :meth:`group`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">mtime</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the (UNIX) time of last change.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">stat</span><span class="o">.</span><span class="n">st_mtime</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the file size in bytes.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">stat</span><span class="o">.</span><span class="n">st_size</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">owner</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the login name of the file owner.&quot;&quot;&quot;</span>
+        <span class="kn">import</span> <span class="nn">pwd</span>
+        <span class="k">return</span> <span class="n">pwd</span><span class="o">.</span><span class="n">getpwuid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stat</span><span class="o">.</span><span class="n">st_uid</span><span class="p">)</span><span class="o">.</span><span class="n">pw_name</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">group</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the group name of the file gid.&quot;&quot;&quot;</span>
+        <span class="kn">import</span> <span class="nn">grp</span>
+        <span class="k">return</span> <span class="n">grp</span><span class="o">.</span><span class="n">getgrgid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stat</span><span class="o">.</span><span class="n">st_gid</span><span class="p">)</span><span class="o">.</span><span class="n">gr_name</span>
+
+<div class="viewcode-block" id="Path.open"><a class="viewcode-back" href="../ref/path.html#path.Path.open">[docs]</a>    <span class="k">def</span> <span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">buffering</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Open the file pointed to by the Path.</span>
+
+<span class="sd">        Parameters are like in Python&#39;s built-in :func:`.open` function.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="n">buffering</span><span class="o">=</span><span class="n">buffering</span><span class="p">,</span>
+                    <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="n">errors</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Path.read_bytes"><a class="viewcode-back" href="../ref/path.html#path.Path.read_bytes">[docs]</a>    <span class="k">def</span> <span class="nf">read_bytes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Open the file in bytes mode, read it, and close the file.&quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Path.write_bytes"><a class="viewcode-back" href="../ref/path.html#path.Path.write_bytes">[docs]</a>    <span class="k">def</span> <span class="nf">write_bytes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Open the file in bytes mode, write to it, and close the file.&quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Path.read_text"><a class="viewcode-back" href="../ref/path.html#path.Path.read_text">[docs]</a>    <span class="k">def</span> <span class="nf">read_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Open the file in text mode, read it, and close the file.&quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="n">errors</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Path.write_text"><a class="viewcode-back" href="../ref/path.html#path.Path.write_text">[docs]</a>    <span class="k">def</span> <span class="nf">write_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Open the file in text mode, write to it, and close the file.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; p = Path(&#39;my_text_file&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; p.write_text(&#39;Text file contents&#39;)</span>
+<span class="sd">        18</span>
+<span class="sd">        &gt;&gt;&gt; p.read_text()</span>
+<span class="sd">        &#39;Text file contents&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="n">errors</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">text</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Path.read_lines"><a class="viewcode-back" href="../ref/path.html#path.Path.read_lines">[docs]</a>    <span class="k">def</span> <span class="nf">read_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Open the file in text mode, read line by line, and close the file.&quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="n">errors</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Path.write_lines"><a class="viewcode-back" href="../ref/path.html#path.Path.write_lines">[docs]</a>    <span class="k">def</span> <span class="nf">write_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lines</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Open the file in text mode, write lines it, and close the file.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; p = Path(&#39;my_text_file1&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; p.write_lines([&#39;line 1&#39;, &#39;line 2&#39;])</span>
+<span class="sd">        &gt;&gt;&gt; for line in p.read_lines(): print(line)</span>
+<span class="sd">        line 1</span>
+<span class="sd">        line 2</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="n">errors</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span><span class="o">+</span><span class="n">end</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Path.scandir"><a class="viewcode-back" href="../ref/path.html#path.Path.scandir">[docs]</a>    <span class="k">def</span> <span class="nf">scandir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">types</span><span class="o">=</span><span class="s1">&#39;H&#39;</span><span class="p">,</span> <span class="n">pat</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">glob</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Iterate over all or some entries in a directory.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        types: str</span>
+<span class="sd">            A string with zero or more of the following characters limiting</span>
+<span class="sd">            the entries to be returned certain types:</span>
+
+<span class="sd">            h: a hidden path (its name is starting with a dot)</span>
+<span class="sd">            d: a directory path</span>
+<span class="sd">            f: a file path</span>
+<span class="sd">            s: a symlink path</span>
+
+<span class="sd">            The upper case of these characters are used to exclude those</span>
+<span class="sd">            types from the result. Thus, the default types=&#39;H&#39; will return</span>
+<span class="sd">            all entries except the hidden ones.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        A generator for entries in the directory path. If the Path is not</span>
+<span class="sd">        a directory or not accessible, an exception is raised.</span>
+
+<span class="sd">        See also</span>
+<span class="sd">        --------</span>
+<span class="sd">        iterdir: yield Path strings for the entries in the directory</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; rootdirs = Path(&#39;/&#39;).scandir(types=&#39;Hd&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; &#39;/bin&#39; in (d.path for d in rootdirs if d.name.startswith(&#39;b&#39;))</span>
+<span class="sd">        True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO: In Python 3.10 use a match statement instead</span>
+        <span class="k">def</span> <span class="nf">match_type</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">c</span> <span class="o">==</span> <span class="s1">&#39;h&#39;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">entry</span><span class="o">.</span><span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;.&#39;</span>
+            <span class="k">elif</span> <span class="n">c</span> <span class="o">==</span> <span class="s1">&#39;d&#39;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">entry</span><span class="o">.</span><span class="n">is_dir</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="n">c</span> <span class="o">==</span> <span class="s1">&#39;f&#39;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">entry</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="n">c</span> <span class="o">==</span> <span class="s1">&#39;s&#39;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">entry</span><span class="o">.</span><span class="n">is_symlink</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid type </span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">glob</span><span class="p">:</span>
+            <span class="kn">import</span> <span class="nn">fnmatch</span>
+            <span class="n">pat</span> <span class="o">=</span> <span class="n">fnmatch</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">glob</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">scandir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="n">ok</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">types</span><span class="p">:</span>
+                <span class="n">lc</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="n">match_type</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">lc</span><span class="p">)</span>
+                <span class="n">ok</span> <span class="o">&amp;=</span> <span class="n">m</span> <span class="k">if</span> <span class="n">lc</span> <span class="o">==</span> <span class="n">c</span> <span class="k">else</span> <span class="p">(</span><span class="ow">not</span> <span class="n">m</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">ok</span><span class="p">:</span>
+                    <span class="k">break</span>
+            <span class="k">if</span> <span class="n">pat</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="n">pat</span><span class="p">,</span> <span class="n">entry</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
+                    <span class="n">ok</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="n">ok</span><span class="p">:</span>
+                <span class="k">yield</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Path.iterdir"><a class="viewcode-back" href="../ref/path.html#path.Path.iterdir">[docs]</a>    <span class="k">def</span> <span class="nf">iterdir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Yield Path objects of the directory contents.</span>
+
+<span class="sd">        This is like :meth:`scandir` but returns the entries as</span>
+<span class="sd">        Path strings instead of plain strings.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">scandir</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+            <span class="k">yield</span> <span class="n">Path</span><span class="p">(</span><span class="n">child</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Path.list"><a class="viewcode-back" href="../ref/path.html#path.Path.list">[docs]</a>    <span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">types</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">include</span><span class="o">=</span><span class="p">(),</span> <span class="n">exclude</span><span class="o">=</span><span class="p">()):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;List the entries in a directory path.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        types: str, optional</span>
+<span class="sd">            A string specifying which entry types should be included</span>
+<span class="sd">            in the result. See :meth:`scandir`.</span>
+<span class="sd">        sort: callable | bool, optional</span>
+<span class="sd">            A callable to compute a sort key from the path name.</span>
+<span class="sd">            Any other value evaluating to True will use the default</span>
+<span class="sd">            :func:`Path.sortkey` providing case sensitive human sorting:</span>
+<span class="sd">            numerical parts of the path name are sorted in numerical order.</span>
+<span class="sd">            Any value evaluating to False leaves the list unsorted.</span>
+<span class="sd">        include: :term:`re` or tuple of re</span>
+<span class="sd">            Regular expression(s) for entry names to include in the list.</span>
+<span class="sd">            Entries will be included if they match any of the re&#39;s.</span>
+<span class="sd">        exclude: :term:`re` or tuple of re</span>
+<span class="sd">            Regular expression(s) for entry names to exclude from the list.</span>
+<span class="sd">            Entries will be excluded if they match any of the re&#39;s.</span>
+<span class="sd">            Exclude matching is done after the include matching, so if both</span>
+<span class="sd">            are provided and an entry maches both an include and an exclude re,</span>
+<span class="sd">            it will not be included in the output list.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of str</span>
+<span class="sd">            List of the names of the entries that are of the specified types</span>
+<span class="sd">            and match the include and exclude patterns, if provided.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        The include and exclude patters are Python regular expressions (re)</span>
+<span class="sd">        and the matches are done with re.fullmatch, thus the entire entry</span>
+<span class="sd">        name needs to match the re. Thus, to get all Python sourec files,</span>
+<span class="sd">        use ``include=r&#39;.*\.py&#39;``. Glob style file patterns can be translated</span>
+<span class="sd">        to re&#39;s with :func:`fnmatch.translate`.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; Path(&#39;/&#39;).list(&#39;Hd&#39;, include=&#39;.*bin&#39;)</span>
+<span class="sd">        [&#39;bin&#39;, &#39;sbin&#39;]</span>
+<span class="sd">        &gt;&gt;&gt; Path(&#39;/&#39;).list(&#39;Hd&#39;, include=&#39;b.*&#39;, exclude=&#39;bu.*&#39;)</span>
+<span class="sd">        [&#39;bin&#39;, &#39;boot&#39;]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">entries</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">scandir</span><span class="p">(</span><span class="n">types</span><span class="o">=</span><span class="n">types</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="n">include</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">include</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">)):</span>
+                <span class="n">include</span> <span class="o">=</span> <span class="p">(</span><span class="n">include</span><span class="p">,</span> <span class="p">)</span>
+            <span class="n">entries</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">entries</span> <span class="k">if</span> <span class="n">matchAny</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="o">*</span><span class="n">include</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="n">exclude</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exclude</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">)):</span>
+                <span class="n">exclude</span> <span class="o">=</span> <span class="p">(</span><span class="n">exclude</span><span class="p">,</span> <span class="p">)</span>
+            <span class="n">entries</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">entries</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">matchAny</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="o">*</span><span class="n">exclude</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="n">sort</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">callable</span><span class="p">(</span><span class="n">sort</span><span class="p">):</span>
+                <span class="n">sort</span> <span class="o">=</span> <span class="n">Path</span><span class="o">.</span><span class="n">sortkey</span>
+            <span class="n">entries</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">sort</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">entries</span></div>
+
+<div class="viewcode-block" id="Path.dirnames"><a class="viewcode-back" href="../ref/path.html#path.Path.dirnames">[docs]</a>    <span class="k">def</span> <span class="nf">dirnames</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">types</span><span class="o">=</span><span class="s1">&#39;Hd&#39;</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;List the subdirectories in a directory path.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        sort: callable | bool, optional</span>
+<span class="sd">            Defines if and how to sort the entries. See :meth:`list`</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of str</span>
+<span class="sd">            A list of the names of all directory type entries in the</span>
+<span class="sd">            Path. If the Path is not a directory or not accessible,</span>
+<span class="sd">            an exception is raised.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; Path(&#39;/&#39;).dirnames(types=&#39;H&#39;)</span>
+<span class="sd">        [&#39;bin&#39;, &#39;boot&#39;, ...]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s1">&#39;d&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">types</span><span class="p">:</span>
+            <span class="n">types</span> <span class="o">+=</span> <span class="s1">&#39;d&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">types</span><span class="o">=</span><span class="n">types</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="n">sort</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Path.filenames"><a class="viewcode-back" href="../ref/path.html#path.Path.filenames">[docs]</a>    <span class="k">def</span> <span class="nf">filenames</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">types</span><span class="o">=</span><span class="s1">&#39;Hf&#39;</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;List the files in a directory path.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        sort: callable | bool, optional</span>
+<span class="sd">            Defines if and how to sort the entries. See :meth:`list`</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of str</span>
+<span class="sd">            A list of the names of all file type entries in the</span>
+<span class="sd">            Path. If the Path is not a directory or not accessible,</span>
+<span class="sd">            an exception is raised.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; Path(__file__).parent.filenames(types=&#39;H&#39;)</span>
+<span class="sd">        [...&#39;path.py&#39;...]</span>
+
+<span class="sd">        See also</span>
+<span class="sd">        --------</span>
+<span class="sd">        allfiles: list all files, including those in subdirectories</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s1">&#39;f&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">types</span><span class="p">:</span>
+            <span class="n">types</span> <span class="o">+=</span> <span class="s1">&#39;f&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">types</span><span class="o">=</span><span class="n">types</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="n">sort</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Path.walk"><a class="viewcode-back" href="../ref/path.html#path.Path.walk">[docs]</a>    <span class="k">def</span> <span class="nf">walk</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dtypes</span><span class="o">=</span><span class="s1">&#39;HSd&#39;</span><span class="p">,</span> <span class="n">ftypes</span><span class="o">=</span><span class="s1">&#39;HSf&#39;</span><span class="p">,</span>
+             <span class="n">includedir</span><span class="o">=</span><span class="p">(),</span> <span class="n">excludedir</span><span class="o">=</span><span class="p">(),</span> <span class="n">includefile</span><span class="o">=</span><span class="p">(),</span> <span class="n">excludefile</span><span class="o">=</span><span class="p">(),</span>
+             <span class="n">mindepth</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">maxdepth</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">onerror</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+             <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Recursively walk through a directory.</span>
+
+<span class="sd">        This walks top-down through the directory, yielding tuples</span>
+<span class="sd">        ``root, dirs, files``, like :func:`os.walk`.</span>
+
+<span class="sd">        Regular expressions can be provided to exclude or include only</span>
+<span class="sd">        some specific directories or files.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        sort: callable | bool, optional</span>
+<span class="sd">            Defines if and how to sort the entries. See :meth:`list`</span>
+<span class="sd">        dtypes: str, optional</span>
+<span class="sd">            A string specifying which directory entry types should be included</span>
+<span class="sd">            in the result. See :meth:`scandir`. The string should at least</span>
+<span class="sd">            contain a &#39;d&#39;. The default &#39;HSd&#39; will not include hidden directories</span>
+<span class="sd">            nor follow symlinked directories.</span>
+<span class="sd">        ftypes: str, optional</span>
+<span class="sd">            A string specifying which directory entry types should be included</span>
+<span class="sd">            in the result. See :meth:`scandir`. The string should at least</span>
+<span class="sd">            contain a &#39;f&#39;. The default &#39;HSf&#39; will not include hidden files</span>
+<span class="sd">            nor symlinked files.</span>
+<span class="sd">        excludedir: :term:`re` or tuple of re&#39;s</span>
+<span class="sd">            Regular expression(s) for dirnames to exclude from the tree scan.</span>
+<span class="sd">        excludefile: :term:`re`</span>
+<span class="sd">            Regular expression(s) for filenames to exclude from the file list.</span>
+<span class="sd">        includedir: :term:`re` or tuple of re&#39;s, optional</span>
+<span class="sd">            Regular expression(s) for dirnames to include in the tree scan.</span>
+<span class="sd">        includefile: :term:`re`</span>
+<span class="sd">            Regular expression(s) for filenames to include in the file list.</span>
+<span class="sd">        maxdepth: int, optional</span>
+<span class="sd">            The maximum number of directory levels to descend. If &lt; 0, descend</span>
+<span class="sd">            all the way.</span>
+<span class="sd">        onerror: callable, optional</span>
+<span class="sd">            Exception handler that will be called when the walk fails to access</span>
+<span class="sd">            some path. The callable is passed the exception and if it returns,</span>
+<span class="sd">            the path causing the exception is skipped. Providing a do nothing</span>
+<span class="sd">            function will just silently ignore the exceptions. If not provided,</span>
+<span class="sd">            the exception is raised.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        generator</span>
+<span class="sd">            A generator for walking through a directory top down.</span>
+<span class="sd">            The generator yields tuple (root, dirs, files) just like</span>
+<span class="sd">            :func:`os.walk`, but the items returned can be restricted by many</span>
+<span class="sd">            parameters.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        Include patterns are applied before exclude patterns.</span>
+<span class="sd">        If neither exclude nor include patterns are provided,</span>
+<span class="sd">        all subdirectories are scanned and all files are reported.</span>
+<span class="sd">        If only exclude patterns are provided, all directories and files</span>
+<span class="sd">        except those matching any of the exclude patterns.</span>
+<span class="sd">        If only include patterns are provided, only those matching at least</span>
+<span class="sd">        one of the patterns are included.</span>
+<span class="sd">        If both exclude and include patterns are provided, items are only</span>
+<span class="sd">        listed if they match at least one of the include patterns but none</span>
+<span class="sd">        of the exclude patterns.</span>
+
+<span class="sd">        Directories where the user has no access permissions are silently</span>
+<span class="sd">        skipped.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">dirs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">types</span><span class="o">=</span><span class="n">dtypes</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="n">sort</span><span class="p">,</span>
+                             <span class="n">include</span><span class="o">=</span><span class="n">includedir</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="n">excludedir</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">mindepth</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="bp">self</span><span class="p">,</span> <span class="n">dirs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="p">(</span>
+                    <span class="n">types</span><span class="o">=</span><span class="n">ftypes</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="n">sort</span><span class="p">,</span>
+                    <span class="n">include</span><span class="o">=</span><span class="n">includefile</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="n">excludefile</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">dirs</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="n">onerror</span><span class="p">):</span>
+                <span class="n">onerror</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">e</span>
+        <span class="k">if</span> <span class="n">maxdepth</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dirs</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span> <span class="o">/</span> <span class="n">d</span><span class="p">)</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span>
+                    <span class="n">sort</span><span class="o">=</span><span class="n">sort</span><span class="p">,</span> <span class="n">dtypes</span><span class="o">=</span><span class="n">dtypes</span><span class="p">,</span> <span class="n">ftypes</span><span class="o">=</span><span class="n">ftypes</span><span class="p">,</span>
+                    <span class="n">includedir</span><span class="o">=</span><span class="n">includedir</span><span class="p">,</span> <span class="n">excludedir</span><span class="o">=</span><span class="n">excludedir</span><span class="p">,</span>
+                    <span class="n">includefile</span><span class="o">=</span><span class="n">includefile</span><span class="p">,</span> <span class="n">excludefile</span><span class="o">=</span><span class="n">excludefile</span><span class="p">,</span>
+                    <span class="n">maxdepth</span><span class="o">=</span><span class="n">maxdepth</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">mindepth</span><span class="o">=</span><span class="n">mindepth</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">onerror</span><span class="o">=</span><span class="n">onerror</span><span class="p">):</span>
+                <span class="k">yield</span> <span class="n">res</span></div>
+
+<div class="viewcode-block" id="Path.walkTree"><a class="viewcode-back" href="../ref/path.html#path.Path.walkTree">[docs]</a>    <span class="k">def</span> <span class="nf">walkTree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">relative</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">include</span><span class="o">=</span><span class="p">[],</span> <span class="n">exclude</span><span class="o">=</span><span class="p">[],</span>
+                 <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Generate a tree of directories and files under a directory path.</span>
+
+<span class="sd">        This is like walk, but yields (dirpath, files) tuples and provides</span>
+<span class="sd">        some extra options.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        relative: bool</span>
+<span class="sd">            If True, the reported dirpath is relative to self,</span>
+<span class="sd">            else it is relative to the current directory from</span>
+<span class="sd">            where the function is called.</span>
+<span class="sd">        include: :term:`re` or tuple of re</span>
+<span class="sd">            Regular expression(s) for files to be included in the list.</span>
+<span class="sd">            Files will be included if their path matches any of the re&#39;s.</span>
+<span class="sd">            If not provided, all files will be included.</span>
+<span class="sd">        exclude: :term:`re` or tuple of re</span>
+<span class="sd">            Regular expression(s) for files to be excluded from the list.</span>
+<span class="sd">            Entries will be excluded if their path matches any of the re&#39;s.</span>
+<span class="sd">            Exclude matching is done after the include matching, so if both</span>
+<span class="sd">            are provided and an file maches both an include and an exclude re,</span>
+<span class="sd">            it will not be included in the output list.</span>
+<span class="sd">        **kargs: any of the arguments of :meth:`walk` can be provided.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        generator</span>
+<span class="sd">            A generator for walking through a directory top down.</span>
+<span class="sd">            The generator yields tuples (dirpath, files).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="n">dirs</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+            <span class="n">dirname</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="k">if</span> <span class="n">relative</span> <span class="k">else</span> <span class="n">root</span>
+            <span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="n">dirname</span> <span class="o">/</span> <span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">include</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">include</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">)):</span>
+                    <span class="n">include</span> <span class="o">=</span> <span class="p">(</span><span class="n">include</span><span class="p">,</span> <span class="p">)</span>
+                <span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span> <span class="k">if</span> <span class="n">matchAny</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="o">*</span><span class="n">include</span><span class="p">)]</span>
+            <span class="k">if</span> <span class="n">exclude</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exclude</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">)):</span>
+                    <span class="n">exclude</span> <span class="o">=</span> <span class="p">(</span><span class="n">exclude</span><span class="p">,</span> <span class="p">)</span>
+                <span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">matchAny</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="o">*</span><span class="n">exclude</span><span class="p">)]</span>
+            <span class="k">yield</span> <span class="n">dirname</span><span class="p">,</span> <span class="n">files</span></div>
+
+<div class="viewcode-block" id="Path.listTree"><a class="viewcode-back" href="../ref/path.html#path.Path.listTree">[docs]</a>    <span class="k">def</span> <span class="nf">listTree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">relative</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">include</span><span class="o">=</span><span class="p">[],</span> <span class="n">exclude</span><span class="o">=</span><span class="p">[],</span>
+                 <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;List files under a directory path recursively.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        relative: bool</span>
+<span class="sd">            If True, the reported filenames are relative to self,</span>
+<span class="sd">            else, they are relative to the current directory from</span>
+<span class="sd">            where the function is called.</span>
+<span class="sd">        include: :term:`re` or tuple of re</span>
+<span class="sd">            Regular expression(s) for files to be included in the list.</span>
+<span class="sd">            Files will be included if their path matches any of the re&#39;s.</span>
+<span class="sd">        exclude: :term:`re` or tuple of re</span>
+<span class="sd">            Regular expression(s) for files to be excluded from the list.</span>
+<span class="sd">            Entries will be excluded if their path matches any of the re&#39;s.</span>
+<span class="sd">            Exclude matching is done after the include matching, so if both</span>
+<span class="sd">            are provided and an file maches both an include and an exclude re,</span>
+<span class="sd">            it will not be included in the output list.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># remove some undocumented parameters</span>
+        <span class="n">kargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;symlinks&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">kargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;sort&#39;</span><span class="p">,</span> <span class="n">kargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;sorted&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span>
+        <span class="n">allfiles</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="n">dirs</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="k">if</span> <span class="n">relative</span> <span class="k">else</span> <span class="n">root</span>
+            <span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="n">d</span><span class="o">/</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">include</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">include</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">)):</span>
+                    <span class="n">include</span> <span class="o">=</span> <span class="p">(</span><span class="n">include</span><span class="p">,</span> <span class="p">)</span>
+                <span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span> <span class="k">if</span> <span class="n">matchAny</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="o">*</span><span class="n">include</span><span class="p">)]</span>
+            <span class="k">if</span> <span class="n">exclude</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exclude</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">)):</span>
+                    <span class="n">exclude</span> <span class="o">=</span> <span class="p">(</span><span class="n">exclude</span><span class="p">,</span> <span class="p">)</span>
+                <span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">matchAny</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="o">*</span><span class="n">exclude</span><span class="p">)]</span>
+            <span class="n">allfiles</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">files</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">allfiles</span></div>
+
+<div class="viewcode-block" id="Path.glob"><a class="viewcode-back" href="../ref/path.html#path.Path.glob">[docs]</a>    <span class="k">def</span> <span class="nf">glob</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pattern</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Return a list of paths matching a pattern.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        pattern: str, optional</span>
+<span class="sd">            A pattern to join to the Path to create the full search</span>
+<span class="sd">            pattern. The search pattern can contain \* and ? wildcards,</span>
+<span class="sd">            and [] character ranges, and the extended \*\* wildcard if</span>
+<span class="sd">            recursive is True.</span>
+<span class="sd">        recursive: bool</span>
+<span class="sd">            If True (default), match recursively. A \*\* wildcard</span>
+<span class="sd">            matches all existing files and all subdirectories</span>
+<span class="sd">            of any level. If followed by a /, it only matches</span>
+<span class="sd">            directories.</span>
+<span class="sd">            If False, \*\* behaves the same as a single \*.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of Path</span>
+<span class="sd">            A sorted list of existing paths matching the pattern.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        This method works differently from :meth:`pathlib.Path.glob`.</span>
+<span class="sd">        Wildcards can also be part of the calling Path.</span>
+<span class="sd">        Thus, ``Path(path).glob(pat)`` is equivalent to</span>
+<span class="sd">        ``(Path(path) / pat).glob()``.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        listTree: find files matching regular expressions</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; Path(&#39;/etc/init.d&#39;).glob()</span>
+<span class="sd">        [Path(&#39;/etc/init.d&#39;)]</span>
+<span class="sd">        &gt;&gt;&gt; mydir = Path(__file__).parent</span>
+<span class="sd">        &gt;&gt;&gt; (mydir / &#39;pr*.py&#39;).glob()</span>
+<span class="sd">        [Path(&#39;.../pyformex/process.py&#39;), Path(&#39;.../pyformex/project.py&#39;)]</span>
+<span class="sd">        &gt;&gt;&gt; (mydir / &#39;pa*.py&#39;).glob()</span>
+<span class="sd">        [Path(&#39;.../pyformex/path.py&#39;)]</span>
+<span class="sd">        &gt;&gt;&gt; (mydir / &#39;**/pa*t*.py&#39;).glob()</span>
+<span class="sd">        [Path(&#39;.../pyformex/path.py&#39;), Path(&#39;.../pyformex/plugins/partition.py&#39;)]</span>
+<span class="sd">        &gt;&gt;&gt; (mydir / &#39;**/pa*t*.py&#39;).glob(recursive=False)</span>
+<span class="sd">        [Path(&#39;.../pyformex/plugins/partition.py&#39;)]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">import</span> <span class="nn">glob</span>
+        <span class="n">pattern</span> <span class="o">=</span> <span class="bp">self</span> <span class="k">if</span> <span class="n">pattern</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span> <span class="o">/</span> <span class="n">pattern</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">Path</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="n">recursive</span><span class="p">)],</span>
+                      <span class="n">key</span><span class="o">=</span><span class="n">Path</span><span class="o">.</span><span class="n">sortkey</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Path.filetype"><a class="viewcode-back" href="../ref/path.html#path.Path.filetype">[docs]</a>    <span class="k">def</span> <span class="nf">filetype</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compressed</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;.gz&#39;</span><span class="p">,</span> <span class="s1">&#39;.bz2&#39;</span><span class="p">]):</span>
+        <span class="sd">&quot;&quot;&quot;Return a normalized file type based on the filename suffix.</span>
+
+<span class="sd">        The returned suffix is in most cases the part of the filename starting</span>
+<span class="sd">        at the last dot. However, if the thus obtained suffix is one of the</span>
+<span class="sd">        specified compressed types (default: .gz or .bz2) and the file contains</span>
+<span class="sd">        another dot that is not at the start of the filename, the returned suffix</span>
+<span class="sd">        starts at the penultimate dot.</span>
+<span class="sd">        This allows for transparent handling of compressed files.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        compressed: list of str</span>
+<span class="sd">            List of suffixes that are considered compressed file types.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            The filetype. This is the file suffix converted to lower case</span>
+<span class="sd">            and without the leading dot. If the suffix is included in</span>
+<span class="sd">            ``compressed``, the returned suffix also includes the preceding</span>
+<span class="sd">            suffix part, if any.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        ftype: the file type without accounting for compressed types</span>
+
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; Path(&#39;pyformex&#39;).filetype()</span>
+<span class="sd">        &#39;&#39;</span>
+<span class="sd">        &gt;&gt;&gt; Path(&#39;pyformex.pgf&#39;).filetype()</span>
+<span class="sd">        &#39;pgf&#39;</span>
+<span class="sd">        &gt;&gt;&gt; Path(&#39;pyformex.pgf.gz&#39;).filetype()</span>
+<span class="sd">        &#39;pgf.gz&#39;</span>
+<span class="sd">        &gt;&gt;&gt; Path(&#39;pyformex.gz&#39;).filetype()</span>
+<span class="sd">        &#39;gz&#39;</span>
+<span class="sd">        &gt;&gt;&gt; Path(&#39;abcd/pyformex.GZ&#39;).filetype()</span>
+<span class="sd">        &#39;gz&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ext</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsuffix</span>
+        <span class="k">if</span> <span class="n">ext</span> <span class="ow">in</span> <span class="n">compressed</span><span class="p">:</span>
+            <span class="n">ext1</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stem</span><span class="p">)</span><span class="o">.</span><span class="n">lsuffix</span>
+            <span class="k">if</span> <span class="n">ext1</span><span class="p">:</span>
+                <span class="n">ext</span> <span class="o">=</span> <span class="n">ext1</span><span class="o">+</span><span class="n">ext</span>
+        <span class="k">return</span> <span class="n">ext</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Path.ftype_compr"><a class="viewcode-back" href="../ref/path.html#path.Path.ftype_compr">[docs]</a>    <span class="k">def</span> <span class="nf">ftype_compr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compressed</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;.gz&#39;</span><span class="p">,</span> <span class="s1">&#39;.bz2&#39;</span><span class="p">]):</span>
+        <span class="sd">&quot;&quot;&quot;Return the file type and compression based on suffix.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        compressed: list of str</span>
+<span class="sd">            List of suffixes that are considered compressed file types.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ftype: str</span>
+<span class="sd">            File type based on the last suffix if it is not a compression</span>
+<span class="sd">            type, or on the penultimate suffix if the file is compressed.</span>
+<span class="sd">        compr: str</span>
+<span class="sd">            Compression type. This is the last suffix if it is one of the</span>
+<span class="sd">            compressed types, or an empty string otherwise.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; Path(&#39;pyformex&#39;).ftype_compr()</span>
+<span class="sd">        (&#39;&#39;, &#39;&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; Path(&#39;pyformex.pgf&#39;).ftype_compr()</span>
+<span class="sd">        (&#39;pgf&#39;, &#39;&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; Path(&#39;pyformex.pgf.gz&#39;).ftype_compr()</span>
+<span class="sd">        (&#39;pgf&#39;, &#39;gz&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; Path(&#39;pyformex.gz&#39;).ftype_compr()</span>
+<span class="sd">        (&#39;gz&#39;, &#39;&#39;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ftype</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filetype</span><span class="p">(</span><span class="n">compressed</span><span class="p">)</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="n">ftype</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ftype</span><span class="p">[:</span><span class="n">i</span><span class="p">],</span> <span class="n">ftype</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ftype</span><span class="p">,</span> <span class="s1">&#39;&#39;</span></div>
+
+<div class="viewcode-block" id="Path.cwd"><a class="viewcode-back" href="../ref/path.html#path.Path.cwd">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">cwd</span><span class="p">():</span>
+        <span class="sd">&quot;&quot;&quot;Return the current working directory</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Path</span>
+<span class="sd">            The current working directory.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="Path.home"><a class="viewcode-back" href="../ref/path.html#path.Path.home">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">home</span><span class="p">():</span>
+        <span class="sd">&quot;&quot;&quot;Return the user&#39;s home directory.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Path</span>
+<span class="sd">            The user&#39;s home directory as defined by the environment</span>
+<span class="sd">            variable HOME.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;HOME&#39;</span><span class="p">])</span></div></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">doctest</span>
+    <span class="n">failures</span><span class="p">,</span> <span class="n">tests</span> <span class="o">=</span> <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">(</span>
+        <span class="n">optionflags</span><span class="o">=</span><span class="n">doctest</span><span class="o">.</span><span class="n">NORMALIZE_WHITESPACE</span> <span class="o">|</span> <span class="n">doctest</span><span class="o">.</span><span class="n">ELLIPSIS</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="vm">__file__</span><span class="si">}</span><span class="s2">: Tests: </span><span class="si">{</span><span class="n">tests</span><span class="si">}</span><span class="s2">; Failures: </span><span class="si">{</span><span class="n">failures</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># End</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">path</a></li--> 
+      </ul>
+    </div>
+    <div class="footer">
+    <span class="left">
+        &copy; Copyright 2004-2023, Benedict Verhegghe.
+    </span>
+      Last updated on Mar 27, 2023.
+    <span class="right">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.4.3.
+    </span>
+    </div>
+  </body>
+</html>

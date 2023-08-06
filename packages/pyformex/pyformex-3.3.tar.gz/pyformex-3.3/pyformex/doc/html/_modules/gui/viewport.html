@@ -1,0 +1,531 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!--
+##
+##  This file is part of the pyFormex project.
+##  pyFormex is a tool for generating, manipulating and transforming 3D
+##  geometrical models by sequences of mathematical operations.
+##  Home page: http://pyformex.org
+##  Project page:  http://savannah.nongnu.org/projects/pyformex/
+##  Copyright (C) Benedict Verhegghe (benedict.verhegghe@ugent.be)
+##  Distributed under the GNU General Public License version 3 or later.
+##
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see http://www.gnu.org/licenses/.
+##
+-->
+    <title>gui.viewport &#8212; pyFormex 3.3 documentation</title>
+
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pyformex.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+<link rel="icon" type="image/png" href="../../_static/pyformex_fav.png" />
+
+  </head><body>
+
+<div class="header">
+  <a href="http://pyformex.org">
+  <img src="../../_static/scallop_dome_small.png" alt="scallop dome" border="0" hspace="20" vspace="12" align="left" />
+  <img src="../../_static/pyformex-logo-2.png" alt="pyformex logo" border="0" hspace="10" vspace="8" align="left" />
+  </a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">gui.viewport</a></li--> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<!-- PYFORMEX_SIDEBAR_LOGO -->
+<!-- PYFORMEX_WEBSITE_SIDEBAR_TOP -->
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for gui.viewport</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1">##</span>
+<span class="c1">##  SPDX-FileCopyrightText: © 2007-2023 Benedict Verhegghe &lt;bverheg@gmail.com&gt;</span>
+<span class="c1">##  SPDX-License-Identifier: GPL-3.0-or-later</span>
+<span class="c1">##</span>
+<span class="c1">##  This file is part of pyFormex 3.3  (Sun Mar 26 20:16:15 CEST 2023)</span>
+<span class="c1">##  pyFormex is a tool for generating, manipulating and transforming 3D</span>
+<span class="c1">##  geometrical models by sequences of mathematical operations.</span>
+<span class="c1">##  Home page: https://pyformex.org</span>
+<span class="c1">##  Project page: https://savannah.nongnu.org/projects/pyformex/</span>
+<span class="c1">##  Development: https://gitlab.com/bverheg/pyformex</span>
+<span class="c1">##  Distributed under the GNU General Public License version 3 or later.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is free software: you can redistribute it and/or modify</span>
+<span class="c1">##  it under the terms of the GNU General Public License as published by</span>
+<span class="c1">##  the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1">##  (at your option) any later version.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is distributed in the hope that it will be useful,</span>
+<span class="c1">##  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1">##  GNU General Public License for more details.</span>
+<span class="c1">##</span>
+<span class="c1">##  You should have received a copy of the GNU General Public License</span>
+<span class="c1">##  along with this program.  If not, see http://www.gnu.org/licenses/.</span>
+<span class="c1">##</span>
+<span class="sd">&quot;&quot;&quot;Multiple OpenGL viewports in a Qt widget.</span>
+
+<span class="sd">This module provides the MultiCanvas class which allows for multiple</span>
+<span class="sd">OpenGL viewports in a single Qt OpenGL widget.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">pyformex</span> <span class="k">as</span> <span class="nn">pf</span>
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">arraytools</span> <span class="k">as</span> <span class="n">at</span>
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">pyformex.gui</span> <span class="kn">import</span> <span class="n">QtWidgets</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">toolbar</span>
+
+<span class="k">if</span> <span class="ow">not</span> <span class="n">pf</span><span class="o">.</span><span class="n">sphinx</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">mgl</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">opengl3.mglcanvas</span> <span class="kn">import</span> <span class="o">*</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">.qtcanvas</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="c1">###########################################################################</span>
+<span class="c1">#####    Multiple Viewports    #######</span>
+
+<div class="viewcode-block" id="MultiCanvas"><a class="viewcode-back" href="../../ref/gui.viewport.html#gui.viewport.MultiCanvas">[docs]</a><span class="nd">@utils</span><span class="o">.</span><span class="n">pzf_register</span>
+<span class="k">class</span> <span class="nc">MultiCanvas</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QGridLayout</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;An OpenGL canvas with multiple viewports.</span>
+
+<span class="sd">    The MultiCanvas implements a central QT widget containing one or more</span>
+<span class="sd">    QtCanvas widgets.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize the multicanvas.&quot;&quot;&quot;</span>
+        <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QGridLayout</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setContentsMargins</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">all</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">links</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ncols</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rowwise</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rstretch</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cstretch</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span>
+
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">all</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="MultiCanvas.changeLayout"><a class="viewcode-back" href="../../ref/gui.viewport.html#gui.viewport.MultiCanvas.changeLayout">[docs]</a>    <span class="k">def</span> <span class="nf">changeLayout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nvps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nrows</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rstretch</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cstretch</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reset</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Change the lay-out of the viewports on the OpenGL widget.</span>
+
+<span class="sd">        nvps: number of viewports</span>
+<span class="sd">        ncols: number of columns</span>
+<span class="sd">        nrows: number of rows</span>
+<span class="sd">        pos: list holding the position and span of each viewport</span>
+<span class="sd">        [[row,col,rowspan,colspan],...]</span>
+<span class="sd">        rstretch: list holding the stretch factor for each row</span>
+<span class="sd">        cstretch: list holding the stretch factor for each column</span>
+<span class="sd">        (rows/columns with a higher stretch factor take more of the</span>
+<span class="sd">        available space)</span>
+<span class="sd">        Each of this parameters is optional.</span>
+
+<span class="sd">        If a number of viewports is given, viewports will be added</span>
+<span class="sd">        or removed to match the requested number.</span>
+<span class="sd">        By default they are laid out rowwise over two columns.</span>
+
+<span class="sd">        If ncols is an int, viewports are laid out rowwise over ncols</span>
+<span class="sd">        columns and nrows is ignored. If ncols is None and nrows is an int,</span>
+<span class="sd">        viewports are laid out columnwise over nrows rows. Alternatively,</span>
+<span class="sd">        the pos argument can be used to specify the layout of the viewports.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># add or remove viewports to match the requested number</span>
+        <span class="k">if</span> <span class="n">at</span><span class="o">.</span><span class="n">isInt</span><span class="p">(</span><span class="n">nvps</span><span class="p">):</span>
+            <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all</span><span class="p">)</span> <span class="o">&gt;</span> <span class="p">(</span><span class="mi">0</span> <span class="k">if</span> <span class="n">reset</span> <span class="k">else</span> <span class="n">nvps</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">removeView</span><span class="p">()</span>
+            <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">nvps</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">addView</span><span class="p">()</span>
+        <span class="c1"># get the new layout definition</span>
+        <span class="k">if</span> <span class="n">at</span><span class="o">.</span><span class="n">isInt</span><span class="p">(</span><span class="n">ncols</span><span class="p">):</span>
+            <span class="n">rowwise</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">pos</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="n">at</span><span class="o">.</span><span class="n">isInt</span><span class="p">(</span><span class="n">nrows</span><span class="p">):</span>
+            <span class="n">ncols</span> <span class="o">=</span> <span class="n">nrows</span>
+            <span class="n">rowwise</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">pos</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all</span><span class="p">):</span>
+            <span class="n">ncols</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">rowwise</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="c1"># remove the viewport widgets</span>
+        <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">removeWidget</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+        <span class="c1"># assign the new layout arguments</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ncols</span> <span class="o">=</span> <span class="n">ncols</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rowwise</span> <span class="o">=</span> <span class="n">rowwise</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">=</span> <span class="n">pos</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rstretch</span> <span class="o">=</span> <span class="n">rstretch</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cstretch</span> <span class="o">=</span> <span class="n">cstretch</span>
+        <span class="c1"># add the viewport widgets</span>
+        <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">showWidget</span><span class="p">(</span><span class="n">w</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MultiCanvas.newView"><a class="viewcode-back" href="../../ref/gui.viewport.html#gui.viewport.MultiCanvas.newView">[docs]</a>    <span class="k">def</span> <span class="nf">newView</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shared</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">settings</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a new viewport.</span>
+
+<span class="sd">        If shared is True, and the MultiCanvas already has one or more</span>
+<span class="sd">        viewports, the new viewport will share display lists and textures</span>
+<span class="sd">        with the first viewport. Since pyFormex is not using display</span>
+<span class="sd">        lists (anymore) and textures are needed to display text, the value</span>
+<span class="sd">        defaults to True, and all viewports will share the same textures,</span>
+<span class="sd">        unless a viewport is created with a specified value for shared:</span>
+<span class="sd">        it can either be another viewport to share textures with, or a</span>
+<span class="sd">        value False or None to not share textures with any viewport. In the</span>
+<span class="sd">        latter case you will not be able to use text display, unless you</span>
+<span class="sd">        initialize the textures yourself.</span>
+
+<span class="sd">        settings: can be a legal CanvasSettings to initialize the viewport.</span>
+<span class="sd">        Default is to copy settings of the current viewport.</span>
+
+<span class="sd">        Returns the created viewport, which is an instance of QtCanvas.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">shared</span><span class="p">,</span> <span class="n">QtCanvas</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">shared</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">shared</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">all</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">shared</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># Now shared should be a QtCanvas or None</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;New viewport sharing textures with </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">shared</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">DRAW</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">settings</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">settings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">settings</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="n">settings</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1">#pf.debug(&quot;Create new viewport with settings:\n%s&quot;%settings, pf.DEBUG.CANVAS)</span>
+        <span class="c1">##</span>
+        <span class="c1">## BEWARE: shared should be positional, settings should be keyword !</span>
+        <span class="n">canv</span> <span class="o">=</span> <span class="n">QtCanvas</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span> <span class="n">shared</span><span class="p">,</span> <span class="n">settings</span><span class="o">=</span><span class="n">settings</span><span class="p">)</span>
+        <span class="c1">#print(canv.settings)</span>
+        <span class="k">return</span><span class="p">(</span><span class="n">canv</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MultiCanvas.addView"><a class="viewcode-back" href="../../ref/gui.viewport.html#gui.viewport.MultiCanvas.addView">[docs]</a>    <span class="k">def</span> <span class="nf">addView</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add a new viewport to the widget&quot;&quot;&quot;</span>
+        <span class="n">canv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">newView</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># copy default settings from previous</span>
+            <span class="n">canv</span><span class="o">.</span><span class="n">resetDefaults</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">settings</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">all</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">canv</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">showWidget</span><span class="p">(</span><span class="n">canv</span><span class="p">)</span>
+        <span class="n">canv</span><span class="o">.</span><span class="n">initializeGL</span><span class="p">()</span>   <span class="c1"># Initialize OpenGL context and camera</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setCurrent</span><span class="p">(</span><span class="n">canv</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MultiCanvas.setCurrent"><a class="viewcode-back" href="../../ref/gui.viewport.html#gui.viewport.MultiCanvas.setCurrent">[docs]</a>    <span class="k">def</span> <span class="nf">setCurrent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">canv</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Make the specified viewport the current one.</span>
+
+<span class="sd">        canv can be either a viewport or viewport number.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">at</span><span class="o">.</span><span class="n">isInt</span><span class="p">(</span><span class="n">canv</span><span class="p">)</span> <span class="ow">and</span> <span class="n">canv</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all</span><span class="p">)):</span>
+            <span class="n">canv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">all</span><span class="p">[</span><span class="n">canv</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">canv</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">elif</span> <span class="n">canv</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">focus</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">updateGL</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="n">canv</span>
+            <span class="c1"># Only show focus if more than 1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">focus</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">viewports</span><span class="o">.</span><span class="n">all</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;gui/showfocus&#39;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">updateGL</span><span class="p">()</span>
+            <span class="n">toolbar</span><span class="o">.</span><span class="n">updateViewportButtons</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">)</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">canvas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span></div>
+
+
+<div class="viewcode-block" id="MultiCanvas.viewIndex"><a class="viewcode-back" href="../../ref/gui.viewport.html#gui.viewport.MultiCanvas.viewIndex">[docs]</a>    <span class="k">def</span> <span class="nf">viewIndex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">view</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the index of the specified view&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">all</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">view</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MultiCanvas.currentView"><a class="viewcode-back" href="../../ref/gui.viewport.html#gui.viewport.MultiCanvas.currentView">[docs]</a>    <span class="k">def</span> <span class="nf">currentView</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the index of the current view&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">all</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MultiCanvas.showWidget"><a class="viewcode-back" href="../../ref/gui.viewport.html#gui.viewport.MultiCanvas.showWidget">[docs]</a>    <span class="k">def</span> <span class="nf">showWidget</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">w</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Show the view w.&quot;&quot;&quot;</span>
+        <span class="n">ind</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">all</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">row</span><span class="p">,</span> <span class="n">col</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">ind</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ncols</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">rowwise</span><span class="p">:</span>
+                <span class="n">row</span><span class="p">,</span> <span class="n">col</span> <span class="o">=</span> <span class="n">col</span><span class="p">,</span> <span class="n">row</span>
+            <span class="n">rspan</span><span class="p">,</span> <span class="n">cspan</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span>
+        <span class="k">elif</span> <span class="n">ind</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">):</span>
+            <span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="n">rspan</span><span class="p">,</span> <span class="n">cspan</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="n">rspan</span><span class="p">,</span> <span class="n">cspan</span><span class="p">)</span>
+        <span class="n">w</span><span class="o">.</span><span class="n">raise_</span><span class="p">()</span>
+        <span class="c1"># set the stretch factors</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">rstretch</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">row</span><span class="o">+</span><span class="n">rspan</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rstretch</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">rstretch</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">setRowStretch</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rstretch</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cstretch</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">col</span><span class="o">+</span><span class="n">cspan</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cstretch</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">cstretch</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">setColumnStretch</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cstretch</span><span class="p">[</span><span class="n">i</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="MultiCanvas.removeView"><a class="viewcode-back" href="../../ref/gui.viewport.html#gui.viewport.MultiCanvas.removeView">[docs]</a>    <span class="k">def</span> <span class="nf">removeView</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Remove the last view&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">all</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+            <span class="n">lastnr</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">lastnr</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">links</span><span class="p">:</span>
+                <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">links</span><span class="p">[</span><span class="n">lastnr</span><span class="p">]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span> <span class="o">==</span> <span class="n">w</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">setCurrent</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">removeWidget</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+            <span class="n">w</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="c1"># Remove focus rectangle if only one left</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">focus</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="c1"># set the stretch factors</span>
+            <span class="n">pos</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">getItemPosition</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indexOf</span><span class="p">(</span><span class="n">w</span><span class="p">))</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all</span><span class="p">]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">rstretch</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">row</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">p</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pos</span><span class="p">])</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rstretch</span><span class="p">)):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">setRowStretch</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">rstretch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rstretch</span><span class="p">[:</span><span class="n">row</span><span class="p">]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cstretch</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">col</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">p</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pos</span><span class="p">])</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cstretch</span><span class="p">)):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">setColumnStretch</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cstretch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cstretch</span><span class="p">[:</span><span class="n">col</span><span class="p">]</span></div>
+
+
+<span class="c1">##     def setCamera(self,bbox,view):</span>
+<span class="c1">##         self.current.setCamera(bbox,view)</span>
+
+    <span class="k">def</span> <span class="nf">updateAll</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+         <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;UPDATING ALL VIEWPORTS&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">GUI</span><span class="p">)</span>
+         <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all</span><span class="p">:</span>
+             <span class="n">v</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+         <span class="n">pf</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">processEvents</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">printSettings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">## VIEWPORTS ##</span>
+<span class="s2">Viewport </span><span class="si">%s</span><span class="s2">;  Current:</span><span class="si">%s</span><span class="s2">;  Settings:</span>
+<span class="si">%s</span><span class="s2"></span>
+<span class="s2">&quot;&quot;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">v</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">settings</span><span class="p">))</span>
+
+
+    <span class="k">def</span> <span class="nf">linkScene</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vp</span><span class="p">,</span> <span class="n">to</span><span class="p">):</span>
+        <span class="n">vp0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">all</span><span class="p">[</span><span class="n">to</span><span class="p">]</span>
+        <span class="n">vp1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">all</span><span class="p">[</span><span class="n">vp</span><span class="p">]</span>
+        <span class="n">vp1</span><span class="o">.</span><span class="n">scene</span> <span class="o">=</span> <span class="n">vp0</span><span class="o">.</span><span class="n">scene</span>
+        <span class="n">vp0</span><span class="o">.</span><span class="n">zoomAll</span><span class="p">()</span>
+        <span class="n">vp1</span><span class="o">.</span><span class="n">zoomAll</span><span class="p">()</span>
+        <span class="n">vp0</span><span class="o">.</span><span class="n">updateGL</span><span class="p">()</span>
+        <span class="n">vp1</span><span class="o">.</span><span class="n">updateGL</span><span class="p">()</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">processEvents</span><span class="p">()</span>
+
+
+    <span class="c1"># TODO: We should probably limit linking to the changelayout case</span>
+<div class="viewcode-block" id="MultiCanvas.link"><a class="viewcode-back" href="../../ref/gui.viewport.html#gui.viewport.MultiCanvas.link">[docs]</a>    <span class="k">def</span> <span class="nf">link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vp</span><span class="p">,</span> <span class="n">to</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Link viewport vp to to&quot;&quot;&quot;</span>
+        <span class="n">nvps</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all</span><span class="p">)</span>
+        <span class="n">vp</span> <span class="o">=</span> <span class="n">checkInt</span><span class="p">(</span><span class="n">vp</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">nvps</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">to</span> <span class="o">=</span> <span class="n">checkInt</span><span class="p">(</span><span class="n">to</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">nvps</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="c1"># resolve links</span>
+        <span class="k">while</span> <span class="n">to</span> <span class="o">!=</span> <span class="n">vp</span> <span class="ow">and</span> <span class="n">to</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">links</span><span class="p">:</span>
+            <span class="n">to</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">links</span><span class="p">[</span><span class="n">to</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">to</span> <span class="o">==</span> <span class="n">vp</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Can not link viewport to itself&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Link viewport </span><span class="si">%s</span><span class="s2"> to </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">vp</span><span class="p">,</span> <span class="n">to</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">links</span><span class="p">[</span><span class="n">vp</span><span class="p">]</span> <span class="o">=</span> <span class="n">to</span>
+        <span class="n">tovp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">all</span><span class="p">[</span><span class="n">to</span><span class="p">]</span>
+        <span class="n">oldvp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">all</span><span class="p">[</span><span class="n">vp</span><span class="p">]</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;warn_viewport_linking&#39;</span><span class="p">)</span>
+        <span class="n">newvp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">newView</span><span class="p">(</span><span class="n">shared</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">all</span><span class="p">[</span><span class="n">vp</span><span class="p">]</span> <span class="o">=</span> <span class="n">newvp</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">removeWidget</span><span class="p">(</span><span class="n">oldvp</span><span class="p">)</span>
+        <span class="n">oldvp</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">showWidget</span><span class="p">(</span><span class="n">newvp</span><span class="p">)</span>
+        <span class="n">newvp</span><span class="o">.</span><span class="n">scene</span> <span class="o">=</span> <span class="n">tovp</span><span class="o">.</span><span class="n">scene</span>
+        <span class="c1">#newvp.scene.actors = to.scene.actors</span>
+        <span class="n">newvp</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="n">newvp</span><span class="o">.</span><span class="n">setCamera</span><span class="p">()</span>
+        <span class="n">newvp</span><span class="o">.</span><span class="n">redrawAll</span><span class="p">()</span>
+        <span class="c1">#newvp.updateGL()</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">processEvents</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="MultiCanvas.settings"><a class="viewcode-back" href="../../ref/gui.viewport.html#gui.viewport.MultiCanvas.settings">[docs]</a>    <span class="k">def</span> <span class="nf">settings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the full configuration needed to restore the MultiCanvas&quot;&quot;&quot;</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;gui_size&#39;</span><span class="p">:</span> <span class="n">qtutils</span><span class="o">.</span><span class="n">Size</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="p">),</span>
+            <span class="s1">&#39;central_size&#39;</span><span class="p">:</span> <span class="n">qtutils</span><span class="o">.</span><span class="n">Size</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">central</span><span class="p">),</span>
+            <span class="s1">&#39;nvps&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all</span><span class="p">),</span>
+            <span class="s1">&#39;rowwise&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">rowwise</span><span class="p">,</span>
+            <span class="s1">&#39;ncols&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ncols</span><span class="p">,</span>
+            <span class="s1">&#39;current&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">viewIndex</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">),</span>
+<span class="c1">#            &#39;canvas&#39;: self.viewIndex(pf.canvas),</span>
+            <span class="p">}</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">vp</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all</span><span class="p">):</span>
+            <span class="n">d</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;canvas</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">vp</span><span class="o">.</span><span class="n">settings</span><span class="p">)</span>
+            <span class="n">d</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;camera</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">vp</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">settings</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">d</span></div>
+
+
+<div class="viewcode-block" id="MultiCanvas.loadConfig"><a class="viewcode-back" href="../../ref/gui.viewport.html#gui.viewport.MultiCanvas.loadConfig">[docs]</a>    <span class="k">def</span> <span class="nf">loadConfig</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Reset the viewports size, layout and cameras from a dict&quot;&quot;&quot;</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;gui_size&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">size</span><span class="p">:</span>
+            <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="o">*</span><span class="n">size</span><span class="p">)</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;central_size&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">size</span><span class="p">:</span>
+            <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">central</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="o">*</span><span class="n">size</span><span class="p">)</span>
+        <span class="n">nvps</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;nvps&#39;</span><span class="p">]</span>
+        <span class="n">rowwise</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;rowwise&#39;</span><span class="p">]</span>
+        <span class="n">ncols</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;ncols&#39;</span><span class="p">]</span>
+        <span class="n">nrows</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">rowwise</span><span class="p">:</span>
+            <span class="n">ncols</span><span class="p">,</span> <span class="n">nrows</span> <span class="o">=</span> <span class="n">nrows</span><span class="p">,</span> <span class="n">ncols</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">changeLayout</span><span class="p">(</span><span class="n">nvps</span> <span class="o">=</span> <span class="n">nvps</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="n">ncols</span><span class="p">,</span> <span class="n">nrows</span><span class="o">=</span><span class="n">nrows</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all</span><span class="p">)):</span>
+            <span class="n">Ci</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;canvas</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span>
+            <span class="n">canvas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">all</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">canvas</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">Ci</span><span class="p">)</span>
+            <span class="n">Ci</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;camera</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span>
+            <span class="n">canvas</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">loadConfig</span><span class="p">(</span><span class="n">Ci</span><span class="p">)</span>
+        <span class="n">current</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;current&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">current</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setCurrent</span><span class="p">(</span><span class="n">current</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">()</span></div>
+
+    <span class="c1">###################</span>
+    <span class="c1">## PZF interface ##</span>
+
+    <span class="k">def</span> <span class="nf">pzf_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span> <span class="s1">&#39;kargs:p&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">()</span> <span class="p">}</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">pzf_load</span><span class="p">(</span><span class="n">clas</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">kargs</span>
+
+
+    <span class="c1">## DEPRECATED ##</span>
+
+    <span class="c1"># Deprecated old canvas/camera saving format   2023-01</span>
+    <span class="c1"># TODO: remove after 2023-08</span>
+
+
+<div class="viewcode-block" id="MultiCanvas.save"><a class="viewcode-back" href="../../ref/gui.viewport.html#gui.viewport.MultiCanvas.save">[docs]</a>    <span class="nd">@utils</span><span class="o">.</span><span class="n">deprecated</span><span class="p">(</span><span class="s1">&#39;camera_save&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Save the canvas settings to file&quot;&quot;&quot;</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">()</span>
+        <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">d</span><span class="si">!r}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MultiCanvas.load"><a class="viewcode-back" href="../../ref/gui.viewport.html#gui.viewport.MultiCanvas.load">[docs]</a>    <span class="nd">@utils</span><span class="o">.</span><span class="n">deprecated</span><span class="p">(</span><span class="s1">&#39;camera_save&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Load the canvas settings from file&quot;&quot;&quot;</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loadConfig</span><span class="p">(</span><span class="n">d</span><span class="p">)</span></div></div>
+
+<span class="c1"># End</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">gui.viewport</a></li--> 
+      </ul>
+    </div>
+    <div class="footer">
+    <span class="left">
+        &copy; Copyright 2004-2023, Benedict Verhegghe.
+    </span>
+      Last updated on Mar 27, 2023.
+    <span class="right">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.4.3.
+    </span>
+    </div>
+  </body>
+</html>

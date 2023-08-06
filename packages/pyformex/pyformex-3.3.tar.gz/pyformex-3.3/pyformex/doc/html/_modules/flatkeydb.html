@@ -1,0 +1,587 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!--
+##
+##  This file is part of the pyFormex project.
+##  pyFormex is a tool for generating, manipulating and transforming 3D
+##  geometrical models by sequences of mathematical operations.
+##  Home page: http://pyformex.org
+##  Project page:  http://savannah.nongnu.org/projects/pyformex/
+##  Copyright (C) Benedict Verhegghe (benedict.verhegghe@ugent.be)
+##  Distributed under the GNU General Public License version 3 or later.
+##
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see http://www.gnu.org/licenses/.
+##
+-->
+    <title>flatkeydb &#8212; pyFormex 3.3 documentation</title>
+
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pyformex.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+<link rel="icon" type="image/png" href="../_static/pyformex_fav.png" />
+
+  </head><body>
+
+<div class="header">
+  <a href="http://pyformex.org">
+  <img src="../_static/scallop_dome_small.png" alt="scallop dome" border="0" hspace="20" vspace="12" align="left" />
+  <img src="../_static/pyformex-logo-2.png" alt="pyformex logo" border="0" hspace="10" vspace="8" align="left" />
+  </a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">flatkeydb</a></li--> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<!-- PYFORMEX_SIDEBAR_LOGO -->
+<!-- PYFORMEX_WEBSITE_SIDEBAR_TOP -->
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for flatkeydb</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1">##</span>
+<span class="c1">##  SPDX-FileCopyrightText: © 2007-2023 Benedict Verhegghe &lt;bverheg@gmail.com&gt;</span>
+<span class="c1">##  SPDX-License-Identifier: GPL-3.0-or-later</span>
+<span class="c1">##</span>
+<span class="c1">##  This file is part of pyFormex 3.3  (Sun Mar 26 20:16:15 CEST 2023)</span>
+<span class="c1">##  pyFormex is a tool for generating, manipulating and transforming 3D</span>
+<span class="c1">##  geometrical models by sequences of mathematical operations.</span>
+<span class="c1">##  Home page: https://pyformex.org</span>
+<span class="c1">##  Project page: https://savannah.nongnu.org/projects/pyformex/</span>
+<span class="c1">##  Development: https://gitlab.com/bverheg/pyformex</span>
+<span class="c1">##  Distributed under the GNU General Public License version 3 or later.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is free software: you can redistribute it and/or modify</span>
+<span class="c1">##  it under the terms of the GNU General Public License as published by</span>
+<span class="c1">##  the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1">##  (at your option) any later version.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is distributed in the hope that it will be useful,</span>
+<span class="c1">##  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1">##  GNU General Public License for more details.</span>
+<span class="c1">##</span>
+<span class="c1">##  You should have received a copy of the GNU General Public License</span>
+<span class="c1">##  along with this program.  If not, see http://www.gnu.org/licenses/.</span>
+<span class="c1">##</span>
+
+<span class="sd">&quot;&quot;&quot;Flat Text File Database.</span>
+
+<span class="sd">A simple database stored as a flat text file.</span>
+
+<span class="sd">| (C) 2005 Benedict Verhegghe.</span>
+<span class="sd">| Distributed under the GNU GPL version 3 or later.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="c1"># A few utility functions</span>
+<div class="viewcode-block" id="firstWord"><a class="viewcode-back" href="../ref/flatkeydb.html#flatkeydb.firstWord">[docs]</a><span class="k">def</span> <span class="nf">firstWord</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return the first word of a string.</span>
+
+<span class="sd">    Words are delimited by blanks. If the string does not contain a blank,</span>
+<span class="sd">    the whole string is returned.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">s</span><span class="p">[:</span><span class="n">n</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">s</span></div>
+
+
+<div class="viewcode-block" id="unQuote"><a class="viewcode-back" href="../ref/flatkeydb.html#flatkeydb.unQuote">[docs]</a><span class="k">def</span> <span class="nf">unQuote</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Remove one level of quotes from a string.</span>
+
+<span class="sd">    If the string starts with a quote character (either single or double)</span>
+<span class="sd">    and ends with the SAME character, they are stripped of the string.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="s2">&quot;&#39;</span><span class="se">\&quot;</span><span class="s2">&quot;</span> <span class="ow">and</span> <span class="n">s</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">s</span></div>
+
+
+<div class="viewcode-block" id="splitKeyValue"><a class="viewcode-back" href="../ref/flatkeydb.html#flatkeydb.splitKeyValue">[docs]</a><span class="k">def</span> <span class="nf">splitKeyValue</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">key_sep</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Split a string in a (key,value) on occurrence of key_sep.</span>
+
+<span class="sd">    The string is split on the first occurrence of the substring key_sep.</span>
+<span class="sd">    Key and value are then stripped of leading and trailing whitespace.</span>
+<span class="sd">    If there is no key_sep, the whole string becomes the key and the</span>
+<span class="sd">    value is an empty string. If the string starts with key_sep,</span>
+<span class="sd">    the key becomes an empty string.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">key_sep</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">s</span><span class="p">[:</span><span class="n">n</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="n">n</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">key_sep</span><span class="p">):])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ignore_error"><a class="viewcode-back" href="../ref/flatkeydb.html#flatkeydb.ignore_error">[docs]</a><span class="k">def</span> <span class="nf">ignore_error</span><span class="p">(</span><span class="n">dummy</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This function can be used to override the default error handlers.</span>
+
+<span class="sd">    The effect will be to ignore the error (duplicate key, invalid record)</span>
+<span class="sd">    and to not add the affected data to the database.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span></div>
+
+
+<span class="c1"># The Flat text file database class</span>
+<div class="viewcode-block" id="FlatDB"><a class="viewcode-back" href="../ref/flatkeydb.html#flatkeydb.FlatDB">[docs]</a><span class="k">class</span> <span class="nc">FlatDB</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;A database stored as a dictionary of dictionaries.</span>
+
+<span class="sd">    Each record is a dictionary where keys and values are just strings.</span>
+<span class="sd">    The field names (keys) can be different for each record, but there is at</span>
+<span class="sd">    least one field that exists for all records and will be used as the</span>
+<span class="sd">    primary key. This field should have unique values for all records.</span>
+
+<span class="sd">    The database itself is also a dictionary, with the value of the primary</span>
+<span class="sd">    key as key and the full record as value.</span>
+
+<span class="sd">    On constructing the database a list of keys must be specified that will be</span>
+<span class="sd">    required for each record. The first key in this list will be used as the</span>
+<span class="sd">    primary key. Obviously, the list must at least have one required key.</span>
+
+<span class="sd">    The database is stored in a flat text file. Each field (key,value pair)</span>
+<span class="sd">    is put on a line by itself. Records are delimited by a (beginrec,</span>
+<span class="sd">    endrec) pair. The beginrec marker can be followed by a (key,value) pair</span>
+<span class="sd">    on the same line. The endrec marker should be on a line by itself.</span>
+<span class="sd">    If endrec is an empty string, each occurrence of beginrec will implicitly</span>
+<span class="sd">    end the previous record.</span>
+
+<span class="sd">    Lines starting with the comment string are ignored. They can occur anywhere</span>
+<span class="sd">    between or inside records. Blank lines are also ignored (except they serve</span>
+<span class="sd">    as record delimiter if endrec is empty)</span>
+
+<span class="sd">    Thus, with the initialization::</span>
+
+<span class="sd">       FlatDB(req_keys=[&#39;key1&#39;], comment = &#39;com&#39;, key_sep = &#39;=&#39;,</span>
+<span class="sd">       beginrec = &#39;rec&#39;, endrec = &#39;&#39;)</span>
+
+<span class="sd">    the following is a legal database::</span>
+
+<span class="sd">       com This is a comment</span>
+<span class="sd">       com</span>
+<span class="sd">       rec key1=val1</span>
+<span class="sd">          key2=val2</span>
+<span class="sd">       rec</span>
+<span class="sd">       com Yes, this starts another record</span>
+<span class="sd">          key1=val3</span>
+<span class="sd">          key3=val4</span>
+
+<span class="sd">    The `readFile` function can even be instructed to ignore anything not</span>
+<span class="sd">    between a (beginrec,endrec) pair. This allows for multiple databases</span>
+<span class="sd">    being stored on the same file, even with records intermixed.</span>
+
+<span class="sd">    Keys and values can be any strings, except that a key can not begin nor</span>
+<span class="sd">    end with a blank, and can not be equal to any of the comment, beginrec</span>
+<span class="sd">    or endrec markers.</span>
+<span class="sd">    Whitespace around the key is always stripped. By default, this is also</span>
+<span class="sd">    done for the value (though this can be switched off.)</span>
+<span class="sd">    If strip_quotes is True (default), a single pair of matching quotes</span>
+<span class="sd">    surrounding the value will be stripped off. Whitespace is stripped</span>
+<span class="sd">    before stripping the quotes, so that by including the value in quotes,</span>
+<span class="sd">    you can keep leading and trailing whitespace in the value.</span>
+
+<span class="sd">    A record checking function can be specified. It takes a record as its</span>
+<span class="sd">    argument. It is called whenever a new record is inserted in the database</span>
+<span class="sd">    (or an existing one is replaced). Before calling this ``check_func``, the</span>
+<span class="sd">    system will already have checked that the record is a dictionary and</span>
+<span class="sd">    that it has all the required keys.</span>
+
+<span class="sd">    Two error handlers may be overridden by the user:</span>
+
+<span class="sd">    - record_error_handler(record) is called when the record does not pass the</span>
+<span class="sd">      checks;</span>
+<span class="sd">    - key_error_handler(key) is called when a dunplicat key is encountered.</span>
+
+<span class="sd">    The default for both is to raise an error.</span>
+<span class="sd">    Overriding is done by changing the instance attibute.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">req_keys</span><span class="o">=</span><span class="p">[],</span>
+        <span class="n">comment</span><span class="o">=</span><span class="s1">&#39;#&#39;</span><span class="p">,</span>
+        <span class="n">key_sep</span><span class="o">=</span><span class="s1">&#39;=&#39;</span><span class="p">,</span>
+        <span class="n">beginrec</span><span class="o">=</span><span class="s1">&#39;beginrec&#39;</span><span class="p">,</span>
+        <span class="n">endrec</span><span class="o">=</span><span class="s1">&#39;endrec&#39;</span><span class="p">,</span>
+        <span class="n">strip_blanks</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">strip_quotes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">check_func</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize a new (empty) database.&quot;&quot;&quot;</span>
+
+        <span class="nb">dict</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">req_keys</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">req_keys</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">req_keys</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">comment</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">comment</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">key_sep</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">key_sep</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">beginrec</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">beginrec</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">endrec</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">endrec</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">strip_quotes</span> <span class="o">=</span> <span class="n">strip_quotes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_func</span> <span class="o">=</span> <span class="n">check_func</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">error_msg</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_func</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">callable</span><span class="p">(</span><span class="n">check_func</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;FlatDB: check_func should be callable&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="FlatDB.newRecord"><a class="viewcode-back" href="../ref/flatkeydb.html#flatkeydb.FlatDB.newRecord">[docs]</a>    <span class="k">def</span> <span class="nf">newRecord</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a new (empty) record.</span>
+
+<span class="sd">        The new record is a temporary storage. It should be added to the</span>
+<span class="sd">        database by calling append(record).</span>
+<span class="sd">        This method can be overriden in subclasses.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{}</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">req_keys</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FlatDB.checkKeys"><a class="viewcode-back" href="../ref/flatkeydb.html#flatkeydb.FlatDB.checkKeys">[docs]</a>    <span class="k">def</span> <span class="nf">checkKeys</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check that record has the required keys.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">all</span><span class="p">([</span><span class="n">k</span> <span class="ow">in</span> <span class="n">record</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">req_keys</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="FlatDB.checkRecord"><a class="viewcode-back" href="../ref/flatkeydb.html#flatkeydb.FlatDB.checkRecord">[docs]</a>    <span class="k">def</span> <span class="nf">checkRecord</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check a record.</span>
+
+<span class="sd">        This function checks that the record is a dictionary type, that the</span>
+<span class="sd">        record has the required keys, and that check_func(record) returns</span>
+<span class="sd">        True (if a `check_func` was specified).</span>
+<span class="sd">        If the record passes, just return True. If it does not, call the</span>
+<span class="sd">        `record_error_handler` and (if it returns) return False.</span>
+<span class="sd">        This method can safely be overriden in subclasses.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">OK</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkKeys</span><span class="p">(</span><span class="n">record</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">check_func</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_func</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">OK</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">record_error_handler</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">OK</span></div>
+
+<div class="viewcode-block" id="FlatDB.record_error_handler"><a class="viewcode-back" href="../ref/flatkeydb.html#flatkeydb.FlatDB.record_error_handler">[docs]</a>    <span class="k">def</span> <span class="nf">record_error_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Error handler called when a check error on record is discovered.</span>
+
+<span class="sd">        Default is to raise a runtime error.</span>
+<span class="sd">        This method can safely be overriden in subclasses.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;FlatDB: invalid record : </span><span class="si">{</span><span class="n">record</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FlatDB.key_error_handler"><a class="viewcode-back" href="../ref/flatkeydb.html#flatkeydb.FlatDB.key_error_handler">[docs]</a>    <span class="k">def</span> <span class="nf">key_error_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Error handler called when a duplicate key is found.</span>
+
+<span class="sd">        Default is to raise a runtime error.</span>
+<span class="sd">        This method can safely be overriden in subclasses.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;FlatDB: duplicate key : &#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">record</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sets the record with specified primary key (if record is valid).</span>
+
+<span class="sd">        This will change the primary key value of the record to the</span>
+<span class="sd">        value of key.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkRecord</span><span class="p">(</span><span class="n">record</span><span class="p">):</span>
+            <span class="n">record</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">key</span>
+            <span class="nb">dict</span><span class="o">.</span><span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">record</span><span class="p">)</span>
+
+<div class="viewcode-block" id="FlatDB.insert"><a class="viewcode-back" href="../ref/flatkeydb.html#flatkeydb.FlatDB.insert">[docs]</a>    <span class="k">def</span> <span class="nf">insert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Insert a record to the database, overwriting existing records.</span>
+
+<span class="sd">        This is equivalent to `__setitem__` but using the value stored in the</span>
+<span class="sd">        the primary key field of the record as key for storing the record.</span>
+<span class="sd">        This is also similar to append(), but overwriting an old record with</span>
+<span class="sd">        the same primary key.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="fm">__setitem__</span><span class="p">(</span><span class="n">record</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">],</span> <span class="n">record</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FlatDB.append"><a class="viewcode-back" href="../ref/flatkeydb.html#flatkeydb.FlatDB.append">[docs]</a>    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add a record to the database.</span>
+
+<span class="sd">        Since the database is a dictionary, keys are unique and appending a</span>
+<span class="sd">        record with an existing key is not allowed.</span>
+<span class="sd">        If you want to overwrite the old record, use insert() instead.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">record</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">]</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">key_error_handler</span><span class="p">(</span><span class="n">record</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">record</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FlatDB.splitKeyValue"><a class="viewcode-back" href="../ref/flatkeydb.html#flatkeydb.FlatDB.splitKeyValue">[docs]</a>    <span class="k">def</span> <span class="nf">splitKeyValue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Split a line in key,value pair.</span>
+
+<span class="sd">        The field is split on the first occurrence of the `key_sep`.</span>
+<span class="sd">        Key and value are then stripped of leading and trailing whitespace.</span>
+<span class="sd">        If there is no key_sep, the whole line becomes the key and the</span>
+<span class="sd">        value is an empty string. If the key_sep is the first character,</span>
+<span class="sd">        the key becomes an empty string.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">splitKeyValue</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">key_sep</span><span class="p">)</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">lstrip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">strip_quotes</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">unQuote</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FlatDB.parseLine"><a class="viewcode-back" href="../ref/flatkeydb.html#flatkeydb.FlatDB.parseLine">[docs]</a>    <span class="k">def</span> <span class="nf">parseLine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Parse a line of the flat database file.</span>
+
+<span class="sd">        A line starting with the comment string is ignored.</span>
+<span class="sd">        Leading whitespace on the remaining lines is ignored.</span>
+<span class="sd">        Empty (blank) lines are ignored, unless the ENDREC mark was set</span>
+<span class="sd">        to an empty string, in which case they count as an end of record</span>
+<span class="sd">        if a record was started.</span>
+<span class="sd">        Lines starting with a &#39;BEGINREC&#39; mark start a new record. The</span>
+<span class="sd">        remainder of the line is then reparsed.</span>
+<span class="sd">        Lines starting with an &#39;ENDREC&#39; mark close and store the record.</span>
+<span class="sd">        All lines between the BEGINREC and ENDREC should be field definition</span>
+<span class="sd">        lines of the type &#39;KEY [ = VALUE ]&#39;.</span>
+<span class="sd">        This function returns 0 if the line was parsed correctly.</span>
+<span class="sd">        Else, the variable self.error_msg is set.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">comment</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">comment</span><span class="p">):</span>
+            <span class="k">return</span> <span class="mi">0</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">lstrip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">line</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">:</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">endrec</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">record</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># ignore empty lines in these cases</span>
+                <span class="k">return</span> <span class="mi">0</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="n">firstWord</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">w</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">endrec</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">record</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">error_msg</span> <span class="o">=</span> <span class="s2">&quot;Found endrec without previous beginrec&quot;</span>
+                <span class="k">return</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">record</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">record</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">return</span> <span class="mi">0</span>
+        <span class="k">elif</span> <span class="n">w</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">beginrec</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">record</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">endrec</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">record</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">newRecord</span><span class="p">()</span>
+                <span class="c1"># parse rest of beginrec line, if not empty</span>
+                <span class="c1"># this allows fields or comments on the beginrec line</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">w</span><span class="p">):]</span><span class="o">.</span><span class="n">lstrip</span><span class="p">()</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parseLine</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="mi">0</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">error_msg</span> <span class="o">=</span> <span class="s2">&quot;Found beginrec without previous endrec&quot;</span>
+                <span class="k">return</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">record</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">beginrec</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">record</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">newRecord</span><span class="p">()</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">error_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Unrecognized line &#39;</span><span class="si">{</span><span class="n">line</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+                    <span class="k">return</span> <span class="mi">1</span>
+            <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">splitKeyValue</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">record</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">return</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="FlatDB.parse"><a class="viewcode-back" href="../ref/flatkeydb.html#flatkeydb.FlatDB.parse">[docs]</a>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lines</span><span class="p">,</span> <span class="n">ignore</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read a database from text.</span>
+
+<span class="sd">        lines is an iterater over text lines (e.g. a text file or a</span>
+<span class="sd">        multiline string splitted on &#39;\\n&#39;)</span>
+<span class="sd">        Lines starting with a comment string are ignored.</span>
+<span class="sd">        Every record is delimited by a (beginrec,endrec) pair.</span>
+<span class="sd">        If ignore is True, all lines that are not between a (beginrec,endrec)</span>
+<span class="sd">        pair are simply ignored. Default is to raise a RuntimeError.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">record</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">linenr</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+            <span class="n">linenr</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parseLine</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">ignore</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;FlatDB: error while reading line </span><span class="si">{</span><span class="n">linenr</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot; of database (File: </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">)</span><span class="se">\n</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">error_msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FlatDB.readFile"><a class="viewcode-back" href="../ref/flatkeydb.html#flatkeydb.FlatDB.readFile">[docs]</a>    <span class="k">def</span> <span class="nf">readFile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">ignore</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read a database from file.</span>
+
+<span class="sd">        Lines starting with a comment string are ignored.</span>
+<span class="sd">        Every record is delimited by a (beginrec,endrec) pair.</span>
+<span class="sd">        If ignore is True, all lines that are not between a (beginrec,endrec)</span>
+<span class="sd">        pair are simply ignored. Default is to raise a RuntimeError.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">infile</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">infile</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+            <span class="n">lines</span> <span class="o">=</span> <span class="n">infile</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">infile</span><span class="p">:</span>
+                <span class="n">infile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="n">ignore</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FlatDB.writeFile"><a class="viewcode-back" href="../ref/flatkeydb.html#flatkeydb.FlatDB.writeFile">[docs]</a>    <span class="k">def</span> <span class="nf">writeFile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Write the database to a text file.</span>
+
+<span class="sd">        Default mode is &#39;w&#39;. Use &#39;a&#39; to append to the file.</span>
+<span class="sd">        The header is written at the start of the database. Make sure to start</span>
+<span class="sd">        each line with a comment marker if you want to read it back!</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span> <span class="k">as</span> <span class="n">fil</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">fil</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                <span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">beginrec</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+                <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="n">record</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;  </span><span class="si">%s%s%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">key_sep</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+                <span class="n">s</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">endrec</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+                <span class="n">fil</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="n">s</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FlatDB.match"><a class="viewcode-back" href="../ref/flatkeydb.html#flatkeydb.FlatDB.match">[docs]</a>    <span class="k">def</span> <span class="nf">match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a list of records matching key=value.</span>
+
+<span class="sd">        This returns a list of primary keys of the matching records.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">and</span> <span class="bp">self</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">key</span><span class="p">]</span> <span class="o">==</span> <span class="n">value</span>
+        <span class="p">]</span></div></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+
+    <span class="kn">import</span> <span class="nn">os</span>
+    <span class="n">matdb</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/data/materials.db&#39;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">matdb</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File does not exist: </span><span class="si">{</span><span class="n">matdb</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">db</span> <span class="o">=</span> <span class="n">FlatDB</span><span class="p">([</span><span class="s1">&#39;aa&#39;</span><span class="p">])</span>
+    <span class="n">db</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;aa&#39;</span><span class="p">:</span> <span class="s1">&#39;bb&#39;</span><span class="p">})</span>
+    <span class="n">db</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;aa&#39;</span><span class="p">:</span> <span class="s1">&#39;cc&#39;</span><span class="p">})</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">db</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">db</span><span class="p">[</span><span class="s1">&#39;bb&#39;</span><span class="p">])</span>
+    <span class="n">db</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;aa&#39;</span><span class="p">:</span> <span class="s1">&#39;dd&#39;</span><span class="p">}</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">db</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">db</span><span class="p">))</span>
+
+    <span class="n">mat</span> <span class="o">=</span> <span class="n">FlatDB</span><span class="p">([</span><span class="s1">&#39;name&#39;</span><span class="p">],</span> <span class="n">beginrec</span><span class="o">=</span><span class="s1">&#39;material&#39;</span><span class="p">,</span> <span class="n">endrec</span><span class="o">=</span><span class="s1">&#39;endmaterial&#39;</span><span class="p">)</span>
+    <span class="n">mat</span><span class="o">.</span><span class="n">readFile</span><span class="p">(</span><span class="n">matdb</span><span class="p">)</span>
+    <span class="n">mat</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;concrete&#39;</span><span class="p">,</span> <span class="s1">&#39;junk&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">})</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">mat</span><span class="p">)</span>
+
+    <span class="kn">import</span> <span class="nn">json</span>
+    <span class="n">js</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">mat</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">js</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;materials.json&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fil</span><span class="p">:</span>
+        <span class="n">fil</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">js</span><span class="p">)</span>
+
+    <span class="n">mat</span><span class="o">.</span><span class="n">writeFile</span><span class="p">(</span><span class="s1">&#39;materials.copy&#39;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">mat</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;steel&#39;</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">mat</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+    <span class="n">mat</span> <span class="o">=</span> <span class="n">FlatDB</span><span class="p">(</span><span class="n">req_keys</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span> <span class="n">beginrec</span><span class="o">=</span><span class="s1">&#39;material&#39;</span><span class="p">,</span> <span class="n">endrec</span><span class="o">=</span><span class="s1">&#39;endmaterial&#39;</span><span class="p">)</span>
+    <span class="n">mat</span><span class="o">.</span><span class="n">readFile</span><span class="p">(</span><span class="n">matdb</span><span class="p">)</span>
+    <span class="n">mat</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;concrete&#39;</span><span class="p">})</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">mat</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;junk&#39;</span><span class="p">:</span> <span class="s1">&#39;concrete&#39;</span><span class="p">})</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Could not append record without &#39;name&#39; field&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">mat</span><span class="p">)</span>
+    <span class="n">mat</span><span class="o">.</span><span class="n">key_error_handler</span> <span class="o">=</span> <span class="n">ignore_error</span>
+    <span class="n">mat</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;concrete&#39;</span><span class="p">})</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">mat</span><span class="p">)</span>
+
+    <span class="c1"># Variant without endmarker</span>
+    <span class="n">mat</span> <span class="o">=</span> <span class="n">FlatDB</span><span class="p">(</span><span class="n">req_keys</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span> <span class="n">beginrec</span><span class="o">=</span><span class="s1">&#39;material&#39;</span><span class="p">,</span> <span class="n">endrec</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+    <span class="n">mat</span><span class="o">.</span><span class="n">readFile</span><span class="p">(</span><span class="n">matdb</span><span class="p">,</span> <span class="n">ignore</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">mat</span><span class="p">)</span>
+
+    <span class="c1"># Variant without begin/endrec markers: records separated by blanks</span>
+    <span class="n">mat</span> <span class="o">=</span> <span class="n">FlatDB</span><span class="p">(</span><span class="n">req_keys</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span> <span class="n">beginrec</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">endrec</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+    <span class="n">mat</span><span class="o">.</span><span class="n">readFile</span><span class="p">(</span><span class="n">matdb</span><span class="p">)</span>
+
+
+<span class="c1"># End</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">flatkeydb</a></li--> 
+      </ul>
+    </div>
+    <div class="footer">
+    <span class="left">
+        &copy; Copyright 2004-2023, Benedict Verhegghe.
+    </span>
+      Last updated on Mar 27, 2023.
+    <span class="right">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.4.3.
+    </span>
+    </div>
+  </body>
+</html>

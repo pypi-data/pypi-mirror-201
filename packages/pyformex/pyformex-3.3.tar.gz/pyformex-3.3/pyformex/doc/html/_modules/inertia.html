@@ -1,0 +1,713 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!--
+##
+##  This file is part of the pyFormex project.
+##  pyFormex is a tool for generating, manipulating and transforming 3D
+##  geometrical models by sequences of mathematical operations.
+##  Home page: http://pyformex.org
+##  Project page:  http://savannah.nongnu.org/projects/pyformex/
+##  Copyright (C) Benedict Verhegghe (benedict.verhegghe@ugent.be)
+##  Distributed under the GNU General Public License version 3 or later.
+##
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see http://www.gnu.org/licenses/.
+##
+-->
+    <title>inertia &#8212; pyFormex 3.3 documentation</title>
+
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pyformex.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+<link rel="icon" type="image/png" href="../_static/pyformex_fav.png" />
+
+  </head><body>
+
+<div class="header">
+  <a href="http://pyformex.org">
+  <img src="../_static/scallop_dome_small.png" alt="scallop dome" border="0" hspace="20" vspace="12" align="left" />
+  <img src="../_static/pyformex-logo-2.png" alt="pyformex logo" border="0" hspace="10" vspace="8" align="left" />
+  </a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">inertia</a></li--> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<!-- PYFORMEX_SIDEBAR_LOGO -->
+<!-- PYFORMEX_WEBSITE_SIDEBAR_TOP -->
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for inertia</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1">##</span>
+<span class="c1">##  SPDX-FileCopyrightText: © 2007-2023 Benedict Verhegghe &lt;bverheg@gmail.com&gt;</span>
+<span class="c1">##  SPDX-License-Identifier: GPL-3.0-or-later</span>
+<span class="c1">##</span>
+<span class="c1">##  This file is part of pyFormex 3.3  (Sun Mar 26 20:16:15 CEST 2023)</span>
+<span class="c1">##  pyFormex is a tool for generating, manipulating and transforming 3D</span>
+<span class="c1">##  geometrical models by sequences of mathematical operations.</span>
+<span class="c1">##  Home page: https://pyformex.org</span>
+<span class="c1">##  Project page: https://savannah.nongnu.org/projects/pyformex/</span>
+<span class="c1">##  Development: https://gitlab.com/bverheg/pyformex</span>
+<span class="c1">##  Distributed under the GNU General Public License version 3 or later.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is free software: you can redistribute it and/or modify</span>
+<span class="c1">##  it under the terms of the GNU General Public License as published by</span>
+<span class="c1">##  the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1">##  (at your option) any later version.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is distributed in the hope that it will be useful,</span>
+<span class="c1">##  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1">##  GNU General Public License for more details.</span>
+<span class="c1">##</span>
+<span class="c1">##  You should have received a copy of the GNU General Public License</span>
+<span class="c1">##  along with this program.  If not, see http://www.gnu.org/licenses/.</span>
+<span class="c1">##</span>
+<span class="sd">&quot;&quot;&quot;Compute inertia related quantities of geometrical models.</span>
+
+<span class="sd">Inertia related quantities of a geometrical model comprise: the total mass,</span>
+<span class="sd">the center of mass, the inertia tensor, the principal axes of inertia.</span>
+
+<span class="sd">This module defines some classes to store the inertia data:</span>
+
+<span class="sd">- :class:`Tensor`: a general second order tensor</span>
+<span class="sd">- :class:`Inertia`: a specialized second order tensor for inertia data</span>
+
+<span class="sd">This module also provides the basic functions to compute the inertia data</span>
+<span class="sd">of collections of simple geometric data: points, lines, triangles, tetrahedrons.</span>
+
+<span class="sd">The prefered way to compute inertia data of a geometric model is through the</span>
+<span class="sd">:meth:`Geometry.inertia` methods.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">arraytools</span> <span class="k">as</span> <span class="n">at</span>
+<span class="kn">from</span> <span class="nn">pyformex.coords</span> <span class="kn">import</span> <span class="n">Coords</span>
+<span class="kn">from</span> <span class="nn">pyformex.formex</span> <span class="kn">import</span> <span class="n">Formex</span>
+<span class="kn">from</span> <span class="nn">pyformex.coordsys</span> <span class="kn">import</span> <span class="n">CoordSys</span>
+
+
+<div class="viewcode-block" id="Tensor"><a class="viewcode-back" href="../ref/inertia.html#inertia.Tensor">[docs]</a><span class="k">class</span> <span class="nc">Tensor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A second order symmetric(!) tensor in 3D vector space.</span>
+
+<span class="sd">    This is a new class under design. Only use for development!</span>
+
+<span class="sd">    The Tensor class provides conversion between full matrix (3,3) shape</span>
+<span class="sd">    and contracted vector (6,) shape.</span>
+<span class="sd">    It can e.g. be used to store an inertia tensor or a stress or strain</span>
+<span class="sd">    tensor.</span>
+<span class="sd">    It provides methods to transform the tensor to other (cartesian)</span>
+<span class="sd">    axes.</span>
+
+<span class="sd">    Parameters:</span>
+
+<span class="sd">    - `data`: :term:`array_like` (float) of shape (3,3) or (6,)</span>
+<span class="sd">    - `symmetric`: bool. If True (default), the tensor is forced to be</span>
+<span class="sd">      symmetric by averaging the off-diagonal elements.</span>
+<span class="sd">    - `cs`: CoordSys. The coordinate system of the tensor.</span>
+
+<span class="sd">    Properties: a Tensor T has the following properties:</span>
+
+<span class="sd">    - T.xx, T.xy, T.xz, T.yx, T.yy, T.yz, T.zx, T.zy, T.zz: aliases for</span>
+<span class="sd">      the nine components of the tensor</span>
+<span class="sd">    - T.contracted: the (6,) shaped contracted array with independent</span>
+<span class="sd">      values of the tensor</span>
+<span class="sd">    - T.tensor: the full tensor as an (3,3) array</span>
+
+<span class="sd">    Discussion:</span>
+
+<span class="sd">    - inertia and stres/strain tensors transform in the same way</span>
+<span class="sd">      on rotations of axes. But differently on translations! Should we</span>
+<span class="sd">      therefore store the purpose of the tensor??</span>
+
+<span class="sd">      * Propose to leave it to the user to know what he is doing.</span>
+<span class="sd">      * Propose to have a separate class Inertia derived from Tensor,</span>
+<span class="sd">        which implements computing the inertia tensor and translation.</span>
+
+<span class="sd">    - should we allow non-symmetrical tensors? Then what with principal?</span>
+
+<span class="sd">      * Propose to silently allow non-symm. Result of functions is what it is.</span>
+<span class="sd">        Again, suppose the user knows what he is doing.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">        &gt;&gt;&gt; t = Tensor([1,2,3,4,5,6])</span>
+<span class="sd">        &gt;&gt;&gt; print(t)</span>
+<span class="sd">        [[1. 6. 5.]</span>
+<span class="sd">         [6. 2. 4.]</span>
+<span class="sd">         [5. 4. 3.]]</span>
+<span class="sd">        &gt;&gt;&gt; print(t.contracted)</span>
+<span class="sd">        [1. 2. 3. 4. 5. 6.]</span>
+<span class="sd">        &gt;&gt;&gt; s = Tensor(t)</span>
+<span class="sd">        &gt;&gt;&gt; print(s)</span>
+<span class="sd">        [[1. 6. 5.]</span>
+<span class="sd">         [6. 2. 4.]</span>
+<span class="sd">         [5. 4. 3.]]</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_contracted_order</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]</span>
+    <span class="n">_contracted_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+        <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+    <span class="p">])</span>
+
+
+    <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="n">clas</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">symmetric</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a new Tensor instance&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">checkArray</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;f&#39;</span><span class="p">,</span> <span class="n">allow</span><span class="o">=</span><span class="s1">&#39;if&#39;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">checkArray</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,),</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;f&#39;</span><span class="p">,</span> <span class="n">allow</span><span class="o">=</span><span class="s1">&#39;if&#39;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Data should have shape (3,3) or (6,)&quot;</span><span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">Tensor</span><span class="o">.</span><span class="n">_contracted_index</span><span class="p">]</span>
+        <span class="n">ar</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">clas</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">cs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cs</span> <span class="o">=</span> <span class="n">CoordSys</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">cs</span><span class="p">,</span> <span class="n">CoordSys</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Wrong Coordinate System&#39;</span><span class="p">)</span>
+        <span class="n">ar</span><span class="o">.</span><span class="n">cs</span> <span class="o">=</span> <span class="n">cs</span>
+        <span class="k">return</span> <span class="n">ar</span>
+
+
+    <span class="k">def</span> <span class="nf">__array_finalize__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Finalize the new Matrix object.</span>
+
+<span class="sd">        When a class is derived from numpy.ndarray and the constructor (the</span>
+<span class="sd">        :meth:`__new__` method) defines new attributes, these atttributes</span>
+<span class="sd">        need to be reset in this method.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">obj</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cs</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s1">&#39;cs&#39;</span><span class="p">,</span> <span class="n">CoordSys</span><span class="p">())</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">xx</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">yy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">zz</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">yz</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">zx</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">xy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+
+    <span class="n">zy</span> <span class="o">=</span> <span class="n">yz</span>
+    <span class="n">xz</span> <span class="o">=</span> <span class="n">zx</span>
+    <span class="n">yx</span> <span class="o">=</span> <span class="n">xy</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">contracted</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returned the symmetric tensor data as a numpy array with shape (6,)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sym</span><span class="p">[</span><span class="n">Tensor</span><span class="o">.</span><span class="n">_contracted_order</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returned the tensor data as a numpy array with shape (3,3)&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">sym</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the symmetric part of the tensor.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">asym</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the antisymmetric part of the tensor.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+
+
+<div class="viewcode-block" id="Tensor.principal"><a class="viewcode-back" href="../ref/inertia.html#inertia.Tensor.principal">[docs]</a>    <span class="k">def</span> <span class="nf">principal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">right_handed</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the principal values and axes of the inertia tensor.</span>
+
+<span class="sd">        Parameters:</span>
+
+<span class="sd">        - `sort`: bool. If True (default), the return values are sorted</span>
+<span class="sd">          in order of decreasing principal values. Otherwise they are</span>
+<span class="sd">          unsorted.</span>
+<span class="sd">        - `right_handed`: bool. If True (default), the returned axis vectors</span>
+<span class="sd">          are guaranteed to form a right-handed coordinate system.</span>
+<span class="sd">          Otherwise, lef-handed systems may result)</span>
+
+<span class="sd">        Returns a tuple (prin,axes) where</span>
+
+<span class="sd">        - `prin`: is a (3,) array with the principal values,</span>
+<span class="sd">        - `axes`: is a (3,3) array with the rotation matrix that</span>
+<span class="sd">          rotates the global axes to the principal axes. This also</span>
+<span class="sd">          means that the rows of axes are the unit vectors along</span>
+<span class="sd">          the principal directions.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        &gt;&gt;&gt; t = Tensor([-19., 4.6, -8.3, 11.8, 6.45, -4.7 ])</span>
+<span class="sd">        &gt;&gt;&gt; p,a = t.principal()</span>
+<span class="sd">        &gt;&gt;&gt; print(p)</span>
+<span class="sd">        [ 11.6178  -9.0015 -25.3163]</span>
+<span class="sd">        &gt;&gt;&gt; print(a)</span>
+<span class="sd">        [[-0.0266  0.8638  0.5031]</span>
+<span class="sd">         [-0.6209  0.3802 -0.6855]</span>
+<span class="sd">         [-0.7834 -0.3306  0.5262]]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">prin</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eig</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tensor</span><span class="p">)</span>
+        <span class="n">axes</span> <span class="o">=</span> <span class="n">axes</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>  <span class="c1"># put the eigenvectors rowwise.</span>
+        <span class="k">if</span> <span class="n">sort</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">prin</span><span class="o">.</span><span class="n">argsort</span><span class="p">()[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">prin</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">prin</span><span class="p">[</span><span class="n">s</span><span class="p">],</span> <span class="n">axes</span><span class="p">[</span><span class="n">s</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">right_handed</span> <span class="ow">and</span> <span class="n">at</span><span class="o">.</span><span class="n">vectorTripleProduct</span><span class="p">(</span><span class="o">*</span><span class="n">axes</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">0.</span><span class="p">:</span>
+            <span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">prin</span><span class="p">,</span> <span class="n">axes</span></div>
+
+
+<div class="viewcode-block" id="Tensor.rotate"><a class="viewcode-back" href="../ref/inertia.html#inertia.Tensor.rotate">[docs]</a>    <span class="k">def</span> <span class="nf">rotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rot</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Transform the tensor on coordinate system rotation.</span>
+
+<span class="sd">        Note: for an inertia tensor, the inertia should have been</span>
+<span class="sd">        computed around axes through the center of mass.</span>
+<span class="sd">        See also translate.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        &gt;&gt;&gt; t = Tensor([-19., 4.6, -8.3, 11.8, 6.45, -4.7 ])</span>
+<span class="sd">        &gt;&gt;&gt; p,a = t.principal()</span>
+<span class="sd">        &gt;&gt;&gt; print(t.rotate(np.linalg.linalg.inv(a)))</span>
+<span class="sd">        [[ 11.6178   0.       0.    ]</span>
+<span class="sd">         [ -0.      -9.0015  -0.    ]</span>
+<span class="sd">         [  0.      -0.     -25.3163]]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">rot</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">checkArray</span><span class="p">(</span><span class="n">rot</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;f&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Tensor</span><span class="p">(</span><span class="n">at</span><span class="o">.</span><span class="n">atba</span><span class="p">(</span><span class="n">rot</span><span class="p">,</span> <span class="bp">self</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">cs</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">rot</span><span class="p">))</span></div></div>
+
+
+<div class="viewcode-block" id="Inertia"><a class="viewcode-back" href="../ref/inertia.html#inertia.Inertia">[docs]</a><span class="k">class</span> <span class="nc">Inertia</span><span class="p">(</span><span class="n">Tensor</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A class for storing the inertia tensor of an array of points.</span>
+
+<span class="sd">    Parameters:</span>
+
+<span class="sd">    - `X`: a Coords with shape (npoints,3). Shapes (...,3) are accepted</span>
+<span class="sd">      but will be reshaped to (npoints,3).</span>
+<span class="sd">    - `mass`: optional, (npoints,) float array with the mass of the points.</span>
+<span class="sd">      If omitted, all points have mass 1.</span>
+
+<span class="sd">      The result is a tuple of two float arrays:</span>
+
+<span class="sd">      - the center of gravity: shape (3,)</span>
+<span class="sd">      - the inertia tensor: shape (6,) with the following values (in order):</span>
+<span class="sd">        Ixx, Iyy, Izz, Iyz, Izx, Ixy</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    &gt;&gt;&gt; from .elements import Tet4</span>
+<span class="sd">    &gt;&gt;&gt; X = Tet4.vertices</span>
+<span class="sd">    &gt;&gt;&gt; print(X)</span>
+<span class="sd">    [[0. 0. 0.]</span>
+<span class="sd">     [1. 0. 0.]</span>
+<span class="sd">     [0. 1. 0.]</span>
+<span class="sd">     [0. 0. 1.]]</span>
+<span class="sd">    &gt;&gt;&gt; I = X.inertia()</span>
+<span class="sd">    &gt;&gt;&gt; print(I)</span>
+<span class="sd">    [[1.5  0.25 0.25]</span>
+<span class="sd">     [0.25 1.5  0.25]</span>
+<span class="sd">     [0.25 0.25 1.5 ]]</span>
+<span class="sd">    &gt;&gt;&gt; print(I.ctr)</span>
+<span class="sd">    [0.25 0.25 0.25]</span>
+<span class="sd">    &gt;&gt;&gt; print(I.mass)</span>
+<span class="sd">    4.0</span>
+<span class="sd">    &gt;&gt;&gt; print(I.translate(-I.ctr))</span>
+<span class="sd">    [[2. 0. 0.]</span>
+<span class="sd">     [0. 2. 0.]</span>
+<span class="sd">     [0. 0. 2.]]</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="n">clas</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">mass</span><span class="p">,</span> <span class="n">ctr</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a new Tensor instance&quot;&quot;&quot;</span>
+        <span class="n">ar</span> <span class="o">=</span> <span class="n">Tensor</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="n">clas</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+        <span class="c1"># We need mass and ctr!</span>
+        <span class="n">ar</span><span class="o">.</span><span class="n">mass</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">mass</span><span class="p">)</span>
+        <span class="n">ar</span><span class="o">.</span><span class="n">ctr</span> <span class="o">=</span> <span class="n">Coords</span><span class="p">(</span><span class="n">at</span><span class="o">.</span><span class="n">checkArray</span><span class="p">(</span><span class="n">ctr</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,),</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;f&#39;</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">ar</span>
+
+
+    <span class="k">def</span> <span class="nf">__array_finalize__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Finalize the new inertia object.</span>
+
+<span class="sd">        When a class is derived from numpy.ndarray and the constructor (the</span>
+<span class="sd">        :meth:`__new__` method) defines new attributes, these atttributes</span>
+<span class="sd">        need to be reset in this method.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">obj</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__array_finalize__</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mass</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s1">&#39;mass&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ctr</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s1">&#39;ctr&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Inertia.translate"><a class="viewcode-back" href="../ref/inertia.html#inertia.Inertia.translate">[docs]</a>    <span class="k">def</span> <span class="nf">translate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trl</span><span class="p">,</span> <span class="n">toG</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the inertia tensor around axes translated over vector trl.</span>
+
+<span class="sd">        Parameters:</span>
+
+<span class="sd">        - `trl`: arraylike (3,). Distance vector from the center of mass</span>
+<span class="sd">          to the new reference point.</span>
+<span class="sd">        - `toG`: bool. If False (default) the inertia tensor is translated to the</span>
+<span class="sd">          the  new reference point, otherwise it will be translated to its center</span>
+<span class="sd">          of mass</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">trl</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">checkArray</span><span class="p">(</span><span class="n">trl</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,),</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;f&#39;</span><span class="p">)</span>
+        <span class="n">trf</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">trl</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">trl</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+        <span class="n">ind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag_indices</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+        <span class="n">trf</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">trl</span><span class="p">,</span> <span class="n">trl</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">toG</span><span class="p">:</span>
+            <span class="n">trf</span> <span class="o">=</span> <span class="o">-</span><span class="n">trf</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tensor</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">mass</span> <span class="o">*</span> <span class="n">trf</span></div>
+
+
+<div class="viewcode-block" id="Inertia.translateTo"><a class="viewcode-back" href="../ref/inertia.html#inertia.Inertia.translateTo">[docs]</a>    <span class="k">def</span> <span class="nf">translateTo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref</span><span class="p">,</span> <span class="n">toG</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the inertia tensor around axes translated to the reference</span>
+<span class="sd">        point ref.</span>
+
+<span class="sd">        Parameters:</span>
+
+<span class="sd">        - `ref`: arraylike (3,). The new reference point coordinates.</span>
+<span class="sd">        - `toG`: bool. If False (default) the inertia tensor is translated to the</span>
+<span class="sd">          the  new reference point, otherwise it will be translated to its center</span>
+<span class="sd">          of mass</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">trl</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">checkArray</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,),</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;f&#39;</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">ctr</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">trl</span><span class="p">,</span> <span class="n">toG</span><span class="o">=</span><span class="n">toG</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Inertia.toCS"><a class="viewcode-back" href="../ref/inertia.html#inertia.Inertia.toCS">[docs]</a>    <span class="k">def</span> <span class="nf">toCS</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Transform the coordinates to another CoordSys.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Inertia.toCS is currently not implemented&quot;</span><span class="p">)</span></div></div>
+        <span class="c1"># We need to check the following (after transposing CoordSys.rot)</span>
+        <span class="c1"># return self.tensor.translateTo(cs.trl) + self.tensor.rotate(</span>
+        <span class="c1">#     np.dot(self.CS.rot.T, cs.rot))</span>
+
+
+<div class="viewcode-block" id="point_inertia"><a class="viewcode-back" href="../ref/inertia.html#inertia.point_inertia">[docs]</a><span class="k">def</span> <span class="nf">point_inertia</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">mass</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">center_only</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Compute the total mass, center of mass and inertia tensor mass points.</span>
+
+<span class="sd">    Parameters:</span>
+
+<span class="sd">    - `X`: a Coords with shape (npoints,3). Shapes (...,3) are accepted</span>
+<span class="sd">      but will be reshaped to (npoints,3).</span>
+<span class="sd">    - `mass`: optional, (npoints,) float array with the mass of the points.</span>
+<span class="sd">      If omitted, all points have mass 1.</span>
+<span class="sd">    - `center_only`: bool: if True, only returns the total mass and center</span>
+<span class="sd">      of mass.</span>
+
+<span class="sd">    Returns a tuple (M,C,I) where M is the total mass of all points, C is</span>
+<span class="sd">    the center of mass, and I is the inertia tensor in the central coordinate</span>
+<span class="sd">    system, i.e. a coordinate system with axes paralle to the global axes</span>
+<span class="sd">    but origin at the (computed) center of mass. If `center_only` is True,</span>
+<span class="sd">    returns the tuple (M,C) only. On large models this is more effective</span>
+<span class="sd">    in case you do not need the inertia tensor.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">Coords</span><span class="p">(</span><span class="n">X</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="n">npoints</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">mass</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">mass</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">checkArray</span><span class="p">(</span><span class="n">mass</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">npoints</span><span class="p">,),</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;f&#39;</span><span class="p">)</span>
+        <span class="n">mass</span> <span class="o">=</span> <span class="n">mass</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">M</span> <span class="o">=</span> <span class="n">mass</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="n">C</span> <span class="o">=</span> <span class="p">(</span><span class="n">X</span><span class="o">*</span><span class="n">mass</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="n">M</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">M</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">npoints</span><span class="p">)</span>
+        <span class="n">C</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">center_only</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">M</span><span class="p">,</span> <span class="n">C</span>
+
+    <span class="n">Xc</span> <span class="o">=</span> <span class="n">X</span> <span class="o">-</span> <span class="n">C</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">Xc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">Xc</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">Xc</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span>
+    <span class="n">xx</span><span class="p">,</span> <span class="n">yy</span><span class="p">,</span> <span class="n">zz</span><span class="p">,</span> <span class="n">yz</span><span class="p">,</span> <span class="n">zx</span><span class="p">,</span> <span class="n">xy</span> <span class="o">=</span> <span class="n">x</span><span class="o">*</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">*</span><span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="o">*</span><span class="n">z</span><span class="p">,</span> <span class="n">y</span><span class="o">*</span><span class="n">z</span><span class="p">,</span> <span class="n">z</span><span class="o">*</span><span class="n">x</span><span class="p">,</span> <span class="n">x</span><span class="o">*</span><span class="n">y</span>
+    <span class="n">I</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">([</span><span class="n">yy</span><span class="o">+</span><span class="n">zz</span><span class="p">,</span> <span class="n">zz</span><span class="o">+</span><span class="n">xx</span><span class="p">,</span> <span class="n">xx</span><span class="o">+</span><span class="n">yy</span><span class="p">,</span> <span class="o">-</span><span class="n">yz</span><span class="p">,</span> <span class="o">-</span><span class="n">zx</span><span class="p">,</span> <span class="o">-</span><span class="n">xy</span><span class="p">])</span>  <span class="c1"># noqa: E741</span>
+    <span class="k">if</span> <span class="n">mass</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">I</span> <span class="o">*=</span> <span class="n">mass</span>  <span class="c1"># noqa: E741</span>
+    <span class="n">I</span> <span class="o">=</span> <span class="n">I</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># noqa: E741</span>
+    <span class="k">return</span> <span class="n">M</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">I</span></div>
+
+
+<div class="viewcode-block" id="surface_volume"><a class="viewcode-back" href="../ref/inertia.html#inertia.surface_volume">[docs]</a><span class="k">def</span> <span class="nf">surface_volume</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">pt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return the volume inside a 3-plex Formex.</span>
+
+<span class="sd">    - `x`: an (ntri,3,3) shaped float array, representing ntri triangles.</span>
+<span class="sd">    - `pt`: a point in space. If unspecified, it is taken equal to the</span>
+<span class="sd">      origin of the global coordinate system ([0.,0.,0.]).</span>
+
+<span class="sd">    Returns an (ntri) shaped array with the volume of the tetrahedrons formed</span>
+<span class="sd">    by the triangles and the point `pt`. Triangles with an outer normal</span>
+<span class="sd">    pointing away from `pt` will generate positive tetrahral volumes, while</span>
+<span class="sd">    triangles having `pt` at the side of their positive normal will generate</span>
+<span class="sd">    negative volumes. In any case, if `x` represents a closed surface,</span>
+<span class="sd">    the algebraic sum of all the volumes is the total volume inside the surface.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">checkArray</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;f&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">pt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">x</span> <span class="o">-=</span> <span class="n">pt</span>
+    <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[:,</span> <span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
+    <span class="n">e</span> <span class="o">=</span> <span class="p">(</span><span class="n">a</span><span class="o">*</span><span class="n">d</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">e</span> <span class="o">/</span> <span class="mi">6</span></div>
+
+
+<div class="viewcode-block" id="surface_volume_inertia"><a class="viewcode-back" href="../ref/inertia.html#inertia.surface_volume_inertia">[docs]</a><span class="k">def</span> <span class="nf">surface_volume_inertia</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">center_only</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return the inertia of the volume inside a 3-plex Formex.</span>
+
+<span class="sd">    - `x`: an (ntri,3,3) shaped float array, representing ntri triangles.</span>
+
+<span class="sd">    This uses the same algorithm as tetrahedral_inertia using [0.,0.,0.]</span>
+<span class="sd">    as the 4-th point for each tetrahedron.</span>
+
+<span class="sd">    Returns a tuple (V,C,I) where V is the total volume,</span>
+<span class="sd">    C is the center of mass (3,) and I is the inertia tensor (6,) of the</span>
+<span class="sd">    tetrahedral model.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    &gt;&gt;&gt; from .simple import sphere</span>
+<span class="sd">    &gt;&gt;&gt; S = sphere(4).toFormex()</span>
+<span class="sd">    &gt;&gt;&gt; V,C,I = surface_volume_inertia(S.coords)</span>
+<span class="sd">    &gt;&gt;&gt; print(V,C,I)</span>
+<span class="sd">    4.0470057 [-0. -0. -0.] [ 1.5821  1.5821  1.5821 -0.      0.      0.    ]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">K</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">x3</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">x</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span>
+        <span class="n">y1</span><span class="p">,</span> <span class="n">y2</span><span class="p">,</span> <span class="n">y3</span> <span class="o">=</span> <span class="n">y</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">y</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">y</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">x1</span> <span class="o">*</span> <span class="p">(</span><span class="n">y1</span><span class="o">+</span><span class="n">y2</span><span class="o">+</span><span class="n">y3</span><span class="p">)</span> <span class="o">+</span> <span class="n">x2</span> <span class="o">*</span> <span class="p">(</span><span class="n">y2</span><span class="o">+</span><span class="n">y3</span><span class="p">)</span> <span class="o">+</span> <span class="n">x3</span> <span class="o">*</span> <span class="p">(</span><span class="n">y3</span><span class="p">)</span>
+
+    <span class="n">x</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">checkArray</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;f&#39;</span><span class="p">)</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">surface_volume</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">V</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mf">4.</span>  <span class="c1"># 4-th point is 0.,0.,0.</span>
+    <span class="n">C</span> <span class="o">=</span> <span class="p">(</span><span class="n">c</span><span class="o">*</span><span class="n">v</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="n">V</span>
+    <span class="k">if</span> <span class="n">center_only</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">V</span><span class="p">,</span> <span class="n">C</span>
+
+    <span class="n">x</span> <span class="o">-=</span> <span class="n">C</span>
+    <span class="n">aa</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">K</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="n">v</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">aa</span> <span class="o">=</span> <span class="n">aa</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">a0</span> <span class="o">=</span> <span class="n">aa</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">aa</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">a1</span> <span class="o">=</span> <span class="n">aa</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">aa</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">a2</span> <span class="o">=</span> <span class="n">aa</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">aa</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">x0</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+    <span class="n">a3</span> <span class="o">=</span> <span class="p">((</span><span class="n">K</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">)</span> <span class="o">+</span> <span class="n">K</span><span class="p">(</span><span class="n">x2</span><span class="p">,</span> <span class="n">x1</span><span class="p">))</span> <span class="o">*</span> <span class="n">v</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">a4</span> <span class="o">=</span> <span class="p">((</span><span class="n">K</span><span class="p">(</span><span class="n">x2</span><span class="p">,</span> <span class="n">x0</span><span class="p">)</span> <span class="o">+</span> <span class="n">K</span><span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">x2</span><span class="p">))</span> <span class="o">*</span> <span class="n">v</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">a5</span> <span class="o">=</span> <span class="p">((</span><span class="n">K</span><span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">x1</span><span class="p">)</span> <span class="o">+</span> <span class="n">K</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">x0</span><span class="p">))</span> <span class="o">*</span> <span class="n">v</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">I</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">a0</span><span class="p">,</span> <span class="n">a1</span><span class="p">,</span> <span class="n">a2</span><span class="p">,</span> <span class="n">a3</span><span class="p">,</span> <span class="n">a4</span><span class="p">,</span> <span class="n">a5</span><span class="p">])</span> <span class="o">/</span> <span class="mf">20.</span>  <span class="c1"># noqa: E741</span>
+    <span class="k">return</span> <span class="n">V</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">I</span></div>
+
+
+<div class="viewcode-block" id="tetrahedral_volume"><a class="viewcode-back" href="../ref/inertia.html#inertia.tetrahedral_volume">[docs]</a><span class="k">def</span> <span class="nf">tetrahedral_volume</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Compute the volume of tetrahedrons.</span>
+
+<span class="sd">    - `x`: an (ntet,4,3) shaped float array, representing ntet tetrahedrons.</span>
+
+<span class="sd">    Returns an (ntet,) shaped array with the volume of the tetrahedrons.</span>
+<span class="sd">    Depending on the ordering of the points, this volume may be positive</span>
+<span class="sd">    or negative. It will be positive if point 4 is on the side of the positive</span>
+<span class="sd">    normal formed by the first 3 points.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">checkArray</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;f&#39;</span><span class="p">)</span>
+    <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[:,</span> <span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">,</span> <span class="p">:]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
+    <span class="n">e</span> <span class="o">=</span> <span class="p">(</span><span class="n">a</span><span class="o">*</span><span class="n">d</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="o">-</span><span class="n">e</span> <span class="o">/</span> <span class="mi">6</span></div>
+
+
+<div class="viewcode-block" id="tetrahedral_inertia"><a class="viewcode-back" href="../ref/inertia.html#inertia.tetrahedral_inertia">[docs]</a><span class="k">def</span> <span class="nf">tetrahedral_inertia</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">center_only</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return the inertia of the volume of a 4-plex Formex.</span>
+
+<span class="sd">    Parameters:</span>
+
+<span class="sd">    - `x`: an (ntet,4,3) shaped float array, representing ntet tetrahedrons.</span>
+<span class="sd">    - `density`: optional mass density (ntet,) per tetrahedron</span>
+<span class="sd">    - `center_only`: bool. If True, returns only the total volume, total mass</span>
+<span class="sd">      and center of gravity. This may be used on large models when only these</span>
+<span class="sd">      quantities are required.</span>
+
+<span class="sd">    Returns a tuple (V,M,C,I) where V is the total volume, M is the total mass,</span>
+<span class="sd">    C is the center of mass (3,) and I is the inertia tensor (6,) of the</span>
+<span class="sd">    tetrahedral model.</span>
+
+<span class="sd">    Formulas for inertia were based on F. Tonon, J. Math &amp; Stat, 1(1):8-11,2005</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    &gt;&gt;&gt; x = Coords([</span>
+<span class="sd">    ...     [  8.33220, -11.86875,  0.93355 ],</span>
+<span class="sd">    ...     [  0.75523,   5.00000, 16.37072 ],</span>
+<span class="sd">    ...     [ 52.61236,   5.00000, -5.38580 ],</span>
+<span class="sd">    ...     [  2.000000,  5.00000,  3.00000 ],</span>
+<span class="sd">    ...     ])</span>
+<span class="sd">    &gt;&gt;&gt; F = Formex([x])</span>
+<span class="sd">    &gt;&gt;&gt; print(tetrahedral_center(F.coords))</span>
+<span class="sd">    [15.9249  0.7828  3.7296]</span>
+<span class="sd">    &gt;&gt;&gt; print(tetrahedral_volume(F.coords))</span>
+<span class="sd">    [1873.2333]</span>
+<span class="sd">    &gt;&gt;&gt; print(*tetrahedral_inertia(F.coords))</span>
+<span class="sd">    1873.2333 1873.2333 [15.9249  0.7828  3.7296] \</span>
+<span class="sd">    [ 43520.324 194711.28  191168.77    4417.661 -46343.164  11996.201]</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">K</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">x3</span><span class="p">,</span> <span class="n">x4</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">x</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">x</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">]</span>
+        <span class="n">y1</span><span class="p">,</span> <span class="n">y2</span><span class="p">,</span> <span class="n">y3</span><span class="p">,</span> <span class="n">y4</span> <span class="o">=</span> <span class="n">y</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">y</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">y</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">y</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">x1</span> <span class="o">*</span> <span class="p">(</span><span class="n">y1</span><span class="o">+</span><span class="n">y2</span><span class="o">+</span><span class="n">y3</span><span class="o">+</span><span class="n">y4</span><span class="p">)</span> <span class="o">+</span> <span class="n">x2</span> <span class="o">*</span> <span class="p">(</span><span class="n">y2</span><span class="o">+</span><span class="n">y3</span><span class="o">+</span><span class="n">y4</span><span class="p">)</span> <span class="o">+</span> <span class="n">x3</span> <span class="o">*</span> <span class="p">(</span><span class="n">y3</span><span class="o">+</span><span class="n">y4</span><span class="p">)</span> <span class="o">+</span> <span class="n">x4</span> <span class="o">*</span> <span class="p">(</span><span class="n">y4</span><span class="p">)</span>
+
+    <span class="n">x</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">checkArray</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;f&#39;</span><span class="p">)</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">tetrahedral_volume</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">V</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">density</span><span class="p">:</span>
+        <span class="n">v</span> <span class="o">*=</span> <span class="n">density</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">Formex</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">centroids</span><span class="p">()</span>
+    <span class="n">M</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="n">C</span> <span class="o">=</span> <span class="p">(</span><span class="n">c</span><span class="o">*</span><span class="n">v</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="n">M</span>
+    <span class="k">if</span> <span class="n">center_only</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">V</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">C</span>
+
+    <span class="n">x</span> <span class="o">-=</span> <span class="n">C</span>
+    <span class="n">aa</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">K</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="n">v</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">aa</span> <span class="o">=</span> <span class="n">aa</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">a0</span> <span class="o">=</span> <span class="n">aa</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">aa</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">a1</span> <span class="o">=</span> <span class="n">aa</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">aa</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">a2</span> <span class="o">=</span> <span class="n">aa</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">aa</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">x0</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+    <span class="n">a3</span> <span class="o">=</span> <span class="p">((</span><span class="n">K</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">)</span> <span class="o">+</span> <span class="n">K</span><span class="p">(</span><span class="n">x2</span><span class="p">,</span> <span class="n">x1</span><span class="p">))</span> <span class="o">*</span> <span class="n">v</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">a4</span> <span class="o">=</span> <span class="p">((</span><span class="n">K</span><span class="p">(</span><span class="n">x2</span><span class="p">,</span> <span class="n">x0</span><span class="p">)</span> <span class="o">+</span> <span class="n">K</span><span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">x2</span><span class="p">))</span> <span class="o">*</span> <span class="n">v</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">a5</span> <span class="o">=</span> <span class="p">((</span><span class="n">K</span><span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">x1</span><span class="p">)</span> <span class="o">+</span> <span class="n">K</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">x0</span><span class="p">))</span> <span class="o">*</span> <span class="n">v</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">I</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">a0</span><span class="p">,</span> <span class="n">a1</span><span class="p">,</span> <span class="n">a2</span><span class="p">,</span> <span class="n">a3</span><span class="p">,</span> <span class="n">a4</span><span class="p">,</span> <span class="n">a5</span><span class="p">])</span> <span class="o">/</span> <span class="mf">20.</span>  <span class="c1"># noqa: E741</span>
+    <span class="k">return</span> <span class="n">V</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">I</span></div>
+
+
+<div class="viewcode-block" id="tetrahedral_center"><a class="viewcode-back" href="../ref/inertia.html#inertia.tetrahedral_center">[docs]</a><span class="k">def</span> <span class="nf">tetrahedral_center</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Compute the center of mass of a collection of tetrahedrons.</span>
+
+<span class="sd">    - `x`: an (ntet,4,3) shaped float array, representing ntet tetrahedrons.</span>
+<span class="sd">    - `density`: optional mass density (ntet,) per tetrahedron. Default 1.</span>
+
+<span class="sd">    Returns a (3,) shaped array with the center of mass.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">tetrahedral_inertia</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">center_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">2</span><span class="p">]</span></div>
+
+
+<span class="c1"># Kept for compatibility</span>
+<span class="n">inertia</span> <span class="o">=</span> <span class="n">point_inertia</span>
+
+
+<span class="c1"># End</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">inertia</a></li--> 
+      </ul>
+    </div>
+    <div class="footer">
+    <span class="left">
+        &copy; Copyright 2004-2023, Benedict Verhegghe.
+    </span>
+      Last updated on Mar 27, 2023.
+    <span class="right">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.4.3.
+    </span>
+    </div>
+  </body>
+</html>

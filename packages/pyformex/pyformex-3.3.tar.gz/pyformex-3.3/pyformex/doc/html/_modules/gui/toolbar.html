@@ -1,0 +1,774 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!--
+##
+##  This file is part of the pyFormex project.
+##  pyFormex is a tool for generating, manipulating and transforming 3D
+##  geometrical models by sequences of mathematical operations.
+##  Home page: http://pyformex.org
+##  Project page:  http://savannah.nongnu.org/projects/pyformex/
+##  Copyright (C) Benedict Verhegghe (benedict.verhegghe@ugent.be)
+##  Distributed under the GNU General Public License version 3 or later.
+##
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see http://www.gnu.org/licenses/.
+##
+-->
+    <title>gui.toolbar &#8212; pyFormex 3.3 documentation</title>
+
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pyformex.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+<link rel="icon" type="image/png" href="../../_static/pyformex_fav.png" />
+
+  </head><body>
+
+<div class="header">
+  <a href="http://pyformex.org">
+  <img src="../../_static/scallop_dome_small.png" alt="scallop dome" border="0" hspace="20" vspace="12" align="left" />
+  <img src="../../_static/pyformex-logo-2.png" alt="pyformex logo" border="0" hspace="10" vspace="8" align="left" />
+  </a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">gui.toolbar</a></li--> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<!-- PYFORMEX_SIDEBAR_LOGO -->
+<!-- PYFORMEX_WEBSITE_SIDEBAR_TOP -->
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for gui.toolbar</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1">##</span>
+<span class="c1">##  SPDX-FileCopyrightText: © 2007-2023 Benedict Verhegghe &lt;bverheg@gmail.com&gt;</span>
+<span class="c1">##  SPDX-License-Identifier: GPL-3.0-or-later</span>
+<span class="c1">##</span>
+<span class="c1">##  This file is part of pyFormex 3.3  (Sun Mar 26 20:16:15 CEST 2023)</span>
+<span class="c1">##  pyFormex is a tool for generating, manipulating and transforming 3D</span>
+<span class="c1">##  geometrical models by sequences of mathematical operations.</span>
+<span class="c1">##  Home page: https://pyformex.org</span>
+<span class="c1">##  Project page: https://savannah.nongnu.org/projects/pyformex/</span>
+<span class="c1">##  Development: https://gitlab.com/bverheg/pyformex</span>
+<span class="c1">##  Distributed under the GNU General Public License version 3 or later.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is free software: you can redistribute it and/or modify</span>
+<span class="c1">##  it under the terms of the GNU General Public License as published by</span>
+<span class="c1">##  the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1">##  (at your option) any later version.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is distributed in the hope that it will be useful,</span>
+<span class="c1">##  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1">##  GNU General Public License for more details.</span>
+<span class="c1">##</span>
+<span class="c1">##  You should have received a copy of the GNU General Public License</span>
+<span class="c1">##  along with this program.  If not, see http://www.gnu.org/licenses/.</span>
+<span class="c1">##</span>
+<span class="sd">&quot;&quot;&quot;Toolbars for the pyFormex GUI.</span>
+
+<span class="sd">This module defines the functions for creating the pyFormex window toolbars.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">pyformex</span> <span class="k">as</span> <span class="nn">pf</span>
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">pyformex.gui</span> <span class="kn">import</span> <span class="n">QtGui</span><span class="p">,</span> <span class="n">QPixmap</span>
+<span class="kn">from</span> <span class="nn">pyformex.gui</span> <span class="kn">import</span> <span class="n">widgets</span>
+
+
+<span class="c1">############################## functions for the pick button ############</span>
+
+
+<div class="viewcode-block" id="pick"><a class="viewcode-back" href="../../ref/gui.toolbar.html#gui.toolbar.pick">[docs]</a><span class="k">def</span> <span class="nf">pick</span><span class="p">(</span><span class="n">mode</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">tool</span><span class="o">=</span><span class="s1">&#39;pix&#39;</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">oneshot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+         <span class="n">func</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pickable</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">prompt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_rect</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">minobj</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+         <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Enter interactive picking mode and return selection.</span>
+
+<span class="sd">    See :func:`gui.qtcanvas.Canvas.pick` for more details.</span>
+<span class="sd">    This function differs in that it provides an extra interactive interface</span>
+<span class="sd">    in the statusbar: OK/Cancel buttons to stop the picking operation,</span>
+<span class="sd">    and comboboxes to change the picking tool and filters.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mode: str</span>
+<span class="sd">        Defines what to pick : one of &#39;actor&#39;, &#39;element&#39; or &#39;point&#39;.</span>
+<span class="sd">        &#39;actor&#39; picks complete actors. &#39;element&#39; picks elements from one or</span>
+<span class="sd">        more actor(s). &#39;point&#39; picks points of Formices or nodes of Meshes.</span>
+<span class="sd">    tool: str</span>
+<span class="sd">        Defines what picking tool to use. One of &#39;pix&#39;, &#39;any&#39; or &#39;all&#39;.</span>
+<span class="sd">        With &#39;pix&#39; items are picked if they have any visible pixels in the</span>
+<span class="sd">        pick rectangle. With &#39;any&#39;, items are picked if any of their points</span>
+<span class="sd">        are inside the pick rectangle. With &#39;all&#39;, items are picked if all</span>
+<span class="sd">        their points are inside the rectangle.</span>
+<span class="sd">    filter: str</span>
+<span class="sd">        The picking filter that is activated on entering the pick mode.</span>
+<span class="sd">        It should be one of the Canvas.selection_filters: &#39;none&#39;, &#39;single&#39;,</span>
+<span class="sd">        &#39;closest&#39;, &#39;connected&#39;.</span>
+<span class="sd">        The active filter can be changed from a combobox in the statusbar.</span>
+<span class="sd">        The available filters depend on the picking tool.</span>
+<span class="sd">    oneshot: bool.</span>
+<span class="sd">        If True, the function returns as soon as the user ends</span>
+<span class="sd">        a picking operation. The default is to let the user</span>
+<span class="sd">        modify his selection and to return only after an explicit</span>
+<span class="sd">        cancel (ESC or right mouse button).</span>
+<span class="sd">    func: callable, optional</span>
+<span class="sd">        If specified, this function will be called after each</span>
+<span class="sd">        atomic pick operation. The Collection with the currently selected</span>
+<span class="sd">        objects is passed as an argument. This can e.g. be used to highlight</span>
+<span class="sd">        the selected objects during picking.</span>
+<span class="sd">    pickable: list of Actors, optional</span>
+<span class="sd">        List of Actors from which can be picked. The default is to use</span>
+<span class="sd">        a list with all Actors having the pickable=True attribute (which is</span>
+<span class="sd">        the default for newly constructed Actors).</span>
+<span class="sd">    prompt: str</span>
+<span class="sd">        The text printed to prompt the user to start picking. If None,</span>
+<span class="sd">        a default prompt is printed. Specify an empty string to avoid printing</span>
+<span class="sd">        a prompt.</span>
+<span class="sd">    minobj: int</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Collection</span>
+<span class="sd">        A (possibly empty) Collection with the picked items.</span>
+<span class="sd">        After return, the value of the pf.canvas.selection_accepted variable</span>
+<span class="sd">        can be tested to find how the picking operation was exited:</span>
+<span class="sd">        True means accepted (right mouse click, ENTER key, or OK button),</span>
+<span class="sd">        False means canceled (ESC key, or Cancel button). In the latter case,</span>
+<span class="sd">        the returned Collection is always empty. Ther returned Collection</span>
+<span class="sd">        also remains available in pf.canvas.selection until a new pick is</span>
+<span class="sd">        started.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">pyformex.gui</span> <span class="kn">import</span> <span class="n">draw</span>
+
+    <span class="k">def</span> <span class="nf">_tool_filter_choices</span><span class="p">(</span><span class="n">tool</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the possible selection filters for the tool&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;element&#39;</span><span class="p">:</span>
+            <span class="n">filters</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">selection_filters</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">filters</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">selection_filters</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">filters</span>
+
+    <span class="k">def</span> <span class="nf">_set_selection_filter</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the selection filter mode</span>
+
+<span class="sd">        This function is used to change the selection filter from the</span>
+<span class="sd">        selection InputCombo widget.</span>
+<span class="sd">        s is one of the strings in selection_filters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">pick_mode</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">pf</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">selection_filters</span><span class="p">:</span>
+            <span class="c1"># filter changed during picking: restart</span>
+            <span class="n">pf</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">start_selection</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">pick_tool</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_set_pick_tool</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the value of the pick tool (first 3 chars)&quot;&quot;&quot;</span>
+        <span class="k">nonlocal</span> <span class="n">filters</span><span class="p">,</span> <span class="n">filter_combo</span><span class="p">,</span> <span class="n">tool</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">pick_tool</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">value</span><span class="p">()[:</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="n">filters</span> <span class="o">=</span> <span class="n">_tool_filter_choices</span><span class="p">(</span><span class="n">tool</span><span class="p">)</span>
+        <span class="c1">#print(&quot;CHANGE FILTERS&quot;,tool,filters)</span>
+        <span class="n">filter_combo</span><span class="o">.</span><span class="n">setChoices</span><span class="p">(</span><span class="n">filters</span><span class="p">)</span>
+        <span class="n">filter_combo</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="n">filters</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">pick_mode</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">draw</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;You need to finish the previous picking operation first!&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="k">if</span> <span class="n">mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">pf</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">pick_modes</span><span class="p">:</span>
+        <span class="n">draw</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid picking </span><span class="si">{</span><span class="n">mode</span><span class="si">=}</span><span class="s2">. &quot;</span>
+                     <span class="sa">f</span><span class="s2">&quot;Expected one of </span><span class="si">{</span><span class="n">pf</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">pick_modes</span><span class="si">=}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="n">pick_buttons</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">ButtonBox</span><span class="p">(</span><span class="s1">&#39;Selection:&#39;</span><span class="p">,</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s1">&#39;Cancel&#39;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">cancel_selection</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">&#39;OK&#39;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">accept_selection</span><span class="p">)])</span>
+    <span class="c1"># combobox for filter selection</span>
+    <span class="n">filters</span> <span class="o">=</span> <span class="n">_tool_filter_choices</span><span class="p">(</span><span class="n">tool</span><span class="p">)</span>
+    <span class="n">filter_combo</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">InputCombo</span><span class="p">(</span>
+        <span class="s1">&#39;Filter:&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">filters</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="n">_set_selection_filter</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">filter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">filter</span> <span class="ow">in</span> <span class="n">filters</span><span class="p">:</span>
+        <span class="n">filter_combo</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="nb">filter</span><span class="p">)</span>
+    <span class="c1"># combobox for tool switching</span>
+    <span class="n">pick_tools</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;pix&#39;</span><span class="p">:</span> <span class="s1">&#39;Pixels&#39;</span><span class="p">,</span> <span class="s1">&#39;any&#39;</span><span class="p">:</span> <span class="s1">&#39;Any Point&#39;</span><span class="p">,</span> <span class="s1">&#39;all&#39;</span><span class="p">:</span> <span class="s1">&#39;All Points&#39;</span><span class="p">}</span>
+    <span class="n">txt</span> <span class="o">=</span> <span class="n">pick_tools</span><span class="p">[</span><span class="n">tool</span><span class="p">]</span>
+    <span class="n">tool_combo</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">InputCombo</span><span class="p">(</span>
+        <span class="s1">&#39;Pick by &#39;</span><span class="p">,</span> <span class="n">txt</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">pick_tools</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span>
+        <span class="n">func</span><span class="o">=</span><span class="n">_set_pick_tool</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">prompt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Pick: Mode </span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2">; Tool </span><span class="si">{</span><span class="n">tool</span><span class="si">}</span><span class="s2">; Filter </span><span class="si">{</span><span class="nb">filter</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">if</span> <span class="n">prompt</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">statusbar</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">pick_buttons</span><span class="p">)</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">statusbar</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">filter_combo</span><span class="p">)</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">statusbar</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">tool_combo</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">debugon</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">PICK</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;PICK </span><span class="si">{</span><span class="n">mode</span><span class="si">=}</span><span class="s2">, </span><span class="si">{</span><span class="n">tool</span><span class="si">=}</span><span class="s2">, </span><span class="si">{</span><span class="n">func</span><span class="si">=}</span><span class="s2">, </span><span class="si">{</span><span class="nb">filter</span><span class="si">=}</span><span class="s2">, &quot;</span>
+                  <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">pickable</span><span class="si">=}</span><span class="s2">, </span><span class="si">{</span><span class="n">_rect</span><span class="si">=}</span><span class="s2">, </span><span class="si">{</span><span class="n">minobj</span><span class="si">=}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">sel</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">pick</span><span class="p">(</span><span class="n">mode</span><span class="p">,</span> <span class="n">tool</span><span class="p">,</span> <span class="n">oneshot</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span>
+                                 <span class="nb">filter</span><span class="p">,</span> <span class="n">pickable</span><span class="p">,</span> <span class="n">_rect</span><span class="p">,</span> <span class="n">minobj</span><span class="p">)</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="c1"># cleanup</span>
+        <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">pick_mode</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">pf</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">finish_selection</span><span class="p">()</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">statusbar</span><span class="o">.</span><span class="n">removeWidget</span><span class="p">(</span><span class="n">pick_buttons</span><span class="p">)</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">statusbar</span><span class="o">.</span><span class="n">removeWidget</span><span class="p">(</span><span class="n">filter_combo</span><span class="p">)</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">statusbar</span><span class="o">.</span><span class="n">removeWidget</span><span class="p">(</span><span class="n">tool_combo</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">sel</span></div>
+
+
+<div class="viewcode-block" id="picksel"><a class="viewcode-back" href="../../ref/gui.toolbar.html#gui.toolbar.picksel">[docs]</a><span class="k">def</span> <span class="nf">picksel</span><span class="p">(</span><span class="n">obj_type</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Pick and print selection&quot;&quot;&quot;</span>
+    <span class="n">sel</span> <span class="o">=</span> <span class="n">pick</span><span class="p">(</span><span class="n">obj_type</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">sel</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">report_func</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">pyformex.plugins</span> <span class="kn">import</span> <span class="n">tools</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">removeHighlight</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">highlightSelection</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">picked</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">tools</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">picked</span><span class="p">))</span>
+
+
+<div class="viewcode-block" id="query"><a class="viewcode-back" href="../../ref/gui.toolbar.html#gui.toolbar.query">[docs]</a><span class="k">def</span> <span class="nf">query</span><span class="p">(</span><span class="n">obj_type</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Enter interactive query mode.</span>
+
+<span class="sd">    Enters a continuous picking mode where the user can pick objects</span>
+<span class="sd">    and the picked objects are reported in detail. This is usually called</span>
+<span class="sd">    from the toolbar Query buttons. The query mode stays active until</span>
+<span class="sd">    the user cancels pick mode (with ESC or right mouse button). distan</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    obj_type: str</span>
+<span class="sd">        Defines what to pick : one of &#39;actor&#39;, &#39;element&#39; or &#39;point&#39;</span>
+<span class="sd">    **kargs:</span>
+<span class="sd">        Extra parameters to be passed to :func:`pick`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">pick</span><span class="p">(</span><span class="n">obj_type</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="n">report_func</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">)</span></div>
+
+
+<span class="c1"># TODO: we could have a mode that shows distance on every point selected</span>
+<div class="viewcode-block" id="query_distance"><a class="viewcode-back" href="../../ref/gui.toolbar.html#gui.toolbar.query_distance">[docs]</a><span class="k">def</span> <span class="nf">query_distance</span><span class="p">(</span><span class="n">colorid</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">colorstep</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">prec</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Enter interactive distance query mode</span>
+
+<span class="sd">    In distance query mode, the user picks subsequent single points.</span>
+<span class="sd">    For every second point picked, the distance to the previous point</span>
+<span class="sd">    is shown. The distances are shown and printed with subsequent colors</span>
+<span class="sd">    from the canvas default colormap or from a custom colormap in</span>
+<span class="sd">    pf.cfg[&#39;draw/querypalette&#39;].</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+    <span class="kn">from</span> <span class="nn">pyformex.formex</span> <span class="kn">import</span> <span class="n">Formex</span>
+    <span class="kn">from</span> <span class="nn">pyformex.gui</span> <span class="kn">import</span> <span class="n">draw</span>
+    <span class="k">if</span> <span class="n">prec</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">prec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">get_printoptions</span><span class="p">()[</span><span class="s1">&#39;precision&#39;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">every2_showdistance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">nonlocal</span> <span class="n">points</span><span class="p">,</span> <span class="n">colorid</span><span class="p">,</span> <span class="n">drawn</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">picked</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">k</span><span class="p">,</span> <span class="n">i</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">picked</span><span class="o">.</span><span class="n">singles</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">actors</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">addHighlightPoints</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">i</span><span class="p">]))</span>
+        <span class="n">P</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">actors</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">points</span><span class="p">()[</span><span class="n">i</span><span class="p">]</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Actor </span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">, point </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">, coords </span><span class="si">{</span><span class="n">P</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">k</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">P</span><span class="p">])</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">P0</span><span class="p">,</span> <span class="n">P1</span> <span class="o">=</span> <span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">P1</span><span class="o">.</span><span class="n">distanceFromPoint</span><span class="p">(</span><span class="n">P0</span><span class="p">)</span>
+            <span class="n">draw</span><span class="o">.</span><span class="n">printc</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Distance: </span><span class="si">{</span><span class="n">d</span><span class="si">:</span><span class="s2">.</span><span class="si">{</span><span class="n">prec</span><span class="si">}}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colorid</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">show</span><span class="p">:</span>
+                <span class="n">lines</span> <span class="o">=</span> <span class="n">draw</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span>
+                    <span class="n">Formex</span><span class="p">([[</span><span class="n">P0</span><span class="p">,</span> <span class="n">P1</span><span class="p">]]),</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colorid</span><span class="p">,</span>
+                    <span class="n">rendertype</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">ontop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">bbox</span><span class="o">=</span><span class="s1">&#39;last&#39;</span><span class="p">,</span> <span class="n">view</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+                <span class="n">marks</span> <span class="o">=</span> <span class="n">draw</span><span class="o">.</span><span class="n">drawMarks</span><span class="p">(</span>
+                    <span class="p">[</span><span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">P0</span> <span class="o">+</span> <span class="n">P1</span><span class="p">)],</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;=</span><span class="si">{</span><span class="n">d</span><span class="si">:</span><span class="s2">.</span><span class="si">{</span><span class="n">prec</span><span class="si">}}</span><span class="s2">&quot;</span><span class="p">],</span> <span class="n">size</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colorid</span><span class="p">)</span>
+                <span class="n">pf</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+                <span class="n">drawn</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">lines</span><span class="p">,</span> <span class="n">marks</span><span class="p">])</span>
+            <span class="n">colorid</span> <span class="o">+=</span> <span class="n">colorstep</span>
+
+    <span class="n">points</span><span class="o">=</span><span class="p">[]</span>
+    <span class="n">drawn</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Pick single points, every 2nd shows distance&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;draw/querypalette&#39;</span><span class="p">]</span><span class="si">=}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">draw</span><span class="o">.</span><span class="n">TempPalette</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;draw/querypalette&#39;</span><span class="p">]):</span>
+        <span class="n">pick</span><span class="p">(</span><span class="s1">&#39;point&#39;</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="s1">&#39;closest&#39;</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="n">every2_showdistance</span><span class="p">,</span> <span class="n">prompt</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;points&#39;</span><span class="p">:</span> <span class="n">points</span><span class="p">,</span> <span class="s1">&#39;drawn&#39;</span><span class="p">:</span> <span class="n">drawn</span><span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="query_angle"><a class="viewcode-back" href="../../ref/gui.toolbar.html#gui.toolbar.query_angle">[docs]</a><span class="k">def</span> <span class="nf">query_angle</span><span class="p">(</span><span class="n">colorid</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">colorstep</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">prec</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Enter interactive angle query mode</span>
+
+<span class="sd">    In angle query mode, the user picks subsequent single points.</span>
+<span class="sd">    For every third point picked, the angle between the vectors from</span>
+<span class="sd">    first to second and from secont to third is shown.</span>
+<span class="sd">    The angles are shown and printed with subsequent colors</span>
+<span class="sd">    from the canvas default colormap or from a custom colormap in</span>
+<span class="sd">    pf.cfg[&#39;draw/querypalette&#39;].</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+    <span class="kn">from</span> <span class="nn">pyformex.formex</span> <span class="kn">import</span> <span class="n">Formex</span>
+    <span class="kn">from</span> <span class="nn">pyformex.gui</span> <span class="kn">import</span> <span class="n">draw</span>
+    <span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">geomtools</span> <span class="k">as</span> <span class="n">gt</span>
+    <span class="k">if</span> <span class="n">prec</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">prec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">get_printoptions</span><span class="p">()[</span><span class="s1">&#39;precision&#39;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">angle_report</span><span class="p">(</span><span class="n">P0</span><span class="p">,</span> <span class="n">P1</span><span class="p">,</span> <span class="n">P2</span><span class="p">,</span> <span class="n">color</span><span class="p">):</span>
+        <span class="n">angle</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">rotationAngle</span><span class="p">(</span><span class="n">P0</span><span class="o">-</span><span class="n">P1</span><span class="p">,</span> <span class="n">P2</span><span class="o">-</span><span class="n">P1</span><span class="p">)</span>
+        <span class="n">angle</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">angle</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">n</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">draw</span><span class="o">.</span><span class="n">printc</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Angle: </span><span class="si">{</span><span class="n">angle</span><span class="si">:</span><span class="s2">.</span><span class="si">{</span><span class="n">prec</span><span class="si">}}</span><span class="s2"> degrees, axis: </span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                        <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">draw</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">Formex</span><span class="p">([[</span><span class="n">P0</span><span class="p">,</span> <span class="n">P1</span><span class="p">],[</span><span class="n">P1</span><span class="p">,</span> <span class="n">P2</span><span class="p">]]),</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
+                          <span class="n">rendertype</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">ontop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">bbox</span><span class="o">=</span><span class="s1">&#39;last&#39;</span><span class="p">,</span> <span class="n">view</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="n">marks</span> <span class="o">=</span> <span class="n">draw</span><span class="o">.</span><span class="n">drawMarks</span><span class="p">([(</span><span class="n">P0</span><span class="o">+</span><span class="n">P1</span><span class="o">+</span><span class="n">P2</span><span class="p">)</span><span class="o">/</span><span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">angle</span><span class="si">:</span><span class="s2">.</span><span class="si">{</span><span class="n">prec</span><span class="si">}}</span><span class="s2">&quot;</span><span class="p">],</span> <span class="n">size</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+                               <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">gravity</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">lines</span><span class="p">,</span> <span class="n">marks</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">every3_showangle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">nonlocal</span> <span class="n">points</span><span class="p">,</span> <span class="n">colorid</span><span class="p">,</span> <span class="n">drawn</span><span class="p">,</span> <span class="n">temp</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">picked</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">k</span><span class="p">,</span> <span class="n">i</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">picked</span><span class="o">.</span><span class="n">singles</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">actors</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">addHighlightPoints</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">i</span><span class="p">]))</span>
+        <span class="n">P</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">actors</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">points</span><span class="p">()[</span><span class="n">i</span><span class="p">]</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Actor </span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">, point </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">, coords </span><span class="si">{</span><span class="n">P</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">k</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">P</span><span class="p">])</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span> <span class="o">%</span> <span class="mi">3</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">P0</span><span class="p">,</span> <span class="n">P1</span> <span class="o">=</span> <span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+            <span class="n">temp</span> <span class="o">=</span> <span class="n">draw</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">Formex</span><span class="p">([[</span><span class="n">P0</span><span class="p">,</span> <span class="n">P1</span><span class="p">]]),</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+                             <span class="n">color</span><span class="o">=</span><span class="n">colorid</span><span class="p">,</span> <span class="n">rendertype</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">ontop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                             <span class="n">bbox</span><span class="o">=</span><span class="s1">&#39;last&#39;</span><span class="p">,</span> <span class="n">view</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span> <span class="o">%</span> <span class="mi">3</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">P0</span><span class="p">,</span> <span class="n">P1</span><span class="p">,</span> <span class="n">P2</span> <span class="o">=</span> <span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+            <span class="n">drawn</span> <span class="o">+=</span> <span class="n">angle_report</span><span class="p">(</span><span class="n">P0</span><span class="p">,</span> <span class="n">P1</span><span class="p">,</span> <span class="n">P2</span><span class="p">,</span> <span class="n">colorid</span><span class="p">)</span>
+            <span class="n">colorid</span> <span class="o">+=</span> <span class="n">colorstep</span>
+            <span class="n">draw</span><span class="o">.</span><span class="n">undraw</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span>
+            <span class="n">temp</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="n">temp</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">points</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">drawn</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Pick single points, every 3rd shows angle at middle point&quot;</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">draw</span><span class="o">.</span><span class="n">TempPalette</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;draw/querypalette&#39;</span><span class="p">]):</span>
+        <span class="n">pick</span><span class="p">(</span><span class="s1">&#39;point&#39;</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="s1">&#39;closest&#39;</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="n">every3_showangle</span><span class="p">,</span> <span class="n">prompt</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+    <span class="n">draw</span><span class="o">.</span><span class="n">undraw</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;points&#39;</span><span class="p">:</span> <span class="n">points</span><span class="p">,</span> <span class="s1">&#39;drawn&#39;</span><span class="p">:</span> <span class="n">drawn</span><span class="p">}</span></div>
+
+
+<span class="c1">################### General Button Functions ###########</span>
+
+<div class="viewcode-block" id="addButton"><a class="viewcode-back" href="../../ref/gui.toolbar.html#gui.toolbar.addButton">[docs]</a><span class="k">def</span> <span class="nf">addButton</span><span class="p">(</span><span class="n">toolbar</span><span class="p">,</span> <span class="n">tooltip</span><span class="p">,</span> <span class="n">icon</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">repeat</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">toggle</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+              <span class="n">checked</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">icon0</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">enabled</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Add a button to a toolbar.</span>
+
+<span class="sd">    - `toolbar`: the toolbar where the button will be added</span>
+<span class="sd">    - `tooltip`: the text to appear as tooltip</span>
+<span class="sd">    - `icon`: name of the icon to be displayed on the button,</span>
+<span class="sd">    - `func`: function to be called when the button is pressed,</span>
+<span class="sd">    - `repeat`: if True, the `func` will repeatedly be called if button is</span>
+<span class="sd">      held down.</span>
+<span class="sd">    - `toggle`: if True, the button is a toggle and stays in depressed state</span>
+<span class="sd">      until pressed again.</span>
+<span class="sd">    - `checked`: initial state for a toggle buton.</span>
+<span class="sd">    - `icon1`: for a toggle button, icon to display when button is not checked.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">iconset</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QIcon</span><span class="p">()</span>
+    <span class="n">icon_on</span> <span class="o">=</span> <span class="n">QPixmap</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">findIcon</span><span class="p">(</span><span class="n">icon</span><span class="p">))</span>
+    <span class="n">iconset</span><span class="o">.</span><span class="n">addPixmap</span><span class="p">(</span><span class="n">icon_on</span><span class="p">,</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QIcon</span><span class="o">.</span><span class="n">Normal</span><span class="p">,</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QIcon</span><span class="o">.</span><span class="n">On</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">toggle</span> <span class="ow">and</span> <span class="n">icon0</span><span class="p">:</span>
+        <span class="n">icon_off</span> <span class="o">=</span> <span class="n">QPixmap</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">findIcon</span><span class="p">(</span><span class="n">icon0</span><span class="p">))</span>
+        <span class="n">iconset</span><span class="o">.</span><span class="n">addPixmap</span><span class="p">(</span><span class="n">icon_off</span><span class="p">,</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QIcon</span><span class="o">.</span><span class="n">Normal</span><span class="p">,</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QIcon</span><span class="o">.</span><span class="n">Off</span><span class="p">)</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">toolbar</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="n">iconset</span><span class="p">,</span> <span class="n">tooltip</span><span class="p">,</span> <span class="n">func</span><span class="p">)</span>
+    <span class="n">a</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="n">enabled</span><span class="p">)</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="n">toolbar</span><span class="o">.</span><span class="n">widgetForAction</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">repeat</span><span class="p">:</span>
+        <span class="n">b</span><span class="o">.</span><span class="n">setAutoRepeat</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">b</span><span class="o">.</span><span class="n">setAutoRepeatDelay</span><span class="p">(</span><span class="mi">500</span><span class="p">)</span>
+        <span class="n">b</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">trigger</span><span class="p">)</span>
+        <span class="c1">#b.clicked.connect(func)</span>
+    <span class="k">if</span> <span class="n">toggle</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;use widgets.ToggleToolButton instead&quot;</span><span class="p">)</span>
+    <span class="n">b</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span><span class="n">tooltip</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">b</span></div>
+
+
+<div class="viewcode-block" id="removeButton"><a class="viewcode-back" href="../../ref/gui.toolbar.html#gui.toolbar.removeButton">[docs]</a><span class="k">def</span> <span class="nf">removeButton</span><span class="p">(</span><span class="n">toolbar</span><span class="p">,</span> <span class="n">button</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Remove a button from a toolbar.&quot;&quot;&quot;</span>
+    <span class="n">toolbar</span><span class="o">.</span><span class="n">removeAction</span><span class="p">(</span><span class="n">button</span><span class="p">)</span></div>
+
+
+<span class="c1">################### Main toolbar ###########</span>
+
+<span class="n">pickmenudata</span> <span class="o">=</span><span class="p">{</span>
+    <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="s1">&#39;Pick tools&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;items&#39;</span> <span class="p">:</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s1">&#39;Pick point&#39;</span><span class="p">,</span> <span class="n">picksel</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;data&#39;</span><span class="p">:</span><span class="s1">&#39;point&#39;</span><span class="p">,</span> <span class="s1">&#39;icon&#39;</span><span class="p">:</span><span class="s1">&#39;pick-point&#39;</span><span class="p">}),</span>
+        <span class="p">(</span><span class="s1">&#39;Pick element&#39;</span><span class="p">,</span> <span class="n">picksel</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;data&#39;</span><span class="p">:</span><span class="s1">&#39;element&#39;</span><span class="p">,</span> <span class="s1">&#39;icon&#39;</span><span class="p">:</span><span class="s1">&#39;pick-element&#39;</span><span class="p">}),</span>
+        <span class="p">(</span><span class="s1">&#39;Pick actor&#39;</span><span class="p">,</span> <span class="n">picksel</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;data&#39;</span><span class="p">:</span><span class="s1">&#39;actor&#39;</span><span class="p">,</span> <span class="s1">&#39;icon&#39;</span><span class="p">:</span><span class="s1">&#39;pick-actor&#39;</span><span class="p">}),</span>
+    <span class="p">],</span>
+    <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="s1">&#39;Pick element&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">querymenudata</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="s1">&#39;Query tools&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;items&#39;</span> <span class="p">:</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s1">&#39;Query point&#39;</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;data&#39;</span><span class="p">:</span><span class="s1">&#39;point&#39;</span><span class="p">,</span> <span class="s1">&#39;icon&#39;</span><span class="p">:</span><span class="s1">&#39;query-point&#39;</span><span class="p">}),</span>
+        <span class="p">(</span><span class="s1">&#39;Query element&#39;</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;data&#39;</span><span class="p">:</span><span class="s1">&#39;element&#39;</span><span class="p">,</span> <span class="s1">&#39;icon&#39;</span><span class="p">:</span><span class="s1">&#39;query-element&#39;</span><span class="p">}),</span>
+        <span class="p">(</span><span class="s1">&#39;Query actor&#39;</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;data&#39;</span><span class="p">:</span><span class="s1">&#39;actor&#39;</span><span class="p">,</span> <span class="s1">&#39;icon&#39;</span><span class="p">:</span><span class="s1">&#39;query-actor&#39;</span><span class="p">}),</span>
+        <span class="p">(</span><span class="s1">&#39;Query distance&#39;</span><span class="p">,</span> <span class="n">query_distance</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;icon&#39;</span><span class="p">:</span><span class="s1">&#39;query-dist&#39;</span><span class="p">}),</span>
+        <span class="p">(</span><span class="s1">&#39;Query angle&#39;</span><span class="p">,</span> <span class="n">query_angle</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;icon&#39;</span><span class="p">:</span><span class="s1">&#39;query-angle&#39;</span><span class="p">}),</span>
+   <span class="p">],</span>
+    <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="s1">&#39;Query element&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="addActionButtons"><a class="viewcode-back" href="../../ref/gui.toolbar.html#gui.toolbar.addActionButtons">[docs]</a><span class="k">def</span> <span class="nf">addActionButtons</span><span class="p">(</span><span class="n">toolbar</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Add the script action buttons to the toolbar.&quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">pyformex.gui</span> <span class="kn">import</span> <span class="n">draw</span>
+    <span class="kn">from</span> <span class="nn">pyformex.gui.menus</span> <span class="kn">import</span> <span class="n">File</span>
+    <span class="n">action</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">avail_buttons</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s2">&quot;Play&quot;</span><span class="p">,</span> <span class="s2">&quot;next&quot;</span><span class="p">,</span> <span class="n">draw</span><span class="o">.</span><span class="n">play</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;ReRun&quot;</span><span class="p">,</span> <span class="s2">&quot;rerun&quot;</span><span class="p">,</span> <span class="n">draw</span><span class="o">.</span><span class="n">replay</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+        <span class="c1">## ( &quot;Step&quot;, &quot;nextstop&quot;, draw.step, False ),</span>
+        <span class="p">(</span><span class="s2">&quot;Continue&quot;</span><span class="p">,</span> <span class="s2">&quot;ff&quot;</span><span class="p">,</span> <span class="n">draw</span><span class="o">.</span><span class="n">fforward</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;Stop&quot;</span><span class="p">,</span> <span class="s2">&quot;stop&quot;</span><span class="p">,</span> <span class="n">draw</span><span class="o">.</span><span class="n">raiseExit</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;Edit&quot;</span><span class="p">,</span> <span class="s2">&quot;pencil&quot;</span><span class="p">,</span> <span class="n">File</span><span class="o">.</span><span class="n">editApp</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+<span class="c1">#        (&quot;Info&quot;, &quot;info&quot;, draw.showDoc, False),</span>
+        <span class="p">(</span><span class="s2">&quot;Query&quot;</span><span class="p">,</span> <span class="s2">&quot;query&quot;</span><span class="p">,</span> <span class="n">querymenudata</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;Pick&quot;</span><span class="p">,</span> <span class="s2">&quot;pick&quot;</span><span class="p">,</span> <span class="n">pickmenudata</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">]</span>
+    <span class="c1"># Filter configured buttons</span>
+    <span class="n">show_buttons</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;gui/actionbuttons&#39;</span><span class="p">]</span>
+    <span class="n">show_buttons</span> <span class="o">=</span> <span class="p">[</span><span class="n">b</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">avail_buttons</span> <span class="k">if</span> <span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">show_buttons</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">icon</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">enabled</span> <span class="ow">in</span> <span class="n">show_buttons</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="n">addButton</span><span class="p">(</span><span class="n">toolbar</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">icon</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">enabled</span><span class="o">=</span><span class="n">enabled</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">DropDownToolButton</span><span class="p">(</span><span class="n">toolbar</span><span class="p">,</span> <span class="o">**</span><span class="n">func</span><span class="p">)</span>
+        <span class="n">action</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">b</span>
+    <span class="k">return</span> <span class="n">action</span></div>
+
+
+<span class="c1">################# Camera action toolbar ###############</span>
+
+
+<div class="viewcode-block" id="addCameraButtons"><a class="viewcode-back" href="../../ref/gui.toolbar.html#gui.toolbar.addCameraButtons">[docs]</a><span class="k">def</span> <span class="nf">addCameraButtons</span><span class="p">(</span><span class="n">toolbar</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Add the camera buttons to a toolbar.&quot;&quot;&quot;</span>
+    <span class="c1"># The buttons have the following fields:</span>
+    <span class="c1">#  0 : tooltip</span>
+    <span class="c1">#  1 : icon</span>
+    <span class="c1">#  2 : function</span>
+    <span class="c1"># optional:</span>
+    <span class="c1">#  3 : REPEAT  (default True)</span>
+    <span class="kn">from</span> <span class="nn">pyformex.gui.menus</span> <span class="kn">import</span> <span class="n">Camera</span>
+    <span class="n">buttons</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s2">&quot;Rotate left&quot;</span><span class="p">,</span> <span class="s2">&quot;rotleft&quot;</span><span class="p">,</span> <span class="n">Camera</span><span class="o">.</span><span class="n">getfunc</span><span class="p">(</span><span class="s1">&#39;rotLeft&#39;</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s2">&quot;Rotate right&quot;</span><span class="p">,</span> <span class="s2">&quot;rotright&quot;</span><span class="p">,</span> <span class="n">Camera</span><span class="o">.</span><span class="n">getfunc</span><span class="p">(</span><span class="s1">&#39;rotRight&#39;</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s2">&quot;Rotate down&quot;</span><span class="p">,</span> <span class="s2">&quot;rotdown&quot;</span><span class="p">,</span> <span class="n">Camera</span><span class="o">.</span><span class="n">getfunc</span><span class="p">(</span><span class="s1">&#39;rotDown&#39;</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s2">&quot;Rotate up&quot;</span><span class="p">,</span> <span class="s2">&quot;rotup&quot;</span><span class="p">,</span> <span class="n">Camera</span><span class="o">.</span><span class="n">getfunc</span><span class="p">(</span><span class="s1">&#39;rotUp&#39;</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s2">&quot;Twist right&quot;</span><span class="p">,</span> <span class="s2">&quot;twistright&quot;</span><span class="p">,</span> <span class="n">Camera</span><span class="o">.</span><span class="n">getfunc</span><span class="p">(</span><span class="s1">&#39;twistRight&#39;</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s2">&quot;Twist left&quot;</span><span class="p">,</span> <span class="s2">&quot;twistleft&quot;</span><span class="p">,</span> <span class="n">Camera</span><span class="o">.</span><span class="n">getfunc</span><span class="p">(</span><span class="s1">&#39;twistLeft&#39;</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s2">&quot;Translate left&quot;</span><span class="p">,</span> <span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="n">Camera</span><span class="o">.</span><span class="n">getfunc</span><span class="p">(</span><span class="s1">&#39;panLeft&#39;</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s2">&quot;Translate right&quot;</span><span class="p">,</span> <span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="n">Camera</span><span class="o">.</span><span class="n">getfunc</span><span class="p">(</span><span class="s1">&#39;panRight&#39;</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s2">&quot;Translate down&quot;</span><span class="p">,</span> <span class="s2">&quot;down&quot;</span><span class="p">,</span> <span class="n">Camera</span><span class="o">.</span><span class="n">getfunc</span><span class="p">(</span><span class="s1">&#39;panDown&#39;</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s2">&quot;Translate up&quot;</span><span class="p">,</span> <span class="s2">&quot;up&quot;</span><span class="p">,</span> <span class="n">Camera</span><span class="o">.</span><span class="n">getfunc</span><span class="p">(</span><span class="s1">&#39;panUp&#39;</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s2">&quot;Zoom In&quot;</span><span class="p">,</span> <span class="s2">&quot;zoomin&quot;</span><span class="p">,</span> <span class="n">Camera</span><span class="o">.</span><span class="n">getfunc</span><span class="p">(</span><span class="s1">&#39;dollyIn&#39;</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s2">&quot;Zoom Out&quot;</span><span class="p">,</span> <span class="s2">&quot;zoomout&quot;</span><span class="p">,</span> <span class="n">Camera</span><span class="o">.</span><span class="n">getfunc</span><span class="p">(</span><span class="s1">&#39;dollyOut&#39;</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s2">&quot;Zoom All&quot;</span><span class="p">,</span> <span class="s2">&quot;zoomall&quot;</span><span class="p">,</span> <span class="n">Camera</span><span class="o">.</span><span class="n">getfunc</span><span class="p">(</span><span class="s1">&#39;zoomAll&#39;</span><span class="p">),</span> <span class="kc">False</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;Zoom Rectangle&quot;</span><span class="p">,</span> <span class="s2">&quot;zoomrect&quot;</span><span class="p">,</span> <span class="n">Camera</span><span class="o">.</span><span class="n">getfunc</span><span class="p">(</span><span class="s1">&#39;zoomRectangle&#39;</span><span class="p">),</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="p">]</span>
+    <span class="k">for</span> <span class="n">but</span> <span class="ow">in</span> <span class="n">buttons</span><span class="p">:</span>
+        <span class="n">icon</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">pyformexIcon</span><span class="p">(</span><span class="n">but</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">toolbar</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="n">icon</span><span class="p">,</span> <span class="n">but</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">but</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">toolbar</span><span class="o">.</span><span class="n">children</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># Get the QToolButton for the last action</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">but</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">4</span> <span class="ow">or</span> <span class="n">but</span><span class="p">[</span><span class="mi">3</span><span class="p">]:</span>
+            <span class="n">b</span><span class="o">.</span><span class="n">setAutoRepeat</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">b</span><span class="o">.</span><span class="n">setAutoRepeatDelay</span><span class="p">(</span><span class="mi">500</span><span class="p">)</span>
+            <span class="c1"># This causes a double action on the button click</span>
+            <span class="c1"># only use it if we can detach the button press from trigger</span>
+            <span class="c1">#b.released.connect(a.trigger)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">but</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">5</span><span class="p">:</span>
+            <span class="k">pass</span>
+            <span class="c1"># This is currently not used</span>
+            <span class="c1">#b.setCheckable(but[4])</span>
+            <span class="c1">#b.released.connect(a.toggle)</span>
+
+        <span class="n">b</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span><span class="n">but</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span></div>
+
+
+<span class="c1">#######################################################################</span>
+<span class="c1"># Canvas Toggle buttons #</span>
+<span class="c1">#########################</span>
+
+<div class="viewcode-block" id="ViewportToggle"><a class="viewcode-back" href="../../ref/gui.toolbar.html#gui.toolbar.ViewportToggle">[docs]</a><span class="k">class</span> <span class="nc">ViewportToggle</span><span class="p">(</span><span class="n">widgets</span><span class="o">.</span><span class="n">ToggleToolButton</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A toolbar button that toggles the state of a Viewpor attribute</span>
+
+<span class="sd">    attr: one of &#39;perspective&#39;,</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">toolbar</span><span class="p">,</span> <span class="n">icons</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">checked</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tooltip</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_vp</span> <span class="o">=</span> <span class="n">toolbar</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">viewports</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attr</span> <span class="o">=</span> <span class="n">attr</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">toolbar</span><span class="p">,</span> <span class="n">icons</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">setstate</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">getstate</span><span class="p">,</span>
+            <span class="n">checked</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">getstate</span><span class="p">(),</span> <span class="c1"># THIS DOES NOT WORK</span>
+            <span class="c1">#checked=False,</span>
+            <span class="n">tooltip</span><span class="o">=</span><span class="n">tooltip</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ViewportToggle.getstate"><a class="viewcode-back" href="../../ref/gui.toolbar.html#gui.toolbar.ViewportToggle.getstate">[docs]</a>    <span class="k">def</span> <span class="nf">getstate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the current state of the viewport attribute.&quot;&quot;&quot;</span>
+        <span class="n">vp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vp</span><span class="o">.</span><span class="n">current</span>
+        <span class="k">return</span> <span class="kc">False</span> <span class="k">if</span> <span class="n">vp</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">vp</span><span class="o">.</span><span class="n">getToggle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attr</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ViewportToggle.setstate"><a class="viewcode-back" href="../../ref/gui.toolbar.html#gui.toolbar.ViewportToggle.setstate">[docs]</a>    <span class="k">def</span> <span class="nf">setstate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">onoff</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Toggle the state of the viewport attribute.&quot;&quot;&quot;</span>
+        <span class="n">vp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vp</span><span class="o">.</span><span class="n">current</span>
+        <span class="k">if</span> <span class="n">onoff</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">onoff</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">vp</span><span class="o">.</span><span class="n">getToggle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attr</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">onoff</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">onoff</span><span class="p">)</span>
+        <span class="n">vp</span><span class="o">.</span><span class="n">setToggle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attr</span><span class="p">,</span> <span class="n">onoff</span><span class="p">)</span>
+        <span class="n">vp</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">processEvents</span><span class="p">()</span></div></div>
+
+
+<span class="k">def</span> <span class="nf">updateViewportButtons</span><span class="p">(</span><span class="n">vp</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">vp</span><span class="o">.</span><span class="n">focus</span><span class="p">:</span>
+        <span class="n">transparency_button</span><span class="o">.</span><span class="n">update_status</span><span class="p">()</span>
+        <span class="n">light_button</span><span class="o">.</span><span class="n">update_status</span><span class="p">()</span>
+        <span class="n">normals_button</span><span class="o">.</span><span class="n">update_status</span><span class="p">()</span>
+        <span class="n">perspective_button</span><span class="o">.</span><span class="n">update_status</span><span class="p">()</span>
+        <span class="n">wire_button</span><span class="o">.</span><span class="n">update_status</span><span class="p">()</span>
+
+
+<span class="c1">################# Wire Button ###############</span>
+
+<span class="c1"># TODO: this is special: toggles an int between + and -</span>
+
+<span class="n">wire_button</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># the toggle wire button</span>
+
+<span class="k">def</span> <span class="nf">addWireButton</span><span class="p">(</span><span class="n">toolbar</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">wire_button</span>
+
+    <span class="k">def</span> <span class="nf">wire_button_getstate</span><span class="p">():</span>
+        <span class="n">vp</span> <span class="o">=</span> <span class="n">toolbar</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">viewports</span><span class="o">.</span><span class="n">current</span>
+        <span class="k">return</span> <span class="kc">False</span> <span class="k">if</span> <span class="n">vp</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">vp</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;wiremode&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
+    <span class="n">wire_button</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">ToggleToolButton</span><span class="p">(</span>
+        <span class="n">toolbar</span><span class="p">,</span> <span class="n">icons</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;wirenone&#39;</span><span class="p">,</span> <span class="s1">&#39;wireall&#39;</span><span class="p">),</span>
+        <span class="n">func</span><span class="o">=</span><span class="n">wire_button_setstate</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">wire_button_getstate</span><span class="p">,</span>
+        <span class="n">checked</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tooltip</span><span class="o">=</span><span class="s1">&#39;Toggle Wire Mode&#39;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">wire_button_setstate</span><span class="p">():</span>
+    <span class="n">vp</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">viewports</span><span class="o">.</span><span class="n">current</span>
+    <span class="n">vp</span><span class="o">.</span><span class="n">setWireMode</span><span class="p">()</span>
+    <span class="n">vp</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">processEvents</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="updateWireButton"><a class="viewcode-back" href="../../ref/gui.toolbar.html#gui.toolbar.updateWireButton">[docs]</a><span class="k">def</span> <span class="nf">updateWireButton</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Update the wire button to correct state.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">wire_button</span><span class="p">:</span>   <span class="c1"># This button is optional!</span>
+        <span class="n">wire_button</span><span class="o">.</span><span class="n">update_status</span><span class="p">()</span></div>
+
+
+<span class="c1">################# Transparency Button ###############</span>
+
+<span class="n">transparency_button</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># the toggle transparency button</span>
+
+<span class="k">def</span> <span class="nf">addTransparencyButton</span><span class="p">(</span><span class="n">toolbar</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">transparency_button</span>
+    <span class="n">transparency_button</span> <span class="o">=</span> <span class="n">ViewportToggle</span><span class="p">(</span>
+        <span class="n">toolbar</span><span class="p">,</span> <span class="n">icons</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;transparent&#39;</span><span class="p">,</span> <span class="s1">&#39;transparent&#39;</span><span class="p">),</span> <span class="n">attr</span><span class="o">=</span><span class="s1">&#39;alphablend&#39;</span><span class="p">,</span>
+        <span class="n">checked</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tooltip</span><span class="o">=</span><span class="s1">&#39;Toggle Transparent Mode&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="updateTransparencyButton"><a class="viewcode-back" href="../../ref/gui.toolbar.html#gui.toolbar.updateTransparencyButton">[docs]</a><span class="k">def</span> <span class="nf">updateTransparencyButton</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Update the transparency button to correct state.&quot;&quot;&quot;</span>
+    <span class="n">transparency_button</span><span class="o">.</span><span class="n">update_status</span><span class="p">()</span></div>
+
+
+<span class="c1">################# Lights Button ###############</span>
+
+<span class="n">light_button</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="k">def</span> <span class="nf">addLightButton</span><span class="p">(</span><span class="n">toolbar</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">light_button</span>
+    <span class="n">light_button</span> <span class="o">=</span> <span class="n">ViewportToggle</span><span class="p">(</span>
+        <span class="n">toolbar</span><span class="p">,</span> <span class="n">icons</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;lamp&#39;</span><span class="p">,</span> <span class="s1">&#39;lamp-on&#39;</span><span class="p">),</span> <span class="n">attr</span><span class="o">=</span><span class="s1">&#39;lighting&#39;</span><span class="p">,</span>
+        <span class="n">checked</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tooltip</span><span class="o">=</span><span class="s1">&#39;Toggle Lights&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="updateLightButton"><a class="viewcode-back" href="../../ref/gui.toolbar.html#gui.toolbar.updateLightButton">[docs]</a><span class="k">def</span> <span class="nf">updateLightButton</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Update the light button to correct state.&quot;&quot;&quot;</span>
+    <span class="n">light_button</span><span class="o">.</span><span class="n">update_status</span><span class="p">()</span></div>
+
+
+<span class="c1">################# Normals Button ###############</span>
+
+<span class="n">normals_button</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="k">def</span> <span class="nf">addNormalsButton</span><span class="p">(</span><span class="n">toolbar</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">normals_button</span>
+    <span class="n">normals_button</span> <span class="o">=</span> <span class="n">ViewportToggle</span><span class="p">(</span>
+        <span class="n">toolbar</span><span class="p">,</span> <span class="n">icons</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;normals-ind&#39;</span><span class="p">,</span> <span class="s1">&#39;normals-avg&#39;</span><span class="p">),</span> <span class="n">attr</span><span class="o">=</span><span class="s1">&#39;avgnormals&#39;</span><span class="p">,</span>
+        <span class="n">checked</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tooltip</span><span class="o">=</span><span class="s1">&#39;Toggle Normals Mode&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="updateNormalsButton"><a class="viewcode-back" href="../../ref/gui.toolbar.html#gui.toolbar.updateNormalsButton">[docs]</a><span class="k">def</span> <span class="nf">updateNormalsButton</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Update the normals button to correct state.&quot;&quot;&quot;</span>
+    <span class="n">normals_button</span><span class="o">.</span><span class="n">update_status</span><span class="p">()</span></div>
+
+
+<span class="c1">################# Perspective Button ###############</span>
+
+<span class="n">perspective_button</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="k">def</span> <span class="nf">addPerspectiveButton</span><span class="p">(</span><span class="n">toolbar</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">perspective_button</span>
+    <span class="n">perspective_button</span> <span class="o">=</span> <span class="n">ViewportToggle</span><span class="p">(</span>
+        <span class="n">toolbar</span><span class="p">,</span> <span class="n">icons</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;project&#39;</span><span class="p">,</span> <span class="s1">&#39;perspect&#39;</span><span class="p">),</span> <span class="n">attr</span><span class="o">=</span><span class="s1">&#39;perspective&#39;</span><span class="p">,</span>
+        <span class="n">checked</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tooltip</span><span class="o">=</span><span class="s1">&#39;Toggle Perspective/Projective Mode&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="updatePerspectiveButton"><a class="viewcode-back" href="../../ref/gui.toolbar.html#gui.toolbar.updatePerspectiveButton">[docs]</a><span class="k">def</span> <span class="nf">updatePerspectiveButton</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Update the perspective button to correct state.&quot;&quot;&quot;</span>
+    <span class="n">perspective_button</span><span class="o">.</span><span class="n">update_status</span><span class="p">()</span></div>
+
+<span class="k">def</span> <span class="nf">setPerspective</span><span class="p">():</span>
+    <span class="n">perspective_button</span><span class="o">.</span><span class="n">setstate</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">setProjection</span><span class="p">():</span>
+    <span class="n">perspective_button</span><span class="o">.</span><span class="n">setstate</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="c1">################# Timeout Button ###############</span>
+
+<span class="n">timeout_button</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># the timeout toggle button</span>
+
+<span class="k">def</span> <span class="nf">toggleTimeout</span><span class="p">(</span><span class="n">onoff</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">onoff</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">onoff</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">input_timeout</span> <span class="o">&lt;</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">onoff</span><span class="p">:</span>
+        <span class="n">timeout</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;gui/timeoutvalue&#39;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">timeout</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+    <span class="n">widgets</span><span class="o">.</span><span class="n">setInputTimeout</span><span class="p">(</span><span class="n">timeout</span><span class="p">)</span>
+    <span class="n">onoff</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">input_timeout</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">onoff</span><span class="p">:</span>
+        <span class="c1"># THIS SUSPENDS ALL WAITING! WE SHOULD IMPLEMENT A TIMEOUT!</span>
+        <span class="c1"># BY FORCING ALL INDEFINITE PAUSES TO A WAIT TIME EQUAL TO</span>
+        <span class="c1"># WIDGET INPUT TIMEOUT</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;FREEING the draw lock&quot;</span><span class="p">)</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">drawlock</span><span class="o">.</span><span class="n">free</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;ALLOWING the draw lock&quot;</span><span class="p">)</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">drawlock</span><span class="o">.</span><span class="n">allow</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">onoff</span>
+
+
+<div class="viewcode-block" id="addTimeoutButton"><a class="viewcode-back" href="../../ref/gui.toolbar.html#gui.toolbar.addTimeoutButton">[docs]</a><span class="k">def</span> <span class="nf">addTimeoutButton</span><span class="p">(</span><span class="n">toolbar</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Add or remove the timeout button,depending on cfg.&quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">timeout_button</span>
+    <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;gui/timeoutbutton&#39;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">timeout_button</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">timeout_button</span> <span class="o">=</span> <span class="n">addButton</span><span class="p">(</span><span class="n">toolbar</span><span class="p">,</span> <span class="s1">&#39;Toggle Timeout&#39;</span><span class="p">,</span> <span class="s1">&#39;clock&#39;</span><span class="p">,</span> <span class="n">toggleTimeout</span><span class="p">,</span> <span class="n">toggle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">checked</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">timeout_button</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">removeButton</span><span class="p">(</span><span class="n">toolbar</span><span class="p">,</span> <span class="n">timeout_button</span><span class="p">)</span>
+            <span class="n">timeout_button</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="timeout"><a class="viewcode-back" href="../../ref/gui.toolbar.html#gui.toolbar.timeout">[docs]</a><span class="k">def</span> <span class="nf">timeout</span><span class="p">(</span><span class="n">onoff</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Programmatically toggle the timeout button&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">timeout_button</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">timeout_button</span><span class="o">.</span><span class="n">setChecked</span><span class="p">(</span><span class="n">toggleTimeout</span><span class="p">(</span><span class="n">onoff</span><span class="p">))</span></div>
+
+
+
+<span class="c1"># End</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">gui.toolbar</a></li--> 
+      </ul>
+    </div>
+    <div class="footer">
+    <span class="left">
+        &copy; Copyright 2004-2023, Benedict Verhegghe.
+    </span>
+      Last updated on Mar 27, 2023.
+    <span class="right">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.4.3.
+    </span>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,231 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!--
+##
+##  This file is part of the pyFormex project.
+##  pyFormex is a tool for generating, manipulating and transforming 3D
+##  geometrical models by sequences of mathematical operations.
+##  Home page: http://pyformex.org
+##  Project page:  http://savannah.nongnu.org/projects/pyformex/
+##  Copyright (C) Benedict Verhegghe (benedict.verhegghe@ugent.be)
+##  Distributed under the GNU General Public License version 3 or later.
+##
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see http://www.gnu.org/licenses/.
+##
+-->
+    <title>plugins.lima &#8212; pyFormex 3.3 documentation</title>
+
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pyformex.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+<link rel="icon" type="image/png" href="../../_static/pyformex_fav.png" />
+
+  </head><body>
+
+<div class="header">
+  <a href="http://pyformex.org">
+  <img src="../../_static/scallop_dome_small.png" alt="scallop dome" border="0" hspace="20" vspace="12" align="left" />
+  <img src="../../_static/pyformex-logo-2.png" alt="pyformex logo" border="0" hspace="10" vspace="8" align="left" />
+  </a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">plugins.lima</a></li--> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<!-- PYFORMEX_SIDEBAR_LOGO -->
+<!-- PYFORMEX_WEBSITE_SIDEBAR_TOP -->
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for plugins.lima</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1">##</span>
+<span class="c1">##  SPDX-FileCopyrightText: © 2007-2023 Benedict Verhegghe &lt;bverheg@gmail.com&gt;</span>
+<span class="c1">##  SPDX-License-Identifier: GPL-3.0-or-later</span>
+<span class="c1">##</span>
+<span class="c1">##  This file is part of pyFormex 3.3  (Sun Mar 26 20:16:15 CEST 2023)</span>
+<span class="c1">##  pyFormex is a tool for generating, manipulating and transforming 3D</span>
+<span class="c1">##  geometrical models by sequences of mathematical operations.</span>
+<span class="c1">##  Home page: https://pyformex.org</span>
+<span class="c1">##  Project page: https://savannah.nongnu.org/projects/pyformex/</span>
+<span class="c1">##  Development: https://gitlab.com/bverheg/pyformex</span>
+<span class="c1">##  Distributed under the GNU General Public License version 3 or later.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is free software: you can redistribute it and/or modify</span>
+<span class="c1">##  it under the terms of the GNU General Public License as published by</span>
+<span class="c1">##  the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1">##  (at your option) any later version.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is distributed in the hope that it will be useful,</span>
+<span class="c1">##  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1">##  GNU General Public License for more details.</span>
+<span class="c1">##</span>
+<span class="c1">##  You should have received a copy of the GNU General Public License</span>
+<span class="c1">##  along with this program.  If not, see http://www.gnu.org/licenses/.</span>
+<span class="c1">##</span>
+<span class="sd">&quot;&quot;&quot;Lindenmayer Systems</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="kn">from</span> <span class="nn">pyformex.plugins</span> <span class="kn">import</span> <span class="n">turtle</span>
+
+<div class="viewcode-block" id="Lima"><a class="viewcode-back" href="../../ref/plugins.lima.html#plugins.lima.Lima">[docs]</a><span class="k">class</span> <span class="nc">Lima</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;A class for operations on Lindenmayer Systems.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axiom</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">rules</span><span class="o">=</span><span class="p">{}):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">axiom</span> <span class="o">=</span> <span class="n">axiom</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">product</span> <span class="o">=</span> <span class="n">axiom</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rule</span> <span class="o">=</span> <span class="n">rules</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gen</span> <span class="o">=</span> <span class="mi">0</span>
+
+<div class="viewcode-block" id="Lima.status"><a class="viewcode-back" href="../../ref/plugins.lima.html#plugins.lima.Lima.status">[docs]</a>    <span class="k">def</span> <span class="nf">status</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Print the status of the Lima&quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Lima status:&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  Axiom: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">axiom</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  Rules: </span><span class="si">%r</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">rule</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  Generation: </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  Product: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">product</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Lima.addRule"><a class="viewcode-back" href="../../ref/plugins.lima.html#plugins.lima.Lima.addRule">[docs]</a>    <span class="k">def</span> <span class="nf">addRule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atom</span><span class="p">,</span> <span class="n">product</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add a new rule (or overwrite an existing)&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rule</span><span class="p">[</span><span class="n">atom</span><span class="p">]</span> <span class="o">=</span> <span class="n">product</span></div>
+
+<div class="viewcode-block" id="Lima.translate"><a class="viewcode-back" href="../../ref/plugins.lima.html#plugins.lima.Lima.translate">[docs]</a>    <span class="k">def</span> <span class="nf">translate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rule</span><span class="p">,</span> <span class="n">keep</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Translate the product by the specified rule set.</span>
+
+<span class="sd">        If keep=True is specified, atoms that do not have a translation</span>
+<span class="sd">        in the rule set, will be kept unchanged.</span>
+<span class="sd">        The default (keep=False) is to remove those atoms.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">product</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">default</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">product</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">keep</span><span class="p">:</span>
+                <span class="n">default</span><span class="o">=</span><span class="n">c</span>
+            <span class="n">product</span> <span class="o">+=</span> <span class="n">rule</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">default</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">product</span></div>
+
+    <span class="k">def</span> <span class="nf">grow</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ngen</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">gen</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ngen</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">product</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rule</span><span class="p">,</span> <span class="n">keep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gen</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">product</span></div>
+
+<div class="viewcode-block" id="lima"><a class="viewcode-back" href="../../ref/plugins.lima.html#plugins.lima.lima">[docs]</a><span class="k">def</span> <span class="nf">lima</span><span class="p">(</span><span class="n">axiom</span><span class="p">,</span> <span class="n">rules</span><span class="p">,</span> <span class="n">level</span><span class="p">,</span> <span class="n">turtlecmds</span><span class="p">,</span> <span class="n">glob</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create a list of connected points using a Lindenmayer system.</span>
+
+<span class="sd">    axiom is the initial string,</span>
+<span class="sd">    rules are translation rules for the characters in the string,</span>
+<span class="sd">    level is the number of generations to produce,</span>
+<span class="sd">    turtlecmds are the translation rules of the final string to turtle cmds,</span>
+<span class="sd">    glob is an optional list of globals to pass to the turtle script player.</span>
+
+<span class="sd">    This is a convenience function for quickly creating a drawing of a</span>
+<span class="sd">    single generation member. If you intend to draw multiple generations</span>
+<span class="sd">    of the same Lima, it is better to use the grow() and translate() methods</span>
+<span class="sd">    directly.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="n">Lima</span><span class="p">(</span><span class="n">axiom</span><span class="p">,</span> <span class="n">rules</span><span class="p">)</span>
+    <span class="n">A</span><span class="o">.</span><span class="n">grow</span><span class="p">(</span><span class="n">level</span><span class="p">)</span>
+    <span class="n">scr</span> <span class="o">=</span> <span class="s2">&quot;reset();&quot;</span><span class="o">+</span><span class="n">A</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">turtlecmds</span><span class="p">,</span> <span class="n">keep</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="nb">list</span> <span class="o">=</span> <span class="n">turtle</span><span class="o">.</span><span class="n">play</span><span class="p">(</span><span class="n">scr</span><span class="p">,</span> <span class="n">glob</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">list</span></div>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">test</span><span class="p">():</span>
+        <span class="n">TurtleRules</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;F&#39;</span><span class="p">:</span> <span class="s1">&#39;fd();&#39;</span><span class="p">,</span> <span class="s1">&#39;*&#39;</span><span class="p">:</span> <span class="s1">&#39;ro(60);&#39;</span><span class="p">,</span> <span class="s1">&#39;/&#39;</span><span class="p">:</span> <span class="s1">&#39;ro(-60);&#39;</span><span class="p">}</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">lima</span><span class="p">(</span><span class="s2">&quot;F&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;F&quot;</span><span class="p">:</span> <span class="s2">&quot;F*F//F*F&quot;</span><span class="p">},</span> <span class="mi">1</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;F&#39;</span><span class="p">:</span> <span class="s1">&#39;fd();&#39;</span><span class="p">,</span> <span class="s1">&#39;*&#39;</span><span class="p">:</span> <span class="s1">&#39;ro(60);&#39;</span><span class="p">,</span> <span class="s1">&#39;/&#39;</span><span class="p">:</span> <span class="s1">&#39;ro(-60);&#39;</span><span class="p">}))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">lima</span><span class="p">(</span><span class="s2">&quot;F&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;F&quot;</span><span class="p">:</span> <span class="s2">&quot;F*F//F*F&quot;</span><span class="p">},</span> <span class="mi">2</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;F&#39;</span><span class="p">:</span> <span class="s1">&#39;fd();&#39;</span><span class="p">,</span> <span class="s1">&#39;*&#39;</span><span class="p">:</span> <span class="s1">&#39;ro(60);&#39;</span><span class="p">,</span> <span class="s1">&#39;/&#39;</span><span class="p">:</span> <span class="s1">&#39;ro(-60);&#39;</span><span class="p">}))</span>
+
+    <span class="n">test</span><span class="p">()</span>
+    <span class="n">test</span><span class="p">()</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">plugins.lima</a></li--> 
+      </ul>
+    </div>
+    <div class="footer">
+    <span class="left">
+        &copy; Copyright 2004-2023, Benedict Verhegghe.
+    </span>
+      Last updated on Mar 27, 2023.
+    <span class="right">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.4.3.
+    </span>
+    </div>
+  </body>
+</html>

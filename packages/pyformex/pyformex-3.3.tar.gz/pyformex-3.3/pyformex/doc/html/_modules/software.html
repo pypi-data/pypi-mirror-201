@@ -1,0 +1,1143 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!--
+##
+##  This file is part of the pyFormex project.
+##  pyFormex is a tool for generating, manipulating and transforming 3D
+##  geometrical models by sequences of mathematical operations.
+##  Home page: http://pyformex.org
+##  Project page:  http://savannah.nongnu.org/projects/pyformex/
+##  Copyright (C) Benedict Verhegghe (benedict.verhegghe@ugent.be)
+##  Distributed under the GNU General Public License version 3 or later.
+##
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see http://www.gnu.org/licenses/.
+##
+-->
+    <title>software &#8212; pyFormex 3.3 documentation</title>
+
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pyformex.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+<link rel="icon" type="image/png" href="../_static/pyformex_fav.png" />
+
+  </head><body>
+
+<div class="header">
+  <a href="http://pyformex.org">
+  <img src="../_static/scallop_dome_small.png" alt="scallop dome" border="0" hspace="20" vspace="12" align="left" />
+  <img src="../_static/pyformex-logo-2.png" alt="pyformex logo" border="0" hspace="10" vspace="8" align="left" />
+  </a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">software</a></li--> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<!-- PYFORMEX_SIDEBAR_LOGO -->
+<!-- PYFORMEX_WEBSITE_SIDEBAR_TOP -->
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for software</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1">##</span>
+<span class="c1">##  SPDX-FileCopyrightText: © 2007-2023 Benedict Verhegghe &lt;bverheg@gmail.com&gt;</span>
+<span class="c1">##  SPDX-License-Identifier: GPL-3.0-or-later</span>
+<span class="c1">##</span>
+<span class="c1">##  This file is part of pyFormex 3.3  (Sun Mar 26 20:16:15 CEST 2023)</span>
+<span class="c1">##  pyFormex is a tool for generating, manipulating and transforming 3D</span>
+<span class="c1">##  geometrical models by sequences of mathematical operations.</span>
+<span class="c1">##  Home page: https://pyformex.org</span>
+<span class="c1">##  Project page: https://savannah.nongnu.org/projects/pyformex/</span>
+<span class="c1">##  Development: https://gitlab.com/bverheg/pyformex</span>
+<span class="c1">##  Distributed under the GNU General Public License version 3 or later.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is free software: you can redistribute it and/or modify</span>
+<span class="c1">##  it under the terms of the GNU General Public License as published by</span>
+<span class="c1">##  the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1">##  (at your option) any later version.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is distributed in the hope that it will be useful,</span>
+<span class="c1">##  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1">##  GNU General Public License for more details.</span>
+<span class="c1">##</span>
+<span class="c1">##  You should have received a copy of the GNU General Public License</span>
+<span class="c1">##  along with this program.  If not, see http://www.gnu.org/licenses/.</span>
+<span class="c1">##</span>
+<span class="sd">&quot;&quot;&quot;Detecting and checking installed software</span>
+
+<span class="sd">A module to help with detecting required software and helper software,</span>
+<span class="sd">and to check the versions of it.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">importlib</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">operator</span>
+
+<span class="kn">import</span> <span class="nn">pyformex</span> <span class="k">as</span> <span class="nn">pf</span>
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">process</span>
+
+<span class="c1"># We have included this source here because distutils will be removed</span>
+<span class="c1"># from Python, the replacement setuptools.distutils does not contain</span>
+<span class="c1"># version.LooseVersion, and the recommanded Version replacement from</span>
+<span class="c1"># packaging.version only deals with Python style version numbers.</span>
+<span class="c1"># We however also want to treat version numbers of a bunch of non-Python</span>
+<span class="c1"># packages, which may not follow Python&#39;s versioning style.</span>
+
+<div class="viewcode-block" id="Version"><a class="viewcode-back" href="../ref/software.html#software.Version">[docs]</a><span class="k">class</span> <span class="nc">Version</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Abstract base class for version numbering classes.  Just provides</span>
+<span class="sd">    constructor (__init__) and reproducer (__repr__), because those</span>
+<span class="sd">    seem to be the same for all version numbering classes; and route</span>
+<span class="sd">    rich comparisons to _cmp.</span>
+
+<span class="sd">    Based on distutils.version, which is scheduled for withdrawal from Python.</span>
+
+<span class="sd">    Interface for version-number classes -- must be implemented</span>
+<span class="sd">    by the following classes (the concrete ones -- Version should</span>
+<span class="sd">    be treated as an abstract class)::</span>
+
+<span class="sd">        __init__ (string) - create and take same action as &#39;parse&#39;</span>
+<span class="sd">        parse (string)    - convert a string representation to whatever</span>
+<span class="sd">                            internal representation is appropriate for</span>
+<span class="sd">                            this style of version numbering</span>
+<span class="sd">        __str__ (self)    - convert back to a string; should be very similar</span>
+<span class="sd">                            (if not identical to) the string supplied to parse</span>
+<span class="sd">        __repr__ (self)   - generate Python code to recreate</span>
+<span class="sd">                            the instance</span>
+<span class="sd">        _cmp (self, other) - compare two version numbers (&#39;other&#39; may</span>
+<span class="sd">                            be an unparsed version string, or another</span>
+<span class="sd">                            instance of your version class)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span> <span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vstring</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">vstring</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span> <span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> (&#39;</span><span class="si">%s</span><span class="s2">&#39;)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cmp</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">c</span> <span class="ow">is</span> <span class="bp">NotImplemented</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">c</span>
+        <span class="k">return</span> <span class="n">c</span> <span class="o">==</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="fm">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cmp</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">c</span> <span class="ow">is</span> <span class="bp">NotImplemented</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">c</span>
+        <span class="k">return</span> <span class="n">c</span> <span class="o">&lt;</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="fm">__le__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cmp</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">c</span> <span class="ow">is</span> <span class="bp">NotImplemented</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">c</span>
+        <span class="k">return</span> <span class="n">c</span> <span class="o">&lt;=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="fm">__gt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cmp</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">c</span> <span class="ow">is</span> <span class="bp">NotImplemented</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">c</span>
+        <span class="k">return</span> <span class="n">c</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="fm">__ge__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cmp</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">c</span> <span class="ow">is</span> <span class="bp">NotImplemented</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">c</span>
+        <span class="k">return</span> <span class="n">c</span> <span class="o">&gt;=</span> <span class="mi">0</span></div>
+
+
+<div class="viewcode-block" id="SaneVersion"><a class="viewcode-back" href="../ref/software.html#software.SaneVersion">[docs]</a><span class="k">class</span> <span class="nc">SaneVersion</span><span class="p">(</span><span class="n">Version</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Version numbering for anarchists and software realists.</span>
+
+<span class="sd">    Based on distutils.version, which is scheduled for removal from Python.</span>
+
+<span class="sd">    Implements the standard interface for version number classes as</span>
+<span class="sd">    described above.  A version number consists of a series of numbers,</span>
+<span class="sd">    separated by either periods or strings of letters.  When comparing</span>
+<span class="sd">    version numbers, the numeric components will be compared</span>
+<span class="sd">    numerically, and the alphabetic components lexically.  The following</span>
+<span class="sd">    are all valid version numbers, in no particular order:</span>
+
+<span class="sd">        1.5.1</span>
+<span class="sd">        1.5.2b2</span>
+<span class="sd">        161</span>
+<span class="sd">        3.10a</span>
+<span class="sd">        8.02</span>
+<span class="sd">        3.4j</span>
+<span class="sd">        1996.07.12</span>
+<span class="sd">        3.2.pl0</span>
+<span class="sd">        3.1.1.6</span>
+<span class="sd">        2g6</span>
+<span class="sd">        11g</span>
+<span class="sd">        0.960923</span>
+<span class="sd">        2.2beta29</span>
+<span class="sd">        1.13++</span>
+<span class="sd">        5.5.kw</span>
+<span class="sd">        2.0b1pl0</span>
+
+<span class="sd">    In fact, there is no such thing as an invalid version number under</span>
+<span class="sd">    this scheme; the rules for comparison are simple and predictable,</span>
+<span class="sd">    but may not always give the results you want (for some definition</span>
+<span class="sd">    of &quot;want&quot;).</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; SaneVersion(&#39;2.2beta29&#39;).version</span>
+<span class="sd">    [2, 2, &#39;beta&#39;, 29]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">component_re</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(\d+ | [a-z]+ | \.)&#39;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">VERBOSE</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">parse</span> <span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vstring</span><span class="p">):</span>
+        <span class="c1"># I&#39;ve given up on thinking I can reconstruct the version string</span>
+        <span class="c1"># from the parsed tuple -- so I just store the string here for</span>
+        <span class="c1"># use by __str__</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vstring</span> <span class="o">=</span> <span class="n">vstring</span>
+        <span class="n">components</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">component_re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">vstring</span><span class="p">)</span>
+                      <span class="k">if</span> <span class="n">x</span> <span class="ow">and</span> <span class="n">x</span> <span class="o">!=</span> <span class="s1">&#39;.&#39;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">components</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">components</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">pass</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="n">components</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span> <span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">vstring</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span> <span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;SaneVersion (&#39;</span><span class="si">%s</span><span class="s2">&#39;)&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_cmp</span> <span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">other</span> <span class="o">=</span> <span class="n">SaneVersion</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">SaneVersion</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">NotImplemented</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">version</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">&lt;</span> <span class="n">other</span><span class="o">.</span><span class="n">version</span><span class="p">:</span>
+            <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">&gt;</span> <span class="n">other</span><span class="o">.</span><span class="n">version</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">1</span></div>
+
+
+<div class="viewcode-block" id="Software"><a class="viewcode-back" href="../ref/software.html#software.Software">[docs]</a><span class="k">class</span> <span class="nc">Software</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Register for software versions.</span>
+
+<span class="sd">    This class holds a register of the version of installed software.</span>
+<span class="sd">    The class is not intended to be used directly, but rather through the</span>
+<span class="sd">    derived classes Module and External.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name: str</span>
+<span class="sd">        The software name as known in pyFormex: this is often the same as</span>
+<span class="sd">        the real software name, but can be different if the real software</span>
+<span class="sd">        name is complex. We try to use simple lower case names in pyFormex.</span>
+
+
+<span class="sd">    The default software object only has two attributes:</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; np = Software(&#39;numpy&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; Software.print_all()</span>
+<span class="sd">      numpy (** Not Found **)</span>
+<span class="sd">    &gt;&gt;&gt; Software.has(&#39;numpy&#39;)</span>
+<span class="sd">    &#39;&#39;</span>
+<span class="sd">    &gt;&gt;&gt; np.detect(&#39;detected&#39;)</span>
+<span class="sd">    &#39;detected&#39;</span>
+<span class="sd">    &gt;&gt;&gt; Software.has(&#39;numpy&#39;)</span>
+<span class="sd">    &#39;detected&#39;</span>
+<span class="sd">    &gt;&gt;&gt; Software.require(&#39;numpy&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; Software.has(&#39;foo&#39;)</span>
+<span class="sd">    Traceback (most recent call last):</span>
+<span class="sd">    ValueError: foo is not a registered Software</span>
+<span class="sd">    &gt;&gt;&gt; foo = Software(&#39;foo&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; Software.require(&#39;foo&#39;)</span>
+<span class="sd">    Traceback (most recent call last):</span>
+<span class="sd">    ValueError: Required Software &#39;foo&#39; (foo) not found</span>
+<span class="sd">    &gt;&gt;&gt; Software.print_all()</span>
+<span class="sd">      numpy (detected)</span>
+<span class="sd">      foo (** Not Found **)</span>
+<span class="sd">    &gt;&gt;&gt; Software(&#39;foo&#39;)</span>
+<span class="sd">    Traceback (most recent call last):</span>
+<span class="sd">    ValueError: A Software with name &#39;foo&#39; is already registered</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">register</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a registered software name&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">Software</span><span class="o">.</span><span class="n">register</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;A </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> &quot;</span>
+                             <span class="sa">f</span><span class="s2">&quot;with name &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; is already registered&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_version</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">register</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_version</span><span class="si">}</span><span class="s2">&quot;</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">version</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the version of the software, if installed.</span>
+
+<span class="sd">        If the software has already been detected, just returns the</span>
+<span class="sd">        stored version string. Else, runs the software :meth:`detect`</span>
+<span class="sd">        method and stores and returns the version string.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            The version of the software, or an empty string if the software</span>
+<span class="sd">            can not be detected.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_version</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">detect</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_version</span>
+
+    <span class="nd">@version</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_version</span> <span class="o">=</span> <span class="n">value</span>
+
+
+<div class="viewcode-block" id="Software.detect"><a class="viewcode-back" href="../ref/software.html#software.Software.detect">[docs]</a>    <span class="k">def</span> <span class="nf">detect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">fatal</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Detect the version of the software.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        version: str</span>
+<span class="sd">            The version string to be stored for a detected software.</span>
+<span class="sd">            The default empty string means the software was not detected.</span>
+<span class="sd">            Derived classes should call this method fromt their detect</span>
+<span class="sd">            method and pass a non-empty string for detected softwares.</span>
+<span class="sd">        fatal: bool, optional</span>
+<span class="sd">            If True and the software can not be loaded, a fatal exception</span>
+<span class="sd">            is raised. Default is to silently ignore the problem and return</span>
+<span class="sd">            an empty version string.</span>
+<span class="sd">        quiet: bool, optional</span>
+<span class="sd">            If True, the whole operation is done silently. The only</span>
+<span class="sd">            information about failure will be the returned empty version string.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            The version string of the software, empty if the software can not</span>
+<span class="sd">            be loaded.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        As a side effect, the detected version string is stored for later</span>
+<span class="sd">        reuse. Thus subsequent tests will not try to re-detect.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">version</span><span class="p">:</span>
+            <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Congratulations! You have </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
+                     <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">DETECT</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">fatal</span><span class="p">:</span>
+                <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ALAS! I could not find </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> &quot;</span>
+                         <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; on your system&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">DETECT</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">fatal</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">pf</span><span class="o">.</span><span class="n">RequirementsError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s2">                    A required </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> was not found:</span>
+<span class="s2">                    </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">                    You should install this software and restart pyFormex.</span><span class="se">\</span>
+<span class="s2">                    &quot;&quot;&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="n">version</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span></div>
+
+
+<div class="viewcode-block" id="Software.detect_all"><a class="viewcode-back" href="../ref/software.html#software.Software.detect_all">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">detect_all</span><span class="p">(</span><span class="n">clas</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Detect all registered softwares.</span>
+
+<span class="sd">        Usually, the detection is only performed when needed.</span>
+<span class="sd">        Calling this method will perform the detection for all</span>
+<span class="sd">        registered softwares.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">clas</span><span class="o">.</span><span class="n">register</span><span class="p">:</span>
+            <span class="n">clas</span><span class="o">.</span><span class="n">register</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">detect</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Software.print_all"><a class="viewcode-back" href="../ref/software.html#software.Software.print_all">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">print_all</span><span class="p">(</span><span class="n">clas</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Print the list of registered softwares&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">clas</span><span class="o">.</span><span class="n">register</span><span class="p">:</span>
+            <span class="n">version</span> <span class="o">=</span> <span class="n">clas</span><span class="o">.</span><span class="n">register</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">version</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">version</span><span class="p">:</span>
+                <span class="n">version</span> <span class="o">=</span> <span class="s1">&#39;** Not Found **&#39;</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Software.detected"><a class="viewcode-back" href="../ref/software.html#software.Software.detected">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">detected</span><span class="p">(</span><span class="n">clas</span><span class="p">,</span> <span class="nb">all</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the successfully detected softwares and their version</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            A dict with the software name as key and the detected version</span>
+<span class="sd">            as value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">([(</span><span class="n">k</span><span class="p">,</span> <span class="n">clas</span><span class="o">.</span><span class="n">register</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">version</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span>
+                     <span class="n">clas</span><span class="o">.</span><span class="n">register</span> <span class="k">if</span> <span class="nb">all</span> <span class="ow">or</span> <span class="n">clas</span><span class="o">.</span><span class="n">register</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">version</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="Software.has"><a class="viewcode-back" href="../ref/software.html#software.Software.has">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">has</span><span class="p">(</span><span class="n">clas</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fatal</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Test if we have the named software available.</span>
+
+<span class="sd">        Returns a nonzero (version) string if the software is available,</span>
+<span class="sd">        or an empty string if it is not.</span>
+
+<span class="sd">        By default, the software is only checked on the first call.</span>
+<span class="sd">        The optional argument check==True forces a new detection.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">clas</span><span class="o">.</span><span class="n">register</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> is not a registered </span><span class="si">{</span><span class="n">clas</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">check</span> <span class="ow">or</span> <span class="n">clas</span><span class="o">.</span><span class="n">register</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">version</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">clas</span><span class="o">.</span><span class="n">register</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">detect</span><span class="p">(</span><span class="n">fatal</span><span class="o">=</span><span class="n">fatal</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="n">quiet</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">clas</span><span class="o">.</span><span class="n">register</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">version</span></div>
+
+
+<div class="viewcode-block" id="Software.check"><a class="viewcode-back" href="../ref/software.html#software.Software.check">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="n">clas</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">version</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check that we have a required  version of a software.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ver</span> <span class="o">=</span> <span class="n">clas</span><span class="o">.</span><span class="n">has</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">compareVersion</span><span class="p">(</span><span class="n">ver</span><span class="p">,</span> <span class="n">version</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Software.require"><a class="viewcode-back" href="../ref/software.html#software.Software.require">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">require</span><span class="p">(</span><span class="n">clas</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Ensure that the named Python software/version is available.</span>
+
+<span class="sd">        Checks that the specified software is available, and that its version</span>
+<span class="sd">        number is not lower than the specified version.</span>
+<span class="sd">        If no version is specified, any version is ok.</span>
+
+<span class="sd">        Returns if the required software/version could be loaded, else an</span>
+<span class="sd">        error is raised.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">sphinx</span><span class="p">:</span>
+            <span class="c1"># Do not check when building docs</span>
+            <span class="k">return</span>
+
+        <span class="n">ver</span> <span class="o">=</span> <span class="n">clas</span><span class="o">.</span><span class="n">has</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">ver</span><span class="p">:</span>
+            <span class="n">realname</span> <span class="o">=</span> <span class="n">clas</span><span class="o">.</span><span class="n">register</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">name</span>
+            <span class="n">errmsg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;..</span>
+
+<span class="s2">    **</span><span class="si">{</span><span class="n">clas</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> not found!**</span>
+
+<span class="s2">    You activated some functionality requiring the </span><span class="si">{</span><span class="n">clas</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> &#39;</span><span class="si">{</span><span class="n">realname</span><span class="si">}</span><span class="s2">&#39;.</span>
+<span class="s2">    However, the </span><span class="si">{</span><span class="n">clas</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> &#39;</span><span class="si">{</span><span class="n">realname</span><span class="si">}</span><span class="s2">&#39; could not be found.</span>
+<span class="s2">    Probably it is not installed on your system.</span>
+<span class="s2">    &quot;&quot;&quot;</span>
+            <span class="n">pf</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">errmsg</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Required </span><span class="si">{</span><span class="n">clas</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; (</span><span class="si">{</span><span class="n">realname</span><span class="si">}</span><span class="s2">) not found&quot;</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">version</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">compareVersion</span><span class="p">(</span><span class="n">ver</span><span class="p">,</span> <span class="n">version</span><span class="p">):</span>
+                    <span class="n">realname</span> <span class="o">=</span> <span class="n">clas</span><span class="o">.</span><span class="n">register</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">name</span>
+                    <span class="n">errmsg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;..</span>
+
+<span class="s2">    **</span><span class="si">{</span><span class="n">clas</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> version </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">ver</span><span class="si">}</span><span class="s2">) does not meet requirements (</span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2">)!**</span>
+
+<span class="s2">    You activated some functionality requiring </span><span class="si">{</span><span class="n">clas</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> &#39;</span><span class="si">{</span><span class="n">realname</span><span class="si">}</span><span class="s2">&#39;.</span>
+<span class="s2">    However, the required version for that software could not be found.</span>
+<span class="s2">    &quot;&quot;&quot;</span>
+                    <span class="n">pf</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">errmsg</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Required version (</span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2">) of </span><span class="si">{</span><span class="n">clas</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; (</span><span class="si">{</span><span class="n">realname</span><span class="si">}</span><span class="s2">) not found&quot;</span><span class="p">)</span></div></div>
+
+
+
+<div class="viewcode-block" id="Module"><a class="viewcode-back" href="../ref/software.html#software.Module">[docs]</a><span class="k">class</span> <span class="nc">Module</span><span class="p">(</span><span class="n">Software</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Register for Python module version detection rules.</span>
+
+<span class="sd">    This class holds a register of version detection rules for installed</span>
+<span class="sd">    Python modules. Each instance holds the rule for one module, and</span>
+<span class="sd">    it is automatically registered at instantiation. The modules used</span>
+<span class="sd">    by pyFormex are declared in this module, but users can add their own</span>
+<span class="sd">    just by creating a Module instance.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name: str</span>
+<span class="sd">        The module name as known in pyFormex: this is often the same as</span>
+<span class="sd">        the Python module name, but can be different if the Python module</span>
+<span class="sd">        name is complex. We try to use simple lower case names in pyFormex.</span>
+<span class="sd">    modname: str, optional</span>
+<span class="sd">        The correct Python package.module name. If not provided, it is</span>
+<span class="sd">        equal to the pyFormex name.</span>
+<span class="sd">    attr: str or tuple of str, optional</span>
+<span class="sd">        If a str, it is the name of the attribute holding the module version.</span>
+<span class="sd">        This should be an attribute of the module `modname`. The default</span>
+<span class="sd">        is &#39;__version__&#39;, as it is used by many projects.</span>
+<span class="sd">        If the version is not stored in a direct attribute of the same module</span>
+<span class="sd">        as used for the detection, then a tuple of strings can be specified,</span>
+<span class="sd">        starting with the Python module name in which the version attribute</span>
+<span class="sd">        is stored, and a list of subsequent attribute names leading to the</span>
+<span class="sd">        version. In this case the first element of the tuple is always a</span>
+<span class="sd">        module name. If it is the same as `modname`, an empty string may be</span>
+<span class="sd">        specified.</span>
+<span class="sd">        If the final attribute is a callable, it will be called to get the</span>
+<span class="sd">        version. The result is always converted to str before being stored</span>
+<span class="sd">        as the version.</span>
+<span class="sd">    incompatible: tuple of str, optional</span>
+<span class="sd">        A list of incompatible modules. If any of these modules is loaded,</span>
+<span class="sd">        the Module will not be tried. Beware: this should be the actual module</span>
+<span class="sd">        names, not the pyFormex component name, which is all lower case.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; Module.register.clear()</span>
+<span class="sd">    &gt;&gt;&gt; Module.detect_all()</span>
+<span class="sd">    &gt;&gt;&gt; Module.print_all()</span>
+<span class="sd">    &gt;&gt;&gt; np = Module(&#39;numpy&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; pil = Module(&#39;pil&#39;, modname=&#39;PIL&#39;, attr=&#39;VERSION&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; Module.print_all()</span>
+<span class="sd">      numpy (1...)</span>
+<span class="sd">      pil (** Not Found **)</span>
+<span class="sd">    &gt;&gt;&gt; SaneVersion(Module.has(&#39;numpy&#39;)) &gt;= SaneVersion(&#39;1.16&#39;)</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; Module.print_all()</span>
+<span class="sd">      numpy (1...)</span>
+<span class="sd">      pil (** Not Found **)</span>
+<span class="sd">    &gt;&gt;&gt; Module.has(&#39;foo&#39;)</span>
+<span class="sd">    Traceback (most recent call last):</span>
+<span class="sd">    ValueError: foo is not a registered Module</span>
+<span class="sd">    &gt;&gt;&gt; Module.require(&#39;foo&#39;)</span>
+<span class="sd">    Traceback (most recent call last):</span>
+<span class="sd">    ValueError: foo is not a registered Module</span>
+<span class="sd">    &gt;&gt;&gt; foo = Module(&#39;foo&#39;,&#39;FooBar&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; Module.has(&#39;foo&#39;)</span>
+<span class="sd">    &#39;&#39;</span>
+<span class="sd">    &gt;&gt;&gt; Module.require(&#39;foo&#39;)</span>
+<span class="sd">    Traceback (most recent call last):</span>
+<span class="sd">    ValueError: Required Module &#39;foo&#39; (FooBar) not found</span>
+
+<span class="sd">    Now fake a detection of Module &#39;foo&#39;</span>
+
+<span class="sd">    &gt;&gt;&gt; Module.register[&#39;foo&#39;].version = &#39;1.2.3&#39;</span>
+<span class="sd">    &gt;&gt;&gt; Module.has(&#39;foo&#39;)</span>
+<span class="sd">    &#39;1.2.3&#39;</span>
+<span class="sd">    &gt;&gt;&gt; Module.require(&#39;foo&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; Module.require(&#39;foo&#39;,&#39;&gt;= 1.1.7&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; Module.require(&#39;foo&#39;,&#39;&gt;= 1.3.0&#39;)</span>
+<span class="sd">    Traceback (most recent call last):</span>
+<span class="sd">    ValueError: Required version (&gt;= 1.3.0) of Module &#39;foo&#39; (FooBar) not found</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">register</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">modname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">attr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">incompatible</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a registered Python module detection rule&quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">modname</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">modname</span> <span class="o">=</span> <span class="n">name</span>   <span class="c1"># default: name == modname</span>
+        <span class="k">if</span> <span class="n">attr</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">attr</span> <span class="o">=</span> <span class="s1">&#39;__version__&#39;</span>   <span class="c1"># many packages use this</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">modname</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attr</span> <span class="o">=</span> <span class="n">attr</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">incompatible</span> <span class="o">=</span> <span class="n">incompatible</span>
+
+
+<div class="viewcode-block" id="Module.detect"><a class="viewcode-back" href="../ref/software.html#software.Module.detect">[docs]</a>    <span class="k">def</span> <span class="nf">detect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fatal</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Detect the version of the module.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fatal: bool, optional</span>
+<span class="sd">            If True and the module can not be loaded, a fatal exception</span>
+<span class="sd">            is raised. Default is to silently ignore the problem and return</span>
+<span class="sd">            an empty version string.</span>
+<span class="sd">        quiet: bool, optional</span>
+<span class="sd">            If True, the whole operation is done silently. The only</span>
+<span class="sd">            information about failure will be the returned empty version string.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            The version string of the module, empty if the module can not</span>
+<span class="sd">            be loaded.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        As a side effect, the detected version string is stored for later</span>
+<span class="sd">        reuse. Thus subsequent tests will not try to re-detect.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">DETECT</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">incompatible</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">any</span><span class="p">([</span><span class="n">m</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">incompatible</span><span class="p">]):</span>
+                    <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Module </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> is incompatible with&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">incompatible</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">DETECT</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attr</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="c1"># simple attribute in loaded module</span>
+                <span class="n">ver</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attr</span><span class="p">,)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># tuple of subsequent attributes, first is module name</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">attr</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                    <span class="n">m</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attr</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                    <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">DETECT</span><span class="p">)</span>
+                <span class="n">ver</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">attr</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+            <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">ver</span><span class="p">:</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span>
+                <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">DETECT</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="c1"># failure: unexisting or unregistered modules</span>
+            <span class="k">if</span> <span class="n">fatal</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">e</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+            <span class="c1"># If the attribute is a callable, call it</span>
+        <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">m</span><span class="p">()</span>
+            <span class="c1"># if a tuple is returned, turned it into a string</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">m</span><span class="p">))</span>
+        <span class="c1"># make sure version is a string (e.g. gl2ps uses a float!)</span>
+        <span class="n">version</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">detect</span><span class="p">(</span><span class="n">version</span><span class="p">,</span> <span class="n">fatal</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span></div></div>
+
+
+<span class="n">Module</span><span class="p">(</span><span class="s1">&#39;pyformex&#39;</span><span class="p">)</span>
+<span class="n">Module</span><span class="p">(</span><span class="s1">&#39;calpy&#39;</span><span class="p">)</span>
+<span class="n">Module</span><span class="p">(</span><span class="s1">&#39;docutils&#39;</span><span class="p">)</span>
+<span class="n">Module</span><span class="p">(</span><span class="s1">&#39;gl2ps&#39;</span><span class="p">,</span> <span class="n">attr</span><span class="o">=</span><span class="s1">&#39;GL2PS_VERSION&#39;</span><span class="p">)</span>
+<span class="n">Module</span><span class="p">(</span><span class="s1">&#39;gnuplot&#39;</span><span class="p">,</span> <span class="n">modname</span><span class="o">=</span><span class="s1">&#39;Gnuplot&#39;</span><span class="p">)</span>
+<span class="c1"># Module(&#39;ipython&#39;, modname=&#39;IPython&#39;,)</span>
+<span class="c1"># Module(&#39;ipython-qt&#39;, modname=&#39;IPython.frontend.qt&#39;,)</span>
+<span class="n">Module</span><span class="p">(</span><span class="s1">&#39;matplotlib&#39;</span><span class="p">)</span>
+<span class="n">Module</span><span class="p">(</span><span class="s1">&#39;meshio&#39;</span><span class="p">)</span>
+<span class="n">Module</span><span class="p">(</span><span class="s1">&#39;moderngl&#39;</span><span class="p">)</span>
+<span class="n">Module</span><span class="p">(</span><span class="s1">&#39;numpy&#39;</span><span class="p">)</span>
+<span class="n">Module</span><span class="p">(</span><span class="s1">&#39;pil&#39;</span><span class="p">,</span> <span class="n">modname</span><span class="o">=</span><span class="s1">&#39;PIL&#39;</span><span class="p">)</span>
+<span class="n">Module</span><span class="p">(</span><span class="s1">&#39;pydicom&#39;</span><span class="p">)</span>
+<span class="n">Module</span><span class="p">(</span><span class="s1">&#39;pyopengl&#39;</span><span class="p">,</span> <span class="n">modname</span><span class="o">=</span><span class="s1">&#39;OpenGL&#39;</span><span class="p">)</span>
+<span class="n">Module</span><span class="p">(</span><span class="s1">&#39;pyqt5&#39;</span><span class="p">,</span> <span class="n">modname</span><span class="o">=</span><span class="s1">&#39;PyQt5.QtCore&#39;</span><span class="p">,</span>
+       <span class="n">attr</span><span class="o">=</span><span class="s1">&#39;PYQT_VERSION_STR&#39;</span><span class="p">,</span>
+       <span class="n">incompatible</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;PySide2&#39;</span><span class="p">,))</span>
+<span class="n">Module</span><span class="p">(</span><span class="s1">&#39;pyqt5gl&#39;</span><span class="p">,</span> <span class="n">modname</span><span class="o">=</span><span class="s1">&#39;PyQt5.QtOpenGL&#39;</span><span class="p">,</span>
+       <span class="n">attr</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;PyQt5.QtCore&#39;</span><span class="p">,</span> <span class="s1">&#39;PYQT_VERSION_STR&#39;</span><span class="p">),</span>
+       <span class="n">incompatible</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;PySide2&#39;</span><span class="p">,))</span>
+<span class="n">Module</span><span class="p">(</span><span class="s1">&#39;pyside2&#39;</span><span class="p">,</span> <span class="n">modname</span><span class="o">=</span><span class="s1">&#39;PySide2&#39;</span><span class="p">,</span> <span class="n">incompatible</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;PyQt5&#39;</span><span class="p">,))</span>
+<span class="n">Module</span><span class="p">(</span><span class="s1">&#39;scipy&#39;</span><span class="p">)</span>
+<span class="n">Module</span><span class="p">(</span><span class="s1">&#39;sphinx&#39;</span><span class="p">)</span>
+<span class="n">Module</span><span class="p">(</span><span class="s1">&#39;vtk&#39;</span><span class="p">,</span> <span class="n">attr</span><span class="o">=</span><span class="s1">&#39;VTK_VERSION&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="External"><a class="viewcode-back" href="../ref/software.html#software.External">[docs]</a><span class="k">class</span> <span class="nc">External</span><span class="p">(</span><span class="n">Software</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Register for external application version detection rules.</span>
+
+<span class="sd">    This class holds a register of version detection rules for installed</span>
+<span class="sd">    external applications. Each instance holds the rule for one application,</span>
+<span class="sd">    and it is automatically registered at instantiation. The applications used</span>
+<span class="sd">    by pyFormex are declared in this module, but users can add their own</span>
+<span class="sd">    just by creating an External instance.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name: str</span>
+<span class="sd">        The application name as known in pyFormex: this is often the same as</span>
+<span class="sd">        the executable name, but can be different if the executable</span>
+<span class="sd">        name is complex. We try to use simple lower case names in pyFormex.</span>
+<span class="sd">    command: str</span>
+<span class="sd">        The command to run the application. Usually this includes an option</span>
+<span class="sd">        to make the application just report its version and then exit.</span>
+<span class="sd">        The command should be directly executable as-is, without invoking</span>
+<span class="sd">        a new shell. If a shell is required, it should be made part of the</span>
+<span class="sd">        command (see e.g. tetgen). Do not use commands that take a long</span>
+<span class="sd">        time to load and run.</span>
+<span class="sd">    regex: r-string</span>
+<span class="sd">        A regular expression that extracts the version from the output of</span>
+<span class="sd">        the command. If the application does not have or report a version,</span>
+<span class="sd">        any non-empty string is accepted as a positive detection (for</span>
+<span class="sd">        example the executable&#39;s name in a bin path). The regex string</span>
+<span class="sd">        should contain one set of grouping parentheses, delimiting the</span>
+<span class="sd">        part of the output that will be stored as version. If the output</span>
+<span class="sd">        of the command does not match, an empty string is stored.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; External.register.clear()</span>
+<span class="sd">    &gt;&gt;&gt; External.detect_all()</span>
+<span class="sd">    &gt;&gt;&gt; External.print_all()</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">register</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">regex</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a registered external executable detection rule&quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">command</span> <span class="o">=</span> <span class="n">command</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">regex</span> <span class="o">=</span> <span class="n">regex</span>
+
+
+<div class="viewcode-block" id="External.detect"><a class="viewcode-back" href="../ref/software.html#software.External.detect">[docs]</a>    <span class="k">def</span> <span class="nf">detect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fatal</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Detect the version of the external.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fatal: bool, optional</span>
+<span class="sd">            If True and the external can not be run, a fatal exception</span>
+<span class="sd">            is raised. Default is to silently ignore the problem and return</span>
+<span class="sd">            an empty version string.</span>
+<span class="sd">        quiet: bool, optional</span>
+<span class="sd">            If True, the whole operation is done silently. The only</span>
+<span class="sd">            information about failure will be the returned empty version string.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            The version string of the external, empty if the external can not</span>
+<span class="sd">            be run.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        As a side effect, the detected version string is stored for later</span>
+<span class="sd">        reuse. Thus subsequent tests will not try to re-detect.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Check </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">DETECT</span><span class="p">)</span>
+        <span class="n">P</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="p">)</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;returncode: </span><span class="si">{</span><span class="n">P</span><span class="o">.</span><span class="n">returncode</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                 <span class="sa">f</span><span class="s2">&quot;stdout:</span><span class="se">\n</span><span class="si">{</span><span class="n">P</span><span class="o">.</span><span class="n">stdout</span><span class="si">}</span><span class="se">\n</span><span class="s2">stderr:</span><span class="se">\n</span><span class="si">{</span><span class="n">P</span><span class="o">.</span><span class="n">stderr</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                 <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">DETECT</span><span class="p">)</span>
+        <span class="n">version</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="c1"># Some programs write their version to stderr, others to stdout</span>
+        <span class="c1"># So we have to try both</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">P</span><span class="o">.</span><span class="n">stdout</span><span class="p">:</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">regex</span><span class="p">,</span> <span class="n">P</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">m</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">P</span><span class="o">.</span><span class="n">stderr</span><span class="p">:</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">regex</span><span class="p">,</span> <span class="n">P</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+            <span class="n">version</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">detect</span><span class="p">(</span><span class="n">version</span><span class="p">,</span> <span class="n">fatal</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">version</span></div></div>
+
+
+<span class="n">External</span><span class="p">(</span><span class="s1">&#39;python&#39;</span><span class="p">,</span> <span class="s1">&#39;python3 --version&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;Python (\S+)&#39;</span><span class="p">)</span>
+<span class="n">External</span><span class="p">(</span><span class="s1">&#39;admesh&#39;</span><span class="p">,</span> <span class="s1">&#39;admesh --version&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;ADMesh - version (\S+)&#39;</span><span class="p">)</span>
+<span class="n">External</span><span class="p">(</span><span class="s1">&#39;calculix&#39;</span><span class="p">,</span> <span class="s2">&quot;ccx -v|tr &#39;</span><span class="se">\n</span><span class="s2">&#39; &#39; &#39;&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;[\n]*.*ersion (\S+)&#39;</span><span class="p">)</span>
+<span class="n">External</span><span class="p">(</span><span class="s1">&#39;calix&#39;</span><span class="p">,</span> <span class="s1">&#39;calix --version&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;CALIX-(\S+)&#39;</span><span class="p">)</span>
+<span class="n">External</span><span class="p">(</span><span class="s1">&#39;calpy&#39;</span><span class="p">,</span> <span class="s1">&#39;calpy3 --version&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;calpy (\S+)&#39;</span><span class="p">)</span>
+<span class="n">External</span><span class="p">(</span><span class="s1">&#39;dxfparser&#39;</span><span class="p">,</span> <span class="s1">&#39;pyformex-dxfparser --version&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;dxfparser (\S+)&#39;</span><span class="p">)</span>
+<span class="n">External</span><span class="p">(</span><span class="s1">&#39;ffmpeg&#39;</span><span class="p">,</span> <span class="s1">&#39;ffmpeg -version&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;[fF][fF]mpeg version (\S+)&#39;</span><span class="p">)</span>
+<span class="n">External</span><span class="p">(</span><span class="s1">&#39;freetype&#39;</span><span class="p">,</span> <span class="s1">&#39;freetype-config --ftversion&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;(\S+)&#39;</span><span class="p">)</span>
+<span class="n">External</span><span class="p">(</span><span class="s1">&#39;gts&#39;</span><span class="p">,</span> <span class="s1">&#39;gtsset -h&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;Usage: (gts)&#39;</span><span class="p">)</span>
+<span class="n">External</span><span class="p">(</span><span class="s1">&#39;gts-bin&#39;</span><span class="p">,</span> <span class="s1">&#39;gts2stl -h&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;Usage: (gts)&#39;</span><span class="p">)</span>
+<span class="n">External</span><span class="p">(</span><span class="s1">&#39;gts-extra&#39;</span><span class="p">,</span> <span class="s1">&#39;gtsinside -h&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;Usage: (gts)&#39;</span><span class="p">)</span>
+<span class="n">External</span><span class="p">(</span><span class="s1">&#39;imagemagick&#39;</span><span class="p">,</span> <span class="s1">&#39;import -version&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;Version: ImageMagick (\S+)&#39;</span><span class="p">)</span>
+<span class="n">External</span><span class="p">(</span><span class="s1">&#39;instant-meshes&#39;</span><span class="p">,</span> <span class="s1">&#39;instant-meshes -h&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;Syntax: (instant-meshes)&#39;</span><span class="p">)</span>
+<span class="n">External</span><span class="p">(</span><span class="s1">&#39;postabq&#39;</span><span class="p">,</span> <span class="s1">&#39;pyformex-postabq -V&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;postabq (\S+).*&#39;</span><span class="p">)</span>
+<span class="n">External</span><span class="p">(</span><span class="s1">&#39;recordmydesktop&#39;</span><span class="p">,</span> <span class="s1">&#39;recordmydesktop --version&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;recordMyDesktop v(\S+)&#39;</span><span class="p">)</span>
+<span class="n">External</span><span class="p">(</span><span class="s1">&#39;sphinx-build&#39;</span><span class="p">,</span> <span class="s2">&quot;sphinx-build --version&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;sphinx-build (\S+)&#39;</span><span class="p">)</span>
+<span class="n">External</span><span class="p">(</span><span class="s1">&#39;tetgen&#39;</span><span class="p">,</span> <span class="s2">&quot;bash -c &#39;type -p tetgen&#39;&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;\S+(tetgen)&#39;</span><span class="p">)</span>
+<span class="n">External</span><span class="p">(</span><span class="s1">&#39;units&#39;</span><span class="p">,</span> <span class="s1">&#39;units --version&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;GNU Units version (\S+)&#39;</span><span class="p">)</span>
+<span class="n">External</span><span class="p">(</span><span class="s1">&#39;zip&#39;</span><span class="p">,</span> <span class="s1">&#39;zip -h&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;.*\nZip (\S+)&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="listLibraries"><a class="viewcode-back" href="../ref/software.html#software.listLibraries">[docs]</a><span class="k">def</span> <span class="nf">listLibraries</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Return a list with the acceleration libraries&quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">lib</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="vm">__name__</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">lib</span><span class="o">.</span><span class="n">accelerated</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="listShaders"><a class="viewcode-back" href="../ref/software.html#software.listShaders">[docs]</a><span class="k">def</span> <span class="nf">listShaders</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Return a list with the available GPU shader programs.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list</span>
+<span class="sd">        A list of the shader versions available.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">        Shader programs are stored in the pyformex/glsl directory and consist</span>
+<span class="sd">        of at least of two files: &#39;vertex_shader_SHADER.c&#39; and</span>
+<span class="sd">        &#39;fragment_shader_SHADER.c&#39;. The SHADER part is the version mnemomic</span>
+<span class="sd">        which can be used in the &#39;--shader SHADER&#39; option of the pyformex</span>
+<span class="sd">        command.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">files</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;shaderdir&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">listTree</span><span class="p">(</span>
+        <span class="n">includefile</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;vertex_shader_.*[.]c$&#39;</span><span class="p">,</span> <span class="s1">&#39;fragment_shader_.*[.]c$&#39;</span><span class="p">])</span>
+    <span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span><span class="p">]</span>
+    <span class="n">vshaders</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="p">[</span><span class="mi">14</span><span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span> <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;v&#39;</span><span class="p">)]</span>
+    <span class="n">fshaders</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="p">[</span><span class="mi">16</span><span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span> <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;f&#39;</span><span class="p">)]</span>
+    <span class="n">shaders</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">vshaders</span><span class="p">)</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">fshaders</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">shaders</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="detectedSoftware"><a class="viewcode-back" href="../ref/software.html#software.detectedSoftware">[docs]</a><span class="k">def</span> <span class="nf">detectedSoftware</span><span class="p">(</span><span class="n">comp</span><span class="o">=</span><span class="s1">&#39;SME&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return a dict with detected software.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    comp: str</span>
+<span class="sd">        The components to be detected. The string is composed of the</span>
+<span class="sd">        characters &#39;S&#39;, M&#39; and &#39;E&#39;, each identifying one of the components:</span>
+
+<span class="sd">        - S: detects system software including Python and pyFormex,</span>
+<span class="sd">        - M: detects Python modules used by pyFormex,</span>
+<span class="sd">        - E: detects software used by pyFormex as external commands.</span>
+
+<span class="sd">     Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        A dict with one or more of the keys &#39;System&#39;, &#39;Modules&#39; and &#39;Externals&#39;,</span>
+<span class="sd">        each having a dict as value:</span>
+
+<span class="sd">        - System: contains information about system, pyFormex, Python</span>
+<span class="sd">        - Modules: the detected Python modules</span>
+<span class="sd">        - Externals: the detected external programs</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">soft</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="s1">&#39;S&#39;</span> <span class="ow">in</span> <span class="n">comp</span><span class="p">:</span>
+        <span class="n">system</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">release</span><span class="p">,</span> <span class="n">version</span><span class="p">,</span> <span class="n">arch</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">uname</span><span class="p">()</span>
+        <span class="n">System</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;pyFormex_version&#39;</span><span class="p">:</span> <span class="n">pf</span><span class="o">.</span><span class="n">__version__</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="s1">&#39;pyFormex_installtype&#39;</span><span class="p">:</span> <span class="n">pf</span><span class="o">.</span><span class="n">installtype</span><span class="p">,</span>
+            <span class="s1">&#39;pyFormex_fullversion&#39;</span><span class="p">:</span> <span class="n">pf</span><span class="o">.</span><span class="n">fullVersion</span><span class="p">(),</span>
+            <span class="s1">&#39;pyFormex_libraries&#39;</span><span class="p">:</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">listLibraries</span><span class="p">()),</span>
+            <span class="s1">&#39;pyFormex_shaders&#39;</span><span class="p">:</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">listShaders</span><span class="p">()),</span>
+            <span class="s1">&#39;Python_version&#39;</span><span class="p">:</span> <span class="n">sys</span><span class="o">.</span><span class="n">version</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="s1">&#39;Python_fullversion&#39;</span><span class="p">:</span> <span class="n">sys</span><span class="o">.</span><span class="n">version</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="p">),</span>
+            <span class="s1">&#39;System&#39;</span><span class="p">:</span> <span class="n">system</span><span class="p">,</span>
+            <span class="s1">&#39;Host&#39;</span><span class="p">:</span> <span class="n">host</span><span class="p">,</span>
+            <span class="s1">&#39;Release&#39;</span><span class="p">:</span> <span class="n">release</span><span class="p">,</span>
+            <span class="s1">&#39;Version&#39;</span><span class="p">:</span> <span class="n">version</span><span class="p">,</span>
+            <span class="s1">&#39;Arch&#39;</span><span class="p">:</span> <span class="n">arch</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="p">:</span>
+            <span class="n">System</span><span class="p">[</span><span class="s1">&#39;Qt bindings&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">bindings</span>
+        <span class="n">soft</span><span class="p">[</span><span class="s1">&#39;System&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">System</span>
+    <span class="k">if</span> <span class="s1">&#39;M&#39;</span> <span class="ow">in</span> <span class="n">comp</span><span class="p">:</span>
+        <span class="n">Module</span><span class="o">.</span><span class="n">detect_all</span><span class="p">()</span>
+        <span class="n">soft</span><span class="p">[</span><span class="s1">&#39;Modules&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Module</span><span class="o">.</span><span class="n">detected</span><span class="p">(</span><span class="nb">all</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s1">&#39;E&#39;</span> <span class="ow">in</span> <span class="n">comp</span><span class="p">:</span>
+        <span class="n">External</span><span class="o">.</span><span class="n">detect_all</span><span class="p">()</span>
+        <span class="n">soft</span><span class="p">[</span><span class="s1">&#39;Externals&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">External</span><span class="o">.</span><span class="n">detected</span><span class="p">(</span><span class="nb">all</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">soft</span></div>
+
+
+<span class="k">def</span> <span class="nf">reportSoftware</span><span class="p">(</span><span class="n">soft</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">utils</span>
+    <span class="n">notfound</span> <span class="o">=</span> <span class="s1">&#39;** Not Found **&#39;</span>
+
+    <span class="k">def</span> <span class="nf">format_dict</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">sort</span><span class="p">):</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="k">if</span> <span class="n">sort</span> <span class="k">else</span> <span class="n">d</span>
+        <span class="n">items</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">else</span> <span class="n">notfound</span><span class="si">}</span><span class="s2">)&quot;</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">]</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">items</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">soft</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">soft</span> <span class="o">=</span> <span class="n">detectedSoftware</span><span class="p">()</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">header</span><span class="p">:</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="n">utils</span><span class="o">.</span><span class="n">underlineHeader</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">desc</span><span class="p">,</span> <span class="n">srt</span> <span class="ow">in</span> <span class="p">[</span>
+            <span class="p">(</span><span class="s1">&#39;System&#39;</span><span class="p">,</span> <span class="s1">&#39;Installed System&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;Modules&#39;</span><span class="p">,</span> <span class="s1">&#39;Detected Python Modules&#39;</span><span class="p">,</span> <span class="n">sort</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;Externals&#39;</span><span class="p">,</span> <span class="s1">&#39;Detected External Programs&#39;</span><span class="p">,</span> <span class="n">sort</span><span class="p">)</span>
+    <span class="p">]:</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{</span><span class="n">desc</span><span class="si">}</span><span class="s2">:</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="n">format_dict</span><span class="p">(</span><span class="n">soft</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">srt</span><span class="p">)</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+    <span class="k">return</span> <span class="n">s</span>
+
+
+<span class="n">comparators</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;==&#39;</span><span class="p">:</span> <span class="n">operator</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">,</span>
+    <span class="s1">&#39;!=&#39;</span><span class="p">:</span> <span class="n">operator</span><span class="o">.</span><span class="fm">__ne__</span><span class="p">,</span>
+    <span class="s1">&#39;&gt;&#39;</span><span class="p">:</span> <span class="n">operator</span><span class="o">.</span><span class="fm">__gt__</span><span class="p">,</span>
+    <span class="s1">&#39;&gt;=&#39;</span><span class="p">:</span> <span class="n">operator</span><span class="o">.</span><span class="fm">__ge__</span><span class="p">,</span>
+    <span class="s1">&#39;&lt;&#39;</span><span class="p">:</span> <span class="n">operator</span><span class="o">.</span><span class="fm">__lt__</span><span class="p">,</span>
+    <span class="s1">&#39;&lt;=&#39;</span><span class="p">:</span> <span class="n">operator</span><span class="o">.</span><span class="fm">__le__</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">_re_Required</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(?P&lt;cmp&gt;(==|!=|([&lt;&gt;]=?)))? *(?P&lt;require&gt;.*)&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="compareVersion"><a class="viewcode-back" href="../ref/software.html#software.compareVersion">[docs]</a><span class="k">def</span> <span class="nf">compareVersion</span><span class="p">(</span><span class="n">has</span><span class="p">,</span> <span class="n">want</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Check whether a detected version matches the requirements.</span>
+
+<span class="sd">    has is the version string detected.</span>
+<span class="sd">    want is the required version string, possibly preceded by one</span>
+<span class="sd">    of the doubly underscored comparison operators: __gt__, etc.</span>
+<span class="sd">    If no comparison operator is specified, &#39;__eq__&#39; is assumed.</span>
+
+<span class="sd">    Note that any tail behind x.y.z version is considered to  be later</span>
+<span class="sd">    version than x.y.z.</span>
+
+<span class="sd">    Returns the result of the comparison: True or False</span>
+<span class="sd">    Examples:</span>
+
+<span class="sd">      &gt;&gt;&gt; compareVersion(&#39;2.7&#39;,&#39;2.4.3&#39;)</span>
+<span class="sd">      False</span>
+<span class="sd">      &gt;&gt;&gt; compareVersion(&#39;2.7&#39;,&#39;&gt;2.4.3&#39;)</span>
+<span class="sd">      True</span>
+<span class="sd">      &gt;&gt;&gt; compareVersion(&#39;2.7&#39;,&#39;&gt;= 2.4.3&#39;)</span>
+<span class="sd">      True</span>
+<span class="sd">      &gt;&gt;&gt; compareVersion(&#39;2.7&#39;,&#39;&gt;= 2.7-rc3&#39;)</span>
+<span class="sd">      False</span>
+<span class="sd">      &gt;&gt;&gt; compareVersion(&#39;2.7-rc4&#39;,&#39;&gt;= 2.7-rc3&#39;)</span>
+<span class="sd">      True</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">has</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">_re_Required</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">want</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">m</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="n">d</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">groupdict</span><span class="p">()</span>
+    <span class="n">want</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;require&#39;</span><span class="p">]</span>
+    <span class="n">comp</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;cmp&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">comp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">comp</span> <span class="o">=</span> <span class="s1">&#39;==&#39;</span>
+    <span class="n">has</span> <span class="o">=</span> <span class="n">SaneVersion</span><span class="p">(</span><span class="n">has</span><span class="p">)</span>
+    <span class="n">want</span> <span class="o">=</span> <span class="n">SaneVersion</span><span class="p">(</span><span class="n">want</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">comparators</span><span class="p">[</span><span class="n">comp</span><span class="p">](</span><span class="n">has</span><span class="p">,</span> <span class="n">want</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">checkItem</span><span class="p">(</span><span class="n">has</span><span class="p">,</span> <span class="n">want</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">compareVersion</span><span class="p">(</span><span class="n">has</span><span class="p">,</span> <span class="n">want</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;OK&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">&#39;FAIL&#39;</span>
+
+
+<div class="viewcode-block" id="checkDict"><a class="viewcode-back" href="../ref/software.html#software.checkDict">[docs]</a><span class="k">def</span> <span class="nf">checkDict</span><span class="p">(</span><span class="n">has</span><span class="p">,</span> <span class="n">want</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Check that software dict has has the versions required in want&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">[(</span><span class="n">k</span><span class="p">,</span> <span class="n">has</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">want</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">checkItem</span><span class="p">(</span><span class="n">has</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">want</span><span class="p">[</span><span class="n">k</span><span class="p">]))</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">want</span><span class="p">]</span></div>
+
+
+<span class="c1"># TODO: only detect the components in requirements</span>
+<span class="c1"># because detecting everything is slow</span>
+<div class="viewcode-block" id="checkSoftware"><a class="viewcode-back" href="../ref/software.html#software.checkSoftware">[docs]</a><span class="k">def</span> <span class="nf">checkSoftware</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">report</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Check that we have the matching components</span>
+
+<span class="sd">    Returns True or False.</span>
+<span class="sd">    If report=True, also returns a string with a full report.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">utils</span>
+    <span class="n">soft</span> <span class="o">=</span> <span class="n">detectedSoftware</span><span class="p">()</span>
+    <span class="n">comp</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">req</span><span class="p">:</span>
+        <span class="n">comp</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">checkDict</span><span class="p">(</span><span class="n">soft</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">req</span><span class="p">[</span><span class="n">k</span><span class="p">]))</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="nb">all</span><span class="p">([</span><span class="n">s</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;OK&#39;</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">comp</span><span class="p">])</span>
+    <span class="n">fmt</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%30s</span><span class="s2"> </span><span class="si">%15s</span><span class="s2"> </span><span class="si">%15s</span><span class="s2"> </span><span class="si">%10s</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="k">if</span> <span class="n">report</span><span class="p">:</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">underlineHeader</span><span class="p">(</span><span class="n">fmt</span> <span class="o">%</span> <span class="p">(</span><span class="s2">&quot;Item&quot;</span><span class="p">,</span> <span class="s2">&quot;Found&quot;</span><span class="p">,</span> <span class="s2">&quot;Required&quot;</span><span class="p">,</span> <span class="s2">&quot;OK?&quot;</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">comp</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="n">fmt</span> <span class="o">%</span> <span class="n">item</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;RESULT=</span><span class="si">{</span><span class="s1">&#39;OK&#39;</span> <span class="k">if</span> <span class="n">result</span> <span class="k">else</span> <span class="s1">&#39;FAIL&#39;</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="n">result</span><span class="p">,</span> <span class="n">s</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="registerSoftware"><a class="viewcode-back" href="../ref/software.html#software.registerSoftware">[docs]</a><span class="k">def</span> <span class="nf">registerSoftware</span><span class="p">(</span><span class="n">req</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Register the current values of required software&quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">utils</span>
+    <span class="n">soft</span> <span class="o">=</span> <span class="n">detectedSoftware</span><span class="p">()</span>
+    <span class="n">reg</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">req</span><span class="p">:</span>
+        <span class="n">reg</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">selectDict</span><span class="p">(</span><span class="n">soft</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="nb">list</span><span class="p">(</span><span class="n">req</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+    <span class="k">return</span> <span class="n">reg</span></div>
+
+
+<div class="viewcode-block" id="formatDict"><a class="viewcode-back" href="../ref/software.html#software.formatDict">[docs]</a><span class="k">def</span> <span class="nf">formatDict</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;json&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Format a possibly nested dict</span>
+
+<span class="sd">    &gt;&gt;&gt; d = {&#39;a&#39;:0, &#39;d&#39;:{&#39;y&#39;:&#39;s&#39;, &#39;x&#39;:&#39;t&#39;}, &#39;b&#39;:1}</span>
+<span class="sd">    &gt;&gt;&gt; print(formatDict(d))</span>
+<span class="sd">    {</span>
+<span class="sd">      &quot;a&quot;: 0,</span>
+<span class="sd">      &quot;d&quot;: {</span>
+<span class="sd">        &quot;y&quot;: &quot;s&quot;,</span>
+<span class="sd">        &quot;x&quot;: &quot;t&quot;</span>
+<span class="sd">      },</span>
+<span class="sd">      &quot;b&quot;: 1</span>
+<span class="sd">    }</span>
+<span class="sd">    &gt;&gt;&gt; print(formatDict(d, mode=&#39;python&#39;))</span>
+<span class="sd">    {&#39;a&#39;: 0, &#39;d&#39;: {&#39;y&#39;: &#39;s&#39;, &#39;x&#39;: &#39;t&#39;}, &#39;b&#39;: 1}</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;json&#39;</span><span class="p">:</span>
+        <span class="kn">import</span> <span class="nn">json</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="n">indent</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">d</span><span class="si">!r}</span><span class="s2">&quot;</span></div>
+
+
+<div class="viewcode-block" id="storeSoftware"><a class="viewcode-back" href="../ref/software.html#software.storeSoftware">[docs]</a><span class="k">def</span> <span class="nf">storeSoftware</span><span class="p">(</span><span class="n">soft</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;json&#39;</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Store the software collection on file.</span>
+
+<span class="sd">    The collection is by default stored in JSON format.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fil</span><span class="p">:</span>
+        <span class="n">fil</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">formatDict</span><span class="p">(</span><span class="n">soft</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="n">indent</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">))</span>
+        <span class="n">fil</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="readSoftware"><a class="viewcode-back" href="../ref/software.html#software.readSoftware">[docs]</a><span class="k">def</span> <span class="nf">readSoftware</span><span class="p">(</span><span class="n">fn</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read the software collection from file.</span>
+
+<span class="sd">    Default mode is &#39;python&#39; because it reads json as well as python.</span>
+<span class="sd">    &#39;legacy&#39; can be used to read old software files, though it is</span>
+<span class="sd">    recommended to change the files by removing the &#39;soft = &#39; at the start.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fil</span><span class="p">:</span>
+        <span class="n">txt</span> <span class="o">=</span> <span class="n">fil</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">txt</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;soft&#39;</span><span class="p">):</span>
+            <span class="c1"># This is probably a legacy format</span>
+            <span class="n">txt</span> <span class="o">=</span> <span class="n">txt</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">soft</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="n">txt</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">soft</span></div>
+
+
+<span class="c1">#### execute as pyFormex script for testing ########</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;_draw__&quot;</span><span class="p">,</span> <span class="s2">&quot;__script__&quot;</span><span class="p">]:</span>
+
+    <span class="n">Required</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;System&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;pyFormex_installtype&#39;</span><span class="p">:</span> <span class="s1">&#39;R&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;Python_version&#39;</span><span class="p">:</span> <span class="s1">&#39;&gt;= 3.7.0&#39;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;Modules&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;pyformex&#39;</span><span class="p">:</span> <span class="s1">&#39;&gt;= 2.7&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;matplotlib&#39;</span><span class="p">:</span> <span class="s1">&#39;1.1.1&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;numpy&#39;</span><span class="p">:</span> <span class="s1">&#39;1.16&#39;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;Externals&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;admesh&#39;</span><span class="p">:</span> <span class="s1">&#39;&gt;= 0.95&#39;</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">}</span>
+
+    <span class="n">soft</span> <span class="o">=</span> <span class="n">detectedSoftware</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">((</span><span class="n">reportSoftware</span><span class="p">(</span><span class="n">header</span><span class="o">=</span><span class="s2">&quot;Detected Software&quot;</span><span class="p">)))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1"> &#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">((</span><span class="n">reportSoftware</span><span class="p">(</span><span class="n">Required</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="s2">&quot;Required Software&quot;</span><span class="p">)))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1"> &#39;</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;CHECK&#39;</span><span class="p">)</span>
+    <span class="n">ok</span><span class="p">,</span> <span class="n">report</span> <span class="o">=</span> <span class="n">checkSoftware</span><span class="p">(</span><span class="n">Required</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
+
+    <span class="n">reg</span> <span class="o">=</span> <span class="n">registerSoftware</span><span class="p">(</span><span class="n">Required</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;REGISTER&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">formatDict</span><span class="p">(</span><span class="n">reg</span><span class="p">))</span>
+
+    <span class="n">storeSoftware</span><span class="p">(</span><span class="n">reg</span><span class="p">,</span> <span class="s1">&#39;checksoft.json&#39;</span><span class="p">)</span>
+    <span class="n">req</span> <span class="o">=</span> <span class="n">readSoftware</span><span class="p">(</span><span class="s1">&#39;checksoft.json&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;CHECK REGISTERED&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">formatDict</span><span class="p">(</span><span class="n">req</span><span class="p">))</span>
+
+    <span class="n">ok</span><span class="p">,</span> <span class="n">report</span> <span class="o">=</span> <span class="n">checkSoftware</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
+
+<span class="c1"># End</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">software</a></li--> 
+      </ul>
+    </div>
+    <div class="footer">
+    <span class="left">
+        &copy; Copyright 2004-2023, Benedict Verhegghe.
+    </span>
+      Last updated on Mar 27, 2023.
+    <span class="right">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.4.3.
+    </span>
+    </div>
+  </body>
+</html>

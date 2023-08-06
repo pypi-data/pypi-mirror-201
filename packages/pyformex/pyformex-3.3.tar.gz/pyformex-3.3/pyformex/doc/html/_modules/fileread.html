@@ -1,0 +1,1183 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!--
+##
+##  This file is part of the pyFormex project.
+##  pyFormex is a tool for generating, manipulating and transforming 3D
+##  geometrical models by sequences of mathematical operations.
+##  Home page: http://pyformex.org
+##  Project page:  http://savannah.nongnu.org/projects/pyformex/
+##  Copyright (C) Benedict Verhegghe (benedict.verhegghe@ugent.be)
+##  Distributed under the GNU General Public License version 3 or later.
+##
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see http://www.gnu.org/licenses/.
+##
+-->
+    <title>fileread &#8212; pyFormex 3.3 documentation</title>
+
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pyformex.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+<link rel="icon" type="image/png" href="../_static/pyformex_fav.png" />
+
+  </head><body>
+
+<div class="header">
+  <a href="http://pyformex.org">
+  <img src="../_static/scallop_dome_small.png" alt="scallop dome" border="0" hspace="20" vspace="12" align="left" />
+  <img src="../_static/pyformex-logo-2.png" alt="pyformex logo" border="0" hspace="10" vspace="8" align="left" />
+  </a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">fileread</a></li--> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<!-- PYFORMEX_SIDEBAR_LOGO -->
+<!-- PYFORMEX_WEBSITE_SIDEBAR_TOP -->
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for fileread</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1">##</span>
+<span class="c1">##  SPDX-FileCopyrightText: © 2007-2023 Benedict Verhegghe &lt;bverheg@gmail.com&gt;</span>
+<span class="c1">##  SPDX-License-Identifier: GPL-3.0-or-later</span>
+<span class="c1">##</span>
+<span class="c1">##  This file is part of pyFormex 3.3  (Sun Mar 26 20:16:15 CEST 2023)</span>
+<span class="c1">##  pyFormex is a tool for generating, manipulating and transforming 3D</span>
+<span class="c1">##  geometrical models by sequences of mathematical operations.</span>
+<span class="c1">##  Home page: https://pyformex.org</span>
+<span class="c1">##  Project page: https://savannah.nongnu.org/projects/pyformex/</span>
+<span class="c1">##  Development: https://gitlab.com/bverheg/pyformex</span>
+<span class="c1">##  Distributed under the GNU General Public License version 3 or later.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is free software: you can redistribute it and/or modify</span>
+<span class="c1">##  it under the terms of the GNU General Public License as published by</span>
+<span class="c1">##  the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1">##  (at your option) any later version.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is distributed in the hope that it will be useful,</span>
+<span class="c1">##  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1">##  GNU General Public License for more details.</span>
+<span class="c1">##</span>
+<span class="c1">##  You should have received a copy of the GNU General Public License</span>
+<span class="c1">##  along with this program.  If not, see http://www.gnu.org/licenses/.</span>
+<span class="c1">##</span>
+
+<span class="sd">&quot;&quot;&quot;Read geometry from files in a number of formats.</span>
+
+<span class="sd">This module defines basic routines to read geometrical data</span>
+<span class="sd">from a file and the specialized importers to read files in a number of</span>
+<span class="sd">well known standardized formats.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">import</span> <span class="nn">pyformex</span> <span class="k">as</span> <span class="nn">pf</span>
+<span class="kn">import</span> <span class="nn">pyformex.arraytools</span> <span class="k">as</span> <span class="nn">at</span>
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">pyformex.path</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">pyformex.varray</span> <span class="kn">import</span> <span class="n">Varray</span>
+<span class="kn">from</span> <span class="nn">pyformex.connectivity</span> <span class="kn">import</span> <span class="n">Connectivity</span>
+<span class="kn">from</span> <span class="nn">pyformex.coords</span> <span class="kn">import</span> <span class="n">Coords</span>
+<span class="kn">from</span> <span class="nn">pyformex.mesh</span> <span class="kn">import</span> <span class="n">Mesh</span>
+<span class="kn">from</span> <span class="nn">pyformex.pzffile</span> <span class="kn">import</span> <span class="n">loadPZF</span> <span class="k">as</span> <span class="n">readPZF</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;readPZF&#39;</span><span class="p">,</span> <span class="s1">&#39;readPGF&#39;</span><span class="p">,</span> <span class="s1">&#39;readOFF&#39;</span><span class="p">,</span> <span class="s1">&#39;readOBJ&#39;</span><span class="p">,</span> <span class="s1">&#39;readPLY&#39;</span><span class="p">,</span> <span class="s1">&#39;readGTS&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;readSTL&#39;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="readPGF"><a class="viewcode-back" href="../ref/fileread.html#fileread.readPGF">[docs]</a><span class="k">def</span> <span class="nf">readPGF</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">count</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read a pyFormex Geometry File.</span>
+
+<span class="sd">    A pyFormex Geometry File can store multiple geometrical objects in a</span>
+<span class="sd">    native format that can be efficiently read back into pyformex.</span>
+<span class="sd">    The format is portable over different pyFormex versions and</span>
+<span class="sd">    even to other software, as the format is stable and documented.</span>
+<span class="sd">    This reader can restore subclasses of :class:`Geometry`:</span>
+<span class="sd">    :class:`Formex`, :class:`Mesh`, :class:`TriSurface`,</span>
+<span class="sd">    :class:`PolyLine`, :class:`BezierSpline`, :class:`NurbsCurve`,</span>
+<span class="sd">    with their stored attributes (name, color, field variables).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename: :term:`path_like`</span>
+<span class="sd">        The name of an existing pyFormex Geometry File. If the</span>
+<span class="sd">        filename ends on &#39;.gz&#39; or &#39;.bz2&#39;, it is considered to be a gzipped,</span>
+<span class="sd">        resp. bzipped file and it will transparently be uncompressed</span>
+<span class="sd">        during reading.</span>
+<span class="sd">    count: int, optional</span>
+<span class="sd">        If specified, no more than this number of objects will be read.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        A dictionary with the geometric objects read from the file.</span>
+<span class="sd">        If the file contains the object names, these are used as the keys.</span>
+<span class="sd">        Else, default names are provided.</span>
+<span class="sd">        If the file contains attributes (colors, fields) for an object,</span>
+<span class="sd">        these will also be restored.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">geomfile</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Read PGF file </span><span class="si">{</span><span class="n">filename</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">geomfile</span><span class="o">.</span><span class="n">GeometryFile</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+    <span class="n">objects</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">count</span><span class="p">)</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">objects</span><span class="p">)</span><span class="si">}</span><span class="s2"> objects&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">objects</span></div>
+
+
+<div class="viewcode-block" id="readOFF"><a class="viewcode-back" href="../ref/fileread.html#fileread.readOFF">[docs]</a><span class="k">def</span> <span class="nf">readOFF</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read polygon meshes from an OFF file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename: :term:`path_like`</span>
+<span class="sd">        The name of a file in OFF format, commonly having a suffix &#39;.off&#39;.</span>
+<span class="sd">        If the name ends with &#39;.off.gz&#39; or &#39;.off.bz2&#39;, then the file will</span>
+<span class="sd">        transparently be uncompressed during reading.</span>
+<span class="sd">    mplex: int, optional</span>
+<span class="sd">        The maximum plexitude of the output polygons. If provided, polygons</span>
+<span class="sd">        with a plexitude higher that mplex will be split into smaller ones.</span>
+<span class="sd">        For example, with mplex=4, polygons with 5 or more vertices will be</span>
+<span class="sd">        split into quads and triangles. Likewise, mplex=3 will split all</span>
+<span class="sd">        polygons into triangles.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Polygons</span>
+<span class="sd">        A :class:`Polygons` with the polygons read from the file.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from .filewrite import writeOFF</span>
+<span class="sd">    &gt;&gt;&gt; f = Path(&#39;test_filewrite.off&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; M = Mesh(eltype=&#39;quad4&#39;).convert(&#39;tri3-u&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; writeOFF(f, M)</span>
+<span class="sd">    &gt;&gt;&gt; poly = readOFF(f)</span>
+<span class="sd">    &gt;&gt;&gt; print(poly)</span>
+<span class="sd">    Polygons: nnodes: 4, nelems: 2, nplex: min 3, max 3, eltype: polygon</span>
+<span class="sd">      BBox: [0. 0. 0.], [1. 1. 0.]</span>
+<span class="sd">      Size: [1. 1. 0.]</span>
+<span class="sd">    &gt;&gt;&gt; print(poly.coords)</span>
+<span class="sd">    [[0. 0. 0.]</span>
+<span class="sd">     [1. 0. 0.]</span>
+<span class="sd">     [1. 1. 0.]</span>
+<span class="sd">     [0. 1. 0.]]</span>
+<span class="sd">    &gt;&gt;&gt; print(poly.elems)</span>
+<span class="sd">    Varray (2, (3, 3))</span>
+<span class="sd">      [0 1 2]</span>
+<span class="sd">      [2 3 0]</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">pyformex.polygons</span> <span class="kn">import</span> <span class="n">Polygons</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Read OFF file </span><span class="si">{</span><span class="n">filename</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">class</span> <span class="nc">STAGE</span><span class="p">():</span>
+        <span class="n">INIT</span><span class="p">,</span> <span class="n">HEADER</span><span class="p">,</span> <span class="n">COORDS</span><span class="p">,</span> <span class="n">ELEMS</span><span class="p">,</span> <span class="n">EDGES</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+
+    <span class="n">coords</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">faces</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">stage</span> <span class="o">=</span> <span class="n">STAGE</span><span class="o">.</span><span class="n">INIT</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">with</span> <span class="n">utils</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fil</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fil</span><span class="p">:</span>
+            <span class="n">comment</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;#&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">comment</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;# name=(\w+)&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">A</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">m</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">name</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="k">continue</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="p">[:</span><span class="n">comment</span><span class="p">]</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="p">:</span>
+                    <span class="k">continue</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">stage</span> <span class="o">==</span> <span class="n">STAGE</span><span class="o">.</span><span class="n">INIT</span><span class="p">:</span>
+                <span class="n">stage</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="s2">&quot;OFF&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">line</span> <span class="o">!=</span> <span class="s1">&#39;OFF&#39;</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;I can not yet read </span><span class="si">{</span><span class="n">line</span><span class="si">}</span><span class="s2"> files, only OFF!&quot;</span><span class="p">)</span>
+                    <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">stage</span> <span class="o">==</span> <span class="n">STAGE</span><span class="o">.</span><span class="n">HEADER</span><span class="p">:</span>
+                <span class="n">nnodes</span><span class="p">,</span> <span class="n">nelems</span><span class="p">,</span> <span class="n">nedges</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()]</span>
+                <span class="n">pf</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">nnodes</span><span class="si">}</span><span class="s2"> vertices, </span><span class="si">{</span><span class="n">nelems</span><span class="si">}</span><span class="s2"> faces, </span><span class="si">{</span><span class="n">nedges</span><span class="si">}</span><span class="s2"> edges&quot;</span><span class="p">)</span>
+                <span class="n">stage</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="c1"># Prepare for reading nodes</span>
+                <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">nnodes</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">at</span><span class="o">.</span><span class="n">Float</span><span class="p">)</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">elif</span> <span class="n">stage</span> <span class="o">==</span> <span class="n">STAGE</span><span class="o">.</span><span class="n">COORDS</span><span class="p">:</span>
+                <span class="n">s</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                <span class="n">coords</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">si</span><span class="p">)</span> <span class="k">for</span> <span class="n">si</span> <span class="ow">in</span> <span class="n">s</span><span class="p">]</span>
+                <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="n">nnodes</span><span class="p">:</span>
+                    <span class="n">stage</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">elif</span> <span class="n">stage</span> <span class="o">==</span> <span class="n">STAGE</span><span class="o">.</span><span class="n">ELEMS</span><span class="p">:</span>
+                <span class="n">s</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                <span class="n">n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">faces</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">si</span><span class="p">)</span> <span class="k">for</span> <span class="n">si</span> <span class="ow">in</span> <span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">]])</span>
+                <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="n">nelems</span><span class="p">:</span>
+                    <span class="n">stage</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">elif</span> <span class="n">stage</span> <span class="o">==</span> <span class="n">STAGE</span><span class="o">.</span><span class="n">EDGES</span><span class="p">:</span>
+                <span class="n">pf</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;Reading of edges is not yet implemented&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">coords</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">faces</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Could not read any vertices and/or faces&quot;</span><span class="p">)</span>
+
+    <span class="n">poly</span> <span class="o">=</span> <span class="n">Polygons</span><span class="p">(</span><span class="n">Coords</span><span class="p">(</span><span class="n">coords</span><span class="p">),</span> <span class="n">faces</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">name</span><span class="p">:</span>
+        <span class="n">poly</span><span class="o">.</span><span class="n">attrib</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Got </span><span class="si">{</span><span class="n">poly</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">poly</span></div>
+
+
+<div class="viewcode-block" id="readOBJ"><a class="viewcode-back" href="../ref/fileread.html#fileread.readOBJ">[docs]</a><span class="k">def</span> <span class="nf">readOBJ</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read a mesh from an OBJ file.</span>
+
+<span class="sd">    Reads the mesh data from a wavefront .obj file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename: :term:`path_like`</span>
+<span class="sd">        The name of a file in OBJ format, commonly having a suffix &#39;.obj&#39;.</span>
+<span class="sd">        If the name ends with &#39;.obj.gz&#39; or &#39;.obj.bz2&#39;, the file will</span>
+<span class="sd">        transparently be uncompressed during reading.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Polygons</span>
+<span class="sd">        The polygons read from the .obj file.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Currently only handles polygons.</span>
+<span class="sd">    It does not handle relative indexing, subobjects, groups, lines,</span>
+<span class="sd">    splines, beziers, materials.</span>
+<span class="sd">    Normals and texture coordinates are read but not returned.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from .filewrite import writeOBJ</span>
+<span class="sd">    &gt;&gt;&gt; f = Path(&#39;test_filewrite.obj&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; M = Mesh(eltype=&#39;quad4&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; writeOBJ(f, M)</span>
+<span class="sd">    &gt;&gt;&gt; poly = readOBJ(f)</span>
+<span class="sd">    &gt;&gt;&gt; print(poly)</span>
+<span class="sd">    Polygons: nnodes: 4, nelems: 1, nplex: min 4, max 4, eltype: polygon</span>
+<span class="sd">      BBox: [0. 0. 0.], [1. 1. 0.]</span>
+<span class="sd">      Size: [1. 1. 0.]</span>
+<span class="sd">    &gt;&gt;&gt; print(poly.coords)</span>
+<span class="sd">    [[0.  0.  0.]</span>
+<span class="sd">     [1.  0.  0.]</span>
+<span class="sd">     [1.  1.  0.]</span>
+<span class="sd">     [0.  1.  0.]]</span>
+<span class="sd">    &gt;&gt;&gt; print(poly.elems)</span>
+<span class="sd">    Varray (1, (4, 4))</span>
+<span class="sd">      [0 1 2 3]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">pyformex.polygons</span> <span class="kn">import</span> <span class="n">Polygons</span>
+
+    <span class="k">def</span> <span class="nf">vertex_data</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+        <span class="n">vid</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">tid</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">nid</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">return</span> <span class="n">vid</span><span class="p">,</span> <span class="n">tid</span><span class="p">,</span> <span class="n">nid</span>
+
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Read OBJ file </span><span class="si">{</span><span class="n">filename</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="c1"># storage for coords, normals, texture coords</span>
+    <span class="n">coords</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;n&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;t&#39;</span><span class="p">:</span> <span class="p">[]}</span>
+    <span class="c1"># storage for faces and edges</span>
+    <span class="n">faces</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># lines = []</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">with</span> <span class="n">utils</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fil</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fil</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">typ</span><span class="p">,</span> <span class="o">*</span><span class="n">data</span> <span class="o">=</span> <span class="n">s</span>
+            <span class="k">if</span> <span class="n">typ</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;v&#39;</span><span class="p">:</span>
+                <span class="n">coords</span><span class="p">[</span><span class="n">typ</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">data</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="n">typ</span> <span class="o">==</span> <span class="s1">&#39;f&#39;</span><span class="p">:</span>
+                <span class="n">faces</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">vertex_data</span><span class="p">(</span><span class="n">d</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">data</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="n">typ</span> <span class="o">==</span> <span class="s1">&#39;o&#39;</span><span class="p">:</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">faces</span> <span class="o">=</span> <span class="n">Varray</span><span class="p">(</span><span class="n">faces</span><span class="p">)</span>
+    <span class="n">faces</span><span class="o">.</span><span class="n">data</span> <span class="o">-=</span> <span class="mi">1</span>   <span class="c1"># OBJ format starts at 1</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">poly</span> <span class="o">=</span> <span class="n">Polygons</span><span class="p">(</span><span class="n">Coords</span><span class="p">(</span><span class="n">coords</span><span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">]),</span> <span class="n">faces</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;This file is too complex for our current .OBJ reader&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">coords</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">]:</span>
+        <span class="n">normals</span> <span class="o">=</span> <span class="n">Coords</span><span class="p">(</span><span class="n">coords</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">normals</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">poly</span><span class="o">.</span><span class="n">coords</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+            <span class="n">poly</span><span class="o">.</span><span class="n">_memory</span><span class="p">[</span><span class="s1">&#39;avg_normals&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">normals</span>
+    <span class="k">if</span> <span class="n">coords</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">]:</span>
+        <span class="n">texture</span> <span class="o">=</span> <span class="n">Coords</span><span class="p">(</span><span class="n">coords</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">texture</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">poly</span><span class="o">.</span><span class="n">coords</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+            <span class="n">poly</span><span class="o">.</span><span class="n">_memory</span><span class="p">[</span><span class="s1">&#39;tex_coords&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">texture</span>
+    <span class="k">if</span> <span class="n">name</span><span class="p">:</span>
+        <span class="n">poly</span><span class="o">.</span><span class="n">attrib</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Got </span><span class="si">{</span><span class="n">poly</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">poly</span></div>
+
+
+<div class="viewcode-block" id="readPLY"><a class="viewcode-back" href="../ref/fileread.html#fileread.readPLY">[docs]</a><span class="k">def</span> <span class="nf">readPLY</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read polygons from a PLY file.</span>
+
+<span class="sd">    Reads the polygon data from a stanford .ply file and possibly</span>
+<span class="sd">    splits the high plexitude polygons into smaller ones.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename: :term:`path_like`</span>
+<span class="sd">        The name of a file in PLY format, commonly having a suffix &#39;.ply&#39;.</span>
+<span class="sd">        Ascii as well as binary formats are supported</span>
+<span class="sd">        If the name ends with &#39;.ply.gz&#39; or &#39;.ply.bz2&#39;, the file will</span>
+<span class="sd">        transparently be uncompressed during reading.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Polygons</span>
+<span class="sd">        The polygons read from the PLY file.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This uses plyfile from https://github.com/dranjan/python-plyfile</span>
+<span class="sd">    to read the PLY file.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from .filewrite import writePLY</span>
+<span class="sd">    &gt;&gt;&gt; f = Path(&#39;test_filewrite.ply&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; M = Mesh(eltype=&#39;quad4&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; writePLY(f, M)</span>
+<span class="sd">    &gt;&gt;&gt; poly = readPLY(f)</span>
+<span class="sd">    &gt;&gt;&gt; print(poly)</span>
+<span class="sd">    Polygons: nnodes: 4, nelems: 1, nplex: min 4, max 4, eltype: polygon</span>
+<span class="sd">      BBox: [0. 0. 0.], [1. 1. 0.]</span>
+<span class="sd">      Size: [1. 1. 0.]</span>
+<span class="sd">    &gt;&gt;&gt; print(poly.coords)</span>
+<span class="sd">    [[0.  0.  0.]</span>
+<span class="sd">     [1.  0.  0.]</span>
+<span class="sd">     [1.  1.  0.]</span>
+<span class="sd">     [0.  1.  0.]]</span>
+<span class="sd">    &gt;&gt;&gt; print(poly.elems)</span>
+<span class="sd">    Varray (1, (4, 4))</span>
+<span class="sd">      [0 1 2 3]</span>
+<span class="sd">    &gt;&gt;&gt; M = Mesh(eltype=&#39;quad4&#39;).convert(&#39;tri3-u&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; writePLY(f, M, binary=True)</span>
+<span class="sd">    &gt;&gt;&gt; P = readPLY(f, check=False)</span>
+<span class="sd">    &gt;&gt;&gt; print(P)</span>
+<span class="sd">    Polygons: nnodes: 4, nelems: 2, nplex: min 3, max 3, eltype: polygon</span>
+<span class="sd">      BBox: [0. 0. 0.], [1. 1. 0.]</span>
+<span class="sd">      Size: [1. 1. 0.]</span>
+<span class="sd">    &gt;&gt;&gt; print(P.coords)</span>
+<span class="sd">    [[0. 0. 0.]</span>
+<span class="sd">     [1. 0. 0.]</span>
+<span class="sd">     [1. 1. 0.]</span>
+<span class="sd">     [0. 1. 0.]]</span>
+<span class="sd">    &gt;&gt;&gt; print(P.elems)</span>
+<span class="sd">    Varray (2, (3, 3))</span>
+<span class="sd">      [0 1 2]</span>
+<span class="sd">      [2 3 0]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">pyformex.polygons</span> <span class="kn">import</span> <span class="n">Polygons</span>
+    <span class="kn">from</span> <span class="nn">pyformex.plugins.plyfile</span> <span class="kn">import</span> <span class="n">PlyData</span>
+
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Read PLY file </span><span class="si">{</span><span class="n">filename</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">utils</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fil</span><span class="p">:</span>
+        <span class="n">ply_data</span> <span class="o">=</span> <span class="n">PlyData</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">fil</span><span class="p">)</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">ply_data</span><span class="o">.</span><span class="n">_get_comments</span><span class="p">():</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;name=(\w+)&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">A</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">m</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">vertices</span> <span class="o">=</span> <span class="n">ply_data</span><span class="p">[</span><span class="s1">&#39;vertex&#39;</span><span class="p">]</span>
+    <span class="n">faces</span> <span class="o">=</span> <span class="n">ply_data</span><span class="p">[</span><span class="s1">&#39;face&#39;</span><span class="p">]</span>
+    <span class="c1"># Point coordinates</span>
+    <span class="n">coords</span> <span class="o">=</span> <span class="n">Coords</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span>
+        <span class="n">vertices</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">],</span>
+        <span class="n">vertices</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">],</span>
+        <span class="n">vertices</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">],</span> <span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+    <span class="c1"># Vertex indices</span>
+    <span class="n">vertex_indices</span> <span class="o">=</span> <span class="n">faces</span><span class="p">[</span><span class="s1">&#39;vertex_indices&#39;</span><span class="p">]</span>
+    <span class="c1"># Polygons</span>
+    <span class="n">poly</span> <span class="o">=</span> <span class="n">Polygons</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">vertex_indices</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="n">check</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">name</span><span class="p">:</span>
+        <span class="n">poly</span><span class="o">.</span><span class="n">attrib</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Got </span><span class="si">{</span><span class="n">poly</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">poly</span></div>
+
+
+<div class="viewcode-block" id="readGTS"><a class="viewcode-back" href="../ref/fileread.html#fileread.readGTS">[docs]</a><span class="k">def</span> <span class="nf">readGTS</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read a surface mesh from a GTS file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename: :term:`path_like`</span>
+<span class="sd">        The name of a file in GTS format, commonly having a suffix &#39;.gts&#39;.</span>
+<span class="sd">        If the name ends with &#39;.gts.gz&#39; or &#39;.gts.bz2&#39;, then the file will</span>
+<span class="sd">        transparently be uncompressed during reading.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    coords: float array (ncoords, 3)</span>
+<span class="sd">        The coordinates of all vertices.</span>
+<span class="sd">    edges: int array (nedges,2)</span>
+<span class="sd">        The edges to nodes connectivity table.</span>
+<span class="sd">    faces: int array (nfaces,2)</span>
+<span class="sd">        The faces to edges connectivity table.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from .filewrite import writeGTS</span>
+<span class="sd">    &gt;&gt;&gt; f = Path(&#39;test_filewrite.gts&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; M = Mesh(eltype=&#39;quad4&#39;).convert(&#39;tri3-u&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; writeGTS(f, M.toSurface())</span>
+<span class="sd">    &gt;&gt;&gt; coords, edges, faces = readGTS(f)</span>
+<span class="sd">    &gt;&gt;&gt; print(coords)</span>
+<span class="sd">    [[0. 0. 0.]</span>
+<span class="sd">     [1. 0. 0.]</span>
+<span class="sd">     [1. 1. 0.]</span>
+<span class="sd">     [0. 1. 0.]]</span>
+<span class="sd">    &gt;&gt;&gt; print(edges)</span>
+<span class="sd">    [[0 1]</span>
+<span class="sd">     [2 0]</span>
+<span class="sd">     [3 0]</span>
+<span class="sd">     [1 2]</span>
+<span class="sd">     [2 3]]</span>
+<span class="sd">    &gt;&gt;&gt; print(faces)</span>
+<span class="sd">    [[0 3 1]</span>
+<span class="sd">     [4 2 1]]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Read GTS file </span><span class="si">{</span><span class="n">filename</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">utils</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fil</span><span class="p">:</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="n">fil</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="n">ncoords</span><span class="p">,</span> <span class="n">nedges</span><span class="p">,</span> <span class="n">nfaces</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">header</span><span class="p">[:</span><span class="mi">3</span><span class="p">]]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">header</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">7</span> <span class="ow">and</span> <span class="n">header</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;Binary&#39;</span><span class="p">):</span>
+            <span class="n">sep</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">&quot;We can not read binary GTS format yet. &quot;</span>
+                <span class="s2">&quot;See https://savannah.nongnu.org/bugs/index.php?38608. &quot;</span>
+                <span class="s2">&quot;Maybe you should recompile the extra/gts commands.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sep</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span>
+            <span class="n">fil</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">at</span><span class="o">.</span><span class="n">Float</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">3</span> <span class="o">*</span> <span class="n">ncoords</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="n">sep</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="n">edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span>
+            <span class="n">fil</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">2</span> <span class="o">*</span> <span class="n">nedges</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39; &#39;</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="n">faces</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span>
+            <span class="n">fil</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">3</span> <span class="o">*</span> <span class="n">nfaces</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39; &#39;</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Got </span><span class="si">{</span><span class="n">ncoords</span><span class="si">}</span><span class="s2"> coords, </span><span class="si">{</span><span class="n">nedges</span><span class="si">}</span><span class="s2"> edges, </span><span class="si">{</span><span class="n">nfaces</span><span class="si">}</span><span class="s2"> faces&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">ncoords</span> <span class="ow">or</span> \
+       <span class="n">edges</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">nedges</span> <span class="ow">or</span> \
+       <span class="n">faces</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">nfaces</span><span class="p">:</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;Error reading GTS file! Result may be incomplete.&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">coords</span><span class="p">,</span> <span class="n">edges</span><span class="p">,</span> <span class="n">faces</span></div>
+
+
+<div class="viewcode-block" id="readSTL"><a class="viewcode-back" href="../ref/fileread.html#fileread.readSTL">[docs]</a><span class="k">def</span> <span class="nf">readSTL</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read a surface mesh from an STL file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename: :term:`path_like`</span>
+<span class="sd">        The name of a file in STL format, commonly having a suffix &#39;.stl&#39;.</span>
+<span class="sd">        If the name ends with &#39;.gz&#39; or &#39;.bz2&#39;, then the file will</span>
+<span class="sd">        transparently be uncompressed during reading.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    coords: float array (ncoords, 3)</span>
+<span class="sd">        The coordinates of all vertices.</span>
+<span class="sd">    edges: int array (nedges,2)</span>
+<span class="sd">        The edges to nodes connectivity table.</span>
+<span class="sd">    faces: int array (nfaces,2)</span>
+<span class="sd">        The faces to edges connectivity table.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    STL files come in ascii and binary formats. As there is no simple</span>
+<span class="sd">    way to detect the format, a binary read is tried first, and if</span>
+<span class="sd">    unsuccessful, the ascii read is tried next.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from .filewrite import writeSTL</span>
+<span class="sd">    &gt;&gt;&gt; f = Path(&#39;test_filewrite.stl&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; M = Mesh(eltype=&#39;quad4&#39;).convert(&#39;tri3-u&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; writeSTL(f, M.toFormex().coords, binary=True, color=[255,0,0,128])</span>
+<span class="sd">    &gt;&gt;&gt; coords, normals, color = readSTL(f)</span>
+<span class="sd">    &gt;&gt;&gt; print(coords)</span>
+<span class="sd">    [[[0.  0.  0.]</span>
+<span class="sd">      [1.  0.  0.]</span>
+<span class="sd">      [1.  1.  0.]]</span>
+<span class="sd">    &lt;BLANKLINE&gt;</span>
+<span class="sd">     [[1.  1.  0.]</span>
+<span class="sd">      [0.  1.  0.]</span>
+<span class="sd">      [0.  0.  0.]]]</span>
+<span class="sd">    &gt;&gt;&gt; print(normals)</span>
+<span class="sd">    [[0.  0.  1.]</span>
+<span class="sd">     [0.  0.  1.]]</span>
+<span class="sd">    &gt;&gt;&gt; print(color)</span>
+<span class="sd">    (1.0, 0.0, 0.0)</span>
+<span class="sd">    &gt;&gt;&gt; writeSTL(f, M.toFormex().coords, binary=False)</span>
+<span class="sd">    &gt;&gt;&gt; coords, normals, color = readSTL(f)</span>
+<span class="sd">    &gt;&gt;&gt; print(coords)</span>
+<span class="sd">    [[[0.  0.  0.]</span>
+<span class="sd">      [1.  0.  0.]</span>
+<span class="sd">      [1.  1.  0.]]</span>
+<span class="sd">    &lt;BLANKLINE&gt;</span>
+<span class="sd">     [[1.  1.  0.]</span>
+<span class="sd">      [0.  1.  0.]</span>
+<span class="sd">      [0.  0.  0.]]]</span>
+<span class="sd">    &gt;&gt;&gt; print(normals)</span>
+<span class="sd">    [[0.  0.  1.]</span>
+<span class="sd">     [0.  0.  1.]]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Read STL file </span><span class="si">{</span><span class="n">filename</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">utils</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fil</span><span class="p">:</span>
+        <span class="n">head</span> <span class="o">=</span> <span class="n">fil</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+        <span class="n">asc</span> <span class="o">=</span> <span class="n">head</span><span class="p">[:</span><span class="mi">5</span><span class="p">]</span> <span class="o">==</span> <span class="sa">b</span><span class="s1">&#39;solid&#39;</span>
+        <span class="n">fil</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Reading </span><span class="si">{</span><span class="s1">&#39;ascii&#39;</span> <span class="k">if</span> <span class="n">asc</span> <span class="k">else</span> <span class="s1">&#39;binary&#39;</span><span class="si">}</span><span class="s2"> STL file&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">asc</span><span class="p">:</span>
+            <span class="n">coords</span><span class="p">,</span> <span class="n">normals</span> <span class="o">=</span> <span class="n">read_stl_asc</span><span class="p">(</span><span class="n">fil</span><span class="p">)</span>
+            <span class="n">color</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">coords</span><span class="p">,</span> <span class="n">normals</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="n">read_stl_bin</span><span class="p">(</span><span class="n">fil</span><span class="p">)</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Got </span><span class="si">{</span><span class="n">coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> triangles&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">coords</span><span class="p">,</span> <span class="n">normals</span><span class="p">,</span> <span class="n">color</span></div>
+
+
+<div class="viewcode-block" id="read_stl_bin"><a class="viewcode-back" href="../ref/fileread.html#fileread.read_stl_bin">[docs]</a><span class="k">def</span> <span class="nf">read_stl_bin</span><span class="p">(</span><span class="n">fil</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read a binary STL file.</span>
+
+<span class="sd">    Note</span>
+<span class="sd">    ----</span>
+<span class="sd">    This is a low level routine for use in readSTL. It is not intended</span>
+<span class="sd">    to be used directly.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fil: open file</span>
+<span class="sd">        File opened in binary read mode, holding binary STL data.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    coords: Coords (ntri,3,3)</span>
+<span class="sd">        A Coords with ntri triangles. Each triangle consists of 3 vertices.</span>
+<span class="sd">    normals: Coords (ntri,3)</span>
+<span class="sd">        A Coords with ntri vectors: the outer normals on the triangles.</span>
+<span class="sd">    color: None | float array (3,)</span>
+<span class="sd">        If the STL file header contained a color in Materialise (TM) format,</span>
+<span class="sd">        the RGB color components are returned as OpenGL color components.</span>
+<span class="sd">        The alpha value is currently not returned.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">addTriangle</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+        <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="n">fil</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">at</span><span class="o">.</span><span class="n">Float</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="n">fil</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="n">head</span> <span class="o">=</span> <span class="n">fil</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">80</span><span class="p">)</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="n">head</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;COLOR=&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="mi">70</span><span class="p">:</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="n">head</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">6</span><span class="p">:</span><span class="n">i</span> <span class="o">+</span> <span class="mi">10</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="n">ntri</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">at</span><span class="o">.</span><span class="n">Int</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">ntri</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">at</span><span class="o">.</span><span class="n">Float</span><span class="p">)</span>
+    <span class="c1"># nbytes = 12*4 + 2</span>
+    <span class="p">[</span><span class="n">addTriangle</span><span class="p">(</span><span class="n">it</span><span class="p">)</span> <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ntri</span><span class="p">)]</span>
+    <span class="n">normals</span> <span class="o">=</span> <span class="n">Coords</span><span class="p">(</span><span class="n">x</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span>
+    <span class="n">coords</span> <span class="o">=</span> <span class="n">Coords</span><span class="p">(</span><span class="n">x</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:])</span>
+    <span class="k">if</span> <span class="n">color</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">colors</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="n">colors</span><span class="o">.</span><span class="n">GLcolor</span><span class="p">(</span><span class="n">color</span><span class="p">[:</span><span class="mi">3</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">coords</span><span class="p">,</span> <span class="n">normals</span><span class="p">,</span> <span class="n">color</span></div>
+
+
+<div class="viewcode-block" id="read_stl_asc"><a class="viewcode-back" href="../ref/fileread.html#fileread.read_stl_asc">[docs]</a><span class="k">def</span> <span class="nf">read_stl_asc</span><span class="p">(</span><span class="n">fil</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read an ascii STL file.</span>
+
+<span class="sd">    Note</span>
+<span class="sd">    ----</span>
+<span class="sd">    This is a low level routine for use in readSTL. It is not intended</span>
+<span class="sd">    to be used directly.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fil: open file</span>
+<span class="sd">        File opened in binary read mode, holding ascii STL data.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    coords: Coords (ntri,3,3)</span>
+<span class="sd">        A Coords with ntri triangles. Each triangle consists of 3 vertices.</span>
+<span class="sd">    normals: Coords (ntri,3)</span>
+<span class="sd">        A Coords with ntri vectors: the outer normals on the triangles.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># different line modes and the corresponding re&#39;s</span>
+    <span class="n">solid</span><span class="p">,</span> <span class="n">facet</span><span class="p">,</span> <span class="n">outer</span><span class="p">,</span> <span class="n">vertex</span><span class="p">,</span> <span class="n">endloop</span><span class="p">,</span> <span class="n">endfacet</span><span class="p">,</span> <span class="n">endsolid</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span>
+    <span class="n">_re_solid</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">s*solid</span><span class="se">\\</span><span class="s2">s+.*&quot;</span><span class="p">)</span>
+    <span class="n">_re_facet</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">s*facet</span><span class="se">\\</span><span class="s2">s+normal</span><span class="se">\\</span><span class="s2">s+(?P&lt;data&gt;.*)&quot;</span><span class="p">)</span>
+    <span class="n">_re_outer</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">s*outer</span><span class="se">\\</span><span class="s2">s+loop</span><span class="se">\\</span><span class="s2">s*&quot;</span><span class="p">)</span>
+    <span class="n">_re_vertex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">s*vertex</span><span class="se">\\</span><span class="s2">s+(?P&lt;data&gt;.*)&quot;</span><span class="p">)</span>
+    <span class="n">_re_endloop</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">s*endloop</span><span class="se">\\</span><span class="s2">s*&quot;</span><span class="p">)</span>
+    <span class="n">_re_endfacet</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">s*endfacet</span><span class="se">\\</span><span class="s2">s*&quot;</span><span class="p">)</span>
+    <span class="n">_re_endsolid</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">s*endsolid</span><span class="se">\\</span><span class="s2">s*&quot;</span><span class="p">)</span>
+    <span class="n">_re_expect</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">solid</span><span class="p">:</span> <span class="n">_re_solid</span><span class="p">,</span>
+        <span class="n">facet</span><span class="p">:</span> <span class="n">_re_facet</span><span class="p">,</span>
+        <span class="n">outer</span><span class="p">:</span> <span class="n">_re_outer</span><span class="p">,</span>
+        <span class="n">vertex</span><span class="p">:</span> <span class="n">_re_vertex</span><span class="p">,</span>
+        <span class="n">endloop</span><span class="p">:</span> <span class="n">_re_endloop</span><span class="p">,</span>
+        <span class="n">endfacet</span><span class="p">:</span> <span class="n">_re_endfacet</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="c1"># place to store the results</span>
+    <span class="n">normals</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">coords</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">getdata</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get 3 floats from a string&quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">s</span><span class="o">.</span><span class="n">split</span><span class="p">()]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expected 3 float values&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">data</span>
+
+    <span class="n">mode</span> <span class="o">=</span> <span class="n">solid</span>
+    <span class="n">facets</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">nverts</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fil</span><span class="p">:</span>
+        <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">_re_expect</span><span class="p">[</span><span class="n">mode</span><span class="p">]</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">m</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="n">facet</span> <span class="ow">and</span> <span class="n">_re_endsolid</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+                <span class="c1"># We reached the end</span>
+                <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid input on line </span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">:</span><span class="se">\n</span><span class="si">{</span><span class="n">line</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="n">vertex</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">getdata</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Data error in line </span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">: </span><span class="se">\n</span><span class="si">{</span><span class="n">line</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">nverts</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">coords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">nverts</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="n">mode</span> <span class="o">=</span> <span class="n">endloop</span>
+        <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="n">facet</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">getdata</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Data error in line </span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">: </span><span class="se">\n</span><span class="si">{</span><span class="n">line</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">normals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">mode</span> <span class="o">=</span> <span class="n">outer</span>
+        <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="n">outer</span><span class="p">:</span>
+            <span class="n">nverts</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">mode</span> <span class="o">=</span> <span class="n">vertex</span>
+        <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="n">endloop</span><span class="p">:</span>
+            <span class="n">mode</span> <span class="o">=</span> <span class="n">endfacet</span>
+        <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="n">endfacet</span><span class="p">:</span>
+            <span class="n">facets</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">mode</span> <span class="o">=</span> <span class="n">facet</span>
+        <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="n">solid</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">count</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&#39;solid&#39; found on line </span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">mode</span> <span class="o">=</span> <span class="n">facet</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid input on line </span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">coords</span> <span class="o">=</span> <span class="n">Coords</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="n">normals</span> <span class="o">=</span> <span class="n">Coords</span><span class="p">(</span><span class="n">normals</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">coords</span><span class="p">,</span> <span class="n">normals</span></div>
+
+
+<span class="c1"># TODO: this should unzip compressed input files and zip compressed output</span>
+<span class="c1"># TODO: remove the default outname and warn if not specified</span>
+<div class="viewcode-block" id="stlConvert"><a class="viewcode-back" href="../ref/fileread.html#fileread.stlConvert">[docs]</a><span class="k">def</span> <span class="nf">stlConvert</span><span class="p">(</span><span class="n">stlname</span><span class="p">,</span> <span class="n">outname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">binary</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="s1">&#39;-d&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert an .stl file to .off or .gts or binary .stl format.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    stlname: :term:`path_like`</span>
+<span class="sd">        Name of an existing .stl file (either ascii or binary).</span>
+<span class="sd">    outname: str or Path</span>
+<span class="sd">        Name or suffix of the output file. The suffix defines the format</span>
+<span class="sd">        and should be one of &#39;.off&#39;, &#39;.gts&#39;, &#39;.stl&#39;, &#39;.stla&#39;, or .stlb&#39;.</span>
+<span class="sd">        If a suffix only is given (other than &#39;.stl&#39;), then the outname</span>
+<span class="sd">        will be constructed by changing the suffix of the input ``stlname``.</span>
+<span class="sd">        If not specified, the suffix of the configuration variable</span>
+<span class="sd">        &#39;surface/stlread&#39; is used.</span>
+<span class="sd">    binary: bool</span>
+<span class="sd">        Only used if the extension of ``outname`` is &#39;.stl&#39;. Defines whether</span>
+<span class="sd">        the output format is a binary or ascii STL format.</span>
+<span class="sd">    options: str</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    outname: Path</span>
+<span class="sd">        The name of the output file.</span>
+<span class="sd">    status: int</span>
+<span class="sd">        The exit status (0 if successful) of the conversion program.</span>
+<span class="sd">    stdout: str</span>
+<span class="sd">        The output of running the conversion program or a</span>
+<span class="sd">        &#39;file is already up to date&#39; message.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    If the outname file exists and its mtime is more recent than the stlname,</span>
+<span class="sd">    the outname file is considered up to date and the conversion program will</span>
+<span class="sd">    not be run.</span>
+
+<span class="sd">    The conversion program will be choosen depending on the extension.</span>
+<span class="sd">    This uses the external commands &#39;admesh&#39; or &#39;stl2gts&#39;.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">stlname</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">stlname</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">outname</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">outname</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;surface/stlread&#39;</span><span class="p">]</span>
+    <span class="n">outname</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">outname</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">outname</span><span class="o">.</span><span class="n">suffix</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span> <span class="ow">and</span> <span class="n">outname</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">):</span>
+        <span class="c1"># It is considered as a suffix only</span>
+        <span class="n">outname</span> <span class="o">=</span> <span class="n">stlname</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="n">outname</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">outname</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span> <span class="o">==</span> <span class="n">stlname</span><span class="o">.</span><span class="n">resolve</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;stlname and outname resolve to the same file&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">outname</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="n">stlname</span><span class="o">.</span><span class="n">mtime</span> <span class="o">&lt;</span> <span class="n">outname</span><span class="o">.</span><span class="n">mtime</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">outname</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;File &#39;</span><span class="si">{outname}</span><span class="s2">&#39; seems to be up to date&quot;</span>
+
+    <span class="n">ftype</span> <span class="o">=</span> <span class="n">outname</span><span class="o">.</span><span class="n">ftype</span>
+    <span class="k">if</span> <span class="n">ftype</span> <span class="o">==</span> <span class="s1">&#39;stl&#39;</span> <span class="ow">and</span> <span class="n">binary</span><span class="p">:</span>
+        <span class="n">ftype</span> <span class="o">=</span> <span class="s1">&#39;stlb&#39;</span>
+
+    <span class="k">if</span> <span class="n">ftype</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;off&#39;</span><span class="p">,</span> <span class="s1">&#39;stl&#39;</span><span class="p">,</span> <span class="s1">&#39;stla&#39;</span><span class="p">,</span> <span class="s1">&#39;stlb&#39;</span><span class="p">]:</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">External</span><span class="o">.</span><span class="n">has</span><span class="p">(</span><span class="s1">&#39;admesh&#39;</span><span class="p">)</span>
+        <span class="n">cmdopt</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;off&#39;</span><span class="p">:</span> <span class="s1">&#39;--write-off&#39;</span><span class="p">,</span> <span class="s1">&#39;stlb&#39;</span><span class="p">:</span><span class="s1">&#39;-b&#39;</span><span class="p">}</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ftype</span><span class="p">,</span> <span class="s1">&#39;-a&#39;</span><span class="p">)</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;admesh </span><span class="si">{</span><span class="n">options</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">cmdopt</span><span class="si">}</span><span class="s2"> &#39;</span><span class="si">{</span><span class="n">outname</span><span class="si">}</span><span class="s2">&#39; &#39;</span><span class="si">{</span><span class="n">stlname</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+    <span class="k">elif</span> <span class="n">ftype</span> <span class="o">==</span> <span class="s1">&#39;gts&#39;</span><span class="p">:</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;stl2gts &lt; &#39;</span><span class="si">{</span><span class="n">stlname</span><span class="si">}</span><span class="s2">&#39; &gt; &#39;</span><span class="si">{</span><span class="n">outname</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">outname</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Can not convert file &#39;</span><span class="si">{</span><span class="n">stlname</span><span class="si">}</span><span class="s2">&#39; to &#39;</span><span class="si">{</span><span class="n">outname</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+
+    <span class="n">P</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">outname</span><span class="p">,</span> <span class="n">P</span><span class="o">.</span><span class="n">returncode</span><span class="p">,</span> <span class="n">P</span><span class="o">.</span><span class="n">stdout</span></div>
+
+
+<span class="c1"># Global variables used by some functions</span>
+<span class="n">filename</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">mode</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">nplex</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">offset</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+<div class="viewcode-block" id="getParams"><a class="viewcode-back" href="../ref/fileread.html#fileread.getParams">[docs]</a><span class="k">def</span> <span class="nf">getParams</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Strip the parameters from a comment line&quot;&quot;&quot;</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;mode&#39;</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="s1">&#39;filename&#39;</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)}</span>
+    <span class="n">d</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">s</span><span class="p">[::</span><span class="mi">2</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">]))</span>
+    <span class="k">return</span> <span class="n">d</span></div>
+
+
+<div class="viewcode-block" id="readNodes"><a class="viewcode-back" href="../ref/fileread.html#fileread.readNodes">[docs]</a><span class="k">def</span> <span class="nf">readNodes</span><span class="p">(</span><span class="n">fil</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read a set of nodes from an open mesh file&quot;&quot;&quot;</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">Coords</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">x</span></div>
+
+
+<div class="viewcode-block" id="readElems"><a class="viewcode-back" href="../ref/fileread.html#fileread.readElems">[docs]</a><span class="k">def</span> <span class="nf">readElems</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="n">nplex</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read a set of elems of plexitude nplex from an open mesh file&quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Reading elements of plexitude </span><span class="si">{</span><span class="n">nplex</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">e</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">at</span><span class="o">.</span><span class="n">Int</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">nplex</span><span class="p">)</span>
+    <span class="n">e</span> <span class="o">=</span> <span class="n">Connectivity</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">e</span></div>
+
+
+<div class="viewcode-block" id="readEsets"><a class="viewcode-back" href="../ref/fileread.html#fileread.readEsets">[docs]</a><span class="k">def</span> <span class="nf">readEsets</span><span class="p">(</span><span class="n">fil</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read the eset data of type generate&quot;&quot;&quot;</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fil</span><span class="p">:</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="p">[:</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">:]])</span>
+    <span class="k">return</span> <span class="n">data</span></div>
+
+
+<div class="viewcode-block" id="readMeshFile"><a class="viewcode-back" href="../ref/fileread.html#fileread.readMeshFile">[docs]</a><span class="k">def</span> <span class="nf">readMeshFile</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read a nodes/elems model from file.</span>
+
+<span class="sd">    Returns a dict:</span>
+
+<span class="sd">    - &#39;coords&#39;: a Coords with all nodes</span>
+<span class="sd">    - &#39;elems&#39;: a list of Connectivities</span>
+<span class="sd">    - &#39;esets&#39;: a list of element sets</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">fil</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fil</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;#&#39;</span><span class="p">:</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">getParams</span><span class="p">(</span><span class="n">line</span><span class="p">))</span>
+        <span class="n">dfil</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;nodes&#39;</span><span class="p">:</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;coords&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">readNodes</span><span class="p">(</span><span class="n">dfil</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;elems&#39;</span><span class="p">:</span>
+            <span class="n">elems</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;elems&#39;</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="n">e</span> <span class="o">=</span> <span class="n">readElems</span><span class="p">(</span><span class="n">dfil</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">nplex</span><span class="p">))</span> <span class="o">-</span> <span class="nb">int</span><span class="p">(</span><span class="n">offset</span><span class="p">)</span>
+            <span class="n">elems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;esets&#39;</span><span class="p">:</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;esets&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">readEsets</span><span class="p">(</span><span class="n">dfil</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Skipping unrecognized line: </span><span class="si">{</span><span class="n">line</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">dfil</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="n">fil</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">d</span></div>
+
+
+<div class="viewcode-block" id="extractMeshes"><a class="viewcode-back" href="../ref/fileread.html#fileread.extractMeshes">[docs]</a><span class="k">def</span> <span class="nf">extractMeshes</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Extract the Meshes read from a .mesh file.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;coords&#39;</span><span class="p">]</span>
+    <span class="n">e</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;elems&#39;</span><span class="p">]</span>
+    <span class="n">M</span> <span class="o">=</span> <span class="p">[</span><span class="n">Mesh</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">ei</span><span class="p">)</span> <span class="k">for</span> <span class="n">ei</span> <span class="ow">in</span> <span class="n">e</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">M</span></div>
+
+<div class="viewcode-block" id="convertInp"><a class="viewcode-back" href="../ref/fileread.html#fileread.convertInp">[docs]</a><span class="k">def</span> <span class="nf">convertInp</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert an Abaqus .inp to a .mesh set of files&quot;&quot;&quot;</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+    <span class="n">converter</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;bindir&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="s1">&#39;read_abq_inp.awk&#39;</span>
+    <span class="n">cmd</span> <span class="o">=</span> <span class="s2">&quot;cd </span><span class="si">{filename.parent}</span><span class="s2">; awk -f </span><span class="si">{converter}</span><span class="s2"> </span><span class="si">{filename.name}</span><span class="s2">&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+    <span class="n">P</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">P</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">P</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span></div>
+
+
+<span class="c1">######## Abaqus/Calculix INP format (.inp) ##########</span>
+
+
+<div class="viewcode-block" id="readINP"><a class="viewcode-back" href="../ref/fileread.html#fileread.readINP">[docs]</a><span class="k">def</span> <span class="nf">readINP</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">tempdir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read the geometry from an Abaqus/Calculix .inp file</span>
+
+<span class="sd">    This uses :func:`plugins.ccxinp.readInpFile` to import the Finite</span>
+<span class="sd">    Element meshes from an Abaqus or Calculix INP format file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename: :term:`path_like`</span>
+<span class="sd">        The path of the input file, usually with a .inp suffix.</span>
+<span class="sd">    tempdir: :term:`path_like`, optional</span>
+<span class="sd">        The path of a directory where intermediary results can be stored.</span>
+<span class="sd">        If provided but not existent, it will be created. If not provided,</span>
+<span class="sd">        a temporary directory is used and intermediary data are not saved.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        A dict where the keys are part names and the values are</span>
+<span class="sd">        :class:`FeModel` instances. If the .inp file does not contain parts,</span>
+<span class="sd">        default part names are generated.</span>
+
+<span class="sd">    Warning</span>
+<span class="sd">    -------</span>
+<span class="sd">    Element blocks with an unrecognized element type will raise an exception,</span>
+<span class="sd">    unless :attr:`plugins.ccxinp.skip_unknown_eltype` is set to True.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">pyformex.plugins</span> <span class="kn">import</span> <span class="n">ccxinp</span>
+    <span class="kn">from</span> <span class="nn">pyformex.plugins</span> <span class="kn">import</span> <span class="n">fe</span>
+
+    <span class="n">model</span> <span class="o">=</span> <span class="n">ccxinp</span><span class="o">.</span><span class="n">readInpFile</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">tempdir</span><span class="o">=</span><span class="n">tempdir</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of parts: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parts</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">fem</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">parts</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">coords</span> <span class="o">=</span> <span class="n">Coords</span><span class="p">(</span><span class="n">part</span><span class="p">[</span><span class="s1">&#39;coords&#39;</span><span class="p">])</span>
+            <span class="n">nodid</span> <span class="o">=</span> <span class="n">part</span><span class="p">[</span><span class="s1">&#39;nodid&#39;</span><span class="p">]</span>
+            <span class="n">nodpos</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">inverseUniqueIndex</span><span class="p">(</span><span class="n">nodid</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;nnodes = </span><span class="si">{</span><span class="n">coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;nodid: </span><span class="si">{</span><span class="n">nodid</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;nodpos: </span><span class="si">{</span><span class="n">nodpos</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">elems</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">part</span><span class="p">[</span><span class="s1">&#39;elems&#39;</span><span class="p">]:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Converting elements of type </span><span class="si">{</span><span class="n">t</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="n">el</span> <span class="o">=</span> <span class="n">nodpos</span><span class="p">[</span><span class="n">e</span><span class="p">]</span>
+                    <span class="n">els</span> <span class="o">=</span> <span class="n">Connectivity</span><span class="p">(</span><span class="n">nodpos</span><span class="p">[</span><span class="n">e</span><span class="p">],</span> <span class="n">eltype</span><span class="o">=</span><span class="n">t</span><span class="p">)</span>
+                    <span class="n">elems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">els</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Conversion failed for elements of type </span><span class="si">{</span><span class="n">t</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Orig els </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Trl els </span><span class="si">{</span><span class="n">el</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ELEM TYPES: </span><span class="si">{</span><span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">eltype</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">elems</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">fem</span><span class="p">[</span><span class="n">part</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">fe</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">elems</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Skipping part </span><span class="si">{</span><span class="n">part</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">fem</span></div>
+
+
+<span class="c1">######## Gambit neutral file (.neu) ##########</span>
+
+<span class="c1"># convert Gambit neutral node order to pyFormex order</span>
+<span class="n">neu_pyf_order</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="mi">4</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span>
+<span class="p">}</span>
+
+<div class="viewcode-block" id="readNEU"><a class="viewcode-back" href="../ref/fileread.html#fileread.readNEU">[docs]</a><span class="k">def</span> <span class="nf">readNEU</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">return_numbering</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read a Mesh from a Gambit neutral file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename: :term:`path_like`</span>
+<span class="sd">        The name of a file in Gambit neutral format, commonly having a suffix</span>
+<span class="sd">        &#39;.neu&#39;. If the name ends with &#39;.gz&#39; or &#39;.bz2&#39;, the file will</span>
+<span class="sd">        transparently be uncompressed during reading.</span>
+<span class="sd">    return_numbering: bool</span>
+<span class="sd">        If True, also returns the original node and element numbers as found</span>
+<span class="sd">        in the file. The internal pyFormex numbers are always in order of</span>
+<span class="sd">        appearance in the file.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Mesh</span>
+<span class="sd">        The Mesh read from the Gambit neutral file, if reading was successful.</span>
+<span class="sd">        None if the file could not be read. If the .neu file contains groups,</span>
+<span class="sd">        the Mesh will have prop values equal to the material type numbers in</span>
+<span class="sd">        the file.</span>
+<span class="sd">    nrs: int array</span>
+<span class="sd">        The node numbers in the .neu file corrsponding to the nodes in</span>
+<span class="sd">        Mesh.coords. Only returned if return_numbering is True.</span>
+<span class="sd">    enrs: in array</span>
+<span class="sd">        The element numbers in the .neu file corresponding to the elements</span>
+<span class="sd">        in Mesh.elems. Only returned if return_numbering is True.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Currently this function can only read Gambit files where all cells</span>
+<span class="sd">    are of the same element type.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from pyformex.plugins.neu_exp import writeNEU</span>
+<span class="sd">    &gt;&gt;&gt; f = Path(&#39;test_filewrite.neu&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; M = Mesh(eltype=&#39;hex8&#39;).subdivide(3)</span>
+<span class="sd">    &gt;&gt;&gt; writeNEU(f, M)</span>
+<span class="sd">    &gt;&gt;&gt; M = readNEU(f)</span>
+<span class="sd">    Successfully read test_filewrite.neu</span>
+<span class="sd">     ncoords=64; nelems=27;  nplex=8; eltype=Hex8</span>
+<span class="sd">    &gt;&gt;&gt; print(M)</span>
+<span class="sd">    Mesh: nnodes: 64, nelems: 27, nplex: 8, level: 3, eltype: hex8</span>
+<span class="sd">      BBox: [0.  0.  0.], [1.  1.  1.]</span>
+<span class="sd">      Size: [1.  1.  1.]</span>
+<span class="sd">      Area: 6.0  Volume: 1.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="kn">from</span> <span class="nn">pyformex.plugins.neu_exp</span> <span class="kn">import</span> <span class="n">pyf_neu_eltype</span><span class="p">,</span> <span class="n">neu_pyf_order</span>
+    <span class="n">neu_pyf_eltype</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">inverseDict</span><span class="p">(</span><span class="n">pyf_neu_eltype</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">find_line</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="n">pat</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fil</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[:</span><span class="nb">len</span><span class="p">(</span><span class="n">pat</span><span class="p">)]</span> <span class="o">==</span> <span class="n">pat</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">read_coords</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="n">ncoords</span><span class="p">):</span>
+        <span class="n">nrs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">ncoords</span><span class="p">,),</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">at</span><span class="o">.</span><span class="n">Int</span><span class="p">)</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">ncoords</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">at</span><span class="o">.</span><span class="n">Float</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ncoords</span><span class="p">):</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">fil</span><span class="p">)</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="n">nrs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">coords</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">si</span><span class="p">)</span> <span class="k">for</span> <span class="n">si</span> <span class="ow">in</span> <span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">4</span><span class="p">]]</span>
+        <span class="k">return</span> <span class="n">nrs</span><span class="p">,</span> <span class="n">coords</span>
+
+    <span class="k">def</span> <span class="nf">read_elems</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="n">nelems</span><span class="p">):</span>
+        <span class="n">enrs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">nelems</span><span class="p">,),</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">at</span><span class="o">.</span><span class="n">Int</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nelems</span><span class="p">):</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">fil</span><span class="p">)</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="n">enrs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">eltyp</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">nplex</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+                <span class="n">elems</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">nelems</span><span class="p">,</span> <span class="n">nplex</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">at</span><span class="o">.</span><span class="n">Int</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">eltyp</span> <span class="o">!=</span> <span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="ow">or</span> <span class="n">nplex</span> <span class="o">!=</span> <span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">2</span><span class="p">]):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s2">&quot;Currently I can not handle .neu files with more &quot;</span>
+                        <span class="s2">&quot;than 1 element type&quot;</span><span class="p">)</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="mi">3</span><span class="p">:]</span>
+            <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">nplex</span><span class="p">:</span>
+                <span class="n">s</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">fil</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+            <span class="n">elems</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">si</span><span class="p">)</span> <span class="k">for</span> <span class="n">si</span> <span class="ow">in</span> <span class="n">s</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">eltyp</span><span class="p">,</span> <span class="n">enrs</span><span class="p">,</span> <span class="n">elems</span>
+
+    <span class="k">def</span> <span class="nf">read_group</span><span class="p">(</span><span class="n">fil</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">fil</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="n">group</span><span class="p">,</span> <span class="n">nels</span><span class="p">,</span> <span class="n">matnr</span><span class="p">,</span> <span class="n">nflags</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">]]</span>
+        <span class="nb">next</span><span class="p">(</span><span class="n">fil</span><span class="p">)</span>  <span class="c1"># groupname</span>
+        <span class="nb">next</span><span class="p">(</span><span class="n">fil</span><span class="p">)</span>  <span class="c1"># flags</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">((</span><span class="n">nels</span><span class="o">+</span><span class="mi">9</span><span class="p">)</span> <span class="o">//</span> <span class="mi">10</span><span class="p">):</span>
+            <span class="n">values</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">si</span><span class="p">)</span> <span class="k">for</span> <span class="n">si</span> <span class="ow">in</span> <span class="nb">next</span><span class="p">(</span><span class="n">fil</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()])</span>
+        <span class="k">return</span> <span class="n">matnr</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">at</span><span class="o">.</span><span class="n">Int</span><span class="p">)</span>
+
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Read NEU file </span><span class="si">{</span><span class="n">filename</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">utils</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fil</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">find_line</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;NUMNP&#39;</span><span class="p">]):</span>
+            <span class="c1"># read the parameters</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">fil</span><span class="p">)</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="n">ncoords</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">nelems</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">find_line</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;NODAL&#39;</span><span class="p">,</span> <span class="s1">&#39;COORDINATES&#39;</span><span class="p">]):</span>
+                <span class="c1"># read the nodal coordinates</span>
+                <span class="n">nrs</span><span class="p">,</span> <span class="n">coords</span> <span class="o">=</span> <span class="n">read_coords</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="n">ncoords</span><span class="p">)</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">fil</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">find_line</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;ELEMENTS/CELLS&#39;</span><span class="p">]):</span>
+                    <span class="c1"># read the elements</span>
+                    <span class="n">eltyp</span><span class="p">,</span> <span class="n">enrs</span><span class="p">,</span> <span class="n">elems</span> <span class="o">=</span> <span class="n">read_elems</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="n">nelems</span><span class="p">)</span>
+                    <span class="n">nplex</span> <span class="o">=</span> <span class="n">elems</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="n">elname</span> <span class="o">=</span> <span class="n">neu_pyf_eltype</span><span class="o">.</span><span class="n">get</span><span class="p">((</span><span class="n">eltyp</span><span class="p">,</span> <span class="n">nplex</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">elname</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;I can not convert .neu files with elements&quot;</span>
+                            <span class="sa">f</span><span class="s2">&quot; of type </span><span class="si">{</span><span class="n">eltyp</span><span class="si">}</span><span class="s2"> and plexitude </span><span class="si">{</span><span class="n">nplex</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="c1"># Translate node numbers to in-order coordinates</span>
+                    <span class="n">inv</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">inverseUniqueIndex</span><span class="p">(</span><span class="n">nrs</span><span class="p">)</span>
+                    <span class="n">elems</span> <span class="o">=</span> <span class="n">inv</span><span class="p">[</span><span class="n">elems</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">elname</span> <span class="ow">in</span> <span class="n">neu_pyf_order</span><span class="p">:</span>
+                        <span class="c1"># Reorder the nodes to our element node numbering scheme</span>
+                        <span class="n">elems</span> <span class="o">=</span> <span class="n">elems</span><span class="p">[:,</span> <span class="n">neu_pyf_order</span><span class="p">[</span><span class="n">elname</span><span class="p">]]</span>
+                    <span class="n">M</span> <span class="o">=</span> <span class="n">Mesh</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">elems</span><span class="p">,</span> <span class="n">eltype</span><span class="o">=</span><span class="n">elname</span><span class="p">)</span>
+
+                    <span class="c1"># print Read groups</span>
+                    <span class="k">while</span> <span class="n">find_line</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;ELEMENT&#39;</span><span class="p">,</span> <span class="s1">&#39;GROUP&#39;</span><span class="p">]):</span>
+                        <span class="c1"># read an element group</span>
+                        <span class="n">p</span><span class="p">,</span> <span class="n">els</span> <span class="o">=</span> <span class="n">read_group</span><span class="p">(</span><span class="n">fil</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">M</span><span class="o">.</span><span class="n">prop</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                            <span class="n">M</span><span class="o">.</span><span class="n">setProp</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                        <span class="n">M</span><span class="o">.</span><span class="n">prop</span><span class="p">[</span><span class="n">els</span><span class="p">]</span> <span class="o">=</span> <span class="n">p</span>
+
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Successfully read </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; ncoords=</span><span class="si">{</span><span class="n">ncoords</span><span class="si">}</span><span class="s2">; nelems=</span><span class="si">{</span><span class="n">M</span><span class="o">.</span><span class="n">nelems</span><span class="p">()</span><span class="si">}</span><span class="s2">; &quot;</span>
+                          <span class="sa">f</span><span class="s2">&quot; nplex=</span><span class="si">{</span><span class="n">M</span><span class="o">.</span><span class="n">nplex</span><span class="p">()</span><span class="si">}</span><span class="s2">; eltype=</span><span class="si">{</span><span class="n">M</span><span class="o">.</span><span class="n">elType</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="n">return_numbering</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="n">M</span><span class="p">,</span> <span class="n">nrs</span><span class="p">,</span> <span class="n">enrs</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="n">M</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error while reading </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+<span class="c1"># End</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">fileread</a></li--> 
+      </ul>
+    </div>
+    <div class="footer">
+    <span class="left">
+        &copy; Copyright 2004-2023, Benedict Verhegghe.
+    </span>
+      Last updated on Mar 27, 2023.
+    <span class="right">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.4.3.
+    </span>
+    </div>
+  </body>
+</html>

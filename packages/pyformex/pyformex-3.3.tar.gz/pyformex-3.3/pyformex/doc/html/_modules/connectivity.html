@@ -1,0 +1,1930 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!--
+##
+##  This file is part of the pyFormex project.
+##  pyFormex is a tool for generating, manipulating and transforming 3D
+##  geometrical models by sequences of mathematical operations.
+##  Home page: http://pyformex.org
+##  Project page:  http://savannah.nongnu.org/projects/pyformex/
+##  Copyright (C) Benedict Verhegghe (benedict.verhegghe@ugent.be)
+##  Distributed under the GNU General Public License version 3 or later.
+##
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see http://www.gnu.org/licenses/.
+##
+-->
+    <title>connectivity &#8212; pyFormex 3.3 documentation</title>
+
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pyformex.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+<link rel="icon" type="image/png" href="../_static/pyformex_fav.png" />
+
+  </head><body>
+
+<div class="header">
+  <a href="http://pyformex.org">
+  <img src="../_static/scallop_dome_small.png" alt="scallop dome" border="0" hspace="20" vspace="12" align="left" />
+  <img src="../_static/pyformex-logo-2.png" alt="pyformex logo" border="0" hspace="10" vspace="8" align="left" />
+  </a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">connectivity</a></li--> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<!-- PYFORMEX_SIDEBAR_LOGO -->
+<!-- PYFORMEX_WEBSITE_SIDEBAR_TOP -->
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for connectivity</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1">##</span>
+<span class="c1">##  SPDX-FileCopyrightText: © 2007-2023 Benedict Verhegghe &lt;bverheg@gmail.com&gt;</span>
+<span class="c1">##  SPDX-License-Identifier: GPL-3.0-or-later</span>
+<span class="c1">##</span>
+<span class="c1">##  This file is part of pyFormex 3.3  (Sun Mar 26 20:16:15 CEST 2023)</span>
+<span class="c1">##  pyFormex is a tool for generating, manipulating and transforming 3D</span>
+<span class="c1">##  geometrical models by sequences of mathematical operations.</span>
+<span class="c1">##  Home page: https://pyformex.org</span>
+<span class="c1">##  Project page: https://savannah.nongnu.org/projects/pyformex/</span>
+<span class="c1">##  Development: https://gitlab.com/bverheg/pyformex</span>
+<span class="c1">##  Distributed under the GNU General Public License version 3 or later.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is free software: you can redistribute it and/or modify</span>
+<span class="c1">##  it under the terms of the GNU General Public License as published by</span>
+<span class="c1">##  the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1">##  (at your option) any later version.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is distributed in the hope that it will be useful,</span>
+<span class="c1">##  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1">##  GNU General Public License for more details.</span>
+<span class="c1">##</span>
+<span class="c1">##  You should have received a copy of the GNU General Public License</span>
+<span class="c1">##  along with this program.  If not, see http://www.gnu.org/licenses/.</span>
+<span class="c1">##</span>
+
+<span class="sd">&quot;&quot;&quot;A class and functions for handling nodal connectivity.</span>
+
+<span class="sd">This module defines a specialized array class for representing nodal</span>
+<span class="sd">connectivity. This is e.g. used in mesh models, where geometry is</span>
+<span class="sd">represented by a set of numbered points (nodes) and the geometric elements</span>
+<span class="sd">are described by refering to the node numbers.</span>
+<span class="sd">In a mesh model, points common to adjacent elements are unique, and</span>
+<span class="sd">adjacency of elements can easily be detected from common node numbers.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">combinations</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">arraytools</span> <span class="k">as</span> <span class="n">at</span>
+<span class="kn">from</span> <span class="nn">pyformex.varray</span> <span class="kn">import</span> <span class="n">Varray</span>
+<span class="kn">from</span> <span class="nn">pyformex.adjacency</span> <span class="kn">import</span> <span class="n">Adjacency</span>
+
+
+<span class="c1">############################################################################</span>
+<span class="c1">##</span>
+<span class="c1">##   class Connectivity</span>
+<span class="c1">##</span>
+<span class="c1">#########################</span>
+
+
+<div class="viewcode-block" id="Connectivity"><a class="viewcode-back" href="../ref/connectivity.html#connectivity.Connectivity">[docs]</a><span class="k">class</span> <span class="nc">Connectivity</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+    <span class="c1">#</span>
+    <span class="c1"># :DEV</span>
+    <span class="c1"># Because we have a __new__ constructor and no __init__,</span>
+    <span class="c1"># we have to put the signature of the object creation explicitely</span>
+    <span class="c1"># in the first line of the docstring.</span>
+    <span class="c1">#</span>
+    <span class="sd">&quot;&quot;&quot;Connectivity(data=[],dtyp=None,copy=False,nplex=0,eltype=None)</span>
+
+<span class="sd">    A class for handling element to node connectivity.</span>
+
+<span class="sd">    A connectivity object is a 2-dimensional integer array with all</span>
+<span class="sd">    non-negative values. Each row of the array defines an element by listing</span>
+<span class="sd">    the numbers of its lower entity types.</span>
+<span class="sd">    A typical use is a :class:`~mesh.Mesh` object, where each element</span>
+<span class="sd">    is defined in function of its nodes.</span>
+<span class="sd">    While in a Mesh the word &#39;node&#39; will normally refer to a geometrical</span>
+<span class="sd">    point, here we will use &#39;node&#39; for the lower entity whatever its nature</span>
+<span class="sd">    is. It doesn&#39;t even have to be a geometrical entity.</span>
+
+<span class="sd">    Note</span>
+<span class="sd">    ----</span>
+<span class="sd">    The current implementation limits a Connectivity object to numbers that</span>
+<span class="sd">    are smaller than 2**31. That is however largely sufficient for all</span>
+<span class="sd">    practical cases.</span>
+
+<span class="sd">    In a row (element), the same node number may occur more than once, though</span>
+<span class="sd">    usually all numbers in a row are different. Rows containing duplicate</span>
+<span class="sd">    numbers are called `degenerate` elements.</span>
+<span class="sd">    Rows containing the same node sets, albeit different permutations thereof,</span>
+<span class="sd">    are called duplicates.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data: int :term:`array_like`</span>
+<span class="sd">        Data to initialize the Connectivity. The data should be 2-dim with</span>
+<span class="sd">        shape ``(nelems,nplex)``, where ``nelems`` is the number of elements and</span>
+<span class="sd">        ``nplex`` is the plexitude of the elements.</span>
+<span class="sd">    dtyp: float datatype, optional</span>
+<span class="sd">        It not provided, the datatype of ``data`` is used.</span>
+<span class="sd">    copy: bool, optional</span>
+<span class="sd">        If True, the data are copied. The default setting will try to use</span>
+<span class="sd">        the original data if possible, e.g. if ``data`` is a correctly shaped</span>
+<span class="sd">        and typed :class:`numpy.ndarray`.</span>
+<span class="sd">    nplex: int, optional</span>
+<span class="sd">        The plexitude of the data. This can be specified to force a check on</span>
+<span class="sd">        the plexitude of the data, or to set the plexitude for an empty</span>
+<span class="sd">        Connectivity.</span>
+<span class="sd">        If an ``eltype`` is specified, the plexitude of the element type</span>
+<span class="sd">        will override this value.</span>
+<span class="sd">    eltype: str or :class:`elements.ElementType` subclass, optional</span>
+<span class="sd">        The element type associated with the Connectivity. It can be either</span>
+<span class="sd">        a subclass of:class:`elements.ElementType` or the ``name`` of such</span>
+<span class="sd">        a subclass.</span>
+<span class="sd">        If not provided, a non-typed Connectivity will result.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If ``nplex`` is provided and the specified ``data`` do not match the</span>
+<span class="sd">        specified plexitude.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The Connectivity class has no knowledge about the geometrical meaning</span>
+<span class="sd">    of the element types. In most cases the use of its subclass</span>
+<span class="sd">    :class:`~elements.Elems` is therefore more appropriate.</span>
+
+<span class="sd">    Empty Connectivities with ``nelems==0`` and ``nplex &gt; 0`` can be useful,</span>
+<span class="sd">    but a Connectivity with ``nplex==0`` generally is not.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    :class:`~elements.Elems`: a subclass that holds geometrical information</span>
+<span class="sd">        about the element types and is used to create :class:`Mesh` geometries.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; Connectivity([[0,1,2],[0,1,3],[0,3,2],[0,5,3]])</span>
+<span class="sd">    Connectivity([[0, 1, 2],</span>
+<span class="sd">                  [0, 1, 3],</span>
+<span class="sd">                  [0, 3, 2],</span>
+<span class="sd">                  [0, 5, 3]])</span>
+
+<span class="sd">    &gt;&gt;&gt; Connectivity(np.array([],dtype=at.Int).reshape(0,3))</span>
+<span class="sd">    Connectivity([], shape=(0, 3))</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_exclude_members_</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;reorderNodes&#39;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">[],</span> <span class="n">dtyp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">nplex</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">eltype</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a new Connectivity object.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">Connectivity</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">nplex</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">nplex</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">nplex</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">eltype</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">eltype</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">eltype</span>
+
+        <span class="k">if</span> <span class="n">eltype</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">eltype</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">eltype</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="n">eltype</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># Turn the data into an array, and copy if requested</span>
+        <span class="n">ar</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtyp</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="n">copy</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ar</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">nplex</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">ar</span> <span class="o">=</span> <span class="n">ar</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">nplex</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ar</span> <span class="o">=</span> <span class="n">ar</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">ar</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expected 2-dim data&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Check values</span>
+        <span class="k">if</span> <span class="n">ar</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ar</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="o">**</span><span class="mi">31</span> <span class="ow">or</span> <span class="p">(</span><span class="n">ar</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Negative or too large positive value in data&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">nplex</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">ar</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">nplex</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Expected data of plexitude </span><span class="si">{</span><span class="n">nplex</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">nplex</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">ar</span> <span class="o">=</span> <span class="n">ar</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">nplex</span><span class="p">)</span>
+
+        <span class="c1"># Make sure dtype is an ar.Int type</span>
+        <span class="n">ar</span> <span class="o">=</span> <span class="n">ar</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">at</span><span class="o">.</span><span class="n">Int</span><span class="p">)</span>
+
+        <span class="c1"># Transform &#39;subarr&#39; from an ndarray to our new subclass.</span>
+        <span class="n">ar</span> <span class="o">=</span> <span class="n">ar</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="c1">## # Other data</span>
+        <span class="n">ar</span><span class="o">.</span><span class="n">eltype</span> <span class="o">=</span> <span class="n">eltype</span>  <span class="c1"># ! this may be a string!!!!!!!!!!!</span>
+        <span class="n">ar</span><span class="o">.</span><span class="n">inv</span> <span class="o">=</span> <span class="kc">None</span>   <span class="c1"># inverse index</span>
+        <span class="n">ar</span><span class="o">.</span><span class="n">eadj</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># element adjacency</span>
+        <span class="n">ar</span><span class="o">.</span><span class="n">nadj</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># node adjacency</span>
+        <span class="k">return</span> <span class="n">ar</span>
+
+
+    <span class="k">def</span> <span class="nf">__array_finalize__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="c1"># reset the attributes from passed original object</span>
+        <span class="c1"># all extra attributes added in __new__ should be reset here</span>
+        <span class="k">if</span> <span class="n">obj</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eltype</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s1">&#39;eltype&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inv</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s1">&#39;inv&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eadj</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s1">&#39;eadj&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nadj</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s1">&#39;nadj&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">__reduce__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Reduce the object to a pickled state&quot;&quot;&quot;</span>
+        <span class="c1"># Get the pickled ndarray state (as a list, so we can change it)</span>
+        <span class="n">object_state</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="o">.</span><span class="n">__reduce__</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+        <span class="c1"># Define our own state with the extra attributes we added</span>
+        <span class="n">subclass_state</span> <span class="o">=</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eltype</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="c1"># Store both in place of the original ndarray state</span>
+        <span class="n">object_state</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">object_state</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">subclass_state</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">object_state</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">__setstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Restore from pickled state&quot;&quot;&quot;</span>
+        <span class="c1"># In __reduce__, we replaced ndarray&#39;s state with a tuple</span>
+        <span class="c1"># of itself and our own state</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">nd_state</span><span class="p">,</span> <span class="n">own_state</span> <span class="o">=</span> <span class="n">state</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="o">.</span><span class="n">__setstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nd_state</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">eltype</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inv</span> <span class="o">=</span> <span class="n">own_state</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># try to read legacy pickle format, which did not save</span>
+                <span class="c1"># the element type (rev &lt; 2360)</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="o">.</span><span class="n">__setstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;WARNING: Connectivity was restored without element type!&quot;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;I could not unpickle the Connectivity,&quot;</span>
+                      <span class="s2">&quot; neither in old nor new format&quot;</span><span class="p">)</span>
+                <span class="k">raise</span>
+
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;String representation of a Connectivity</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; Connectivity([[0,1,2],[0,1,3]],eltype=&#39;line3&#39;)</span>
+<span class="sd">        Connectivity([[0, 1, 2],</span>
+<span class="sd">                      [0, 1, 3]], eltype=&#39;line3&#39;)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="c1"># This is not needed for doctests, but is needed for</span>
+        <span class="c1"># normal output</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">at</span><span class="o">.</span><span class="n">Int</span><span class="p">:</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;, dtype=int32&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">eltype</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;)&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;, eltype=&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">eltype</span><span class="si">}</span><span class="s2">&#39;)&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">res</span>
+
+
+<div class="viewcode-block" id="Connectivity.nelems"><a class="viewcode-back" href="../ref/connectivity.html#connectivity.Connectivity.nelems">[docs]</a>    <span class="k">def</span> <span class="nf">nelems</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the number of elements in the Connectivity table.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            The number of rows in the table.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; Connectivity([[0,1,2],[0,1,3],[0,3,2],[0,5,3]]).nelems()</span>
+<span class="sd">        4</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="Connectivity.maxnodes"><a class="viewcode-back" href="../ref/connectivity.html#connectivity.Connectivity.maxnodes">[docs]</a>    <span class="k">def</span> <span class="nf">maxnodes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return an upper limit for number of nodes in the Connectivity.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            The highest node number plus one.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        nnodes: the actual number of nodes in the table</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; Connectivity([[0,1,2],[0,1,3],[0,3,2],[0,5,3]]).maxnodes()</span>
+<span class="sd">        6</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Connectivity.nnodes"><a class="viewcode-back" href="../ref/connectivity.html#connectivity.Connectivity.nnodes">[docs]</a>    <span class="k">def</span> <span class="nf">nnodes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the actual number of nodes in the Connectivity.</span>
+
+<span class="sd">        This returns the count of the unique node numbers.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        maxnodes: the highest node number + 1</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; Connectivity([[0,1,2],[0,1,3],[0,3,2],[0,5,3]]).nnodes()</span>
+<span class="sd">        5</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="Connectivity.nplex"><a class="viewcode-back" href="../ref/connectivity.html#connectivity.Connectivity.nplex">[docs]</a>    <span class="k">def</span> <span class="nf">nplex</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the plexitude of the elements in the Connectivity table.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; Connectivity([[0,1,2],[0,1,3],[0,3,2],[0,5,3]]).nplex()</span>
+<span class="sd">        3</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="Connectivity.report"><a class="viewcode-back" href="../ref/connectivity.html#connectivity.Connectivity.report">[docs]</a>    <span class="k">def</span> <span class="nf">report</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Format a Connectivity table&quot;&quot;&quot;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Connectivity </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">, eltype=</span><span class="si">{</span><span class="bp">self</span><span class="o">/</span><span class="n">eltype</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="n">s</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="o">.</span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+
+    <span class="c1">############### Detecting degenerates and duplicates ##############</span>
+
+
+<div class="viewcode-block" id="Connectivity.testDegenerate"><a class="viewcode-back" href="../ref/connectivity.html#connectivity.Connectivity.testDegenerate">[docs]</a>    <span class="k">def</span> <span class="nf">testDegenerate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Flag the degenerate elements (rows).</span>
+
+<span class="sd">        A degenerate element is a row which contains at least two</span>
+<span class="sd">        equal values.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool array</span>
+<span class="sd">             A 1-dim bool array with length ``self.nelems()``, holding</span>
+<span class="sd">             True values for the degenerate rows.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; Connectivity([[0,1,2],[0,1,1],[0,3,2]]).testDegenerate()</span>
+<span class="sd">        array([False,  True, False])</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">srt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+        <span class="n">srt</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">srt</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">srt</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:])</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Connectivity.listDegenerate"><a class="viewcode-back" href="../ref/connectivity.html#connectivity.Connectivity.listDegenerate">[docs]</a>    <span class="k">def</span> <span class="nf">listDegenerate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a list with the numbers of the degenerate elements.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int array</span>
+<span class="sd">            A 1-dim int array holding the row indices of the</span>
+<span class="sd">            degenerate elements.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; Connectivity([[0,1,2],[0,1,1],[0,3,2]]).listDegenerate()</span>
+<span class="sd">        array([1])</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nelems</span><span class="p">())[</span><span class="bp">self</span><span class="o">.</span><span class="n">testDegenerate</span><span class="p">()]</span></div>
+
+
+<div class="viewcode-block" id="Connectivity.listNonDegenerate"><a class="viewcode-back" href="../ref/connectivity.html#connectivity.Connectivity.listNonDegenerate">[docs]</a>    <span class="k">def</span> <span class="nf">listNonDegenerate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a list with the numbers of the non-degenerate elements.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int array</span>
+<span class="sd">            A 1-dim int array holding the row indices of the</span>
+<span class="sd">            non-degenerate elements.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; Connectivity([[0,1,2],[0,1,1],[0,3,2]]).listNonDegenerate()</span>
+<span class="sd">        array([0, 2])</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nelems</span><span class="p">())[</span><span class="o">~</span><span class="bp">self</span><span class="o">.</span><span class="n">testDegenerate</span><span class="p">()]</span></div>
+
+
+<div class="viewcode-block" id="Connectivity.removeDegenerate"><a class="viewcode-back" href="../ref/connectivity.html#connectivity.Connectivity.removeDegenerate">[docs]</a>    <span class="k">def</span> <span class="nf">removeDegenerate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Remove the degenerate elements from a Connectivity table.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Connectivity</span>
+<span class="sd">            A Connectivity object with the degenerate elements removed.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; Connectivity([[0,1,2],[0,1,1],[0,3,2]]).removeDegenerate()</span>
+<span class="sd">        Connectivity([[0, 1, 2],</span>
+<span class="sd">                      [0, 3, 2]])</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="o">~</span><span class="bp">self</span><span class="o">.</span><span class="n">testDegenerate</span><span class="p">()]</span></div>
+
+
+<div class="viewcode-block" id="Connectivity.findDuplicate"><a class="viewcode-back" href="../ref/connectivity.html#connectivity.Connectivity.findDuplicate">[docs]</a>    <span class="k">def</span> <span class="nf">findDuplicate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">permutations</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Find duplicate rows in the Connectivity.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        permutations: str</span>
+<span class="sd">            Defines which permutations of the row data are allowed while still</span>
+<span class="sd">            considering the rows equal. Possible values are:</span>
+
+<span class="sd">            - &#39;none&#39;: no permutations are allowed: rows must match the same date</span>
+<span class="sd">              at the same positions.</span>
+<span class="sd">            - &#39;roll&#39;: rolling is allowed. Rows that can be transformed into</span>
+<span class="sd">              each other by rolling are considered equal;</span>
+<span class="sd">            - &#39;all&#39;: any permutation of the same data will be considered an</span>
+<span class="sd">              equal row. This is the default.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        V: :class:`~varray.Varray`</span>
+<span class="sd">            A Varray where each row contains a list of the row numbers</span>
+<span class="sd">            from a that are considered equal. The entries in each row are</span>
+<span class="sd">            sorted and the rows are sorted according to their first element.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        This is like :func:`arraytools.equalRows` but has a different</span>
+<span class="sd">        default value for ``permutations``.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; C = Connectivity([[0,1,2],[0,1,3],[0,1,2],[2,0,1],[2,1,0]])</span>
+<span class="sd">        &gt;&gt;&gt; C.findDuplicate()</span>
+<span class="sd">        Varray([[0, 2, 3, 4], [1]])</span>
+<span class="sd">        &gt;&gt;&gt; C.findDuplicate(permutations=&#39;roll&#39;)</span>
+<span class="sd">        Varray([[0, 2, 3], [1], [4]])</span>
+<span class="sd">        &gt;&gt;&gt; C.findDuplicate(permutations=&#39;none&#39;)</span>
+<span class="sd">        Varray([[0, 2], [1], [3], [4]])</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">at</span><span class="o">.</span><span class="n">equalRows</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">permutations</span><span class="o">=</span><span class="n">permutations</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Connectivity.listDuplicate"><a class="viewcode-back" href="../ref/connectivity.html#connectivity.Connectivity.listDuplicate">[docs]</a>    <span class="k">def</span> <span class="nf">listDuplicate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">permutations</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a list with the numbers of the duplicate elements.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        1-dim int array</span>
+<span class="sd">            The indices of the unique rows in the Connectivity array.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; C = Connectivity([[0,1,2],[0,1,3],[0,1,2],[2,0,1],[2,1,0]])</span>
+<span class="sd">        &gt;&gt;&gt; C.listDuplicate()</span>
+<span class="sd">        array([2, 3, 4])</span>
+<span class="sd">        &gt;&gt;&gt; C.listDuplicate(permutations=&#39;roll&#39;)</span>
+<span class="sd">        array([2, 3])</span>
+<span class="sd">        &gt;&gt;&gt; C.listDuplicate(permutations=&#39;none&#39;)</span>
+<span class="sd">        array([2])</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ind</span><span class="p">,</span> <span class="n">ok</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">findEqualRows</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">permutations</span><span class="o">=</span><span class="n">permutations</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">ind</span><span class="p">[</span><span class="o">~</span><span class="n">ok</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="Connectivity.listUnique"><a class="viewcode-back" href="../ref/connectivity.html#connectivity.Connectivity.listUnique">[docs]</a>    <span class="k">def</span> <span class="nf">listUnique</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">permutations</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a list with the numbers of the unique elements.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        1-dim int array</span>
+<span class="sd">            The indices of the unique rows in the Connectivity array.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        findDuplicate: find duplicate rows</span>
+<span class="sd">        listDuplicate: list duplicate rows</span>
+<span class="sd">        removeDuplicate: remove duplicate rows</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; C = Connectivity([[0,1,2],[0,1,3],[0,1,2],[2,0,1],[2,1,0]])</span>
+<span class="sd">        &gt;&gt;&gt; C.listUnique()</span>
+<span class="sd">        array([0, 1])</span>
+<span class="sd">        &gt;&gt;&gt; C.listUnique(permutations=&#39;roll&#39;)</span>
+<span class="sd">        array([0, 1, 4])</span>
+<span class="sd">        &gt;&gt;&gt; C.listUnique(permutations=&#39;none&#39;)</span>
+<span class="sd">        array([0, 1, 3, 4])</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">at</span><span class="o">.</span><span class="n">uniqueRows</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">permutations</span><span class="o">=</span><span class="n">permutations</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Connectivity.removeDuplicate"><a class="viewcode-back" href="../ref/connectivity.html#connectivity.Connectivity.removeDuplicate">[docs]</a>    <span class="k">def</span> <span class="nf">removeDuplicate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">permutations</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Remove duplicate elements from a Connectivity list.</span>
+
+<span class="sd">        By default, duplicates are elements that consist of the same set of</span>
+<span class="sd">        nodes, in any particular order. Setting permutations to &#39;none&#39;</span>
+<span class="sd">        will only remove the duplicate rows that have matching values at</span>
+<span class="sd">        matching positions.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Connectivity</span>
+<span class="sd">            A new Connectivity with the duplicate elements removed.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; C = Connectivity([[0,1,2],[0,1,3],[0,1,2],[2,0,1],[2,1,0]])</span>
+<span class="sd">        &gt;&gt;&gt; C.removeDuplicate()</span>
+<span class="sd">        Connectivity([[0, 1, 2],</span>
+<span class="sd">                      [0, 1, 3]])</span>
+<span class="sd">        &gt;&gt;&gt; C.removeDuplicate(permutations=&#39;roll&#39;)</span>
+<span class="sd">        Connectivity([[0, 1, 2],</span>
+<span class="sd">                      [0, 1, 3],</span>
+<span class="sd">                      [2, 1, 0]])</span>
+<span class="sd">        &gt;&gt;&gt; C.removeDuplicate(permutations=&#39;none&#39;)</span>
+<span class="sd">        Connectivity([[0, 1, 2],</span>
+<span class="sd">                      [0, 1, 3],</span>
+<span class="sd">                      [2, 0, 1],</span>
+<span class="sd">                      [2, 1, 0]])</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">listUnique</span><span class="p">(</span><span class="n">permutations</span><span class="p">)]</span></div>
+
+
+<div class="viewcode-block" id="Connectivity.reorder"><a class="viewcode-back" href="../ref/connectivity.html#connectivity.Connectivity.reorder">[docs]</a>    <span class="k">def</span> <span class="nf">reorder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s1">&#39;nodes&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Reorder the elements of a Connectivity in a specified order.</span>
+
+<span class="sd">        This does not actually reorder the elements itself, but returns</span>
+<span class="sd">        an index with the order of the rows (elements) in the Connectivity</span>
+<span class="sd">        table that meets the specified ordering requirements.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        order: str or list of ints</span>
+<span class="sd">            Specifies how to reorder the elements. It is either one</span>
+<span class="sd">            of the special string values defined below, or else it is an index</span>
+<span class="sd">            with length equal to the number of elements. The index should be</span>
+<span class="sd">            a permutation of the numbers in ``range(self.nelems()``. Each value</span>
+<span class="sd">            gives the number of the old element that should be placed at</span>
+<span class="sd">            this position. Thus, the order values are the old element numbers</span>
+<span class="sd">            on the position of the new element number.</span>
+
+<span class="sd">            ``order`` can also take one of the following predefined values,</span>
+<span class="sd">            resulting in the corresponding renumbering scheme being generated:</span>
+
+<span class="sd">            - &#39;nodes&#39;: the elements are renumbered in order of their appearance</span>
+<span class="sd">              in the inverse index, i.e. first are the elements connected to</span>
+<span class="sd">              node 0, then the as yet unlisted elements connected to node 1, etc.</span>
+<span class="sd">            - &#39;random&#39;: the elements are randomly renumbered.</span>
+<span class="sd">            - &#39;reverse&#39;: the elements are renumbered in reverse order.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        1-dim int array</span>
+<span class="sd">            Int array with a permutation of ``arange(self.nelems()``, such that</span>
+<span class="sd">            taking the elements in this order will produce a Connectivity</span>
+<span class="sd">            reordered as requested.</span>
+<span class="sd">            In case an explicit order was specified as input, this order is</span>
+<span class="sd">            returned after checking that it is indeed a permutation of</span>
+<span class="sd">            ``range(self.nelems()``.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; A = Connectivity([[1,2],[2,3],[3,0],[0,1]])</span>
+<span class="sd">        &gt;&gt;&gt; A[A.reorder(&#39;reverse&#39;)]</span>
+<span class="sd">        Connectivity([[0, 1],</span>
+<span class="sd">                      [3, 0],</span>
+<span class="sd">                      [2, 3],</span>
+<span class="sd">                      [1, 2]])</span>
+<span class="sd">        &gt;&gt;&gt; A[A.reorder(&#39;nodes&#39;)]</span>
+<span class="sd">        Connectivity([[0, 1],</span>
+<span class="sd">                      [3, 0],</span>
+<span class="sd">                      [1, 2],</span>
+<span class="sd">                      [2, 3]])</span>
+<span class="sd">        &gt;&gt;&gt; A[A.reorder([2,3,0,1])]</span>
+<span class="sd">        Connectivity([[3, 0],</span>
+<span class="sd">                      [0, 1],</span>
+<span class="sd">                      [1, 2],</span>
+<span class="sd">                      [2, 3]])</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">order</span> <span class="o">==</span> <span class="s1">&#39;nodes&#39;</span><span class="p">:</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># first sort rows</span>
+            <span class="n">order</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">sortByColumns</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">order</span> <span class="o">==</span> <span class="s1">&#39;reverse&#39;</span><span class="p">:</span>
+            <span class="n">order</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nelems</span><span class="p">()</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">order</span> <span class="o">==</span> <span class="s1">&#39;random&#39;</span><span class="p">:</span>
+            <span class="n">order</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">permutation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nelems</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">order</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">order</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">order</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s1">&#39;i&#39;</span>
+                    <span class="ow">and</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">order</span><span class="p">)</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">order</span><span class="o">.</span><span class="n">size</span><span class="p">))</span><span class="o">.</span><span class="n">all</span><span class="p">()):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;order should be a permutation of range(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">nelems</span><span class="p">()</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">order</span></div>
+
+
+<div class="viewcode-block" id="Connectivity.renumber"><a class="viewcode-back" href="../ref/connectivity.html#connectivity.Connectivity.renumber">[docs]</a>    <span class="k">def</span> <span class="nf">renumber</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Renumber the nodes to a consecutive integer range.</span>
+
+<span class="sd">        The node numbers in the table are changed thus that they</span>
+<span class="sd">        form a consecutive integer range starting from the specified</span>
+<span class="sd">        value.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        start: int</span>
+<span class="sd">            Lowest node number to be used in the renumbered Connectivity.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        elems: Connectivity</span>
+<span class="sd">            The renumbered Connectivity</span>
+<span class="sd">        oldnrs: 1-dim int array</span>
+<span class="sd">            The sorted list of unique (old) node numbers. The new</span>
+<span class="sd">            node numbers are assigned in order of increasing old node numbers,</span>
+<span class="sd">            thus the old node number for new node number ``i`` can be found</span>
+<span class="sd">            at position ``i - start``.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; e,n = Connectivity([[0,2],[1,4],[4,2]]).renumber(7)</span>
+<span class="sd">        &gt;&gt;&gt; print(e)</span>
+<span class="sd">        [[ 7  9]</span>
+<span class="sd">         [ 8 10]</span>
+<span class="sd">         [10  9]]</span>
+<span class="sd">        &gt;&gt;&gt; print(n)</span>
+<span class="sd">        [0 1 2 4]</span>
+
+<span class="sd">        Find the old node number of new node 10</span>
+<span class="sd">        &gt;&gt;&gt; n[10-7]</span>
+<span class="sd">        4</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">nodes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">nodes</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">elems</span> <span class="o">=</span> <span class="bp">self</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">old</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nodes</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">nodes</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">old</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="c1"># we have a consecutive range</span>
+                <span class="k">if</span> <span class="n">nodes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">start</span><span class="p">:</span>
+                    <span class="c1"># numbering is ok, keep</span>
+                    <span class="n">elems</span> <span class="o">=</span> <span class="bp">self</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># add the correct offset</span>
+                    <span class="n">elems</span> <span class="o">=</span> <span class="bp">self</span> <span class="o">+</span> <span class="p">(</span><span class="n">start</span><span class="o">-</span><span class="n">nodes</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># need to renumber</span>
+                <span class="n">elems</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">inverseUniqueIndex</span><span class="p">(</span><span class="n">nodes</span><span class="p">)[</span><span class="bp">self</span><span class="p">]</span> <span class="o">+</span> <span class="n">start</span>
+                <span class="n">elems</span> <span class="o">=</span> <span class="n">Connectivity</span><span class="p">(</span><span class="n">elems</span><span class="p">,</span> <span class="n">eltype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">eltype</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">elems</span><span class="p">,</span> <span class="n">nodes</span></div>
+
+
+<div class="viewcode-block" id="Connectivity.inverse"><a class="viewcode-back" href="../ref/connectivity.html#connectivity.Connectivity.inverse">[docs]</a>    <span class="k">def</span> <span class="nf">inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the inverse index of a Connectivity table.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int array</span>
+<span class="sd">            The inverse index of the Connectivity, as computed</span>
+<span class="sd">            by :func:`arraytools.inverseIndex`.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; Connectivity([[0,1,2],[0,1,4],[0,4,2]]).inverse(expand=True)</span>
+<span class="sd">        array([[ 0,  1,  2],</span>
+<span class="sd">               [-1,  0,  1],</span>
+<span class="sd">               [-1,  0,  2],</span>
+<span class="sd">               [-1, -1, -1],</span>
+<span class="sd">               [-1,  1,  2]])</span>
+<span class="sd">        &gt;&gt;&gt; Connectivity([[0,1,2],[0,1,4],[0,4,2]]).inverse(expand=False)</span>
+<span class="sd">        Varray([[0, 1, 2], [0, 1], [0, 2], [], [1, 2]])</span>
+<span class="sd">        &gt;&gt;&gt; Connectivity().inverse()</span>
+<span class="sd">        Varray([])</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">expand</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">utils</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;warn_Connectivity_inverse&quot;</span><span class="p">,</span> <span class="n">uplevel</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">expand</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">inv</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">flags</span><span class="o">.</span><span class="n">writeable</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">inv</span> <span class="o">=</span> <span class="n">Varray</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">inverse</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">flags</span><span class="o">.</span><span class="n">writeable</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="n">expand</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">inv</span><span class="o">.</span><span class="n">toArray</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">inv</span></div>
+
+
+<div class="viewcode-block" id="Connectivity.nParents"><a class="viewcode-back" href="../ref/connectivity.html#connectivity.Connectivity.nParents">[docs]</a>    <span class="k">def</span> <span class="nf">nParents</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the number of elements connected to each node.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        1-dim int array</span>
+<span class="sd">            The number of elements connected to each node. The length of</span>
+<span class="sd">            the array is equal to the highest node number + 1.</span>
+<span class="sd">            Unused node numbers will have a count of zero.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; Connectivity([[0,1,2],[0,1,4],[0,4,2]]).nParents()</span>
+<span class="sd">        array([3, 2, 2, 0, 2])</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">inverse</span><span class="p">(</span><span class="n">expand</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">lengths</span></div>
+
+
+<div class="viewcode-block" id="Connectivity.connectedTo"><a class="viewcode-back" href="../ref/connectivity.html#connectivity.Connectivity.connectedTo">[docs]</a>    <span class="k">def</span> <span class="nf">connectedTo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodes</span><span class="p">,</span> <span class="n">return_ncon</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check if the elements are connected to the specified nodes.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        nodes: int or int :term:`array_like`</span>
+<span class="sd">            One or more node numbers to check for connections in the table.</span>
+<span class="sd">        return_ncon: bool, optional</span>
+<span class="sd">            If True, also return the number of connections for each element.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        connections: int array</span>
+<span class="sd">            The numbers of the elements that contain at least one of the</span>
+<span class="sd">            specified nodes.</span>
+<span class="sd">        ncon: int array, optional</span>
+<span class="sd">            The number of connections for each connected element.</span>
+<span class="sd">            This is only provided if ``return_ncon`` is True.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; A = Connectivity([[0,1,2],[0,1,3],[0,3,2],[1,2,3]])</span>
+<span class="sd">        &gt;&gt;&gt; print(A.connectedTo(2))</span>
+<span class="sd">        [0 2 3]</span>
+<span class="sd">        &gt;&gt;&gt; A.connectedTo([0,1,3],True)</span>
+<span class="sd">        (array([0, 1, 2, 3]), array([2, 3, 2, 2]))</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">nodes</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">checkArray1D</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;i&#39;</span><span class="p">)</span>
+        <span class="n">nodes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">intersect1d</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>  <span class="c1"># remove unconnected nodes</span>
+        <span class="n">inv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inverse</span><span class="p">(</span><span class="n">expand</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">ad</span> <span class="o">=</span> <span class="n">inv</span><span class="p">[</span><span class="n">nodes</span><span class="p">]</span>
+        <span class="n">ad</span> <span class="o">=</span> <span class="n">ad</span><span class="p">[</span><span class="n">ad</span><span class="o">&gt;=</span><span class="mi">0</span><span class="p">]</span>
+        <span class="c1"># We now have a list of all individual attachements to any of the nodes,</span>
+        <span class="c1"># identified by the element number. We count them per element.</span>
+        <span class="n">m</span><span class="p">,</span> <span class="n">u</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">multiplicity</span><span class="p">(</span><span class="n">ad</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">return_ncon</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">u</span><span class="p">,</span> <span class="n">m</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">u</span></div>
+
+
+<div class="viewcode-block" id="Connectivity.hits"><a class="viewcode-back" href="../ref/connectivity.html#connectivity.Connectivity.hits">[docs]</a>    <span class="k">def</span> <span class="nf">hits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodes</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Count the nodes from a list connected to the elements.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        nodes: int or list of ints</span>
+<span class="sd">            One or more node numbers.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int array (nelems,)</span>
+<span class="sd">            An int array holding the number of nodes from the specified</span>
+<span class="sd">            input that are contained in each of the elements.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        This information can also be got from meth:`connectedTo`.</span>
+<span class="sd">        This method however expands the results to the full element set,</span>
+<span class="sd">        making it apt for use in selector expressions like</span>
+<span class="sd">        ``self[self.hits(nodes) &gt;= 2]``.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; A = Connectivity([[0,1,2],[0,1,3],[0,3,2],[1,2,3]])</span>
+<span class="sd">        &gt;&gt;&gt; A.hits(2)</span>
+<span class="sd">        array([1, 0, 1, 1])</span>
+<span class="sd">        &gt;&gt;&gt; A.hits([0,1,3])</span>
+<span class="sd">        array([2, 3, 2, 2])</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">u</span><span class="p">,</span> <span class="n">m</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connectedTo</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">m</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="n">res</span><span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="o">=</span> <span class="n">m</span>
+        <span class="k">return</span> <span class="n">res</span></div>
+
+
+<div class="viewcode-block" id="Connectivity.adjacency"><a class="viewcode-back" href="../ref/connectivity.html#connectivity.Connectivity.adjacency">[docs]</a>    <span class="k">def</span> <span class="nf">adjacency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;e&#39;</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a table of adjacent items.</span>
+
+<span class="sd">        This creates an element adjacency table or node adjacency table</span>
+<span class="sd">        An element `i` is said to be adjacent to element `j`, if the two</span>
+<span class="sd">        elements have at least one common node.</span>
+<span class="sd">        A node `i` is said to be adjacent to node `j`, if there is at least</span>
+<span class="sd">        one element containing both nodes.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        kind: &#39;e&#39; or &#39;n&#39;</span>
+<span class="sd">            Select element (&#39;e&#39;) or node (n&#39;) adjacency table. Default is</span>
+<span class="sd">            element adjacency.</span>
+<span class="sd">        exclude: bool array or int index, optional</span>
+<span class="sd">            Node selector. If provided (with ``kind==&#39;e&#39;``) this defines</span>
+<span class="sd">            by a bool flag array or int index numbers a list of nodes</span>
+<span class="sd">            that are not to be considered connectors between elements.</span>
+
+<span class="sd">            This option is only useful in the case `kind` == &#39;e&#39;. If you want to</span>
+<span class="sd">            exclude elements for the &#39;n&#39; case, remove those elements from</span>
+<span class="sd">            the Connectivity before calling adjacency().</span>
+<span class="sd">        mask: bool array or int index, optional</span>
+<span class="sd">            This is like exclude, but specifies the nodes that should be</span>
+<span class="sd">            considered connectors instead of the ones that should be excluded.</span>
+
+<span class="sd">            This argument can not be used together with ``exclude``.</span>
+<span class="sd">            Its use is deprecated.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`~adjacency.Adjacency` object</span>
+<span class="sd">            An Adjacency array with shape (nr,nc), where row `i` holds</span>
+<span class="sd">            a sorted list of all the items that are adjacent to item `i`,</span>
+<span class="sd">            padded with -1 values to create an equal list length for all items.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; Connectivity([[0,1],[0,2],[1,3],[0,5]]).adjacency(&#39;e&#39;)</span>
+<span class="sd">        Adjacency([[ 1,  2,  3],</span>
+<span class="sd">                   [-1,  0,  3],</span>
+<span class="sd">                   [-1, -1,  0],</span>
+<span class="sd">                   [-1,  0,  1]])</span>
+<span class="sd">        &gt;&gt;&gt; Connectivity([[0,1],[0,2],[1,3],[0,5]]).adjacency(&#39;e&#39;,exclude=[0,4])</span>
+<span class="sd">        Adjacency([[ 2],</span>
+<span class="sd">                   [-1],</span>
+<span class="sd">                   [ 0],</span>
+<span class="sd">                   [-1]])</span>
+<span class="sd">        &gt;&gt;&gt; Connectivity([[0,1],[0,2],[1,3],[0,5]]).adjacency(&#39;e&#39;,mask=[1,2,3,5])</span>
+<span class="sd">        Adjacency([[ 2],</span>
+<span class="sd">                   [-1],</span>
+<span class="sd">                   [ 0],</span>
+<span class="sd">                   [-1]])</span>
+<span class="sd">        &gt;&gt;&gt; Connectivity([[0,1],[0,2],[1,3],[0,5]]).adjacency(</span>
+<span class="sd">        ...     &#39;e&#39;,mask=[False,True,True,True,False,True])</span>
+<span class="sd">        Adjacency([[ 2],</span>
+<span class="sd">                   [-1],</span>
+<span class="sd">                   [ 0],</span>
+<span class="sd">                   [-1]])</span>
+<span class="sd">        &gt;&gt;&gt; Connectivity([[0,1],[0,2],[1,3],[0,5]]).adjacency(&#39;n&#39;)</span>
+<span class="sd">        Adjacency([[ 1,  2,  5],</span>
+<span class="sd">                   [-1,  0,  3],</span>
+<span class="sd">                   [-1, -1,  0],</span>
+<span class="sd">                   [-1, -1,  1],</span>
+<span class="sd">                   [-1, -1, -1],</span>
+<span class="sd">                   [-1, -1,  0]])</span>
+<span class="sd">        &gt;&gt;&gt; Connectivity([[0,1,2],[0,1,3],[2,4,5]]).adjacency(&#39;n&#39;)</span>
+<span class="sd">        Adjacency([[-1,  1,  2,  3],</span>
+<span class="sd">                   [-1,  0,  2,  3],</span>
+<span class="sd">                   [ 0,  1,  4,  5],</span>
+<span class="sd">                   [-1, -1,  0,  1],</span>
+<span class="sd">                   [-1, -1,  2,  5],</span>
+<span class="sd">                   [-1, -1,  2,  4]])</span>
+<span class="sd">        &gt;&gt;&gt; Connectivity([[0,1,2],[0,1,3],[2,4,5]])[[0,2]].adjacency(&#39;n&#39;)</span>
+<span class="sd">        Adjacency([[-1, -1,  1,  2],</span>
+<span class="sd">                   [-1, -1,  0,  2],</span>
+<span class="sd">                   [ 0,  1,  4,  5],</span>
+<span class="sd">                   [-1, -1, -1, -1],</span>
+<span class="sd">                   [-1, -1,  2,  5],</span>
+<span class="sd">                   [-1, -1,  2,  4]])</span>
+<span class="sd">        &gt;&gt;&gt; Connectivity([[0,1,],[2,3]]).adjacency(&#39;e&#39;)</span>
+<span class="sd">        Adjacency([], shape=(2, 0))</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">adj</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kind</span><span class="o">+</span><span class="s1">&#39;adj&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">adj</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># We already computed it</span>
+            <span class="k">return</span> <span class="n">adj</span>
+
+        <span class="c1"># We need the expanded inverse</span>
+        <span class="n">inv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inverse</span><span class="p">(</span><span class="n">expand</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s1">&#39;e&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">mask</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">exclude</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;exclude and mask can not be used together&quot;</span><span class="p">)</span>
+                <span class="n">exclude</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">complement</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">inv</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">exclude</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">inv</span><span class="p">[</span><span class="n">exclude</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">&lt;=</span> <span class="mi">4000000</span><span class="p">:</span>
+                <span class="c1"># do in one step</span>
+                <span class="n">adj</span> <span class="o">=</span> <span class="n">_elem_adj</span><span class="p">(</span><span class="n">inv</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># use multiprocessing</span>
+                <span class="n">adj</span> <span class="o">=</span> <span class="n">_elem_adj_multi</span><span class="p">(</span><span class="n">inv</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">nproc</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+                <span class="n">maxcols</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([</span><span class="n">a</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">adj</span><span class="p">])</span>
+                <span class="n">adj</span> <span class="o">=</span> <span class="p">[</span><span class="n">at</span><span class="o">.</span><span class="n">growAxis</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">maxcols</span><span class="o">-</span><span class="n">a</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">fill</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+                       <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">adj</span><span class="p">]</span>
+                <span class="n">adj</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">adj</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">kind</span> <span class="o">==</span> <span class="s1">&#39;n&#39;</span><span class="p">:</span>
+            <span class="n">adj</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">inv</span><span class="o">&gt;=</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="p">[:,</span> <span class="n">i</span><span class="p">][</span><span class="n">inv</span><span class="p">],</span> <span class="n">inv</span><span class="p">)</span>
+                                  <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nplex</span><span class="p">())],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;kind should be &#39;e&#39; or &#39;n&#39;, got </span><span class="si">{</span><span class="n">kind</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">adj</span> <span class="o">=</span> <span class="n">Adjacency</span><span class="p">(</span><span class="n">adj</span><span class="p">)</span>
+        <span class="c1"># Store the adjacency, because it is expensive to compute</span>
+        <span class="c1"># True for eadj, don&#39;tknow for nadj</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flags</span><span class="o">.</span><span class="n">writeable</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kind</span><span class="o">+</span><span class="s1">&#39;adj&#39;</span><span class="p">,</span> <span class="n">adj</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flags</span><span class="o">.</span><span class="n">writeable</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="n">adj</span></div>
+
+
+<div class="viewcode-block" id="Connectivity.adjacentElements"><a class="viewcode-back" href="../ref/connectivity.html#connectivity.Connectivity.adjacentElements">[docs]</a>    <span class="k">def</span> <span class="nf">adjacentElements</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">els</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Compute adjacent elements.</span>
+
+<span class="sd">        This creates an element adjacency table or node adjacency table.</span>
+<span class="sd">        An element `i` is said to be adjacent to element `j`, if the two</span>
+<span class="sd">        elements have at least one common node.</span>
+<span class="sd">        A node `i` is said to be adjacent to node `j`, if there is at least</span>
+<span class="sd">        one element containing both nodes.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        else: int or list of ints</span>
+<span class="sd">            The element number(s) for which to compute the adjacent elements</span>
+<span class="sd">        mask: bool array or int index, optional</span>
+<span class="sd">            Node selector. If provided (with ``kind==&#39;e&#39;``) this defines</span>
+<span class="sd">            by a bool flag array or int index numbers the list of nodes</span>
+<span class="sd">            that are to be considered connectors between elements. The default</span>
+<span class="sd">            is to consider all nodes as connectors.</span>
+
+<span class="sd">            This option is only useful in the case `kind` == &#39;e&#39;. If you want to</span>
+<span class="sd">            use an element mask for the &#39;n&#39; case, just apply the (element) mask</span>
+<span class="sd">            beforehand by using ``self[mask].adjacency(&#39;n&#39;)``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`~adjacency.Adjacency` object</span>
+<span class="sd">            An Adjacency array with shape (nr,nc), where row `i` holds</span>
+<span class="sd">            a sorted list of all the items that are adjacent to item `i`,</span>
+<span class="sd">            padded with -1 values to create an equal list length for all items.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; Connectivity([[0,1],[0,2],[1,3],[0,5]]).adjacentElements([0,1,2,3])</span>
+<span class="sd">        array([[ 1,  2,  3],</span>
+<span class="sd">               [-1,  0,  3],</span>
+<span class="sd">               [-1, -1,  0],</span>
+<span class="sd">               [-1,  0,  1]])</span>
+<span class="sd">        &gt;&gt;&gt; Connectivity([[0,1],[0,2],[1,3],[0,5]]).adjacentElements([0,1,2])</span>
+<span class="sd">        array([[ 1,  2,  3],</span>
+<span class="sd">               [-1,  0,  3],</span>
+<span class="sd">               [-1, -1,  0]])</span>
+<span class="sd">        &gt;&gt;&gt; Connectivity([[0,1],[0,2],[1,3],[0,5]]).adjacentElements([1,2,3])</span>
+<span class="sd">        array([[ 0,  3],</span>
+<span class="sd">               [-1,  0],</span>
+<span class="sd">               [ 0,  1]])</span>
+<span class="sd">        &gt;&gt;&gt; Connectivity([[0,1],[0,2],[1,3],[0,5]]).adjacentElements([0,2])</span>
+<span class="sd">        array([[ 1,  2,  3],</span>
+<span class="sd">               [-1, -1,  0]])</span>
+<span class="sd">        &gt;&gt;&gt; Connectivity([[0,1],[0,2],[1,3],[0,5]]).adjacentElements([2])</span>
+<span class="sd">        array([[0]])</span>
+<span class="sd">        &gt;&gt;&gt; Connectivity([[0,1],[0,2],[1,3],[0,5]]).adjacentElements(1)</span>
+<span class="sd">        array([[0, 3]])</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">els</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">checkArray1D</span><span class="p">(</span><span class="n">els</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;i&#39;</span><span class="p">)</span>
+        <span class="n">nels</span> <span class="o">=</span> <span class="n">els</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">nels</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">at</span><span class="o">.</span><span class="n">Int</span><span class="p">)</span>
+        <span class="n">inv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inverse</span><span class="p">(</span><span class="n">expand</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># print(inv)</span>
+        <span class="k">if</span> <span class="n">mask</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">complement</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">inv</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">inv</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="c1"># print(inv[self[els]])</span>
+        <span class="n">adj</span> <span class="o">=</span> <span class="n">inv</span><span class="p">[</span><span class="bp">self</span><span class="p">[</span><span class="n">els</span><span class="p">]]</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">nels</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">adj</span><span class="p">[</span><span class="n">adj</span> <span class="o">==</span> <span class="n">els</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">nels</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>  <span class="c1"># remove the element itself</span>
+        <span class="n">adj</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">adj</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">adj</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">adj</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:])]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>  <span class="c1"># remove duplicate items</span>
+        <span class="n">adj</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">maxc</span> <span class="o">=</span> <span class="n">adj</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># find maximum per column</span>
+        <span class="n">adj</span> <span class="o">=</span> <span class="n">adj</span><span class="p">[:,</span> <span class="n">maxc</span><span class="o">&gt;=</span><span class="mi">0</span><span class="p">]</span>   <span class="c1"># retain columns with non-negative maximum</span>
+        <span class="k">return</span> <span class="n">adj</span></div>
+
+
+    <span class="c1">### frontal methods ###</span>
+
+
+<div class="viewcode-block" id="Connectivity.frontGenerator"><a class="viewcode-back" href="../ref/connectivity.html#connectivity.Connectivity.frontGenerator">[docs]</a>    <span class="k">def</span> <span class="nf">frontGenerator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">startat</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">frontinc</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">partinc</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="c1"># TODO: This is still much slower than Adjacency.frontwalk</span>
+        <span class="c1">#   Maybe we should just remove this (or else implement in C)</span>
+        <span class="sd">&quot;&quot;&quot;Generator function returning the frontal elements.</span>
+
+<span class="sd">        This is a generator function and is normally not used directly,</span>
+<span class="sd">        but via the :meth:`frontWalk` method.</span>
+
+<span class="sd">        Parameters: see :meth:`frontWalk`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int array</span>
+<span class="sd">            Int array with a value for each element. On the initial call,</span>
+<span class="sd">            all values are -1, except for the elements in the initial front,</span>
+<span class="sd">            which get a value 0. At each call a new front is created with</span>
+<span class="sd">            all the elements that are connected to any of the</span>
+<span class="sd">            current front and which have not yet been visited. The new front</span>
+<span class="sd">            elements get a value equal to the last front&#39;s value plus the</span>
+<span class="sd">            ``frontinc``. If the front becomes empty and a new starting front is</span>
+<span class="sd">            created, the front value is extra incremented with ``partinc``.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; C = Connectivity([[2,8,7],[2,3,8],[3,9,8],[4,10,9],[5,6,11],</span>
+<span class="sd">        ...                   [6,12,11]])</span>
+<span class="sd">        &gt;&gt;&gt; for p in C.frontGenerator(): print(p)</span>
+<span class="sd">        [ 0 -1 -1 -1 -1 -1]</span>
+<span class="sd">        [ 0  1  1 -1 -1 -1]</span>
+<span class="sd">        [ 0  1  1  2 -1 -1]</span>
+<span class="sd">        [ 0  1  1  2  4 -1]</span>
+<span class="sd">        [0 1 1 2 4 5]</span>
+<span class="sd">        &gt;&gt;&gt; A = C.adjacency()</span>
+<span class="sd">        &gt;&gt;&gt; for p in A.frontGenerator(): print(p)</span>
+<span class="sd">        [ 0 -1 -1 -1 -1 -1]</span>
+<span class="sd">        [ 0  1  1 -1 -1 -1]</span>
+<span class="sd">        [ 0  1  1  2 -1 -1]</span>
+<span class="sd">        [ 0  1  1  2  4 -1]</span>
+<span class="sd">        [0 1 1 2 4 5]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nelems</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Initialize result</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">nelems</span><span class="p">()),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">at</span><span class="o">.</span><span class="n">Int</span><span class="p">)</span>
+
+        <span class="c1"># Compute inverse once, then lock array</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inverse</span><span class="p">(</span><span class="n">expand</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Remember current elements front</span>
+        <span class="n">elems</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">startat</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nelems</span><span class="p">())</span>
+        <span class="n">prop</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="n">elems</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># Store prop value for current elems</span>
+            <span class="c1"># at.printar(&quot;Elems &quot;,elems)</span>
+            <span class="n">p</span><span class="p">[</span><span class="n">elems</span><span class="p">]</span> <span class="o">=</span> <span class="n">prop</span>
+            <span class="k">yield</span> <span class="n">p</span>
+
+            <span class="n">prop</span> <span class="o">+=</span> <span class="n">frontinc</span>
+
+            <span class="c1"># Determine adjacent elements</span>
+            <span class="c1"># nodes = np.unique(np.asarray(self[elems]))</span>
+            <span class="c1"># elems = self.connectedTo(nodes)</span>
+            <span class="n">elems</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">adjacentElements</span><span class="p">(</span><span class="n">elems</span><span class="p">))</span>
+            <span class="k">while</span> <span class="n">elems</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># There should only be one -1</span>
+                <span class="n">elems</span> <span class="o">=</span> <span class="n">elems</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+            <span class="c1"># Remove already done</span>
+            <span class="n">elems</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">setdiff1d</span><span class="p">(</span><span class="n">elems</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">p</span><span class="o">&gt;=</span><span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">elems</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># No more elements in this part: start a new one</span>
+            <span class="n">elems</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">p</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">elems</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># Start a new part</span>
+                <span class="n">elems</span> <span class="o">=</span> <span class="n">elems</span><span class="p">[[</span><span class="mi">0</span><span class="p">]]</span>
+                <span class="n">prop</span> <span class="o">+=</span> <span class="n">partinc</span></div>
+
+
+<div class="viewcode-block" id="Connectivity.frontWalk"><a class="viewcode-back" href="../ref/connectivity.html#connectivity.Connectivity.frontWalk">[docs]</a>    <span class="k">def</span> <span class="nf">frontWalk</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">startat</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">frontinc</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">partinc</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">maxval</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Walks through the elements by their node front.</span>
+
+<span class="sd">        A frontal walk is executed starting from the given element(s).</span>
+<span class="sd">        A number of steps is executed, each step advancing the front</span>
+<span class="sd">        over a given number of single pass increments. The step number at</span>
+<span class="sd">        which an element is reached is recorded and returned.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        startat: int or list of ints</span>
+<span class="sd">            Initial element number(s) in the front.</span>
+<span class="sd">        frontinc: int</span>
+<span class="sd">            Increment for the front number on each frontal step.</span>
+<span class="sd">        partinc: int</span>
+<span class="sd">            Increment for the front number when the front gets empty and</span>
+<span class="sd">            a new part is started.</span>
+<span class="sd">        maxval: int</span>
+<span class="sd">            Maximum frontal value. If negative (default) the walk will</span>
+<span class="sd">            continue until all elements have been reached. If non-negative,</span>
+<span class="sd">            walking will stop as soon as the frontal value reaches this</span>
+<span class="sd">            maximum.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int array</span>
+<span class="sd">            An array of ints specifying for each element in which step</span>
+<span class="sd">            the element was reached by the walker.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; C = Connectivity([[2,8,7],[2,3,8],[3,9,8],[4,10,9],[5,6,11],</span>
+<span class="sd">        ...                   [6,12,11]])</span>
+<span class="sd">        &gt;&gt;&gt; print(C.frontWalk())</span>
+<span class="sd">        [0 1 1 2 4 5]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">frontGenerator</span><span class="p">(</span>
+                <span class="n">startat</span><span class="o">=</span><span class="n">startat</span><span class="p">,</span> <span class="n">frontinc</span><span class="o">=</span><span class="n">frontinc</span><span class="p">,</span> <span class="n">partinc</span><span class="o">=</span><span class="n">partinc</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">maxval</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="n">maxval</span><span class="p">:</span>
+                    <span class="k">break</span>
+        <span class="k">return</span> <span class="n">p</span></div>
+
+
+<div class="viewcode-block" id="Connectivity.front"><a class="viewcode-back" href="../ref/connectivity.html#connectivity.Connectivity.front">[docs]</a>    <span class="k">def</span> <span class="nf">front</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">startat</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the elements of the first node front.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        startat: int or list od ints</span>
+<span class="sd">            Element number(s) or a list of element numbers. The list of</span>
+<span class="sd">            elements to find the next front for.</span>
+<span class="sd">        add: bool, optional</span>
+<span class="sd">            If True, the `startat` elements wil be included in the</span>
+<span class="sd">            return value. The default (False) will only return the elements</span>
+<span class="sd">            in the next front line.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int array</span>
+<span class="sd">            A list of the elements that are connected to any of the nodes</span>
+<span class="sd">            that are part of the startat elements.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        This is equivalent to the first step of a :func:`frontWalk`</span>
+<span class="sd">        with the same startat elements, and could thus also be obtained from</span>
+<span class="sd">        ``where(self.frontWalk(startat,maxval=1) == 1)[0]``.</span>
+
+<span class="sd">        Here however another implementation is used, which is more efficient</span>
+<span class="sd">        for very large models: it avoids the creation of the large array as</span>
+<span class="sd">        returned by frontWalk.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; C = Connectivity([[2,8,7],[2,3,8],[3,9,8],[4,10,9],[5,6,11],</span>
+<span class="sd">        ...                   [6,12,11]])</span>
+<span class="sd">        &gt;&gt;&gt; print(C.front([2]))</span>
+<span class="sd">        [0 1 3]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">nodes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">startat</span><span class="p">]))</span>
+        <span class="n">front</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connectedTo</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">add</span><span class="p">:</span>
+            <span class="n">front</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">setdiff1d</span><span class="p">(</span><span class="n">front</span><span class="p">,</span> <span class="n">startat</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">front</span></div>
+
+
+    <span class="c1">##### Creating intermediate levels ###################</span>
+
+
+<div class="viewcode-block" id="Connectivity.selectNodes"><a class="viewcode-back" href="../ref/connectivity.html#connectivity.Connectivity.selectNodes">[docs]</a>    <span class="k">def</span> <span class="nf">selectNodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">selector</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a :class:`Connectivity` containing subsets of the nodes.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        selector: int :term:`array_like`</span>
+<span class="sd">            An object that can be converted to a 1-dim or 2-dim</span>
+<span class="sd">            int array. Examples are a tuple of local node numbers, or a list</span>
+<span class="sd">            of such tuples all having the same length.</span>
+<span class="sd">            Each row of `selector` holds a list of the local node numbers that</span>
+<span class="sd">            should be retained in the new Connectivity table. As an example,</span>
+<span class="sd">            if the Connectivity is plex-3 representing triangles, a selector</span>
+<span class="sd">            [[0,1],[1,2],[2,0]] would extract the edges of the triangle.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`Connectivity`</span>
+<span class="sd">            A new Connectivity object with shape</span>
+<span class="sd">            ``(self.nelems*selector.nelems,selector.nplex)``.</span>
+<span class="sd">            Duplicate elements created by the selector are retained.</span>
+<span class="sd">            If the selector has an eltype (for example if it is a</span>
+<span class="sd">            Connectivity itself), the returned Connectivity will have</span>
+<span class="sd">            the same eltype.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; Connectivity([[0,1,2],[0,2,1],[0,3,2]]).selectNodes([[0,1],[0,2]])</span>
+<span class="sd">        Connectivity([[0, 1],</span>
+<span class="sd">                      [0, 2],</span>
+<span class="sd">                      [0, 2],</span>
+<span class="sd">                      [0, 1],</span>
+<span class="sd">                      [0, 3],</span>
+<span class="sd">                      [0, 2]])</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sel</span> <span class="o">=</span> <span class="n">Connectivity</span><span class="p">(</span><span class="n">selector</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">sel</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">lo</span> <span class="o">=</span> <span class="n">Connectivity</span><span class="p">(</span><span class="bp">self</span><span class="p">[:,</span> <span class="n">sel</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">sel</span><span class="o">.</span><span class="n">nplex</span><span class="p">()))</span>
+            <span class="n">lo</span><span class="o">.</span><span class="n">eltype</span> <span class="o">=</span> <span class="n">sel</span><span class="o">.</span><span class="n">eltype</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">lo</span> <span class="o">=</span> <span class="n">Connectivity</span><span class="p">(</span><span class="n">eltype</span><span class="o">=</span><span class="n">sel</span><span class="o">.</span><span class="n">eltype</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">lo</span></div>
+
+
+<div class="viewcode-block" id="Connectivity.insertLevel"><a class="viewcode-back" href="../ref/connectivity.html#connectivity.Connectivity.insertLevel">[docs]</a>    <span class="k">def</span> <span class="nf">insertLevel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">selector</span><span class="p">,</span> <span class="n">permutations</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Insert an extra hierarchical level in a Connectivity table.</span>
+
+<span class="sd">        A Connectivity table identifies higher hierarchical entities in</span>
+<span class="sd">        function of lower ones. This method inserts an extra level in the</span>
+<span class="sd">        hierarchy.</span>
+<span class="sd">        For example, if you have volumes defined in function of points,</span>
+<span class="sd">        you can insert an intermediate level of edges, or faces.</span>
+<span class="sd">        Each element may generate multiple instances of the intermediate level.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        selector: int :term:`array_like`</span>
+<span class="sd">            An object that can be converted to a 1-dim or 2-dim</span>
+<span class="sd">            int array. Examples are a tuple of local node numbers, or a list</span>
+<span class="sd">            of such tuples all having the same length.</span>
+<span class="sd">            Each row of `selector` holds a list of the local node numbers that</span>
+<span class="sd">            should be retained in the new Connectivity table.</span>
+<span class="sd">        permutations: str or None</span>
+<span class="sd">            Defines which permutations of the row data are allowed while still</span>
+<span class="sd">            considering the rows equal. Equal rows in the intermediate level</span>
+<span class="sd">            are collapsed into single items. Possible values are:</span>
+
+<span class="sd">            - &#39;none&#39;: no permutations are allowed: rows must match the same date</span>
+<span class="sd">              at the same positions.</span>
+<span class="sd">            - &#39;roll&#39;: rolling is allowed. Rows that can be transformed into</span>
+<span class="sd">              each other by rolling are considered equal;</span>
+<span class="sd">            - &#39;all&#39;: any permutation of the same data will be considered an</span>
+<span class="sd">              equal row. This is the default.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        hi: :class:`Connectivity`</span>
+<span class="sd">            A Connecivity defining the original elements</span>
+<span class="sd">            in function of the intermediate level ones.</span>
+<span class="sd">        lo: :class:`Connectivity`</span>
+<span class="sd">            A Connectivity defining the intermediate level</span>
+<span class="sd">            items in function of the lowest level ones (the original nodes).</span>
+<span class="sd">            If the ``selector`` has an ``eltype`` attribute, then ``lo`` will</span>
+<span class="sd">            inherit the same ``eltype`` value.</span>
+
+<span class="sd">        The resulting node numbering of the created intermediate entities</span>
+<span class="sd">        (the `lo` return value) respects the numbering order of the original</span>
+<span class="sd">        elements and the applied selector, but in case of collapsing</span>
+<span class="sd">        duplicate rows, it is undefined which of the collapsed sequences is</span>
+<span class="sd">        returned.</span>
+<span class="sd">        Because the precise order of the data in the collapsed rows is lost,</span>
+<span class="sd">        it is in general not possible to restore the exact original table</span>
+<span class="sd">        from the two resulting tables.</span>
+<span class="sd">        See however :meth:`mesh.Mesh.getBorder` for an application where an</span>
+<span class="sd">        inverse operation is possible, because the border only contains</span>
+<span class="sd">        unique rows.</span>
+
+<span class="sd">        See also :meth:`mesh.Mesh.combine`, which is an almost inverse operation</span>
+<span class="sd">        for the general case, if the selector is complete.</span>
+<span class="sd">        The resulting rows may however be permutations of the original.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; Connectivity([[0,1,2],[0,2,1],[0,3,2]]).\</span>
+<span class="sd">        insertLevel([[0,1],[1,2],[2,0]])</span>
+<span class="sd">        (Connectivity([[0, 3, 1],</span>
+<span class="sd">                  [1, 3, 0],</span>
+<span class="sd">                  [2, 4, 1]]), Connectivity([[0, 1],</span>
+<span class="sd">                  [2, 0],</span>
+<span class="sd">                  [0, 3],</span>
+<span class="sd">                  [1, 2],</span>
+<span class="sd">                  [3, 2]]))</span>
+<span class="sd">        &gt;&gt;&gt; Connectivity([[0,1,2,3]]).insertLevel(</span>
+<span class="sd">        ...     [[0,1,2],[1,2,3],[0,1,1],[0,0,1],[1,0,0]])</span>
+<span class="sd">        (Connectivity([[1, 2, 0, 0, 0]]), Connectivity([[0, 1, 1],</span>
+<span class="sd">                  [0, 1, 2],</span>
+<span class="sd">                  [1, 2, 3]]))</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">selector</span> <span class="o">=</span> <span class="n">Connectivity</span><span class="p">(</span><span class="n">selector</span><span class="p">)</span>
+        <span class="n">lo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">selectNodes</span><span class="p">(</span><span class="n">selector</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">lo</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># change the double entries to -1</span>
+            <span class="n">LO</span> <span class="o">=</span> <span class="n">lo</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">LO</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">LO</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">LO</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:])]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="n">uniq</span><span class="p">,</span> <span class="n">uniqid</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">uniqueRowsIndex</span><span class="p">(</span><span class="n">LO</span><span class="p">,</span> <span class="n">permutations</span><span class="o">=</span><span class="n">permutations</span><span class="p">)</span>
+            <span class="n">hi</span> <span class="o">=</span> <span class="n">Connectivity</span><span class="p">(</span><span class="n">uniqid</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">selector</span><span class="o">.</span><span class="n">nelems</span><span class="p">()))</span>
+            <span class="n">lo</span> <span class="o">=</span> <span class="n">lo</span><span class="p">[</span><span class="n">uniq</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">hi</span> <span class="o">=</span> <span class="n">lo</span> <span class="o">=</span> <span class="n">Connectivity</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">selector</span><span class="p">,</span> <span class="s1">&#39;eltype&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">selector</span><span class="o">.</span><span class="n">eltype</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">lo</span><span class="o">.</span><span class="n">eltype</span> <span class="o">=</span> <span class="n">selector</span><span class="o">.</span><span class="n">eltype</span>
+        <span class="k">return</span> <span class="n">hi</span><span class="p">,</span> <span class="n">lo</span></div>
+
+
+<div class="viewcode-block" id="Connectivity.combine"><a class="viewcode-back" href="../ref/connectivity.html#connectivity.Connectivity.combine">[docs]</a>    <span class="k">def</span> <span class="nf">combine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lo</span><span class="p">):</span>
+        <span class="c1"># TODO: This is currently far from general!!!</span>
+        <span class="c1"># should probably be moved to Mesh/TriSurface if needed there</span>
+        <span class="sd">&quot;&quot;&quot;Combine two hierarchical Connectivity levels to a single one.</span>
+
+<span class="sd">        self and lo are two hierarchical Connectivity tables, representing</span>
+<span class="sd">        higher and lower level respectively. This means that the elements</span>
+<span class="sd">        of self hold numbers which point into lo to obtain the lowest level</span>
+<span class="sd">        items.</span>
+
+<span class="sd">        *In the current implementation, the plexitude of lo should be 2!*</span>
+
+<span class="sd">        As an example, in a structure of triangles, hi could represent</span>
+<span class="sd">        triangles defined by 3 edges and lo could represent edges defined</span>
+<span class="sd">        by 2 vertices. This method will then result in a table</span>
+<span class="sd">        with plexitude 3 defining the triangles in function of the vertices.</span>
+
+<span class="sd">        This is the inverse operation of :meth:`insertLevel` with a selector</span>
+<span class="sd">        which is complete.</span>
+<span class="sd">        The algorithm only works if all node numbers of an element are</span>
+<span class="sd">        unique.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; hi,lo = Connectivity([[0,1,2],[0,2,1],[0,3,2]]).\</span>
+<span class="sd">        insertLevel([[0,1],[1,2],[2,0]])</span>
+<span class="sd">        &gt;&gt;&gt; hi.combine(lo)</span>
+<span class="sd">        Connectivity([[0, 1, 2],</span>
+<span class="sd">                      [0, 2, 1],</span>
+<span class="sd">                      [0, 3, 2]])</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lo</span> <span class="o">=</span> <span class="n">Connectivity</span><span class="p">(</span><span class="n">lo</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">lo</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Can only combine plex&gt;=2 with plex==2&quot;</span><span class="p">)</span>
+        <span class="n">elems</span> <span class="o">=</span> <span class="n">lo</span><span class="p">[</span><span class="bp">self</span><span class="p">]</span>
+        <span class="n">elems1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">elems</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">elems</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="n">flags</span> <span class="o">=</span> <span class="p">(</span><span class="n">elems</span><span class="p">[:,</span> <span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">elems1</span><span class="p">[:,</span> <span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span>
+                <span class="n">elems</span><span class="p">[:,</span> <span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">elems1</span><span class="p">[:,</span> <span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+            <span class="n">elems</span><span class="p">[</span><span class="n">flags</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">elems</span><span class="p">[</span><span class="n">flags</span><span class="p">,</span> <span class="n">i</span><span class="p">],</span> <span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Connectivity</span><span class="p">(</span><span class="n">elems</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="Connectivity.resolve"><a class="viewcode-back" href="../ref/connectivity.html#connectivity.Connectivity.resolve">[docs]</a>    <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Resolve the connectivity into plex-2 connections.</span>
+
+<span class="sd">        Creates a Connectivity table with a plex-2 (edge) connection</span>
+<span class="sd">        between any two nodes that are connected to a common element.</span>
+
+<span class="sd">        There is no point in resolving a plexitude 2 structure.</span>
+<span class="sd">        Plexitudes lower than 2 can not be resolved.</span>
+
+<span class="sd">        Returns a plex-2 Connectivity with all connections between node</span>
+<span class="sd">        pairs. In each element the nodes are sorted.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; print([ i for i in combinations(range(3),2) ])</span>
+<span class="sd">        [(0, 1), (0, 2), (1, 2)]</span>
+<span class="sd">        &gt;&gt;&gt; Connectivity([[0,1,2],[0,2,1],[0,3,2]]).resolve()</span>
+<span class="sd">        Connectivity([[0, 1],</span>
+<span class="sd">                      [0, 2],</span>
+<span class="sd">                      [0, 3],</span>
+<span class="sd">                      [1, 2],</span>
+<span class="sd">                      [2, 3]])</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ind</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">combinations</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nplex</span><span class="p">()),</span> <span class="mi">2</span><span class="p">)]</span>
+        <span class="n">hi</span><span class="p">,</span> <span class="n">lo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">insertLevel</span><span class="p">(</span><span class="n">ind</span><span class="p">)</span>
+        <span class="n">lo</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">ind</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">sortByColumns</span><span class="p">(</span><span class="n">lo</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">lo</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span></div>
+
+
+    <span class="k">def</span> <span class="nf">reorderNodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">schemes</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="c1"># TODO: THIS IS UNTESTED! DO NOT USE!</span>
+        <span class="sd">&quot;&quot;&quot;_Convert Elems to/from foreign node numbering schemes.</span>
+
+<span class="sd">        The order in which the element&#39;s nodes are numbered internally in</span>
+<span class="sd">        pyFormex may be different than the numbering scheme used in external</span>
+<span class="sd">        software packages. To allow correct export/import to/from other</span>
+<span class="sd">        software, the nodes have to be renumbered.</span>
+<span class="sd">        This function provides such a facility.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        schemes: dict</span>
+<span class="sd">            A dict having pyFormex element names as keys and</span>
+<span class="sd">            the matching nodal permutation arrays as values. The length of</span>
+<span class="sd">            the array should match the plexitude of the Elems.</span>
+<span class="sd">        reverse: bool</span>
+<span class="sd">            If True, the conversion is from external to internal.</span>
+<span class="sd">            In this case, the Elems eltype is interpreted as the</span>
+<span class="sd">            pyFormex target element type (and should be set beforehand).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Connectivity</span>
+<span class="sd">            If `schemes` has a key matching the element&#39;s name, a Connectivity</span>
+<span class="sd">            with the renumbered elements is returned.</span>
+
+<span class="sd">            - If `reverse` is False (default), the renumbering is done according</span>
+<span class="sd">              to the permutation given by the `schemes` value matching the</span>
+<span class="sd">              element name and a Connectivity without eltype is returned.</span>
+
+<span class="sd">            - If `reverse` is True, the permutation scheme is reversed prior</span>
+<span class="sd">              to using it. The target element type is retained in the returned</span>
+<span class="sd">              Connectivity.</span>
+
+<span class="sd">            If the Connectivity has no element type or `scheme` has no matching</span>
+<span class="sd">            key, the input Connectivity is returned unchanged.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">eltype</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">eltype</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elName</span><span class="p">()</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">eltype</span><span class="o">.</span><span class="n">lname</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">schemes</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;key = </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">trl</span> <span class="o">=</span> <span class="n">schemes</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;trl = </span><span class="si">{</span><span class="n">trl</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">elems</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">trl</span><span class="p">]</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">reverse</span><span class="p">:</span>
+                    <span class="nb">delattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;eltype&#39;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">elems</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
+
+
+<div class="viewcode-block" id="Connectivity.sharedNodes"><a class="viewcode-back" href="../ref/connectivity.html#connectivity.Connectivity.sharedNodes">[docs]</a>    <span class="k">def</span> <span class="nf">sharedNodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elist</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the list of nodes shared by all elements in elist</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        elist: int :term:`array_like`</span>
+<span class="sd">            List of element numbers. If not specified,</span>
+<span class="sd">            all elements are considered.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int array</span>
+<span class="sd">            A 1-dim int array with the list of nodes that are</span>
+<span class="sd">            common to all elements in the specified list. This array may be</span>
+<span class="sd">            empty.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; a = Connectivity([[0,1,2],[0,2,1],[0,3,2]])</span>
+<span class="sd">        &gt;&gt;&gt; a.sharedNodes()</span>
+<span class="sd">        array([0, 2])</span>
+<span class="sd">        &gt;&gt;&gt; a.sharedNodes([0,1])</span>
+<span class="sd">        array([0, 1, 2])</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">elist</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">elems</span> <span class="o">=</span> <span class="bp">self</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">elems</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">elist</span><span class="p">]</span>
+        <span class="n">m</span><span class="p">,</span> <span class="n">u</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">multiplicity</span><span class="p">(</span><span class="n">elems</span><span class="o">.</span><span class="n">ravel</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">u</span><span class="p">[</span><span class="n">m</span><span class="o">==</span><span class="nb">len</span><span class="p">(</span><span class="n">elems</span><span class="p">)])</span></div>
+
+
+<div class="viewcode-block" id="Connectivity.replic"><a class="viewcode-back" href="../ref/connectivity.html#connectivity.Connectivity.replic">[docs]</a>    <span class="k">def</span> <span class="nf">replic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">inc</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Repeat a Connectivity with increasing node numbers.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        n: int</span>
+<span class="sd">            Number of copies to make.</span>
+<span class="sd">        inc: int</span>
+<span class="sd">            Increment in node numbers for each copy.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Connectivity</span>
+<span class="sd">            A Connectivity with the concatenation of ``n`` replicas of</span>
+<span class="sd">            ``self``, where the first replica is identical to self and each</span>
+<span class="sd">            next one has its node numbers increased by ``inc``.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; Connectivity([[0,1,2],[0,2,3]]).replic(2,4)</span>
+<span class="sd">        Connectivity([[0, 1, 2],</span>
+<span class="sd">                      [0, 2, 3],</span>
+<span class="sd">                      [4, 5, 6],</span>
+<span class="sd">                      [4, 6, 7]])</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Connectivity</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="bp">self</span><span class="o">+</span><span class="n">i</span><span class="o">*</span><span class="n">inc</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)]),</span> <span class="n">eltype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">eltype</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Connectivity.chain"><a class="viewcode-back" href="../ref/connectivity.html#connectivity.Connectivity.chain">[docs]</a>    <span class="k">def</span> <span class="nf">chain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">disconnect</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">return_conn</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Reorder the elements into simply connected chains.</span>
+
+<span class="sd">        Chaining the elements involves reordering them such that the first</span>
+<span class="sd">        node of the next element is equal to the last node of the previous.</span>
+<span class="sd">        This is especially useful in converting line elements to continuous</span>
+<span class="sd">        curves or polylines. It will work with any plexitude though, and</span>
+<span class="sd">        only look at the first and last node of the elements in the chaining</span>
+<span class="sd">        process.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        disconnect: int :term:`array_like` | str, optional</span>
+<span class="sd">            List of node numbers where the resulting chains should be split.</span>
+<span class="sd">            None of the resulting chains will have any of the listed node</span>
+<span class="sd">            numbers as an interior node. A chain may start and end</span>
+<span class="sd">            at such a node. A special value &#39;branch&#39; will set the disconnect</span>
+<span class="sd">            array to all the nodes owned by more than two elements. This will</span>
+<span class="sd">            split all chains at branching points.</span>
+<span class="sd">        return_conn: bool</span>
+<span class="sd">            If True, also return the list of Connectivities corresponding with</span>
+<span class="sd">            the chains.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        chains: list of int arrays</span>
+<span class="sd">            A list of tables with the same column length as those in ``conn``,</span>
+<span class="sd">            and having two columns. The first column contains the original</span>
+<span class="sd">            element numbers of a chain, and the second column a value +1 or</span>
+<span class="sd">            -1 depending on whether the element traversal in the connected</span>
+<span class="sd">            segment is in the original direction (+1) or the reverse (-1).</span>
+<span class="sd">            The list of chains is sorted in order of decreasing length.</span>
+<span class="sd">        conn: list of :class:`Connectivity` instances, optional</span>
+<span class="sd">            Only returned if ``return_conn`` is True: a list a Connectivity</span>
+<span class="sd">            tables of plexitude ``nplex`` corresponding to each chain.</span>
+<span class="sd">            The elements in each Connectivity are ordered to form a continuous</span>
+<span class="sd">            connected segment, i.e. the last node of each element in the table</span>
+<span class="sd">            is equal to the first node of the following element (if any).</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        chained: return only the chained Connectivities</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; Connectivity([[0,1],[1,2],[0,4],[4,2]]).chain()</span>
+<span class="sd">        [array([[ 0,  1],</span>
+<span class="sd">                [ 1,  1],</span>
+<span class="sd">                [ 3, -1],</span>
+<span class="sd">                [ 2, -1]])]</span>
+<span class="sd">        &gt;&gt;&gt; Connectivity([[0,1],[1,2],[0,4]]).chain()</span>
+<span class="sd">        [array([[ 1, -1],</span>
+<span class="sd">           [ 0, -1],</span>
+<span class="sd">           [ 2,  1]])]</span>
+<span class="sd">        &gt;&gt;&gt; Connectivity([[0,1],[0,2],[0,3],[5,4]]).chain()</span>
+<span class="sd">        [array([[ 0, -1],</span>
+<span class="sd">                [ 1,  1]]),</span>
+<span class="sd">        array([[3, 1]]),</span>
+<span class="sd">        array([[2, 1]])]</span>
+<span class="sd">        &gt;&gt;&gt; Connectivity([[0,1],[0,2],[0,3],[5,4]]).chain(disconnect=&#39;branch&#39;)</span>
+<span class="sd">        [array([[3, 1]]), array([[2, 1]]), array([[1, 1]]), array([[0, 1]])]</span>
+<span class="sd">        &gt;&gt;&gt; Connectivity([[0,1],[0,2],[0,3],[5,4]]).chain(return_conn=True)</span>
+<span class="sd">        ([array([[ 0, -1],</span>
+<span class="sd">                 [ 1,  1]]),</span>
+<span class="sd">        array([[3, 1]]),</span>
+<span class="sd">        array([[2, 1]])],</span>
+<span class="sd">        [Connectivity([[1, 0],</span>
+<span class="sd">                       [0, 2]]),</span>
+<span class="sd">        Connectivity([[5, 4]]),</span>
+<span class="sd">        Connectivity([[0, 3]])])</span>
+<span class="sd">        &gt;&gt;&gt; Connectivity([[0,1,2],[2,0,3],[0,3,1],[4,5,2]]).chain()</span>
+<span class="sd">        [array([[ 1, -1],</span>
+<span class="sd">               [ 0, -1],</span>
+<span class="sd">               [ 2,  1]]),</span>
+<span class="sd">        array([[3, 1]])]</span>
+<span class="sd">        &gt;&gt;&gt; Connectivity([[0,1,2],[2,0,3],[0,3,1],[4,5,2]]).chain(</span>
+<span class="sd">        ...    disconnect=[0])</span>
+<span class="sd">        [array([[0, 1],</span>
+<span class="sd">           [1, 1]]), array([[3, 1]]), array([[2, 1]])]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">elems</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[:,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]]</span>    <span class="c1"># this allows for plexitudes &gt; 2</span>
+        <span class="c1"># Make sure we own the data and can write to it</span>
+        <span class="n">elems</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">require</span><span class="p">(</span><span class="n">elems</span><span class="p">,</span> <span class="n">requirements</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;O&#39;</span><span class="p">,</span> <span class="s1">&#39;W&#39;</span><span class="p">])</span>
+        <span class="n">elnrs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">elems</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>  <span class="c1"># original element numbers</span>
+        <span class="k">if</span> <span class="n">disconnect</span> <span class="o">==</span> <span class="s1">&#39;branch&#39;</span><span class="p">:</span>
+            <span class="n">disconnect</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">elems</span><span class="o">.</span><span class="n">nParents</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="c1"># !! nParents computes and stores the inverse, which makes</span>
+            <span class="c1"># elems readonly; so we make it writable again</span>
+            <span class="n">elems</span><span class="o">.</span><span class="n">inv</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">elems</span><span class="o">.</span><span class="n">flags</span><span class="o">.</span><span class="n">writeable</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">chains</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">ind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">elems</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">at</span><span class="o">.</span><span class="n">Int</span><span class="p">)</span>
+        <span class="k">while</span> <span class="n">elems</span><span class="o">.</span><span class="n">size</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">ie</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">je</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">rev</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">k</span> <span class="o">=</span> <span class="n">elems</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># remember startpoint</span>
+            <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="c1"># Store an element that has been found ok</span>
+                <span class="k">if</span> <span class="n">rev</span><span class="p">:</span>
+                    <span class="n">ind</span><span class="p">[</span><span class="n">ie</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">je</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="n">j</span> <span class="o">=</span> <span class="n">elems</span><span class="p">[</span><span class="n">je</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">ind</span><span class="p">[</span><span class="n">ie</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">je</span><span class="p">,</span> <span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="n">j</span> <span class="o">=</span> <span class="n">elems</span><span class="p">[</span><span class="n">je</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="n">ie</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">elems</span><span class="p">[</span><span class="n">je</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>  <span class="c1"># Done with this one</span>
+                <span class="k">if</span> <span class="n">j</span> <span class="o">==</span> <span class="n">k</span> <span class="ow">or</span> <span class="p">(</span><span class="n">disconnect</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">disconnect</span><span class="p">):</span>
+                    <span class="k">break</span>
+                <span class="c1"># Look for the next connected element</span>
+                <span class="n">w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">elems</span><span class="p">[:]</span> <span class="o">==</span> <span class="n">j</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">w</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="c1"># We&#39;ve reached the end of a branch</span>
+                    <span class="k">if</span> <span class="n">disconnect</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">disconnect</span><span class="p">:</span>
+                        <span class="c1"># not allowed to revert and continue past start point</span>
+                        <span class="k">break</span>
+                    <span class="c1"># Try reversing</span>
+                    <span class="n">w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">elems</span><span class="p">[:,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">==</span> <span class="n">k</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">w</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="k">break</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">j</span><span class="p">,</span> <span class="n">k</span> <span class="o">=</span> <span class="n">k</span><span class="p">,</span> <span class="n">j</span>
+                        <span class="c1"># reverse the table (colums and rows)</span>
+                        <span class="n">ind</span><span class="p">[:</span><span class="n">ie</span><span class="p">]</span> <span class="o">=</span> <span class="n">ind</span><span class="p">[</span><span class="n">ie</span><span class="o">-</span><span class="mi">1</span><span class="p">::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>  <span class="c1"># rows only</span>
+                        <span class="n">ind</span><span class="p">[:</span><span class="n">ie</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>  <span class="c1"># change sign of 2nd column</span>
+                <span class="n">je</span> <span class="o">=</span> <span class="n">w</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">rev</span> <span class="o">=</span> <span class="n">w</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span>  <span class="c1"># check if the target node is the first or last</span>
+
+            <span class="n">indi</span> <span class="o">=</span> <span class="n">ind</span><span class="p">[:</span><span class="n">ie</span><span class="p">]</span>  <span class="c1"># get the relevant part</span>
+            <span class="n">indi</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">elnrs</span><span class="p">[</span><span class="n">indi</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]]</span>  <span class="c1"># translate element numbers</span>
+            <span class="n">chains</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">indi</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+            <span class="n">todo</span> <span class="o">=</span> <span class="p">(</span><span class="n">elems</span><span class="o">!=-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">elems</span> <span class="o">=</span> <span class="n">elems</span><span class="p">[</span><span class="n">todo</span><span class="p">]</span>
+            <span class="n">elnrs</span> <span class="o">=</span> <span class="n">elnrs</span><span class="p">[</span><span class="n">todo</span><span class="p">]</span>
+
+        <span class="c1"># sort according to decreasing number of elements</span>
+        <span class="n">nel</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">chains</span><span class="p">]</span>
+        <span class="n">srt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">nel</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">chains</span> <span class="o">=</span> <span class="p">[</span><span class="n">chains</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">srt</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">return_conn</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">chains</span>
+
+        <span class="n">conn</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">chains</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">c</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">c</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span> <span class="n">c</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="n">chains</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span> <span class="o">=</span> <span class="n">c</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">e</span> <span class="o">=</span> <span class="n">c</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">c</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="n">els</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">e</span><span class="p">]</span>
+            <span class="n">els</span><span class="p">[</span><span class="n">d</span><span class="p">]</span> <span class="o">=</span> <span class="n">els</span><span class="p">[</span><span class="n">d</span><span class="p">,</span> <span class="p">::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">conn</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">els</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">chains</span><span class="p">,</span> <span class="n">conn</span></div>
+
+
+<div class="viewcode-block" id="Connectivity.chained"><a class="viewcode-back" href="../ref/connectivity.html#connectivity.Connectivity.chained">[docs]</a>    <span class="k">def</span> <span class="nf">chained</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">disconnect</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the Connectivities of the chained elements.</span>
+
+<span class="sd">        This is a convenience method calling :meth:`chain` with</span>
+<span class="sd">        the ``return_conn=True`` parameter and only returning the</span>
+<span class="sd">        second return value. It is equivalent with::</span>
+
+<span class="sd">            self.chain(disconnect, return_conn=True)[1]</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; Connectivity([[0,1],[1,2],[0,4],[4,2]]).chained()</span>
+<span class="sd">        [Connectivity([[0, 1],</span>
+<span class="sd">                      [1, 2],</span>
+<span class="sd">                      [2, 4],</span>
+<span class="sd">                      [4, 0]])]</span>
+
+<span class="sd">        &gt;&gt;&gt; Connectivity([[0,1],[1,2],[0,4]]).chained()</span>
+<span class="sd">        [Connectivity([[4, 0],</span>
+<span class="sd">                      [0, 1],</span>
+<span class="sd">                      [1, 2]])]</span>
+
+<span class="sd">        &gt;&gt;&gt; Connectivity([[0,1],[0,2],[0,3],[4,5]]).chained()</span>
+<span class="sd">        [Connectivity([[1, 0],</span>
+<span class="sd">                      [0, 2]]), Connectivity([[4, 5]]), Connectivity([[0, 3]])]</span>
+
+<span class="sd">        &gt;&gt;&gt; Connectivity([[0,1],[0,2],[0,3],[5,4]]).chained(disconnect=&#39;branch&#39;)</span>
+<span class="sd">        [Connectivity([[5, 4]]), Connectivity([[0, 3]]),</span>
+<span class="sd">        Connectivity([[0, 2]]), Connectivity([[0, 1]])]</span>
+<span class="sd">        &gt;&gt;&gt; Connectivity([[0,1,2],[2,0,3],[0,3,1],[4,5,2]]).chained()</span>
+<span class="sd">        [Connectivity([[1, 3, 0],</span>
+<span class="sd">                       [0, 1, 2],</span>
+<span class="sd">                       [2, 0, 3]]),</span>
+<span class="sd">        Connectivity([[4, 5, 2]])]</span>
+<span class="sd">        &gt;&gt;&gt; Connectivity([[0,1,2],[2,0,3],[0,3,1],[4,5,2]],).chained(</span>
+<span class="sd">        ...     disconnect=[0])</span>
+<span class="sd">        [Connectivity([[0, 1, 2],</span>
+<span class="sd">                      [2, 0, 3]]), \</span>
+<span class="sd">        Connectivity([[4, 5, 2]]), Connectivity([[0, 3, 1]])]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="n">disconnect</span><span class="p">,</span> <span class="n">return_conn</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span></div>
+
+    <span class="c1">#################################################################</span>
+    <span class="c1"># class and static methods #</span>
+
+<div class="viewcode-block" id="Connectivity.connect"><a class="viewcode-back" href="../ref/connectivity.html#connectivity.Connectivity.connect">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">connect</span><span class="p">(</span><span class="n">clist</span><span class="p">,</span> <span class="n">nodid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Connect nodes from multiple Connectivity objects.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        clist: list of Connectivity objects</span>
+<span class="sd">            The Connectivities to connect.</span>
+<span class="sd">        nodid: int :term:`array_like`, optional</span>
+<span class="sd">            List of node indices, same length as ``clist``. This specifies</span>
+<span class="sd">            which node of the elements will be used in the connect operation.</span>
+<span class="sd">        bias: int :term:`array_like`, optional</span>
+<span class="sd">            List of element bias values, same length as ``clist``. If provided,</span>
+<span class="sd">            then element looping will start at this number instead of at zero.</span>
+<span class="sd">        loop: bool</span>
+<span class="sd">            If False (default), new element generation will stop as soon as</span>
+<span class="sd">            the shortest Connectivity runs out of elements. If set to True,</span>
+<span class="sd">            the shorter lists will wrap around until all elements of all</span>
+<span class="sd">            Connectivities have been used.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Connectivity</span>
+<span class="sd">            A Connectivity with plexitude equal to the number of</span>
+<span class="sd">            Connectivities in ``clist``. Each element of the new</span>
+<span class="sd">            Connectivity consist of a node from the corresponding</span>
+<span class="sd">            element of each of the Connectivities in ``clist``.</span>
+<span class="sd">            By default this will be the first node of that element,</span>
+<span class="sd">            but a ``nodid`` list may be given to specify the node index</span>
+<span class="sd">            to be used for each of the Connectivities.</span>
+<span class="sd">            Finally, a list of bias values may be given to specify an offset in</span>
+<span class="sd">            element number for the subsequent Connectivities.</span>
+<span class="sd">            If loop==False, the length of the Connectivity will be the minimum</span>
+<span class="sd">            length of the Connectivities in ``clist``, each minus its respective</span>
+<span class="sd">            bias. If loop=True, the length will be the maximum</span>
+<span class="sd">            length in of the Connectivities in ``clist``.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; a = Connectivity([[0,1],[2,3],[4,5]])</span>
+<span class="sd">        &gt;&gt;&gt; b = Connectivity([[10,11,12],[13,14,15]])</span>
+<span class="sd">        &gt;&gt;&gt; c = Connectivity([[20,21],[22,23]])</span>
+<span class="sd">        &gt;&gt;&gt; print(Connectivity.connect([a,b,c]))</span>
+<span class="sd">        [[ 0 10 20]</span>
+<span class="sd">         [ 2 13 22]]</span>
+<span class="sd">        &gt;&gt;&gt; print(Connectivity.connect([a,b,c],nodid=[1,0,1]))</span>
+<span class="sd">        [[ 1 10 21]</span>
+<span class="sd">         [ 3 13 23]]</span>
+<span class="sd">        &gt;&gt;&gt; print(Connectivity.connect([a,b,c],bias=[1,0,1]))</span>
+<span class="sd">        [[ 2 10 22]]</span>
+<span class="sd">        &gt;&gt;&gt; print(Connectivity.connect([a,b,c],bias=[1,0,1],loop=True))</span>
+<span class="sd">        [[ 2 10 22]</span>
+<span class="sd">         [ 4 13 20]</span>
+<span class="sd">         [ 0 10 22]]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">clist</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">clist</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">Connectivity</span><span class="p">):</span>
+                    <span class="k">pass</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">clist</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+                    <span class="n">clist</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">Connectivity</span><span class="p">(</span><span class="n">clist</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">TypeError</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Connectivity.connect(): first argument &quot;</span>
+                            <span class="s2">&quot;should be a list of Connectivities&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">nodid</span><span class="p">:</span>
+            <span class="n">nodid</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">bias</span><span class="p">:</span>
+            <span class="n">bias</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="n">loop</span><span class="p">:</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([</span><span class="n">clist</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">nelems</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">)])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="nb">min</span><span class="p">([</span><span class="n">clist</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">nelems</span><span class="p">()</span> <span class="o">-</span> <span class="n">bias</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">)])</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n</span><span class="p">,</span> <span class="n">m</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">at</span><span class="o">.</span><span class="n">Int</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">),</span> <span class="n">nodid</span><span class="p">,</span> <span class="n">bias</span><span class="p">):</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="n">clist</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">k</span><span class="p">:</span><span class="n">k</span><span class="o">+</span><span class="n">n</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">loop</span> <span class="ow">and</span> <span class="n">k</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">v</span><span class="p">,</span> <span class="n">clist</span><span class="p">[</span><span class="n">i</span><span class="p">][:</span><span class="n">k</span><span class="p">,</span> <span class="n">j</span><span class="p">]])</span>
+            <span class="n">f</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="p">(</span><span class="n">n</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">Connectivity</span><span class="p">(</span><span class="n">f</span><span class="p">)</span></div></div>
+
+
+<span class="c1">############################################################################</span>
+<span class="c1"># Private functions for adjacency multiprocessing</span>
+
+<span class="k">def</span> <span class="nf">_elem_adj</span><span class="p">(</span><span class="n">inv</span><span class="p">,</span> <span class="n">els</span><span class="p">,</span> <span class="n">check</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return elem adj for (part of) the elements&quot;&quot;&quot;</span>
+    <span class="n">adj</span> <span class="o">=</span> <span class="n">inv</span><span class="p">[</span><span class="n">els</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">els</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">Adjacency</span><span class="p">(</span><span class="n">adj</span><span class="p">,</span> <span class="n">check_max</span><span class="o">=</span><span class="n">check</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_elem_adj_multi</span><span class="p">(</span><span class="n">inv</span><span class="p">,</span> <span class="n">els</span><span class="p">,</span> <span class="n">nproc</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">multi</span>
+    <span class="n">datablocks</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">splitar</span><span class="p">(</span><span class="n">els</span><span class="p">,</span> <span class="n">nproc</span><span class="p">)</span>
+    <span class="n">datalen</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">d</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">datablocks</span><span class="p">]</span>
+    <span class="n">shift</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">datalen</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">cumsum</span><span class="p">()</span>
+    <span class="n">tasks</span> <span class="o">=</span> <span class="p">[(</span><span class="n">_elem_adj</span><span class="p">,</span> <span class="p">(</span><span class="n">inv</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="kc">False</span><span class="p">))</span> <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">datablocks</span><span class="p">,</span> <span class="n">shift</span><span class="p">)]</span>
+    <span class="k">return</span> <span class="n">multi</span><span class="o">.</span><span class="n">multitask</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="n">nproc</span><span class="o">=</span><span class="n">nproc</span><span class="p">)</span>
+
+
+<span class="c1">######################################</span>
+<span class="c1"># Deprecated</span>
+
+
+<span class="nd">@utils</span><span class="o">.</span><span class="n">deprecated</span><span class="p">(</span><span class="s2">&quot;depr_connectedLineElems&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">connectedLineElems</span><span class="p">(</span><span class="n">elems</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+        <span class="s2">&quot;connectedLineElems has been removed. &quot;</span>
+        <span class="s2">&quot;You should use Connectivity.chained or Connectivity.chain instead.&quot;</span><span class="p">)</span>
+
+
+<span class="c1"># End</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">connectivity</a></li--> 
+      </ul>
+    </div>
+    <div class="footer">
+    <span class="left">
+        &copy; Copyright 2004-2023, Benedict Verhegghe.
+    </span>
+      Last updated on Mar 27, 2023.
+    <span class="right">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.4.3.
+    </span>
+    </div>
+  </body>
+</html>

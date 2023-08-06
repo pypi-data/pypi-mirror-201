@@ -1,0 +1,810 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!--
+##
+##  This file is part of the pyFormex project.
+##  pyFormex is a tool for generating, manipulating and transforming 3D
+##  geometrical models by sequences of mathematical operations.
+##  Home page: http://pyformex.org
+##  Project page:  http://savannah.nongnu.org/projects/pyformex/
+##  Copyright (C) Benedict Verhegghe (benedict.verhegghe@ugent.be)
+##  Distributed under the GNU General Public License version 3 or later.
+##
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see http://www.gnu.org/licenses/.
+##
+-->
+    <title>main &#8212; pyFormex 3.3 documentation</title>
+
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pyformex.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+<link rel="icon" type="image/png" href="../_static/pyformex_fav.png" />
+
+  </head><body>
+
+<div class="header">
+  <a href="http://pyformex.org">
+  <img src="../_static/scallop_dome_small.png" alt="scallop dome" border="0" hspace="20" vspace="12" align="left" />
+  <img src="../_static/pyformex-logo-2.png" alt="pyformex logo" border="0" hspace="10" vspace="8" align="left" />
+  </a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">main</a></li--> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<!-- PYFORMEX_SIDEBAR_LOGO -->
+<!-- PYFORMEX_WEBSITE_SIDEBAR_TOP -->
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for main</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1">##</span>
+<span class="c1">##  SPDX-FileCopyrightText: © 2007-2023 Benedict Verhegghe &lt;bverheg@gmail.com&gt;</span>
+<span class="c1">##  SPDX-License-Identifier: GPL-3.0-or-later</span>
+<span class="c1">##</span>
+<span class="c1">##  This file is part of pyFormex 3.3  (Sun Mar 26 20:16:15 CEST 2023)</span>
+<span class="c1">##  pyFormex is a tool for generating, manipulating and transforming 3D</span>
+<span class="c1">##  geometrical models by sequences of mathematical operations.</span>
+<span class="c1">##  Home page: https://pyformex.org</span>
+<span class="c1">##  Project page: https://savannah.nongnu.org/projects/pyformex/</span>
+<span class="c1">##  Development: https://gitlab.com/bverheg/pyformex</span>
+<span class="c1">##  Distributed under the GNU General Public License version 3 or later.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is free software: you can redistribute it and/or modify</span>
+<span class="c1">##  it under the terms of the GNU General Public License as published by</span>
+<span class="c1">##  the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1">##  (at your option) any later version.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is distributed in the hope that it will be useful,</span>
+<span class="c1">##  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1">##  GNU General Public License for more details.</span>
+<span class="c1">##</span>
+<span class="c1">##  You should have received a copy of the GNU General Public License</span>
+<span class="c1">##  along with this program.  If not, see http://www.gnu.org/licenses/.</span>
+<span class="c1">##</span>
+
+<span class="c1"># This is the only pyFormex module that is imported by the main script,</span>
+<span class="c1"># so this is the place to put startup code</span>
+
+<span class="sd">&quot;&quot;&quot;pyFormex main module</span>
+
+<span class="sd">This module contains the main function of pyFormex, which is run by the</span>
+<span class="sd">startup script.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">inspect</span> <span class="kn">import</span> <span class="n">cleandoc</span> <span class="k">as</span> <span class="n">dedent</span>
+<span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">redirect_stdout</span><span class="p">,</span> <span class="n">redirect_stderr</span>
+
+<span class="kn">import</span> <span class="nn">pyformex</span> <span class="k">as</span> <span class="nn">pf</span>
+
+
+<div class="viewcode-block" id="whereami"><a class="viewcode-back" href="../ref/main.html#main.whereami">[docs]</a><span class="k">def</span> <span class="nf">whereami</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Report where pyFormex is installed&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">dedent</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span><span class="si">{</span><span class="n">pf</span><span class="o">.</span><span class="n">fullVersion</span><span class="p">()</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">        pyFormex executable: </span><span class="si">{</span><span class="n">pf</span><span class="o">.</span><span class="n">executable</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">        pyFormex installation (</span><span class="si">{</span><span class="n">pf</span><span class="o">.</span><span class="n">installtype</span><span class="si">}</span><span class="s2">): </span><span class="si">{</span><span class="n">pf</span><span class="o">.</span><span class="n">pyformexdir</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">        Python sys.path: </span><span class="si">{</span><span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="run_docmodule"><a class="viewcode-back" href="../ref/main.html#main.run_docmodule">[docs]</a><span class="k">def</span> <span class="nf">run_docmodule</span><span class="p">(</span><span class="n">module</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Print autogenerated documentation for the module.</span>
+
+<span class="sd">    module is a pyFormex module dotted path. The leading pyformex.</span>
+<span class="sd">    may be omitted.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">py2rst</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">py2rst</span><span class="o">.</span><span class="n">do_module</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
+    <span class="n">outfile</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;sphinxdir&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="s1">&#39;ref&#39;</span> <span class="o">/</span> <span class="n">module</span> <span class="o">+</span> <span class="s1">&#39;.rst&#39;</span>
+    <span class="n">outfile</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Wrote </span><span class="si">{</span><span class="n">outfile</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="loadUserConfig"><a class="viewcode-back" href="../ref/main.html#main.loadUserConfig">[docs]</a><span class="k">def</span> <span class="nf">loadUserConfig</span><span class="p">():</span>  <span class="c1"># noqa: C901</span>
+    <span class="sd">&quot;&quot;&quot;Load the pyFormex configuration</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This function should be called to create a proper configuration</span>
+<span class="sd">    when pyFormex is imported in Python and not started from the</span>
+<span class="sd">    pyformex command.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loading configuration files&quot;</span><span class="p">)</span>
+    <span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">Path</span>
+    <span class="kn">from</span> <span class="nn">pyformex.config</span> <span class="kn">import</span> <span class="n">Config</span>
+    <span class="c1"># Set the config files</span>
+    <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">nodefaultconfig</span><span class="p">:</span>
+        <span class="n">sysprefs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">userprefs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">sysprefs</span> <span class="o">=</span> <span class="p">[</span><span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;siteprefs&#39;</span><span class="p">]]</span>
+        <span class="n">userprefs</span> <span class="o">=</span> <span class="p">[</span><span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;userprefs&#39;</span><span class="p">]]</span>
+        <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;localprefs&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">userprefs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;localprefs&#39;</span><span class="p">])</span>
+
+    <span class="n">sysprefs</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">sysprefs</span> <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">exists</span><span class="p">()]</span>
+    <span class="n">userprefs</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">userprefs</span> <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">exists</span><span class="p">()]</span>
+
+    <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">config</span><span class="p">:</span>
+        <span class="n">userprefs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">config</span><span class="p">)</span><span class="o">.</span><span class="n">expanduser</span><span class="p">())</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">userprefs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="c1"># We should always have a place to store the user preferences</span>
+        <span class="n">userprefs</span> <span class="o">=</span> <span class="p">[</span><span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;userprefs&#39;</span><span class="p">]]</span>
+
+    <span class="c1"># Use last one to save preferences</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;System Preference Files: </span><span class="si">{</span><span class="n">sysprefs</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">CONFIG</span><span class="p">)</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;User Preference Files: </span><span class="si">{</span><span class="n">userprefs</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">CONFIG</span><span class="p">)</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">preffile</span> <span class="o">=</span> <span class="n">Path</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">userprefs</span><span class="o">.</span><span class="n">pop</span><span class="p">())</span>
+
+    <span class="c1"># Read sysprefs as reference</span>
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">sysprefs</span><span class="p">:</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Reading config file </span><span class="si">{</span><span class="n">f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">CONFIG</span><span class="p">)</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+    <span class="c1"># Set this as reference config</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">refcfg</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">cfg</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">CONFIG</span><span class="p">)</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;RefConfig: </span><span class="si">{</span><span class="n">pf</span><span class="o">.</span><span class="n">refcfg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">CONFIG</span><span class="p">)</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">cfg</span> <span class="o">=</span> <span class="n">Config</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">pf</span><span class="o">.</span><span class="n">refcfg</span><span class="p">)</span>
+
+    <span class="c1"># Read userprefs as reference</span>
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">userprefs</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Reading config file </span><span class="si">{</span><span class="n">f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">CONFIG</span><span class="p">)</span>
+            <span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Skip non-existing config file </span><span class="si">{</span><span class="n">f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">CONFIG</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">preffile</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Reading config file </span><span class="si">{</span><span class="n">pf</span><span class="o">.</span><span class="n">preffile</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">CONFIG</span><span class="p">)</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">preffile</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Create the config file</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Creating config file </span><span class="si">{</span><span class="n">pf</span><span class="o">.</span><span class="n">preffile</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">CONFIG</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">Path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">preffile</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span> <span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">pf</span><span class="o">.</span><span class="n">preffile</span><span class="o">.</span><span class="n">touch</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="n">pf</span><span class="o">.</span><span class="n">startup_warnings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Could not create the user configuration file </span><span class="si">{</span><span class="n">pf</span><span class="o">.</span><span class="n">preffile</span><span class="si">}</span><span class="s2">.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;User preferences will not be saved.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">pf</span><span class="o">.</span><span class="n">preffile</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1"># Set this as preferences config</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">prefcfg</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">cfg</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">CONFIG</span><span class="p">)</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Config: </span><span class="si">{</span><span class="n">pf</span><span class="o">.</span><span class="n">prefcfg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">CONFIG</span><span class="p">)</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">cfg</span> <span class="o">=</span> <span class="n">Config</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">pf</span><span class="o">.</span><span class="n">prefcfg</span><span class="p">)</span>
+
+    <span class="c1"># Fix incompatible changes in configuration</span>
+    <span class="n">_sanitize_config</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">prefcfg</span><span class="p">)</span>
+
+    <span class="c1"># Make sure we have a writeable tmpdir</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;tmpdir&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">is_writable_dir</span><span class="p">():</span>
+        <span class="n">tmpdir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;TMPDIR&#39;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;homedir&#39;</span><span class="p">]))</span>
+        <span class="k">if</span> <span class="n">tmpdir</span><span class="o">.</span><span class="n">is_writable_dir</span><span class="p">():</span>
+            <span class="n">tmpdir</span> <span class="o">=</span> <span class="n">tmpdir</span> <span class="o">/</span> <span class="s1">&#39;pyformex_tmp&#39;</span>
+            <span class="n">tmpdir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">tmpdir</span><span class="o">.</span><span class="n">is_writable_dir</span><span class="p">():</span>
+                <span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;tmpdir&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmpdir</span>
+                <span class="k">return</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s2">I could not find a writable path for temporary files.</span>
+<span class="s2">You can specify one with the --tmpdir option of the pyformex command.</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">_sanitize_warnings_filters</span><span class="p">(</span><span class="n">c</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Sanitize the &#39;warnings/filters&#39; setting.</span>
+
+<span class="sd">    The setting should be a set (to avoid doubles) and not contain</span>
+<span class="sd">    DeprecationWarnings.</span>
+<span class="sd">    Returns the corrected setting, possibly None.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="nb">set</span><span class="p">):</span>
+        <span class="c1"># Accept as is</span>
+        <span class="k">pass</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="c1"># Remove the obsolete filters</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">c</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="ow">and</span>
+                <span class="ow">not</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">f</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;D&#39;</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Remove the setting</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">c</span>
+
+
+<span class="k">def</span> <span class="nf">_sanitize_config</span><span class="p">(</span><span class="n">cfg</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Apply incompatible changes in the configuration</span>
+
+<span class="sd">    cfg is the user configuration that is to be saved.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">Path</span>
+    <span class="c1"># Safety checks</span>
+    <span class="c1"># Warning filters</span>
+    <span class="k">if</span> <span class="s1">&#39;warnings&#39;</span> <span class="ow">in</span> <span class="n">cfg</span> <span class="ow">and</span> <span class="s1">&#39;filters&#39;</span> <span class="ow">in</span> <span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;warnings&#39;</span><span class="p">]:</span>
+        <span class="c1"># We need to check if the cfg really owns the setting</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Sanitizing settings&#39;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">CONFIG</span><span class="p">)</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">_sanitize_warnings_filters</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;warnings/filters&#39;</span><span class="p">])</span>
+        <span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;warnings/filters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span>
+
+    <span class="c1"># Path required</span>
+    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;workdir&#39;</span><span class="p">,</span> <span class="p">):</span>
+        <span class="k">if</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">cfg</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="n">p</span><span class="p">],</span> <span class="n">Path</span><span class="p">):</span>
+            <span class="n">cfg</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+
+    <span class="c1"># Adhoc changes</span>
+    <span class="k">if</span> <span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;gui/plugins&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;gui/pluginmenus&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;gui/plugins&#39;</span><span class="p">]]</span>
+        <span class="k">del</span> <span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;gui/plugins&#39;</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;gui/redirect&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">),</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">del</span> <span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;gui/redirect&#39;</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;gui/dynazoom&#39;</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;gui/dynazoom&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;gui/dynazoom&#39;</span><span class="p">],</span> <span class="s1">&#39;&#39;</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">):</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;render/light</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">cfg</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="n">t</span><span class="p">])</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+    <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;scriptdirs&#39;</span><span class="p">,</span> <span class="s1">&#39;appdirs&#39;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">cfg</span><span class="p">:</span>
+            <span class="n">scriptdirs</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">cfg</span><span class="p">[</span><span class="n">d</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span> <span class="ow">or</span> <span class="n">Path</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+                    <span class="n">scriptdirs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+                <span class="k">elif</span> <span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span> <span class="ow">or</span> <span class="n">Path</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+                    <span class="n">scriptdirs</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+            <span class="n">cfg</span><span class="p">[</span><span class="n">d</span><span class="p">]</span> <span class="o">=</span> <span class="n">scriptdirs</span>
+
+    <span class="c1"># Rename settings</span>
+    <span class="k">for</span> <span class="n">old</span><span class="p">,</span> <span class="n">new</span> <span class="ow">in</span> <span class="p">(</span>
+            <span class="p">(</span><span class="s1">&#39;history&#39;</span><span class="p">,</span> <span class="s1">&#39;gui/scripthistory&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;gui/history&#39;</span><span class="p">,</span> <span class="s1">&#39;gui/scripthistory&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;raiseapploadexc&#39;</span><span class="p">,</span> <span class="s1">&#39;showapploaderrors&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;webgl/xtkscript&#39;</span><span class="p">,</span> <span class="s1">&#39;webgl/script&#39;</span><span class="p">),</span>
+    <span class="p">):</span>
+        <span class="k">if</span> <span class="n">old</span> <span class="ow">in</span> <span class="n">cfg</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">new</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cfg</span><span class="p">:</span>
+                <span class="n">cfg</span><span class="p">[</span><span class="n">new</span><span class="p">]</span> <span class="o">=</span> <span class="n">cfg</span><span class="p">[</span><span class="n">old</span><span class="p">]</span>
+            <span class="k">del</span> <span class="n">cfg</span><span class="p">[</span><span class="n">old</span><span class="p">]</span>
+
+    <span class="c1"># Delete settings</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span>
+            <span class="s1">&#39;scriptmode&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;gui/console&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;gui/interpreter&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;gui/bdsize&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;input/timeout&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;filterwarnings&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;render/ambient&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;render/diffuse&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;render/specular&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;render/emission&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;render/material&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;canvas/propcolors&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;Save changes&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;canvas/bgmode&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;canvas/bgcolor2&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;_save_&#39;</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">cfg</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;DELETING CONFIG VARIABLE </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">del</span> <span class="n">cfg</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="savePreferences"><a class="viewcode-back" href="../ref/main.html#main.savePreferences">[docs]</a><span class="k">def</span> <span class="nf">savePreferences</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Save the preferences.</span>
+
+<span class="sd">    The name of the preferences file is determined at startup from</span>
+<span class="sd">    the configuration files, and saved in ``pyformex.preffile``.</span>
+<span class="sd">    If a local preferences file was read, it will be saved there.</span>
+<span class="sd">    Otherwise, it will be saved as the user preferences, possibly</span>
+<span class="sd">    creating that file.</span>
+<span class="sd">    If ``pyformex.preffile`` is None, preferences are not saved.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;savePreferences to: </span><span class="si">{</span><span class="n">pf</span><span class="o">.</span><span class="n">preffile</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">CONFIG</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">preffile</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="c1"># Create the user conf dir</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">preffile</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Do not store the refcfg warning filters: we add them on startup</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">prefcfg</span><span class="p">[</span><span class="s1">&#39;warnings/filters&#39;</span><span class="p">])</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">refcfg</span><span class="p">[</span><span class="s1">&#39;warnings/filters&#39;</span><span class="p">])</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">prefcfg</span><span class="p">[</span><span class="s1">&#39;warnings/filters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span><span class="o">-</span><span class="n">b</span>
+
+    <span class="c1"># Currently erroroneously processed, therefore not saved</span>
+    <span class="k">del</span> <span class="n">pf</span><span class="o">.</span><span class="n">prefcfg</span><span class="p">[</span><span class="s1">&#39;render/light0&#39;</span><span class="p">]</span>
+    <span class="k">del</span> <span class="n">pf</span><span class="o">.</span><span class="n">prefcfg</span><span class="p">[</span><span class="s1">&#39;render/light1&#39;</span><span class="p">]</span>
+    <span class="k">del</span> <span class="n">pf</span><span class="o">.</span><span class="n">prefcfg</span><span class="p">[</span><span class="s1">&#39;render/light2&#39;</span><span class="p">]</span>
+    <span class="k">del</span> <span class="n">pf</span><span class="o">.</span><span class="n">prefcfg</span><span class="p">[</span><span class="s1">&#39;render/light3&#39;</span><span class="p">]</span>
+
+    <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">CONFIG</span><span class="p">)</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;!!!Saving config:</span><span class="se">\n</span><span class="si">{</span><span class="n">pf</span><span class="o">.</span><span class="n">prefcfg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">CONFIG</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saving preferences to file </span><span class="si">{</span><span class="n">pf</span><span class="o">.</span><span class="n">preffile</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">CONFIG</span><span class="p">)</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">prefcfg</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">preffile</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="s2">&quot;Saved&quot;</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="s2">&quot;Could not save&quot;</span>
+        <span class="k">raise</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">res</span><span class="si">}</span><span class="s2"> preferences to file </span><span class="si">{</span><span class="n">pf</span><span class="o">.</span><span class="n">preffile</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">CONFIG</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">res</span> <span class="o">==</span> <span class="s2">&quot;Saved&quot;</span></div>
+
+
+<div class="viewcode-block" id="activateWarningFilters"><a class="viewcode-back" href="../ref/main.html#main.activateWarningFilters">[docs]</a><span class="k">def</span> <span class="nf">activateWarningFilters</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Activate the warning filters</span>
+
+<span class="sd">    First time activation of the warning filters and customized</span>
+<span class="sd">    warning formatting.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">utils</span>
+    <span class="n">utils</span><span class="o">.</span><span class="n">resetWarningFilters</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_format_warning</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">category</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">lineno</span><span class="p">,</span> <span class="n">line</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Replace the default warnings.formatwarning</span>
+
+<span class="sd">        This allows the warnings being called using a simple mnemonic</span>
+<span class="sd">        string. The full message is then found from the message module.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">messages</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="n">messages</span><span class="o">.</span><span class="n">getMessage</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;..</span>
+
+<span class="s2">pyFormex Warning</span>
+<span class="s2">================</span>
+<span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2"></span>
+
+<span class="si">{</span><span class="n">category</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> called from: </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2"> line: </span><span class="si">{</span><span class="n">lineno</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">line</span><span class="p">:</span>
+            <span class="n">message</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">line</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="n">message</span>
+
+    <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;warnings/nice&#39;</span><span class="p">]:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">formatwarning</span> <span class="o">=</span> <span class="n">_format_warning</span></div>
+
+
+<div class="viewcode-block" id="override_config"><a class="viewcode-back" href="../ref/main.html#main.override_config">[docs]</a><span class="k">def</span> <span class="nf">override_config</span><span class="p">(</span><span class="n">option</span><span class="p">,</span> <span class="n">setting</span><span class="p">,</span> <span class="n">delete</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Override a config setting with a command line option</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    option: str</span>
+<span class="sd">        Name of the option that should override a setting.</span>
+<span class="sd">    setting: str</span>
+<span class="sd">        Key of the setting to be overridden.</span>
+<span class="sd">    delete: bool</span>
+<span class="sd">        If True (Default), delete the option after use</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    If the option was given, its value is written into the corresponding</span>
+<span class="sd">    setting and the option is deleted.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">options</span><span class="p">,</span> <span class="n">option</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">value</span> <span class="o">!=</span> <span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="n">setting</span><span class="p">]:</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Override config value &#39;</span><span class="si">{</span><span class="n">setting</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="n">setting</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+                 <span class="sa">f</span><span class="s2">&quot; with value &#39;</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">CONFIG</span><span class="p">)</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="n">setting</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="k">if</span> <span class="n">delete</span><span class="p">:</span>
+        <span class="nb">delattr</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">options</span><span class="p">,</span> <span class="n">option</span><span class="p">)</span>  <span class="c1"># avoid abuse</span></div>
+
+<span class="c1">###########################  main  ################################</span>
+
+
+<div class="viewcode-block" id="run"><a class="viewcode-back" href="../ref/main.html#main.run">[docs]</a><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="p">[]):</span>  <span class="c1"># noqa: C901</span>
+    <span class="sd">&quot;&quot;&quot;The pyFormex main function.</span>
+
+<span class="sd">    After pyFormex launcher script has correctly set up the Python import</span>
+<span class="sd">    paths, this function is executed. It is responsible for reading the</span>
+<span class="sd">    configuration file(s), processing the command line options and starting</span>
+<span class="sd">    the application.</span>
+
+<span class="sd">    The basic configuration file is &#39;pyformexrc&#39; located in the pyFormex</span>
+<span class="sd">    main directory. It should always be present and be left unchanged.</span>
+<span class="sd">    If you want to make changes, copy (parts of) this file to another location</span>
+<span class="sd">    where you can change them. Then make sure pyFormex reads you modifications</span>
+<span class="sd">    file. By default, pyFormex will try to read the following</span>
+<span class="sd">    configuration files if they are present (and in this order)::</span>
+
+<span class="sd">        default settings:     &lt;pyformexdir&gt;/pyformexrc   (always loaded)</span>
+<span class="sd">        system-wide settings: /etc/pyformex.conf</span>
+<span class="sd">        user settings:        &lt;configdir&gt;/pyformex/pyformex.conf</span>
+<span class="sd">        local settings        $PWD/.pyformexrc</span>
+
+<span class="sd">    Also, an extra config file can be specified in the command line, using</span>
+<span class="sd">    the --config option. The system-wide and user settings can be skipped</span>
+<span class="sd">    by using the --nodefaultconfig option.</span>
+
+<span class="sd">    Config files are loaded in the above order. Settings always override</span>
+<span class="sd">    those loaded from a previous file.</span>
+
+<span class="sd">    When pyFormex exits, the preferences that were changed are written to the</span>
+<span class="sd">    last read config file. Changed settings are those that differ from the</span>
+<span class="sd">    settings obtained after loading all but the last config file.</span>
+<span class="sd">    If none of the optional config files exists, a new user settings file</span>
+<span class="sd">    will be created, and an error will occur if the &lt;configdir&gt; path is</span>
+<span class="sd">    not writable.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">)):</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+
+    <span class="c1"># if not pf.executable.stem == &#39;pyformex&#39;:</span>
+    <span class="c1">#     # We did not do options parsing yet: do it now</span>
+    <span class="c1">#     if not parseOptions(args):</span>
+    <span class="c1">#         return 1</span>
+    <span class="c1"># Parse the command line options</span>
+    <span class="kn">from</span> <span class="nn">pyformex.options</span> <span class="kn">import</span> <span class="n">parseOptions</span>
+    <span class="n">parseOptions</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+
+    <span class="c1">## Process options that do not need/want config ##</span>
+
+    <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">help</span><span class="p">:</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">print_help</span><span class="p">()</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+    <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">usage</span><span class="p">:</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">print_usage</span><span class="p">()</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+    <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">version</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">fullVersion</span><span class="p">())</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+    <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">docmodule</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">sphinx</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">pf</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">docmodule</span><span class="p">:</span>
+            <span class="n">run_docmodule</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+        <span class="c1"># This is an all_exclusive option !!</span>
+        <span class="c1"># So we immediately return</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+    <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">experimental</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">pyformexdir</span> <span class="o">/</span> <span class="s1">&#39;experimental&#39;</span><span class="p">))</span>
+
+    <span class="c1">## Process special options that can be combined, but return</span>
+    <span class="c1">## if any is used</span>
+
+    <span class="n">ret</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">whereami</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">whereami</span><span class="p">())</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">debugitems</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">([</span><span class="n">i</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">])</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">detect</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">software</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">whereami</span><span class="p">())</span>
+        <span class="n">override_config</span><span class="p">(</span><span class="s1">&#39;bindings&#39;</span><span class="p">,</span> <span class="s1">&#39;gui/bindings&#39;</span><span class="p">)</span>
+        <span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">gui</span>  <span class="c1"># needed to get the correct bindings</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Detecting installed helper software&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">software</span><span class="o">.</span><span class="n">reportSoftware</span><span class="p">())</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">listmodules</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">pyformex.cmdtools</span> <span class="kn">import</span> <span class="n">list_modules</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">list_modules</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">listmodules</span><span class="p">)))</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">pytest</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">pyformex.cmdtools</span> <span class="kn">import</span> <span class="n">run_pytest</span>
+        <span class="n">run_pytest</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">pytest</span><span class="p">)</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">doctest</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">pyformex.cmdtools</span> <span class="kn">import</span> <span class="n">run_doctest</span>
+        <span class="n">run_doctest</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">doctest</span><span class="p">)</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">remove</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">pyformex.cmdtools</span> <span class="kn">import</span> <span class="n">remove_pyFormex</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">whereami</span><span class="p">())</span>
+        <span class="n">remove_pyFormex</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">pyformexdir</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">executable</span><span class="p">)</span>
+        <span class="c1"># After this option, we can not continue,</span>
+        <span class="c1"># so this should be the last option processed</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">if</span> <span class="n">ret</span><span class="p">:</span>
+        <span class="c1"># Return for special options</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+    <span class="c1">## Migrate the user configuration files ##</span>
+    <span class="c1"># TODO: this could become a command tool??</span>
+    <span class="c1"># migrateUserConfig()</span>
+
+    <span class="c1">## Load the user configuration ##</span>
+    <span class="n">loadUserConfig</span><span class="p">()</span>
+
+    <span class="c1">## Process special options which do not start pyFormex</span>
+    <span class="c1">## but depend on the user configuration</span>
+    <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">search</span> <span class="ow">or</span> <span class="n">pf</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">listfiles</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">pyformex.utils</span> <span class="kn">import</span> <span class="n">sourceFiles</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">args</span>
+        <span class="n">extended</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">opts</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">args</span> <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)]</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">args</span> <span class="k">if</span> <span class="n">a</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">opts</span><span class="p">]</span>
+            <span class="k">if</span> <span class="s1">&#39;-a&#39;</span> <span class="ow">in</span> <span class="n">opts</span><span class="p">:</span>
+                <span class="n">opts</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s1">&#39;-a&#39;</span><span class="p">)</span>
+                <span class="n">extended</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">search</span><span class="p">:</span>
+            <span class="n">search</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">files</span> <span class="o">=</span> <span class="n">args</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">files</span> <span class="o">=</span> <span class="n">sourceFiles</span><span class="p">(</span><span class="n">relative</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">extended</span><span class="o">=</span><span class="n">extended</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">listfiles</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">files</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;&#39;&quot;</span> <span class="ow">in</span> <span class="n">search</span><span class="p">:</span>
+                <span class="n">search</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\&#39;</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SEARCH = [</span><span class="si">{</span><span class="n">search</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+            <span class="n">options</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">opts</span><span class="p">)</span>
+            <span class="n">quotedfiles</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">f</span><span class="si">}</span><span class="s2">&#39;&quot;</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span><span class="p">])</span>
+            <span class="n">cmd</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;grep </span><span class="si">{</span><span class="n">options</span><span class="si">}</span><span class="s1"> &quot;</span><span class="si">{</span><span class="n">search</span><span class="si">}</span><span class="s1">&quot; </span><span class="si">{</span><span class="n">quotedfiles</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+    <span class="c1">## If we get here, we want to start pyFormex</span>
+    <span class="c1">## Process options that override the config ##</span>
+
+    <span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">software</span><span class="p">,</span> <span class="n">utils</span>
+
+    <span class="c1"># Config settings that are overridden by the matching option</span>
+    <span class="k">for</span> <span class="n">option</span><span class="p">,</span> <span class="n">setting</span> <span class="ow">in</span> <span class="p">(</span>
+            <span class="p">(</span><span class="s1">&#39;bindings&#39;</span><span class="p">,</span> <span class="s1">&#39;gui/bindings&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;redirect&#39;</span><span class="p">,</span> <span class="s1">&#39;gui/redirect&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;opengl&#39;</span><span class="p">,</span> <span class="s1">&#39;opengl/version&#39;</span><span class="p">),</span>
+    <span class="p">):</span>
+        <span class="n">override_config</span><span class="p">(</span><span class="n">option</span><span class="p">,</span> <span class="n">setting</span><span class="p">)</span>
+
+    <span class="n">utils</span><span class="o">.</span><span class="n">setSaneLocale</span><span class="p">()</span>
+
+    <span class="c1">## Check required modules ##</span>
+    <span class="n">software</span><span class="o">.</span><span class="n">Module</span><span class="o">.</span><span class="n">has</span><span class="p">(</span><span class="s1">&#39;numpy&#39;</span><span class="p">,</span> <span class="n">fatal</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># minimal supported numpy version</span>
+    <span class="n">software</span><span class="o">.</span><span class="n">Module</span><span class="o">.</span><span class="n">require</span><span class="p">(</span><span class="s1">&#39;numpy&#39;</span><span class="p">,</span> <span class="s1">&#39;&gt;=1.16&#39;</span><span class="p">)</span>  <span class="c1"># recommended is 1.19</span>
+    <span class="kn">import</span> <span class="nn">numpy</span>
+    <span class="n">numpy</span><span class="o">.</span><span class="n">set_printoptions</span><span class="p">(</span><span class="o">**</span><span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;numpy/printoptions&#39;</span><span class="p">])</span>
+
+    <span class="c1"># with gui:</span>
+    <span class="c1"># Minimal pyside2/pyqt5 is 5.11; recommended is 5.15</span>
+
+    <span class="c1"># Initialize the libraries</span>
+    <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">uselib</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">uselib</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;uselib&#39;</span><span class="p">]</span>
+
+    <span class="c1"># Force initialisation of the library</span>
+    <span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">lib</span>  <span class="c1"># noqa: F401</span>
+
+    <span class="c1">## Activate the warning filters</span>
+    <span class="n">activateWarningFilters</span><span class="p">()</span>
+
+    <span class="c1"># Make sure pf.PF is a Project</span>
+    <span class="kn">from</span> <span class="nn">pyformex.project</span> <span class="kn">import</span> <span class="n">Project</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">PF</span> <span class="o">=</span> <span class="n">Project</span><span class="p">()</span>
+
+    <span class="c1"># Add a configured syspath</span>
+    <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;syspath&#39;</span><span class="p">]:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;syspath&#39;</span><span class="p">])</span>
+
+    <span class="c1"># Set application paths</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Loading AppDirs&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+    <span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">apps</span>
+    <span class="n">apps</span><span class="o">.</span><span class="n">setAppDirs</span><span class="p">()</span>
+
+    <span class="n">args</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">args</span>
+    <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">gui</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Set default value for options.gui:</span>
+        <span class="c1">#   False if -c script option used or</span>
+        <span class="c1">#   first remaining argument is a pyFormex script.</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">gui</span> <span class="o">=</span> <span class="ow">not</span> <span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">script</span> <span class="ow">or</span> <span class="p">(</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_pyFormex</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])))</span>
+
+    <span class="c1"># Create the interpreter</span>
+    <span class="kn">import</span> <span class="nn">code</span>
+    <span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">script</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">interpreter</span> <span class="o">=</span> <span class="n">code</span><span class="o">.</span><span class="n">InteractiveInterpreter</span><span class="p">(</span><span class="n">script</span><span class="o">.</span><span class="n">Globals</span><span class="p">())</span>
+
+    <span class="n">stdout</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span>
+    <span class="n">stderr</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span>
+    <span class="c1"># Start the GUI if needed (should be done after the config is set)</span>
+    <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">gui</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">mesa</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;LIBGL_ALWAYS_SOFTWARE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;1&#39;</span>
+        <span class="kn">from</span> <span class="nn">pyformex.gui</span> <span class="kn">import</span> <span class="n">guimain</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">guimain</span><span class="o">.</span><span class="n">createGUI</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">res</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not start the pyFormex GUI: </span><span class="si">{</span><span class="n">res</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">res</span>  <span class="c1"># EXIT</span>
+
+        <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">console</span><span class="p">:</span>
+            <span class="c1"># we can redirect output to the console</span>
+            <span class="k">if</span> <span class="s1">&#39;o&#39;</span> <span class="ow">in</span> <span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;gui/redirect&#39;</span><span class="p">]:</span>
+                <span class="n">stdout</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">console</span>
+            <span class="k">if</span> <span class="s1">&#39;e&#39;</span> <span class="ow">in</span> <span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;gui/redirect&#39;</span><span class="p">]:</span>
+                <span class="n">stderr</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">errorproxy</span>
+
+    <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+    <span class="k">with</span> <span class="n">redirect_stdout</span><span class="p">(</span><span class="n">stdout</span><span class="p">),</span> <span class="n">redirect_stderr</span><span class="p">(</span><span class="n">stderr</span><span class="p">):</span>
+
+        <span class="c1"># Display the startup warnings</span>
+        <span class="k">for</span> <span class="n">msg</span> <span class="ow">in</span> <span class="n">pf</span><span class="o">.</span><span class="n">startup_warnings</span><span class="p">:</span>
+            <span class="n">utils</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">DETECT</span> <span class="ow">in</span> <span class="n">pf</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">debuglevel</span><span class="p">:</span>
+            <span class="c1"># NOTE: inside an if to avoid computing the report when not printed</span>
+            <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">software</span><span class="o">.</span><span class="n">reportSoftware</span><span class="p">(),</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">DETECT</span><span class="p">)</span>
+
+        <span class="c1">#</span>
+        <span class="c1"># Qt may have changed the locale.</span>
+        <span class="c1"># Since a LC_NUMERIC setting other than C may cause lots of troubles</span>
+        <span class="c1"># with reading and writing files (formats become incompatible!)</span>
+        <span class="c1"># we put it back to a sane setting</span>
+        <span class="c1">#</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">setSaneLocale</span><span class="p">()</span>
+
+        <span class="c1"># Startup done</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">started</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;pyFormex started from </span><span class="si">{</span><span class="n">pf</span><span class="o">.</span><span class="n">executable</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Prepend the inline script</span>
+        <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">script</span><span class="p">:</span>
+            <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;-c&#39;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">script</span><span class="p">]</span>
+
+        <span class="c1"># Prepend the autorun script</span>
+        <span class="n">ar</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;autorun&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">ar</span> <span class="ow">and</span> <span class="n">ar</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">ar</span><span class="p">]</span>
+
+        <span class="c1"># remaining args are interpreted as scripts/apps and their parameters</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">args</span><span class="p">:</span>
+            <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Remaining args: </span><span class="si">{</span><span class="n">args</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+            <span class="kn">from</span> <span class="nn">pyformex.script</span> <span class="kn">import</span> <span class="n">processArgs</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">processArgs</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">res</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">gui</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;There was an error while executing a script&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">res</span>  <span class="c1"># EXIT</span>
+
+        <span class="c1"># if we have a gui, go into gui interactive mode</span>
+        <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="p">:</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+            <span class="k">del</span> <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span>
+            <span class="k">del</span> <span class="n">pf</span><span class="o">.</span><span class="n">app</span>
+            <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">app</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="c1"># TODO: this should be moved to onExit functions</span>
+            <span class="c1"># Save the preferences that have changed</span>
+            <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Saving preferences&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">savePreferences</span><span class="p">():</span>
+               <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;!!! Preferences could not be saved !!!&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">interactive</span><span class="p">:</span>
+        <span class="c1"># Go into console interactive mode</span>
+        <span class="kn">import</span> <span class="nn">readline</span>  <span class="c1"># noqa: F401 (allows Up/Down/History in the console)</span>
+        <span class="kn">import</span> <span class="nn">code</span>
+        <span class="n">variables</span> <span class="o">=</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">variables</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+        <span class="n">shell</span> <span class="o">=</span> <span class="n">code</span><span class="o">.</span><span class="n">InteractiveConsole</span><span class="p">(</span><span class="n">variables</span><span class="p">)</span>
+        <span class="n">shell</span><span class="o">.</span><span class="n">interact</span><span class="p">()</span>
+
+    <span class="c1"># Exit</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Running (nongui) exit functions&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">func</span> <span class="ow">in</span> <span class="n">pf</span><span class="o">.</span><span class="n">on_exit</span><span class="p">:</span>
+        <span class="n">func</span><span class="p">()</span>
+    <span class="c1">#pf.logger.info(f&quot;{pf.fullVersion()} exit with status {res}&quot;)</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Exiting main with code </span><span class="si">{</span><span class="n">res</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">res</span></div>
+
+<span class="c1"># End</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">main</a></li--> 
+      </ul>
+    </div>
+    <div class="footer">
+    <span class="left">
+        &copy; Copyright 2004-2023, Benedict Verhegghe.
+    </span>
+      Last updated on Mar 27, 2023.
+    <span class="right">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.4.3.
+    </span>
+    </div>
+  </body>
+</html>

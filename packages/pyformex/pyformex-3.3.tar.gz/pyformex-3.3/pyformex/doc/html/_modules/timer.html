@@ -1,0 +1,490 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!--
+##
+##  This file is part of the pyFormex project.
+##  pyFormex is a tool for generating, manipulating and transforming 3D
+##  geometrical models by sequences of mathematical operations.
+##  Home page: http://pyformex.org
+##  Project page:  http://savannah.nongnu.org/projects/pyformex/
+##  Copyright (C) Benedict Verhegghe (benedict.verhegghe@ugent.be)
+##  Distributed under the GNU General Public License version 3 or later.
+##
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see http://www.gnu.org/licenses/.
+##
+-->
+    <title>timer &#8212; pyFormex 3.3 documentation</title>
+
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pyformex.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+<link rel="icon" type="image/png" href="../_static/pyformex_fav.png" />
+
+  </head><body>
+
+<div class="header">
+  <a href="http://pyformex.org">
+  <img src="../_static/scallop_dome_small.png" alt="scallop dome" border="0" hspace="20" vspace="12" align="left" />
+  <img src="../_static/pyformex-logo-2.png" alt="pyformex logo" border="0" hspace="10" vspace="8" align="left" />
+  </a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">timer</a></li--> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<!-- PYFORMEX_SIDEBAR_LOGO -->
+<!-- PYFORMEX_WEBSITE_SIDEBAR_TOP -->
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for timer</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1">##</span>
+<span class="c1">##  SPDX-FileCopyrightText: © 2007-2023 Benedict Verhegghe &lt;bverheg@gmail.com&gt;</span>
+<span class="c1">##  SPDX-License-Identifier: GPL-3.0-or-later</span>
+<span class="c1">##</span>
+<span class="c1">##  This file is part of pyFormex 3.3  (Sun Mar 26 20:16:15 CEST 2023)</span>
+<span class="c1">##  pyFormex is a tool for generating, manipulating and transforming 3D</span>
+<span class="c1">##  geometrical models by sequences of mathematical operations.</span>
+<span class="c1">##  Home page: https://pyformex.org</span>
+<span class="c1">##  Project page: https://savannah.nongnu.org/projects/pyformex/</span>
+<span class="c1">##  Development: https://gitlab.com/bverheg/pyformex</span>
+<span class="c1">##  Distributed under the GNU General Public License version 3 or later.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is free software: you can redistribute it and/or modify</span>
+<span class="c1">##  it under the terms of the GNU General Public License as published by</span>
+<span class="c1">##  the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1">##  (at your option) any later version.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is distributed in the hope that it will be useful,</span>
+<span class="c1">##  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1">##  GNU General Public License for more details.</span>
+<span class="c1">##</span>
+<span class="c1">##  You should have received a copy of the GNU General Public License</span>
+<span class="c1">##  along with this program.  If not, see http://www.gnu.org/licenses/.</span>
+<span class="c1">##</span>
+
+<span class="sd">&quot;&quot;&quot;Timer class.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<div class="viewcode-block" id="Timer"><a class="viewcode-back" href="../ref/timer.html#timer.Timer">[docs]</a><span class="k">class</span> <span class="nc">Timer</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;A class for measuring elapsed time.</span>
+
+<span class="sd">    The Timer class is a conventient way to measure and report the elapsed</span>
+<span class="sd">    time during some processing. It uses Python&#39;s :func:`time.perf_counter`,</span>
+<span class="sd">    providing the highest resolution available.</span>
+
+<span class="sd">    A Timer instance can be used as a context manager, with automatic</span>
+<span class="sd">    reading and even reporting the time spent in the context block.</span>
+<span class="sd">    Timers can also remember any number of measured timings and report</span>
+<span class="sd">    them later.</span>
+
+<span class="sd">    The Timer value is a floating point value giving a number of seconds</span>
+<span class="sd">    elapsed since some undefined reference point. By default this is the</span>
+<span class="sd">    moment of creation of the Timer, but the starting point can be set at</span>
+<span class="sd">    any time.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    tag: str, optional</span>
+<span class="sd">        A label identifying the current measurement. It is used as the key</span>
+<span class="sd">        to store the value in the Timer memory, and it is printed out together</span>
+<span class="sd">        with the value when printing the Timer.</span>
+<span class="sd">    dec: int, optional</span>
+<span class="sd">        The number of decimals that will be shown or remembered. The default</span>
+<span class="sd">        (6) provides microsecond accuracy, which is more than enough for</span>
+<span class="sd">        all purposes.</span>
+<span class="sd">    start: float, optional</span>
+<span class="sd">        The starting time of the Timer. If provided, it is normally a value</span>
+<span class="sd">        obtained from another Timer instance or from :func:`time.perf_counter`.</span>
+<span class="sd">        If not provided, the time of the initialization of the Timer is used.</span>
+<span class="sd">    auto: bool, optional</span>
+<span class="sd">        If True, the value of the Timer will be printed on exit of the</span>
+<span class="sd">        context manager. Also, the default value for acc becomes False.</span>
+<span class="sd">        This is very convenient to quickly do timing to some code block.</span>
+<span class="sd">        See Examples.</span>
+<span class="sd">    acc: bool, optional</span>
+<span class="sd">        If True, values read from the Timer are accumulated under the tag</span>
+<span class="sd">        value. If False, the read value overwrites the value under the tag.</span>
+<span class="sd">        The default is True if ``acc`` is False, and False is ``acc`` is True.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    The examples use :func:`time.sleep` to provide a code block</span>
+<span class="sd">    with some known execution time.</span>
+
+<span class="sd">    &gt;&gt;&gt; from time import sleep</span>
+
+<span class="sd">    The Timer class acts as a context manager, so it can be used in a</span>
+<span class="sd">    with statement. This is the recommended way to use the Timer.</span>
+<span class="sd">    It measures the time spent in the block inside the with clause.</span>
+
+<span class="sd">    &gt;&gt;&gt; t = Timer()</span>
+<span class="sd">    &gt;&gt;&gt; with t:</span>
+<span class="sd">    ...     sleep(0.2)</span>
+<span class="sd">    &gt;&gt;&gt; print(t)</span>
+<span class="sd">    Timer: 0.20... sec.</span>
+
+<span class="sd">    Printing out the Timer value after measurement is so common, that</span>
+<span class="sd">    there is an option to do it automatically. Just set the auto mode on</span>
+<span class="sd">    (it can also be done at instantiation time):</span>
+
+<span class="sd">    &gt;&gt;&gt; t.auto = True</span>
+<span class="sd">    &gt;&gt;&gt; sleep(0.05)</span>
+<span class="sd">    &gt;&gt;&gt; with t:</span>
+<span class="sd">    ...     sleep(0.12)</span>
+<span class="sd">    Timer: 0.32... sec.</span>
+
+<span class="sd">    Notice that the Timer accumulated the measured time with the previous.</span>
+<span class="sd">    This is the default.You can avoid the accumulation by using separate tags</span>
+<span class="sd">    for the measurements.</span>
+
+<span class="sd">    &gt;&gt;&gt; with t.tag(&#39;New tag&#39;): sleep(0.23)</span>
+<span class="sd">    New tag: 0.23... sec.</span>
+
+<span class="sd">    Without a tag, the measurement is accumulated to the last specified tag:</span>
+<span class="sd">    &gt;&gt;&gt; with t: sleep(0.15)</span>
+<span class="sd">    New tag: 0.38... sec.</span>
+
+<span class="sd">    You can switch off accumulation completely if you want to:</span>
+
+<span class="sd">    &gt;&gt;&gt; t1 = Timer(dec=2, auto=True, acc=False)</span>
+<span class="sd">    &gt;&gt;&gt; with t1: sleep(0.06)</span>
+<span class="sd">    Timer: 0.06 sec.</span>
+<span class="sd">    &gt;&gt;&gt; with t1: sleep(0.09)</span>
+<span class="sd">    Timer: 0.09 sec.</span>
+
+<span class="sd">    The Timer remembers the last value (accumulated or not) for each of</span>
+<span class="sd">    the tags that was used. This is very convenient to do a series of</span>
+<span class="sd">    measurements and then print the Timer :meth:`report`:</span>
+
+<span class="sd">    &gt;&gt;&gt; print(t.report())</span>
+<span class="sd">    Timer: 0.32... sec.</span>
+<span class="sd">    New tag: 0.38... sec.</span>
+
+<span class="sd">    If you want to process the readings in another way, you can access</span>
+<span class="sd">    them from the Timer memory, which is a dict with the tags a keys:</span>
+
+<span class="sd">    &gt;&gt;&gt; print(t.mem)</span>
+<span class="sd">    {&#39;Timer&#39;: 0.32..., &#39;New tag&#39;: 0.38...}</span>
+
+<span class="sd">    The last memory item (the one with the current tag) is also available:</span>
+
+<span class="sd">    &gt;&gt;&gt; print(t.last)</span>
+<span class="sd">    New tag: 0.38... sec.</span>
+
+<span class="sd">    All Timers keep incrementing at the same pace (that of the unique Python</span>
+<span class="sd">    :func:`time.perf_counter` counter). So you may think that using a single</span>
+<span class="sd">    Timer with different tags may suffice. However, to do nested measurements</span>
+<span class="sd">    with the context manager, you have to use multiple Timers, because our</span>
+<span class="sd">    context manager is currently not reentrant. So, the following doesn&#39;t</span>
+<span class="sd">    work:</span>
+
+<span class="sd">    &gt;&gt;&gt; with Timer(&quot;Outer block&quot;) as t:</span>
+<span class="sd">    ...    sleep(0.08)</span>
+<span class="sd">    ...    with t.tag(&quot;Inner block&quot;): sleep(0.12)</span>
+<span class="sd">    ...    sleep(0.07)</span>
+<span class="sd">    ...    with t.tag(&quot;Inner block 2&quot;): sleep(0.17)</span>
+<span class="sd">    ...    sleep(0.06)</span>
+<span class="sd">    ...</span>
+<span class="sd">    &gt;&gt;&gt; print(t.report())</span>
+<span class="sd">    Inner block: 0.12... sec.</span>
+<span class="sd">    Inner block 2: 0.40... sec.</span>
+
+<span class="sd">    See how the timings from the outer block are added to the</span>
+<span class="sd">    &quot;Inner block 2&quot; tag and there is no &quot;Outer block&quot; result at all.</span>
+<span class="sd">    The correct way to do nested measurement is using multiple Timers:</span>
+
+<span class="sd">    &gt;&gt;&gt; with Timer(&quot;Outer block&quot;) as t:</span>
+<span class="sd">    ...    sleep(0.08)</span>
+<span class="sd">    ...    with Timer(&quot;Inner block&quot;) as t1: sleep(0.12)</span>
+<span class="sd">    ...    sleep(0.07)</span>
+<span class="sd">    ...    with t1.tag(&quot;Inner block 2&quot;): sleep(0.05)</span>
+<span class="sd">    ...    sleep(0.06)</span>
+<span class="sd">    ...</span>
+<span class="sd">    &gt;&gt;&gt; print(t1.report())</span>
+<span class="sd">    Inner block: 0.12... sec.</span>
+<span class="sd">    Inner block 2: 0.05... sec.</span>
+<span class="sd">    &gt;&gt;&gt; print(t.report())</span>
+<span class="sd">    Outer block: 0.38... sec.</span>
+
+<span class="sd">    There may be times when the use of a context manager is not useful</span>
+<span class="sd">    or even possible (like when the start and end of measurement are in</span>
+<span class="sd">    different functions). Then you can always use the low level interface.</span>
+
+<span class="sd">    The measurement is always done with the :meth:`read` method. It measures</span>
+<span class="sd">    and returns the time since the last :meth:`reset` or the creation of the</span>
+<span class="sd">    Timer. Here is an example:</span>
+
+<span class="sd">    &gt;&gt;&gt; t = Timer(dec=2)</span>
+<span class="sd">    &gt;&gt;&gt; sleep(0.03)</span>
+<span class="sd">    &gt;&gt;&gt; v = t.read()</span>
+<span class="sd">    &gt;&gt;&gt; sleep(0.05)</span>
+<span class="sd">    &gt;&gt;&gt; t.reset()</span>
+<span class="sd">    &gt;&gt;&gt; sleep(0.07)</span>
+<span class="sd">    &gt;&gt;&gt; v1 = t.read()</span>
+<span class="sd">    &gt;&gt;&gt; print(v, v1)</span>
+<span class="sd">    0.03... 0.07...</span>
+
+<span class="sd">    As we use a single tag, the memory shows the accumulated result:</span>
+
+<span class="sd">    &gt;&gt;&gt; print(t.mem)</span>
+<span class="sd">    {&#39;Timer&#39;: 0.10...}</span>
+
+<span class="sd">    You can have a peek at the current value of the timer, without</span>
+<span class="sd">    actually reading it:</span>
+
+<span class="sd">    &gt;&gt;&gt; sleep(0.07)</span>
+<span class="sd">    &gt;&gt;&gt; t.value</span>
+<span class="sd">    0.14...</span>
+<span class="sd">    &gt;&gt;&gt; print(t.last)</span>
+<span class="sd">    Timer: 0.1 sec.</span>
+
+<span class="sd">    Any read will however update the current tag:</span>
+
+<span class="sd">    &gt;&gt;&gt; v = t.read()</span>
+<span class="sd">    &gt;&gt;&gt; print(v)</span>
+<span class="sd">    0.14...</span>
+<span class="sd">    &gt;&gt;&gt; print(t.last)</span>
+<span class="sd">    Timer: 0.24 sec.</span>
+
+<span class="sd">    When not explicitely calling :meth:`read` (like when using the context</span>
+<span class="sd">    manager), you can still get the last value read:</span>
+
+<span class="sd">    &gt;&gt;&gt; print(t.lastread)</span>
+<span class="sd">    0.14...</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="s1">&#39;Timer&#39;</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">dec</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">auto</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">acc</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create and reset the timer.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mem</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_last_read</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">tag</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dec</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">dec</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">auto</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">auto</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">acc</span> <span class="o">=</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">auto</span><span class="p">)</span> <span class="k">if</span> <span class="n">acc</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">bool</span><span class="p">(</span><span class="n">acc</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">tag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tag</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">tag</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+<div class="viewcode-block" id="Timer.reset"><a class="viewcode-back" href="../ref/timer.html#timer.Timer.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;(Re)Start the timer and optionally changes the tag.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        tag: str, optional</span>
+<span class="sd">            A label to override the current Timer tag.</span>
+<span class="sd">        start: float, optional</span>
+<span class="sd">            The new starting time of the Timer. Default is to use the</span>
+<span class="sd">            time of the reset call.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Timer</span>
+<span class="sd">            Returns self so that one can use the reset directly in a</span>
+<span class="sd">            with statement. See examples.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">tag</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_tag</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">tag</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">start</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">start</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Timer.read"><a class="viewcode-back" href="../ref/timer.html#timer.Timer.read">[docs]</a>    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">reset</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read the timer.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        reset: bool, optional</span>
+<span class="sd">            If True, the Timer is reset after reading, thus the next read</span>
+<span class="sd">            will measure from this point.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            The elapsed time in seconds since the last reset or since the</span>
+<span class="sd">            creation of the Timer if there hasn&#39;t been a reset.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">now</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">now</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span>
+        <span class="k">if</span> <span class="n">tag</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_tag</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">tag</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">acc</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mem</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mem</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_tag</span><span class="p">]</span> <span class="o">+=</span> <span class="n">value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mem</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_tag</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">auto</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">keys</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_tag</span><span class="p">]))</span>
+        <span class="k">if</span> <span class="n">reset</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_last_read</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dec</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">value</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the current value of the Timer without reading it.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            The current value of the Timer. This value is not stored.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">now</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">now</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">lastread</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the value of the last read rounded to the Timer accuracy&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_read</span>
+
+    <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Enter the context manager&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">traceback</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Exit the context manager</span>
+
+<span class="sd">        Records the time passed since entry.</span>
+<span class="sd">        If auto, also prints the Timer report.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Timer.format"><a class="viewcode-back" href="../ref/timer.html#timer.Timer.format">[docs]</a>    <span class="k">def</span> <span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the formatted last read valuefor the specified tag.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        string</span>
+<span class="sd">            The value of the last :meth:`read` operation on the Timer (whether</span>
+<span class="sd">            explicitly called or implicitly from the context manager),</span>
+<span class="sd">            or None if the Timer hasn&#39;t been read yet.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">tag</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">tag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tag</span>
+        <span class="k">if</span> <span class="n">tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mem</span><span class="p">:</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mem</span><span class="p">[</span><span class="n">tag</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">dec</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">tag</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s2"> sec.&quot;</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">last</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Print the formatted value of the last used tag&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tag</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Timer.report"><a class="viewcode-back" href="../ref/timer.html#timer.Timer.report">[docs]</a>    <span class="k">def</span> <span class="nf">report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dec</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the formatted readings in the Timer memory.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">keys</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">keys</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mem</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tag</span><span class="p">)</span> <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a string with the current reading of the Timer&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">report</span><span class="p">()</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Running doctests on </span><span class="si">{</span><span class="vm">__file__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="kn">import</span> <span class="nn">doctest</span>
+    <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">()</span>
+
+<span class="c1"># End</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">timer</a></li--> 
+      </ul>
+    </div>
+    <div class="footer">
+    <span class="left">
+        &copy; Copyright 2004-2023, Benedict Verhegghe.
+    </span>
+      Last updated on Mar 27, 2023.
+    <span class="right">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.4.3.
+    </span>
+    </div>
+  </body>
+</html>

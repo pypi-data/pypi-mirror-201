@@ -1,0 +1,1361 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!--
+##
+##  This file is part of the pyFormex project.
+##  pyFormex is a tool for generating, manipulating and transforming 3D
+##  geometrical models by sequences of mathematical operations.
+##  Home page: http://pyformex.org
+##  Project page:  http://savannah.nongnu.org/projects/pyformex/
+##  Copyright (C) Benedict Verhegghe (benedict.verhegghe@ugent.be)
+##  Distributed under the GNU General Public License version 3 or later.
+##
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see http://www.gnu.org/licenses/.
+##
+-->
+    <title>opengl.camera &#8212; pyFormex 3.3 documentation</title>
+
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pyformex.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+<link rel="icon" type="image/png" href="../../_static/pyformex_fav.png" />
+
+  </head><body>
+
+<div class="header">
+  <a href="http://pyformex.org">
+  <img src="../../_static/scallop_dome_small.png" alt="scallop dome" border="0" hspace="20" vspace="12" align="left" />
+  <img src="../../_static/pyformex-logo-2.png" alt="pyformex logo" border="0" hspace="10" vspace="8" align="left" />
+  </a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">opengl.camera</a></li--> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<!-- PYFORMEX_SIDEBAR_LOGO -->
+<!-- PYFORMEX_WEBSITE_SIDEBAR_TOP -->
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for opengl.camera</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1">##</span>
+<span class="c1">##  SPDX-FileCopyrightText: © 2007-2023 Benedict Verhegghe &lt;bverheg@gmail.com&gt;</span>
+<span class="c1">##  SPDX-License-Identifier: GPL-3.0-or-later</span>
+<span class="c1">##</span>
+<span class="c1">##  This file is part of pyFormex 3.3  (Sun Mar 26 20:16:15 CEST 2023)</span>
+<span class="c1">##  pyFormex is a tool for generating, manipulating and transforming 3D</span>
+<span class="c1">##  geometrical models by sequences of mathematical operations.</span>
+<span class="c1">##  Home page: https://pyformex.org</span>
+<span class="c1">##  Project page: https://savannah.nongnu.org/projects/pyformex/</span>
+<span class="c1">##  Development: https://gitlab.com/bverheg/pyformex</span>
+<span class="c1">##  Distributed under the GNU General Public License version 3 or later.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is free software: you can redistribute it and/or modify</span>
+<span class="c1">##  it under the terms of the GNU General Public License as published by</span>
+<span class="c1">##  the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1">##  (at your option) any later version.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is distributed in the hope that it will be useful,</span>
+<span class="c1">##  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1">##  GNU General Public License for more details.</span>
+<span class="c1">##</span>
+<span class="c1">##  You should have received a copy of the GNU General Public License</span>
+<span class="c1">##  along with this program.  If not, see http://www.gnu.org/licenses/.</span>
+<span class="c1">##</span>
+
+<span class="sd">&quot;&quot;&quot;OpenGL camera handling</span>
+
+<span class="sd">Part of the Python OpenGL framework for pyFormex</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">arraytools</span> <span class="k">as</span> <span class="n">at</span>
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">pyformex.coords</span> <span class="kn">import</span> <span class="n">Coords</span>
+<span class="kn">from</span> <span class="nn">pyformex.coordsys</span> <span class="kn">import</span> <span class="n">CoordSys</span>
+<span class="kn">from</span> <span class="nn">pyformex.plugins.nurbs</span> <span class="kn">import</span> <span class="n">Coords4</span>
+
+<span class="kn">from</span> <span class="nn">.matrix</span> <span class="kn">import</span> <span class="n">Matrix4</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">gl</span>
+
+<span class="c1">#</span>
+<span class="c1"># Normalize and denormalize should probably be moved to arraytools.</span>
+<span class="c1">#</span>
+
+<div class="viewcode-block" id="normalize"><a class="viewcode-back" href="../../ref/opengl.camera.html#opengl.camera.normalize">[docs]</a><span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">w</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Normalize coordinates inside a window.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x: :term:`array_like`</span>
+<span class="sd">        An (np,nc) array with coordinates.</span>
+<span class="sd">    w: :term:`array_like`</span>
+<span class="sd">        A (2,nc) array with minimal coordinates and width of the window</span>
+<span class="sd">        that will be mapped on the range -1..1.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    array:</span>
+<span class="sd">        The (np, nc) normalized coordinates. The input values are linearly</span>
+<span class="sd">        remapped thus that w[0] maps onto [-1]*nc and w[0]+w[1] maps onto</span>
+<span class="sd">        [+1]*nc.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    denormalize: the inverse transformation</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; normalize([(2,4), (4,7), (6,10)], [(2,4), (4,6)])</span>
+<span class="sd">    array([[-1., -1.],</span>
+<span class="sd">           [ 0.,  0.],</span>
+<span class="sd">           [ 1.,  1.]])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">checkArray</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="s1">&#39;f&#39;</span><span class="p">,</span> <span class="s1">&#39;i&#39;</span><span class="p">)</span>
+    <span class="n">np</span><span class="p">,</span> <span class="n">nc</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">w</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">checkArray</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">nc</span><span class="p">),</span> <span class="s1">&#39;f&#39;</span><span class="p">,</span> <span class="s1">&#39;i&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="n">w</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">w</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span></div>
+
+
+<div class="viewcode-block" id="denormalize"><a class="viewcode-back" href="../../ref/opengl.camera.html#opengl.camera.denormalize">[docs]</a><span class="k">def</span> <span class="nf">denormalize</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">w</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Map normalized coordinates to fit a window</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x: :term:`array_like`</span>
+<span class="sd">        An (np,nc) array with normalized coordinates.</span>
+<span class="sd">    w: :term:`array_like`</span>
+<span class="sd">        A (2,nc) array with minimal coordinates and width of the window</span>
+<span class="sd">        that will be mapped on the range -1..1.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    array:</span>
+<span class="sd">        The (np, nc) normalized coordinates. The input values are linearly</span>
+<span class="sd">        remapped thus that values -1 become w[0] and values +1 become</span>
+<span class="sd">        w[0]+w[1].</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    normalize: the inverse transformation</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; denormalize([(-1,-1), (0,0), (1,1)], [(2,4), (4,6)])</span>
+<span class="sd">    array([[ 2.,  4.],</span>
+<span class="sd">           [ 4.,  7.],</span>
+<span class="sd">           [ 6., 10.]])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">checkArray</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="s1">&#39;f&#39;</span><span class="p">,</span> <span class="s1">&#39;i&#39;</span><span class="p">)</span>
+    <span class="n">np</span><span class="p">,</span> <span class="n">nc</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">w</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">checkArray</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">nc</span><span class="p">),</span> <span class="s1">&#39;f&#39;</span><span class="p">,</span> <span class="s1">&#39;i&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">w</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="n">w</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span></div>
+
+
+<div class="viewcode-block" id="perspective_matrix"><a class="viewcode-back" href="../../ref/opengl.camera.html#opengl.camera.perspective_matrix">[docs]</a><span class="k">def</span> <span class="nf">perspective_matrix</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">bottom</span><span class="p">,</span> <span class="n">top</span><span class="p">,</span> <span class="n">near</span><span class="p">,</span> <span class="n">far</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create a perspective Projection matrix.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">Matrix4</span><span class="p">()</span>
+    <span class="n">m</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">near</span> <span class="o">/</span> <span class="p">(</span><span class="n">right</span><span class="o">-</span><span class="n">left</span><span class="p">)</span>
+    <span class="n">m</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">near</span> <span class="o">/</span> <span class="p">(</span><span class="n">top</span><span class="o">-</span><span class="n">bottom</span><span class="p">)</span>
+    <span class="n">m</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">right</span><span class="o">+</span><span class="n">left</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">right</span><span class="o">-</span><span class="n">left</span><span class="p">)</span>
+    <span class="n">m</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">top</span><span class="o">+</span><span class="n">bottom</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">top</span><span class="o">-</span><span class="n">bottom</span><span class="p">)</span>
+    <span class="n">m</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span> <span class="p">(</span><span class="n">far</span><span class="o">+</span><span class="n">near</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">far</span><span class="o">-</span><span class="n">near</span><span class="p">)</span>
+    <span class="n">m</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.</span>
+    <span class="n">m</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">2</span> <span class="o">*</span> <span class="n">near</span> <span class="o">*</span> <span class="n">far</span> <span class="o">/</span> <span class="p">(</span><span class="n">far</span><span class="o">-</span><span class="n">near</span><span class="p">)</span>
+    <span class="n">m</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.</span>
+    <span class="k">return</span> <span class="n">m</span></div>
+
+
+<div class="viewcode-block" id="orthogonal_matrix"><a class="viewcode-back" href="../../ref/opengl.camera.html#opengl.camera.orthogonal_matrix">[docs]</a><span class="k">def</span> <span class="nf">orthogonal_matrix</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">bottom</span><span class="p">,</span> <span class="n">top</span><span class="p">,</span> <span class="n">near</span><span class="p">,</span> <span class="n">far</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create an orthogonal Projection matrix.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">Matrix4</span><span class="p">()</span>
+    <span class="n">m</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="n">right</span><span class="o">-</span><span class="n">left</span><span class="p">)</span>
+    <span class="n">m</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="n">top</span><span class="o">-</span><span class="n">bottom</span><span class="p">)</span>
+    <span class="n">m</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="n">far</span><span class="o">-</span><span class="n">near</span><span class="p">)</span>
+    <span class="n">m</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span> <span class="p">(</span><span class="n">right</span><span class="o">+</span><span class="n">left</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">right</span><span class="o">-</span><span class="n">left</span><span class="p">)</span>
+    <span class="n">m</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span> <span class="p">(</span><span class="n">top</span><span class="o">+</span><span class="n">bottom</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">top</span><span class="o">-</span><span class="n">bottom</span><span class="p">)</span>
+    <span class="n">m</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span> <span class="p">(</span><span class="n">far</span><span class="o">+</span><span class="n">near</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">far</span><span class="o">-</span><span class="n">near</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">m</span></div>
+
+
+<div class="viewcode-block" id="pick_matrix"><a class="viewcode-back" href="../../ref/opengl.camera.html#opengl.camera.pick_matrix">[docs]</a><span class="k">def</span> <span class="nf">pick_matrix</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">viewport</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create a pick Projection matrix</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">Matrix4</span><span class="p">()</span>
+    <span class="n">m</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">viewport</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="n">w</span><span class="p">;</span>
+    <span class="n">m</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">viewport</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">/</span> <span class="n">h</span><span class="p">;</span>
+    <span class="n">m</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">viewport</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">viewport</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">))</span> <span class="o">/</span> <span class="n">w</span><span class="p">;</span>
+    <span class="n">m</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">viewport</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">viewport</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">y</span><span class="p">))</span> <span class="o">/</span> <span class="n">h</span><span class="p">;</span>
+    <span class="k">return</span> <span class="n">m</span></div>
+
+
+<div class="viewcode-block" id="Camera"><a class="viewcode-back" href="../../ref/opengl.camera.html#opengl.camera.Camera">[docs]</a><span class="nd">@utils</span><span class="o">.</span><span class="n">pzf_register</span>
+<span class="k">class</span> <span class="nc">Camera</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;A camera for 3D model rendering.</span>
+
+<span class="sd">    The Camera class holds all the camera parameters related to the</span>
+<span class="sd">    rendering of a 3D scene onto a 2D canvas. These includes parameters</span>
+<span class="sd">    related to camera position and orientation, as well as lens related</span>
+<span class="sd">    parameters (opening angle, front and back clipping planes).</span>
+<span class="sd">    The class provides the required matrices to transform the 3D world</span>
+<span class="sd">    coordinates to 2D canvas coordinates, as well as a wealth of methods</span>
+<span class="sd">    to change the camera settings in a convenient way so as to simulate</span>
+<span class="sd">    smooth camera manipulation.</span>
+
+<span class="sd">    The basic theory of camera handling and 3D rendering can be found in</span>
+<span class="sd">    a lot of places on the internet, especially in OpenGL related places.</span>
+<span class="sd">    However, while the pyFormex rendering engine is based on OpenGL,</span>
+<span class="sd">    the way it stores and handles the camera parameters is more sophisticated</span>
+<span class="sd">    than what is usually found in popular tutorials on OpenGL rendering.</span>
+<span class="sd">    Therefore we give here a extensive description of how the pyFormex</span>
+<span class="sd">    camera handling and 3D to 2D coordinate transformation works.</span>
+
+<span class="sd">    .. note: The remainder below is obsolete and needs to be rewritten.</span>
+
+<span class="sd">    Camera position and orientation:</span>
+
+<span class="sd">        The camera viewing line is defined by two points: the position of</span>
+<span class="sd">        the camera and the center of the scene the camera is looking at.</span>
+<span class="sd">        We use the center of the scene as the origin of a local coordinate</span>
+<span class="sd">        system to define the camera position. For convenience, this could be</span>
+<span class="sd">        stored in spherical coordinates, as a distance value and two angles:</span>
+<span class="sd">        longitude and latitude. Furthermore, the camera can also rotate around</span>
+<span class="sd">        its viewing line. We can define this by a third angle, the twist.</span>
+<span class="sd">        From these four values, the needed translation vector and rotation</span>
+<span class="sd">        matrix for the scene rendering may be calculated.</span>
+
+<span class="sd">        Inversely however, we can not compute a unique set of angles from</span>
+<span class="sd">        a given rotation matrix (this is known as &#39;gimball lock&#39;).</span>
+<span class="sd">        As a result, continuous (smooth) camera rotation by e.g. mouse control</span>
+<span class="sd">        requires that the camera orientation be stored as the full rotation</span>
+<span class="sd">        matrix, rather than as three angles. Therefore we store the camera</span>
+<span class="sd">        position and orientation as follows:</span>
+
+<span class="sd">        - `ctr`: `[ x,y,z ]` : the reference point of the camera:</span>
+<span class="sd">          this is always a point on the viewing axis. Usually, it is set to</span>
+<span class="sd">          the center of the scene you are looking at.</span>
+<span class="sd">        - `dist`: distance of the camera to the reference point.</span>
+<span class="sd">        - `rot`: a 3x3 rotation matrix, rotating the global coordinate system</span>
+<span class="sd">          thus that the z-direction is oriented from center to camera.</span>
+
+<span class="sd">        These values have influence on the Modelview matrix.</span>
+
+<span class="sd">    Camera lens settings:</span>
+
+<span class="sd">        The lens parameters define the volume that is seen by the camera.</span>
+<span class="sd">        It is described by the following parameters:</span>
+
+<span class="sd">        - `fovy`: the vertical lens opening angle (Field Of View Y),</span>
+<span class="sd">        - `aspect`: the aspect ratio (width/height) of the lens. The product</span>
+<span class="sd">          `fovy * aspect` is the horizontal field of view.</span>
+<span class="sd">        - `near, far`: the position of the front and back clipping planes.</span>
+<span class="sd">          They are given as distances from the camera and should both be</span>
+<span class="sd">          strictly positive. Anything that is closer to the camera than</span>
+<span class="sd">          the `near` plane or further away than the `far` plane, will not be</span>
+<span class="sd">          shown on the canvas.</span>
+
+<span class="sd">        Camera methods that change these values will not directly change</span>
+<span class="sd">        the Modelview matrix. The :meth:`loadModelview` method has to be called</span>
+<span class="sd">        explicitely to make the settings active.</span>
+
+<span class="sd">        These values have influence on the Projection matrix.</span>
+
+<span class="sd">    Methods that change the camera position, orientation or lens parameters</span>
+<span class="sd">    will not directly change the related Modelview or Projection matrix.</span>
+<span class="sd">    They will just flag a change in the camera settings. The changes are</span>
+<span class="sd">    only activated by a call to the :meth:`loadModelview` or</span>
+<span class="sd">    :meth:`loadProjection` method, which will test the flags to see whether</span>
+<span class="sd">    the corresponding matrix needs a rebuild.</span>
+
+<span class="sd">    The default camera is at distance 1.0 of the center point [0.,0.,0.] and</span>
+<span class="sd">    looking in the -z direction.</span>
+<span class="sd">    Near and far clipping planes are by default set to 0.1, resp 10 times</span>
+<span class="sd">    the camera distance.</span>
+
+<span class="sd">    Properties:</span>
+
+<span class="sd">    - `modelview`: Matrix4: the OpenGL Modelview transformation matrix</span>
+<span class="sd">    - `projection`: Matrix4: the OpenGL Projection transformation matrix</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># DEVELOPERS:</span>
+    <span class="c1">#    The camera class assumes that matrixmode is always Modelview on entry.</span>
+    <span class="c1">#    For operations in other modes, an explicit switch before the operations</span>
+    <span class="c1">#    and afterwards back to Modelview should be performed.</span>
+
+<span class="c1"># With a traditional camera, there were two ways to zoom in (move the object closer to the viewer):</span>
+<span class="c1"># - bring the camera closer to the object (Camera.dolly)</span>
+<span class="c1"># - change the focal distance of the lens (Camera.zoom)</span>
+<span class="c1"># Likewise, there were two ways to pan left (move the object left as seen by the viewer):</span>
+<span class="c1"># - move the camera to the right (Camera.truck)</span>
+<span class="c1"># - rotate the camera to the right (Camera.pan)</span>
+
+<span class="c1"># All these function change the perspective of the view.</span>
+
+<span class="c1"># With a digital camera, there is another way of doing it. Since the image is captured on a sensor and stored in memory, it can be transformed before showing it to the viewer.</span>
+<span class="c1"># Thus, we can zoom in by:</span>
+<span class="c1"># - mapping a smaller image area to the viewport (Camera.zoomArea)</span>
+<span class="c1"># and we can pan left by</span>
+<span class="c1"># - moving the viewport to the on the image (Camera.transArea)</span>
+
+<span class="c1"># These functions do not change the image, only the part that is shown to the user.</span>
+
+<span class="c1"># When I implemented the *Area functions, I found that I found that the digital zoom and pan is precisely what one wants in most cases. I use zoom in/out mostly to enlarge the image or to fit more on the viewport.</span>
+<span class="c1"># And I pan usually to move (some part of) the image more centrally on the sceen. But I agree that the classical zoom/pan functions may occasionally be more appropriate and should work also.</span>
+
+<span class="c1"># For zoom, this the case (these are default settings):</span>
+<span class="c1"># - zooming with mouse wheel does a digital zoom</span>
+<span class="c1"># - zooming with the -/+ toolbar buttons does a lens zoom.</span>
+<span class="c1"># - zooming with the right mouse button pressed does a digital zoom when moving horizontally and a lens zoom when moving vertically (You can actually just change the perspective while keeping the object size, by moving the mouse diagonally right-down or left up).</span>
+
+<span class="c1"># For pan, this is currently broken (I noticed the &#39;broken&#39; comment in the Camera source, and some commented out functions). I guess the panning with perspective change was never missed so much, as it took quite some years before someone noticed it. And clearly I forgot about it being broken. But if I have some time left, maybe someday I will fix it.</span>
+<span class="c1"># Maybe we should do like for zoom: connect the toolbar buttons with camera panning (translate or rotate?) and bind them also to moving the mouse with the middle button pressed plus some modifier keys (CTRL+ALT?). Notice however that with transArea, the image nicely follows the mouse movement. That won&#39;t be the case with camera panning.</span>
+
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">focus</span><span class="o">=</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">),</span> <span class="n">angles</span><span class="o">=</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">),</span> <span class="n">dist</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span>
+                 <span class="n">fovy</span><span class="o">=</span><span class="mf">45.</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="mf">4.</span><span class="o">/</span><span class="mf">3.</span><span class="p">,</span> <span class="n">clip</span><span class="o">=</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">100.</span><span class="p">),</span> <span class="n">perspective</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">area</span><span class="o">=</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">),</span>
+                 <span class="n">lockedview</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">lockedlens</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">locked</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">keep_aspect</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tracking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a new camera.</span>
+
+<span class="sd">        The default camera is positioned at (0.,0.,1.) looking along the -z</span>
+<span class="sd">        axis in the direction of the point (0.,0.,0.) and with the upvector</span>
+<span class="sd">        in the direction of the y-axis.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lockedlens</span> <span class="o">=</span> <span class="n">lockedlens</span> <span class="ow">or</span> <span class="n">locked</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lockedview</span> <span class="o">=</span> <span class="n">lockedview</span> <span class="ow">or</span> <span class="n">locked</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">focus</span> <span class="o">=</span> <span class="n">focus</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dist</span> <span class="o">=</span> <span class="n">dist</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">keep_aspect</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tracking</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_modelview</span> <span class="o">=</span> <span class="n">Matrix4</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_projection</span> <span class="o">=</span> <span class="n">Matrix4</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">v</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">viewChanged</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lensChanged</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_perspective</span> <span class="o">=</span> <span class="n">perspective</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setAngles</span><span class="p">(</span><span class="n">angles</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setLens</span><span class="p">(</span><span class="n">fovy</span><span class="p">,</span> <span class="n">aspect</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setClip</span><span class="p">(</span><span class="o">*</span><span class="n">clip</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">area</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setArea</span><span class="p">(</span><span class="o">*</span><span class="n">area</span><span class="p">,</span> <span class="n">relative</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Camera.settings"><a class="viewcode-back" href="../../ref/opengl.camera.html#opengl.camera.Camera.settings">[docs]</a>    <span class="k">def</span> <span class="nf">settings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Dict with all camera settings</span>
+
+<span class="sd">        This dict contains all data that allow save and restore</span>
+<span class="sd">        of the camera to exactly the same settings (on the same</span>
+<span class="sd">        size of Canvas).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s1">&#39;focus&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">focus</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+            <span class="s1">&#39;angles&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">angles</span><span class="p">,</span>
+            <span class="s1">&#39;dist&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">dist</span><span class="p">,</span>
+            <span class="s1">&#39;fovy&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">fovy</span><span class="p">,</span>
+            <span class="s1">&#39;aspect&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">aspect</span><span class="p">,</span>
+            <span class="s1">&#39;clip&#39;</span><span class="p">:</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">near</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">far</span><span class="p">),</span>
+            <span class="s1">&#39;area&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">area</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+            <span class="s1">&#39;perspective&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">perspective</span><span class="p">,</span>
+            <span class="s1">&#39;lockedview&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lockedview</span><span class="p">,</span>
+            <span class="s1">&#39;lockedlens&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lockedlens</span><span class="p">,</span>
+            <span class="s1">&#39;tracking&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracking</span><span class="p">,</span>
+            <span class="s1">&#39;keep_aspect&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">keep_aspect</span><span class="p">,</span>
+            <span class="p">}</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">modelview</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the current modelview matrix.</span>
+
+<span class="sd">        This will recompute the modelview matrix if any camera position</span>
+<span class="sd">        parameters have changed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">viewChanged</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setModelview</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modelview</span>
+
+    <span class="nd">@modelview</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">modelview</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the modelview matrix to the specified matrix.</span>
+
+<span class="sd">        value should be a proper modelview matrix</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_modelview</span> <span class="o">=</span> <span class="n">Matrix4</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">projection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the current projection matrix.</span>
+
+<span class="sd">        This will recompute the projection matrix if any camera lens</span>
+<span class="sd">        parameters have changed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">lensChanged</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setProjection</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_projection</span>
+
+
+    <span class="nd">@projection</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">projection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the projection matrix to the specified matrix.</span>
+
+<span class="sd">        value should be a proper projection matrix</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_projection</span> <span class="o">=</span> <span class="n">Matrix4</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">viewport</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the camera viewport.</span>
+
+<span class="sd">        This property can not be changed directly.</span>
+<span class="sd">        It should be changed by resizing the parent canvas.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">gl</span><span class="o">.</span><span class="n">gl_viewport</span><span class="p">()</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">focus</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the camera reference point (the focus point).&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_focus</span>
+
+    <span class="nd">@focus</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">focus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vector</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the camera reference point (the focus point).</span>
+
+<span class="sd">        The focus is the point the camera is looking at. It is a point on</span>
+<span class="sd">        the camera&#39;s optical axis.</span>
+
+<span class="sd">        - `vector`: (3,) float array: the global coordinates of the focus.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">lockedview</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_focus</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">checkArray</span><span class="p">(</span><span class="n">vector</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,),</span> <span class="s1">&#39;f&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">viewChanged</span> <span class="o">=</span> <span class="kc">True</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">dist</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the camera distance.</span>
+
+<span class="sd">        The camera distance is the distance between the camera eye and</span>
+<span class="sd">        the camera focus point.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dist</span>
+
+
+    <span class="nd">@dist</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">dist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dist</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the camera distance.</span>
+
+<span class="sd">        - `dist`: a strictly positive float value. Invalid values are</span>
+<span class="sd">        silently ignored.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">lockedview</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">dist</span> <span class="o">&gt;</span> <span class="mf">0.0</span> <span class="ow">and</span> <span class="n">dist</span> <span class="o">!=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_dist</span> <span class="o">=</span> <span class="n">dist</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">viewChanged</span> <span class="o">=</span> <span class="kc">True</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">perspective</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the perspecive flag.</span>
+
+<span class="sd">        If the perspective flag is True, the camera uses a perspective</span>
+<span class="sd">        projection. If it is False, the camera uses orthogonal projection.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_perspective</span>
+
+
+    <span class="nd">@perspective</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">perspective</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flag</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the perspecive flag.</span>
+
+<span class="sd">        - `flag`: bool, the value to set the perspective flag to.</span>
+
+<span class="sd">        If changed, this forces the recalculation of the projection matrix.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">lockedlens</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">flag</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_perspective</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_perspective</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">flag</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">lensChanged</span> <span class="o">=</span> <span class="kc">True</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">rot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the camera rotation matrix.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">modelview</span><span class="o">.</span><span class="n">rot</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">angles</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the camera angles.</span>
+
+<span class="sd">        Returns a tuple (longitude, latitude, twist) in local camera axes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">R</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modelview</span><span class="o">.</span><span class="n">rot</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">R</span> <span class="o">=</span> <span class="n">R</span><span class="p">[[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]</span>
+        <span class="n">R</span> <span class="o">=</span> <span class="n">R</span><span class="p">[:,</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="p">[</span><span class="n">at</span><span class="o">.</span><span class="n">Float</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span> <span class="k">for</span> <span class="n">angle</span> <span class="ow">in</span> <span class="n">at</span><span class="o">.</span><span class="n">cardanAngles</span><span class="p">(</span><span class="n">R</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="o">-</span><span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">upvector</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the camera up vector&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">modelview</span><span class="o">.</span><span class="n">rot</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">3</span><span class="p">,))</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">axis</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a unit vector along the camera axis.</span>
+
+<span class="sd">        The camera axis points from the focus towards the camera.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># this is the same as: at.normalize(self.eye-self.focus)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">modelview</span><span class="o">.</span><span class="n">rot</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">3</span><span class="p">,))</span>
+
+
+<div class="viewcode-block" id="Camera.coordsys"><a class="viewcode-back" href="../../ref/opengl.camera.html#opengl.camera.Camera.coordsys">[docs]</a>    <span class="k">def</span> <span class="nf">coordsys</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a coordinate system bound to the camera axes.</span>
+
+<span class="sd">        The z-axis is the camera axis, the y-axis is the camera upvector,</span>
+<span class="sd">        The x-axis is the vector product y * z.</span>
+<span class="sd">        If no origin is specified, it is set to the camera.focus.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">origin</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">origin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">focus</span>
+        <span class="n">cz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">axis</span>
+        <span class="n">cy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">upvector</span>
+        <span class="n">cx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">cy</span><span class="p">,</span> <span class="n">cz</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">CoordSys</span><span class="p">(</span><span class="n">rot</span><span class="o">=</span><span class="p">[</span><span class="n">cx</span><span class="p">,</span> <span class="n">cy</span><span class="p">,</span> <span class="n">cz</span><span class="p">],</span> <span class="n">trl</span><span class="o">=</span><span class="n">origin</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Camera.setAngles"><a class="viewcode-back" href="../../ref/opengl.camera.html#opengl.camera.Camera.setAngles">[docs]</a>    <span class="k">def</span> <span class="nf">setAngles</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">angles</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the rotation angles.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        angles: tuple of floats</span>
+<span class="sd">            A tuple of three angles (long,lat,twist) in degrees.</span>
+<span class="sd">            A value None is also accepted, but has no effect.</span>
+
+<span class="sd">        axes: if specified, any number of rotations can be applied.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">lockedview</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">angles</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">angles</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid value for camera angles: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">angles</span><span class="p">)</span>
+                <span class="c1">#angles = view_angles.get(angles)</span>
+            <span class="k">if</span> <span class="n">axes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">axes</span> <span class="o">=</span> <span class="p">((</span><span class="mf">0.</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">),</span> <span class="p">(</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setModelview</span><span class="p">(</span><span class="n">angles</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">angles</span><span class="p">,</span> <span class="n">axes</span><span class="p">))[::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">eye</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the position of the camera.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">toWorld</span><span class="p">([</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">])</span>
+
+
+    <span class="nd">@eye</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">eye</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eye</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the position of the camera.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">lookAt</span><span class="p">(</span><span class="n">eye</span><span class="o">=</span><span class="n">eye</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Camera.lock"><a class="viewcode-back" href="../../ref/opengl.camera.html#opengl.camera.Camera.lock">[docs]</a>    <span class="k">def</span> <span class="nf">lock</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">view</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">lens</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Lock/unlock a camera.</span>
+
+<span class="sd">        When a camera is locked, its position and lens parameters can not be</span>
+<span class="sd">        changed.</span>
+<span class="sd">        This can e.g. be used in multiple viewports layouts to create fixed</span>
+<span class="sd">        views from different angles.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">view</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lockedview</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">view</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">lens</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lockedlens</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">lens</span><span class="p">)</span></div>
+        <span class="c1">#print(f&quot;Camera locks: {self.lockedview}, {self.lockedlens}&quot;)</span>
+
+    <span class="k">def</span> <span class="nf">unlock</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="c1">#print(f&quot;Camera locks: {self.lockedview}, {self.lockedlens}&quot;)</span>
+
+    <span class="k">def</span> <span class="nf">lockview</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">onoff</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">(</span><span class="n">view</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">lens</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Camera.report"><a class="viewcode-back" href="../../ref/opengl.camera.html#opengl.camera.Camera.report">[docs]</a>    <span class="k">def</span> <span class="nf">report</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a report of the current camera settings.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;&quot;Camera Settings:</span>
+<span class="s2">  Eye: </span><span class="si">%s</span><span class="s2"></span>
+<span class="s2">  Focus: </span><span class="si">%s</span><span class="s2"></span>
+<span class="s2">  Distance: </span><span class="si">%s</span><span class="s2"></span>
+<span class="s2">  Angles: </span><span class="si">%s</span><span class="s2"></span>
+<span class="s2">  Axis: </span><span class="si">%s</span><span class="s2"></span>
+<span class="s2">  UpVector: </span><span class="si">%s</span><span class="s2"></span>
+<span class="s2">  Rotation Matrix:</span>
+<span class="s2">  </span><span class="si">%s</span><span class="s2"></span>
+<span class="s2">  Field of View y: </span><span class="si">%s</span><span class="s2"></span>
+<span class="s2">  Aspect Ratio: </span><span class="si">%s</span><span class="s2"></span>
+<span class="s2">  Area: </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2"></span>
+<span class="s2">  Near/Far Clip: </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2"></span>
+<span class="s2">&quot;&quot;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eye</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">focus</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dist</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">angles</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">axis</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">upvector</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rot</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fovy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">aspect</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">area</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">area</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">near</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">far</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Camera.dolly"><a class="viewcode-back" href="../../ref/opengl.camera.html#opengl.camera.Camera.dolly">[docs]</a>    <span class="k">def</span> <span class="nf">dolly</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Move the camera eye towards/away from the scene center.</span>
+
+<span class="sd">        This has the effect of zooming. A value &gt; 1 zooms out,</span>
+<span class="sd">        a value &lt; 1 zooms in. The resulting enlargement of the view</span>
+<span class="sd">        will approximately be 1/val.</span>
+<span class="sd">        A zero value will move the camera to the center of the scene.</span>
+<span class="sd">        The front and back clipping planes may need adjustment after</span>
+<span class="sd">        a dolly operation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">lockedview</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dist</span> <span class="o">*=</span> <span class="n">val</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">viewChanged</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+
+    <span class="c1"># TODO: This is broken!</span>
+<div class="viewcode-block" id="Camera.pan"><a class="viewcode-back" href="../../ref/opengl.camera.html#opengl.camera.Camera.pan">[docs]</a>    <span class="k">def</span> <span class="nf">pan</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Rotate the camera around axis through its eye.</span>
+
+<span class="sd">        The camera is rotated around an axis through the eye point.</span>
+<span class="sd">        For axes 0 and 1, this will move the focus, creating a panning</span>
+<span class="sd">        effect. The default axis is parallel to the y-axis, resulting in</span>
+<span class="sd">        horizontal panning. For vertical panning (axis=1) a convenience</span>
+<span class="sd">        alias tilt is created.</span>
+<span class="sd">        For axis = 2 the operation is equivalent to the rotate operation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">lockedview</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">axis</span><span class="o">==</span><span class="mi">0</span> <span class="ow">or</span> <span class="n">axis</span> <span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+                <span class="n">pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eye</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">eye</span><span class="p">[</span><span class="n">axis</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eye</span><span class="p">[</span><span class="n">axis</span><span class="p">]</span> <span class="o">+</span> <span class="n">val</span><span class="p">)</span> <span class="o">%</span> <span class="mi">360</span>
+                <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">report</span><span class="p">())</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">focus</span> <span class="o">=</span> <span class="n">diff</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">sphericalToCartesian</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eye</span><span class="p">))</span>
+                <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">report</span><span class="p">())</span>
+            <span class="k">elif</span> <span class="n">axis</span><span class="o">==</span><span class="mi">2</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">report</span><span class="p">())</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">twist</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">twist</span> <span class="o">+</span> <span class="n">val</span><span class="p">)</span> <span class="o">%</span> <span class="mi">360</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">viewChanged</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+
+    <span class="c1"># TODO: THis depends on the broken pan!</span>
+<div class="viewcode-block" id="Camera.tilt"><a class="viewcode-back" href="../../ref/opengl.camera.html#opengl.camera.Camera.tilt">[docs]</a>    <span class="k">def</span> <span class="nf">tilt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Rotate the camera up/down around its own horizontal axis.</span>
+
+<span class="sd">        The camera is rotated around and perpendicular to the plane of the</span>
+<span class="sd">        y-axis and the viewing axis. This has the effect of a vertical pan.</span>
+<span class="sd">        A positive value tilts the camera up, shifting the scene down.</span>
+<span class="sd">        The value is specified in degrees.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">lockedview</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pan</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">viewChanged</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="Camera.move"><a class="viewcode-back" href="../../ref/opengl.camera.html#opengl.camera.Camera.move">[docs]</a>    <span class="k">def</span> <span class="nf">move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">,</span> <span class="n">dz</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Move the camera over translation (dx,dy,dz) in global coordinates.</span>
+
+<span class="sd">        The focus of the camera is moved over the specified translation</span>
+<span class="sd">        vector. This has the effect of moving the scene in opposite direction.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">lockedview</span><span class="p">:</span>
+            <span class="c1">#x, y, z = self.ctr</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;MOVING CAMERA OVER </span><span class="si">{</span><span class="n">dx</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">dy</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">dz</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">focus</span> <span class="o">+=</span> <span class="p">[</span><span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">,</span> <span class="n">dz</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">viewChanged</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+<span class="c1">##    def truck(self,dx,dy,dz):</span>
+<span class="c1">##        &quot;&quot;&quot;Move the camera translation vector in local coordinates.</span>
+
+<span class="c1">##        This has the effect of moving the scene in opposite direction.</span>
+<span class="c1">##        Positive coordinates mean:</span>
+<span class="c1">##          first  coordinate : truck right,</span>
+<span class="c1">##          second coordinate : pedestal up,</span>
+<span class="c1">##          third  coordinate : dolly out.</span>
+<span class="c1">##        &quot;&quot;&quot;</span>
+<span class="c1">##        #pos = self.eye</span>
+<span class="c1">##        ang = self.getAngles()</span>
+<span class="c1">##        tr = [dx,dy,dz]</span>
+<span class="c1">##        for i in [1,0,2]:</span>
+<span class="c1">##            r = rotationMatrix(i,ang[i])</span>
+<span class="c1">##            tr = multiply(tr, r)</span>
+<span class="c1">##        self.move(*tr)</span>
+<span class="c1">##        self.viewChanged = True</span>
+
+
+    <span class="c1"># TODO</span>
+    <span class="k">def</span> <span class="nf">translate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vx</span><span class="p">,</span> <span class="n">vy</span><span class="p">,</span> <span class="n">vz</span><span class="p">,</span> <span class="n">local</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">lockedview</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TRANSLATE CAMERA OVER </span><span class="si">{</span><span class="n">vx</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">vy</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">vz</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">local</span><span class="p">:</span>
+                <span class="n">vx</span><span class="p">,</span> <span class="n">vy</span><span class="p">,</span> <span class="n">vz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">toWorld</span><span class="p">([</span><span class="n">vx</span><span class="p">,</span> <span class="n">vy</span><span class="p">,</span> <span class="n">vz</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="o">-</span><span class="n">vx</span><span class="p">,</span> <span class="o">-</span><span class="n">vy</span><span class="p">,</span> <span class="o">-</span><span class="n">vz</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Camera.setLens"><a class="viewcode-back" href="../../ref/opengl.camera.html#opengl.camera.Camera.setLens">[docs]</a>    <span class="k">def</span> <span class="nf">setLens</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fovy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the field of view of the camera.</span>
+
+<span class="sd">        We set the field of view by the vertical opening angle fovy</span>
+<span class="sd">        and the aspect ratio (width/height) of the viewing volume.</span>
+<span class="sd">        A parameter that is not specified is left unchanged.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">fovy</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fovy</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">fovy</span><span class="p">),</span> <span class="mi">180</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">aspect</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">aspect</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">aspect</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lensChanged</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="Camera.resetArea"><a class="viewcode-back" href="../../ref/opengl.camera.html#opengl.camera.Camera.resetArea">[docs]</a>    <span class="k">def</span> <span class="nf">resetArea</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set maximal camera area.</span>
+
+<span class="sd">        Resets the camera window area to its maximum values corresponding</span>
+<span class="sd">        to the fovy setting, symmetrical about the camera axes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setArea</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Camera.setArea"><a class="viewcode-back" href="../../ref/opengl.camera.html#opengl.camera.Camera.setArea">[docs]</a>    <span class="k">def</span> <span class="nf">setArea</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hmin</span><span class="p">,</span> <span class="n">vmin</span><span class="p">,</span> <span class="n">hmax</span><span class="p">,</span> <span class="n">vmax</span><span class="p">,</span> <span class="n">relative</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">focus</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">clip</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the viewable area of the camera.</span>
+
+<span class="sd">        Note: Use relative=False and clip=False if you want to set the zoom</span>
+<span class="sd">        exactly as in previously recorded values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">area</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">hmin</span><span class="p">,</span> <span class="n">vmin</span><span class="p">,</span> <span class="n">hmax</span><span class="p">,</span> <span class="n">vmax</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">clip</span><span class="p">:</span>
+            <span class="n">area</span> <span class="o">=</span> <span class="n">area</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">area</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">area</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="ow">and</span> <span class="n">area</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">area</span><span class="p">[</span><span class="mi">3</span><span class="p">]:</span>
+            <span class="n">area</span> <span class="o">=</span> <span class="n">area</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">mean</span> <span class="o">=</span> <span class="p">(</span><span class="n">area</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">area</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="mf">0.5</span>
+            <span class="n">diff</span> <span class="o">=</span> <span class="p">(</span><span class="n">area</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">area</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="mf">0.5</span>
+
+            <span class="k">if</span> <span class="n">relative</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">keep_aspect</span><span class="p">:</span>
+                    <span class="n">aspect</span> <span class="o">=</span> <span class="n">diff</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">diff</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">aspect</span> <span class="o">&gt;</span> <span class="mf">1.0</span><span class="p">:</span>
+                        <span class="n">diff</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">diff</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># / self.aspect</span>
+                        <span class="c1"># no aspect factor: this is relative!!!</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">diff</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">diff</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># * self.aspect</span>
+                <span class="k">if</span> <span class="n">focus</span><span class="p">:</span>
+                    <span class="n">mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">area</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">mean</span><span class="o">-</span><span class="n">diff</span>
+                <span class="n">area</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">mean</span><span class="o">+</span><span class="n">diff</span>
+                <span class="c1">#print(&quot;RELATIVE AREA %s&quot; % (area))</span>
+                <span class="n">area</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.</span><span class="o">-</span><span class="n">area</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">area</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">area</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">area</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">center</span><span class="p">:</span>
+                <span class="c1"># make center of area equal to 0.5,0.5</span>
+                <span class="n">mean</span> <span class="o">=</span> <span class="p">(</span><span class="n">area</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">area</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="mf">0.5</span>
+                <span class="n">area</span> <span class="o">+=</span> <span class="mf">0.5</span><span class="o">-</span><span class="n">mean</span>
+
+            <span class="c1">#print(&quot;OLD ZOOM AREA %s (aspect %s)&quot; % (self.area,self.aspect))</span>
+            <span class="c1">#print(&quot;NEW ZOOM AREA %s&quot; % (area))</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">area</span> <span class="o">=</span> <span class="n">area</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lensChanged</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+
+
+<div class="viewcode-block" id="Camera.zoomArea"><a class="viewcode-back" href="../../ref/opengl.camera.html#opengl.camera.Camera.zoomArea">[docs]</a>    <span class="k">def</span> <span class="nf">zoomArea</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">area</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Zoom in/out by shrinking/enlarging the camera view area.</span>
+
+<span class="sd">        The zoom factor is relative to the current setting.</span>
+<span class="sd">        Values smaller than 1.0 zoom in, larger values zoom out.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">val</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+            <span class="c1">#val = (1.-val) * 0.5</span>
+            <span class="c1">#self.setArea(val,val,1.-val,1.-val,focus=focus)</span>
+            <span class="k">if</span> <span class="n">area</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">area</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">area</span>
+            <span class="c1">#print(&quot;ZOOM AREA %s (%s)&quot; % (area.tolist(),val))</span>
+            <span class="n">mean</span> <span class="o">=</span> <span class="p">(</span><span class="n">area</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">area</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="mf">0.5</span>
+            <span class="n">diff</span> <span class="o">=</span> <span class="p">(</span><span class="n">area</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">area</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">val</span>
+            <span class="n">area</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">mean</span><span class="o">-</span><span class="n">diff</span>
+            <span class="n">area</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">mean</span><span class="o">+</span><span class="n">diff</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">area</span> <span class="o">=</span> <span class="n">area</span>
+            <span class="c1">#print(&quot;CAMERA AREA %s&quot; % self.area.tolist())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lensChanged</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="Camera.transArea"><a class="viewcode-back" href="../../ref/opengl.camera.html#opengl.camera.Camera.transArea">[docs]</a>    <span class="k">def</span> <span class="nf">transArea</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Pan by moving the camera area.</span>
+
+<span class="sd">        dx and dy are relative movements in fractions of the</span>
+<span class="sd">        current area size.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1">#print(&quot;TRANSAREA %s,%s&quot; % (dx,dy))</span>
+        <span class="n">area</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">area</span>
+        <span class="n">diff</span> <span class="o">=</span> <span class="p">(</span><span class="n">area</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">area</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">])</span>
+        <span class="n">area</span> <span class="o">+=</span> <span class="n">diff</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">area</span> <span class="o">=</span> <span class="n">area</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lensChanged</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="Camera.setClip"><a class="viewcode-back" href="../../ref/opengl.camera.html#opengl.camera.Camera.setClip">[docs]</a>    <span class="k">def</span> <span class="nf">setClip</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">near</span><span class="p">,</span> <span class="n">far</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the near and far clipping planes&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">near</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">near</span> <span class="o">&lt;</span> <span class="n">far</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">near</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">far</span> <span class="o">=</span> <span class="n">near</span><span class="p">,</span> <span class="n">far</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lensChanged</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error: Invalid Near/Far clipping values&quot;</span><span class="p">)</span></div>
+
+
+    <span class="c1">## def setClipRel(self,near,far):</span>
+    <span class="c1">##     &quot;&quot;&quot;Set the near and far clipping planes&quot;&quot;&quot;</span>
+    <span class="c1">##     if near &gt; 0 and near &lt; far:</span>
+    <span class="c1">##         self.near,self.far = near,far</span>
+    <span class="c1">##         self.lensChanged = True</span>
+    <span class="c1">##     else:</span>
+    <span class="c1">##         print(&quot;Error: Invalid Near/Far clipping values&quot;)</span>
+
+
+    <span class="c1">## def zoom(self,val=0.5):</span>
+    <span class="c1">##     &quot;&quot;&quot;Zoom in/out by shrinking/enlarging the camera view angle.</span>
+
+    <span class="c1">##     The zoom factor is relative to the current setting.</span>
+    <span class="c1">##     Use setFovy() to specify an absolute setting.</span>
+    <span class="c1">##     &quot;&quot;&quot;</span>
+    <span class="c1">##     if val&gt;0:</span>
+    <span class="c1">##         self.fovy *= val</span>
+    <span class="c1">##     self.lensChanged = True</span>
+
+
+    <span class="c1">#### global manipulation ###################</span>
+
+
+<div class="viewcode-block" id="Camera.setTracking"><a class="viewcode-back" href="../../ref/opengl.camera.html#opengl.camera.Camera.setTracking">[docs]</a>    <span class="k">def</span> <span class="nf">setTracking</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">onoff</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Enable/disable coordinate tracking using the camera&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">onoff</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tracking</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="c1">#self.set3Datrices()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tracking</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+
+<span class="c1">#################################################################</span>
+<span class="c1">##  Operations on modelview matrix  ##</span>
+
+
+<div class="viewcode-block" id="Camera.setProjection"><a class="viewcode-back" href="../../ref/opengl.camera.html#opengl.camera.Camera.setProjection">[docs]</a>    <span class="k">def</span> <span class="nf">setProjection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the projection matrix.</span>
+
+<span class="sd">        This computes and sets the camera&#39;s projection matrix, depending</span>
+<span class="sd">        on the current camera settings. The projection can either be</span>
+<span class="sd">        an orthogonal or a perspective one.</span>
+
+<span class="sd">        The computed matrix is saved as the camera&#39;s projection matrix,</span>
+<span class="sd">        and the lensChanged attribute is set to False.</span>
+
+<span class="sd">        The matrix can be retrieved from the projection attribute,</span>
+<span class="sd">        and can be loaded in the GL context with loadProjection().</span>
+
+<span class="sd">        This function does nothing if the camera is locked.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">lockedlens</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">fv</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">tand</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fovy</span><span class="o">*</span><span class="mf">0.5</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_perspective</span><span class="p">:</span>
+            <span class="n">fv</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">near</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fv</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dist</span>
+        <span class="n">fh</span> <span class="o">=</span> <span class="n">fv</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">aspect</span>
+        <span class="n">x0</span><span class="p">,</span> <span class="n">x1</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">area</span> <span class="o">-</span> <span class="mf">1.0</span>
+        <span class="n">frustum</span> <span class="o">=</span> <span class="p">(</span><span class="n">fh</span><span class="o">*</span><span class="n">x0</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">fh</span><span class="o">*</span><span class="n">x1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">fv</span><span class="o">*</span><span class="n">x0</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">fv</span><span class="o">*</span><span class="n">x1</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">near</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">far</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_perspective</span><span class="p">:</span>
+            <span class="n">func</span> <span class="o">=</span> <span class="n">perspective_matrix</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">func</span> <span class="o">=</span> <span class="n">orthogonal_matrix</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">projection</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">frustum</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">projection_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lensChanged</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="Camera.loadProjection"><a class="viewcode-back" href="../../ref/opengl.camera.html#opengl.camera.Camera.loadProjection">[docs]</a>    <span class="k">def</span> <span class="nf">loadProjection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Load the Projection matrix.</span>
+
+<span class="sd">        If lens parameters of the camera have been changed, the current</span>
+<span class="sd">        Projection matrix is rebuild.</span>
+<span class="sd">        Then, the current Projection matrix of the camera is loaded into the</span>
+<span class="sd">        OpenGL engine.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">gl</span><span class="o">.</span><span class="n">gl_loadprojection</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">projection</span><span class="o">.</span><span class="n">gl</span><span class="p">())</span></div>
+
+
+
+<div class="viewcode-block" id="Camera.pickMatrix"><a class="viewcode-back" href="../../ref/opengl.camera.html#opengl.camera.Camera.pickMatrix">[docs]</a>    <span class="k">def</span> <span class="nf">pickMatrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rect</span><span class="p">,</span> <span class="n">viewport</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a picking matrix.</span>
+
+<span class="sd">        The picking matrix confines the scope of the normalized device</span>
+<span class="sd">        coordinates to a rectangular subregion of the camera viewport.</span>
+<span class="sd">        This means that values in the range -1 to +1 are inside the</span>
+<span class="sd">        rectangle.</span>
+
+<span class="sd">        Parameters:</span>
+
+<span class="sd">        - `rect`: a tuple of 4 floats (x,y,w,h) defining the picking region</span>
+<span class="sd">          center (x,y) and size (w,h)</span>
+<span class="sd">        - `viewport`: a tuple of 4 int values (xmin,ymin,xmax,ymax) defining</span>
+<span class="sd">          the size of the viewport. This is normally left unspecified and</span>
+<span class="sd">          set to the camera viewport.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">viewport</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">viewport</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">viewport</span>
+        <span class="k">return</span> <span class="n">pick_matrix</span><span class="p">(</span><span class="n">rect</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">rect</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">rect</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">rect</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">viewport</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Camera.eyeToClip"><a class="viewcode-back" href="../../ref/opengl.camera.html#opengl.camera.Camera.eyeToClip">[docs]</a>    <span class="k">def</span> <span class="nf">eyeToClip</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Transform a vertex from eye to clip coordinates.</span>
+
+<span class="sd">        This transforms the vertex using the current Projection matrix.</span>
+
+<span class="sd">        It is equivalent with multiplying the homogeneous</span>
+<span class="sd">        coordinates with the Projection matrix, but is done here</span>
+<span class="sd">        in an optimized way.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">projection</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Camera.clipToEye"><a class="viewcode-back" href="../../ref/opengl.camera.html#opengl.camera.Camera.clipToEye">[docs]</a>    <span class="k">def</span> <span class="nf">clipToEye</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Transform a vertex from clip to eye coordinates.</span>
+
+<span class="sd">        This transforms the vertex using the inverse of the</span>
+<span class="sd">        current Projection matrix.</span>
+
+<span class="sd">        It is equivalent with multiplying the homogeneous</span>
+<span class="sd">        coordinates with the inverse Projection matrix, but is done</span>
+<span class="sd">        here in an optimized way.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">projection</span><span class="o">.</span><span class="n">invtransform</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+
+<span class="c1">#################################################################</span>
+<span class="c1">##  Operations on modelview matrix  ##</span>
+
+
+<div class="viewcode-block" id="Camera.lookAt"><a class="viewcode-back" href="../../ref/opengl.camera.html#opengl.camera.Camera.lookAt">[docs]</a>    <span class="k">def</span> <span class="nf">lookAt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">focus</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">eye</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">up</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the Modelview matrix to look at the specified focus point.</span>
+
+<span class="sd">        The Modelview matrix is set with the camera positioned at eye</span>
+<span class="sd">        and looking at the focus points, while the camera up vector is</span>
+<span class="sd">        in the plane of the camera axis (focus-eye) and the specified</span>
+<span class="sd">        up vector.</span>
+
+<span class="sd">        If any of the arguments is left unspecified, the current value</span>
+<span class="sd">        will be used.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">lockedview</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">lockedlens</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="n">focus</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">focus</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">focus</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">focus</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">checkArray</span><span class="p">(</span><span class="n">focus</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,),</span> <span class="s1">&#39;f&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">eye</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">eye</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eye</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">eye</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">checkArray</span><span class="p">(</span><span class="n">eye</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,),</span> <span class="s1">&#39;f&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">up</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">up</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">upvector</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">up</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">at</span><span class="o">.</span><span class="n">checkArray</span><span class="p">(</span><span class="n">up</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,),</span> <span class="s1">&#39;f&#39;</span><span class="p">))</span>
+        <span class="n">vector</span> <span class="o">=</span> <span class="n">eye</span><span class="o">-</span><span class="n">focus</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">focus</span> <span class="o">=</span> <span class="n">focus</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dist</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">length</span><span class="p">(</span><span class="n">vector</span><span class="p">)</span>
+        <span class="n">axis2</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">vector</span><span class="p">)</span>
+        <span class="n">axis0</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">up</span><span class="p">,</span> <span class="n">axis2</span><span class="p">))</span>
+        <span class="n">axis1</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">axis2</span><span class="p">,</span> <span class="n">axis0</span><span class="p">))</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">Matrix4</span><span class="p">()</span>
+        <span class="n">m</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">([</span><span class="n">axis0</span><span class="p">,</span> <span class="n">axis1</span><span class="p">,</span> <span class="n">axis2</span><span class="p">]))</span>
+        <span class="n">m</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="o">-</span><span class="n">eye</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setModelview</span><span class="p">(</span><span class="n">m</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Camera.rotate"><a class="viewcode-back" href="../../ref/opengl.camera.html#opengl.camera.Camera.rotate">[docs]</a>    <span class="k">def</span> <span class="nf">rotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">vx</span><span class="p">,</span> <span class="n">vy</span><span class="p">,</span> <span class="n">vz</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Rotate the camera around current camera axes.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">lockedview</span><span class="p">:</span>
+            <span class="n">rot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modelview</span><span class="o">.</span><span class="n">rot</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">Matrix4</span><span class="p">()</span>
+            <span class="n">m</span><span class="o">.</span><span class="n">translate</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">dist</span><span class="p">])</span>
+            <span class="n">m</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">val</span> <span class="o">%</span> <span class="mi">360</span><span class="p">,</span> <span class="p">[</span><span class="n">vx</span><span class="p">,</span> <span class="n">vy</span><span class="p">,</span> <span class="n">vz</span><span class="p">])</span>
+            <span class="n">m</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">rot</span><span class="p">)</span>
+            <span class="n">m</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">focus</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setModelview</span><span class="p">(</span><span class="n">m</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Camera.setModelview"><a class="viewcode-back" href="../../ref/opengl.camera.html#opengl.camera.Camera.setModelview">[docs]</a>    <span class="k">def</span> <span class="nf">setModelview</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">angles</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the Modelview matrix.</span>
+
+<span class="sd">        The Modelview matrix can be set from one of the following sources:</span>
+
+<span class="sd">        - if `mat` is specified, it is a 4x4 matrix with a valuable</span>
+<span class="sd">          Modelview transformation. It will be set as the current camera</span>
+<span class="sd">          Modelview matrix.</span>
+
+<span class="sd">        - else, if `angles` is specified, it is a sequence of tuples</span>
+<span class="sd">          (angle, axis) each of which define a rotation of the camera</span>
+<span class="sd">          around an axis through the focus point.</span>
+<span class="sd">          The camera Modelview matrix is set from the current camera focus,</span>
+<span class="sd">          the current camera distance, and the specified angles/axes.</span>
+<span class="sd">          This option is typically used to change the viewing direction</span>
+<span class="sd">          of the camera, while keeping the focus point and camera distance.</span>
+
+<span class="sd">        - else, if the viewChanged flags is set, the camera Modelview</span>
+<span class="sd">          matrix is set from the current camera focus, the current camera</span>
+<span class="sd">          distance, and the current camera rotation matrix.</span>
+<span class="sd">          This option is typically used after changing the camera focus</span>
+<span class="sd">          point and/or distance, while keeping the current viewing angles.</span>
+
+<span class="sd">        - else, the current Modelview matrix remains unchanged.</span>
+
+<span class="sd">        In all cases, if a modelview callback was set, it is called,</span>
+<span class="sd">        and the viewChanged flag is cleared.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">lockedview</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="n">m</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">angles</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">Matrix4</span><span class="p">()</span>
+            <span class="n">m</span><span class="o">.</span><span class="n">translate</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">dist</span><span class="p">])</span>
+            <span class="c1">#print(list(angles))</span>
+            <span class="k">for</span> <span class="n">angle</span><span class="p">,</span> <span class="n">axis</span> <span class="ow">in</span> <span class="n">angles</span><span class="p">:</span>
+                <span class="n">m</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">angle</span><span class="p">,</span> <span class="n">axis</span><span class="p">)</span>
+            <span class="n">m</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">focus</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">m</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">viewChanged</span><span class="p">:</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">Matrix4</span><span class="p">()</span>
+            <span class="n">m</span><span class="o">.</span><span class="n">translate</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">dist</span><span class="p">])</span>
+            <span class="n">m</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_modelview</span><span class="o">.</span><span class="n">rot</span><span class="p">)</span>
+            <span class="n">m</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">focus</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">m</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">modelview</span> <span class="o">=</span> <span class="n">m</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">modelview_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">viewChanged</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="Camera.loadModelview"><a class="viewcode-back" href="../../ref/opengl.camera.html#opengl.camera.Camera.loadModelview">[docs]</a>    <span class="k">def</span> <span class="nf">loadModelview</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Load the Modelview matrix.</span>
+
+<span class="sd">        If camera positioning parameters have been changed, the current</span>
+<span class="sd">        Modelview matrix is rebuild.</span>
+<span class="sd">        Then, the current Modelview matrix of the camera is loaded into the</span>
+<span class="sd">        OpenGL engine.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">gl</span><span class="o">.</span><span class="n">gl_loadmodelview</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">modelview</span><span class="o">.</span><span class="n">gl</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="Camera.toEye"><a class="viewcode-back" href="../../ref/opengl.camera.html#opengl.camera.Camera.toEye">[docs]</a>    <span class="k">def</span> <span class="nf">toEye</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Transform a vertex from world to eye coordinates.</span>
+
+<span class="sd">        This transforms the vertex using the current Modelview matrix.</span>
+
+<span class="sd">        It is equivalent with multiplying the homogeneous</span>
+<span class="sd">        coordinates with the Modelview matrix, but is done here</span>
+<span class="sd">        in an optimized way.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">checkArray</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="s1">&#39;f&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">modelview</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">])</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">modelview</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="Camera.toWorld"><a class="viewcode-back" href="../../ref/opengl.camera.html#opengl.camera.Camera.toWorld">[docs]</a>    <span class="k">def</span> <span class="nf">toWorld</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Transform a vertex from eye to world coordinates.</span>
+
+<span class="sd">        This transforms the vertex using the inverse of the</span>
+<span class="sd">        current Modelview matrix.</span>
+
+<span class="sd">        It is equivalent with multiplying the homogeneous</span>
+<span class="sd">        coordinates with the inverse Modelview matrix, but is done</span>
+<span class="sd">        here in an optimized way.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">checkArray</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,),</span> <span class="s1">&#39;f&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dist</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">x</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">rot</span><span class="o">.</span><span class="n">T</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">focus</span></div>
+
+
+<span class="c1">#################################################################</span>
+<span class="c1">##  Transform vertices with modelview and projection matrix  ##</span>
+
+
+<div class="viewcode-block" id="Camera.toWindow"><a class="viewcode-back" href="../../ref/opengl.camera.html#opengl.camera.Camera.toWindow">[docs]</a>    <span class="k">def</span> <span class="nf">toWindow</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Convert normalized device coordinates to window coordinates&quot;&quot;&quot;</span>
+        <span class="c1"># This is only correct when glDepthRange(0.0, 1.0)</span>
+        <span class="c1"># We should not change the depth range</span>
+        <span class="n">vp</span> <span class="o">=</span> <span class="n">gl</span><span class="o">.</span><span class="n">gl_viewport</span><span class="p">()</span>
+        <span class="c1">#print([[vp[0], vp[1], 0], [vp[2], vp[3], 1]])</span>
+        <span class="k">return</span> <span class="n">denormalize</span><span class="p">(</span><span class="n">x</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">3</span><span class="p">],</span> <span class="p">[[</span><span class="n">vp</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">vp</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="n">vp</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">vp</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="mi">1</span><span class="p">]])</span></div>
+
+
+<div class="viewcode-block" id="Camera.fromWindow"><a class="viewcode-back" href="../../ref/opengl.camera.html#opengl.camera.Camera.fromWindow">[docs]</a>    <span class="k">def</span> <span class="nf">fromWindow</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Convert window coordinates to  normalized device coordinates&quot;&quot;&quot;</span>
+        <span class="c1"># This is only correct when glDepthRange(0.0, 1.0)</span>
+        <span class="c1"># We should not change the depth range</span>
+        <span class="n">vp</span> <span class="o">=</span> <span class="n">gl</span><span class="o">.</span><span class="n">gl_viewport</span><span class="p">()</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">checkArray</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="s1">&#39;f&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">normalize</span><span class="p">(</span><span class="n">x</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">3</span><span class="p">],</span> <span class="p">[[</span><span class="n">vp</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">vp</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="n">vp</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">vp</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="mi">1</span><span class="p">]])</span></div>
+
+
+<div class="viewcode-block" id="Camera.toNDC"><a class="viewcode-back" href="../../ref/opengl.camera.html#opengl.camera.Camera.toNDC">[docs]</a>    <span class="k">def</span> <span class="nf">toNDC</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">rect</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Convert world coordinates to normalized device coordinates.</span>
+
+<span class="sd">        The normalized device coordinates (NDC) have x and y values</span>
+<span class="sd">        in the range -1 to +1 for points that are falling within the</span>
+<span class="sd">        visible region of the camera.</span>
+
+<span class="sd">        Parameters:</span>
+
+<span class="sd">        - `x`: Coords with the world coordinates to be converted</span>
+<span class="sd">        - `rect`: optional, a tuple of 4 values (x,y,w,h) specifying</span>
+<span class="sd">          a rectangular subregion of the camera&#39;s viewport. The default</span>
+<span class="sd">          is the full camera viewport.</span>
+
+<span class="sd">        The return value is a Coords. The z-coordinate provides</span>
+<span class="sd">        depth information.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">modelview</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">projection</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">rect</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pickMatrix</span><span class="p">(</span><span class="n">rect</span><span class="p">))</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">Coords4</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">Coords4</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">m</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_perspective</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">toCoords</span><span class="p">()</span>  <span class="c1"># This performs the perspective divide</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Orthogonal projection</span>
+            <span class="c1"># This is not tested yet!!!</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">Coords</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">x</span></div>
+
+
+<div class="viewcode-block" id="Camera.toNDC1"><a class="viewcode-back" href="../../ref/opengl.camera.html#opengl.camera.Camera.toNDC1">[docs]</a>    <span class="k">def</span> <span class="nf">toNDC1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">rect</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;This is like toNDC without the perspective divide</span>
+
+<span class="sd">        This function is useful to compute the vertex position of a</span>
+<span class="sd">        3D point as computed by the vertex shader.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">modelview</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">projection</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">rect</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pickMatrix</span><span class="p">(</span><span class="n">rect</span><span class="p">))</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">Coords4</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">Coords4</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">m</span><span class="p">))</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">Coords</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">x</span></div>
+
+
+<div class="viewcode-block" id="Camera.project"><a class="viewcode-back" href="../../ref/opengl.camera.html#opengl.camera.Camera.project">[docs]</a>    <span class="k">def</span> <span class="nf">project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Map the world coordinates (x,y,z) to window coordinates.&quot;&quot;&quot;</span>
+        <span class="c1"># Modelview transform</span>
+        <span class="n">e</span> <span class="o">=</span> <span class="n">Coords4</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">modelview</span>
+        <span class="c1">#print(&quot;EYE COORDINATES:&quot;,e)</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="o">-</span><span class="n">e</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span>
+        <span class="c1"># Projection</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">e</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">projection</span>
+        <span class="c1">#print(&quot;CLIP COORDINATES:&quot;,x)</span>
+        <span class="c1"># Perspective division</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_perspective</span><span class="p">:</span>
+            <span class="c1">## if (w == 0.0):</span>
+            <span class="c1">##     return [np.inf,np.inf,np.inf]</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">/</span><span class="n">w</span>
+        <span class="c1">#print(&quot;NORMALIZED DEVICE COORDINATES:&quot;,x)</span>
+        <span class="c1"># Map to window</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">toWindow</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Camera.unproject"><a class="viewcode-back" href="../../ref/opengl.camera.html#opengl.camera.Camera.unproject">[docs]</a>    <span class="k">def</span> <span class="nf">unproject</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">ndc</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Map the window coordinates x to object coordinates.&quot;&quot;&quot;</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modelview</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">projection</span>
+        <span class="c1">#print(&quot;M*P&quot;,m)</span>
+        <span class="n">m1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+        <span class="c1">#print(&quot;M*P -1&quot;,m1)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fromWindow</span><span class="p">(</span><span class="n">Coords</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
+        <span class="c1">#print(&quot;NORMALIZED DEVICE COORDINATES:&quot;,x)</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="p">(</span><span class="n">Coords4</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">@</span> <span class="n">m1</span><span class="p">)</span><span class="o">.</span><span class="n">toCoords</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">ndc</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">X</span><span class="p">,</span> <span class="n">x</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">X</span></div>
+
+
+<div class="viewcode-block" id="Camera.inside"><a class="viewcode-back" href="../../ref/opengl.camera.html#opengl.camera.Camera.inside">[docs]</a>    <span class="k">def</span> <span class="nf">inside</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">rect</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">return_depth</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Test if points are visible in the camera.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x: :term:`array_like`</span>
+<span class="sd">            Array (npts, 3) with coordinates of 3D points.</span>
+<span class="sd">        rect: tuple, optional</span>
+<span class="sd">            A tuple of 4 values (x,y,w,h) specifying a rectangular subregion</span>
+<span class="sd">            of the camera&#39;s viewport. Default is the full camera viewport.</span>
+<span class="sd">        return_depth: bool</span>
+<span class="sd">            If True, also returns the the z-depth of the points.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        inside: bool array</span>
+<span class="sd">            An array with value 1 (True) for the points that</span>
+<span class="sd">            are projected inside the rectangular area of the camera.</span>
+<span class="sd">        depth: float array (npts,)</span>
+<span class="sd">            The z-depth value of the points. Only returned if</span>
+<span class="sd">            `return_depth` is True.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ndc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">toNDC</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">rect</span><span class="p">)</span>
+        <span class="n">xy</span> <span class="o">=</span> <span class="n">ndc</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">inside</span> <span class="o">=</span> <span class="p">(</span><span class="n">xy</span> <span class="o">&gt;=</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">xy</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">return_depth</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">inside</span><span class="p">,</span> <span class="n">ndc</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">inside</span></div>
+
+
+<div class="viewcode-block" id="Camera.loadConfig"><a class="viewcode-back" href="../../ref/opengl.camera.html#opengl.camera.Camera.loadConfig">[docs]</a>    <span class="k">def</span> <span class="nf">loadConfig</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Load the camera settings from a dict&quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">pyformex.gui</span> <span class="kn">import</span> <span class="n">toolbar</span>
+        <span class="bp">self</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">config</span><span class="p">)</span>
+        <span class="c1"># Since this might have changed the perspective state</span>
+        <span class="c1"># of the current camera, updat the gui perspective button</span>
+        <span class="n">toolbar</span><span class="o">.</span><span class="n">updatePerspectiveButton</span><span class="p">()</span></div>
+
+
+    <span class="c1">###################</span>
+    <span class="c1">## PZF interface ##</span>
+
+    <span class="k">def</span> <span class="nf">pzf_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span> <span class="s1">&#39;kargs:p&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">()</span> <span class="p">}</span>
+
+
+    <span class="c1">## DEPRECATED ##</span>
+
+    <span class="c1"># Deprecated old camera saving format   2023-01</span>
+    <span class="c1"># TODO: remove after 2023-08</span>
+<div class="viewcode-block" id="Camera.save"><a class="viewcode-back" href="../../ref/opengl.camera.html#opengl.camera.Camera.save">[docs]</a>    <span class="nd">@utils</span><span class="o">.</span><span class="n">deprecated</span><span class="p">(</span><span class="s1">&#39;camera_save&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Save the camera settings to file&quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">pyformex.pzffile</span> <span class="kn">import</span> <span class="n">dict2str</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fil</span><span class="p">:</span>
+             <span class="n">fil</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#Camera settings saved from pyFormex</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span>
+                       <span class="n">dict2str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">(),</span> <span class="s1">&#39;c&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">#End</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Camera.load"><a class="viewcode-back" href="../../ref/opengl.camera.html#opengl.camera.Camera.load">[docs]</a>    <span class="nd">@utils</span><span class="o">.</span><span class="n">deprecated</span><span class="p">(</span><span class="s1">&#39;camera_save&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Load the camera settings from file&quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">pyformex.pzffile</span> <span class="kn">import</span> <span class="n">str2dict</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fil</span><span class="p">:</span>
+             <span class="n">config</span> <span class="o">=</span> <span class="n">fil</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loadConfig</span><span class="p">(</span><span class="n">str2dict</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">))</span></div></div>
+
+<span class="c1"># End</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">opengl.camera</a></li--> 
+      </ul>
+    </div>
+    <div class="footer">
+    <span class="left">
+        &copy; Copyright 2004-2023, Benedict Verhegghe.
+    </span>
+      Last updated on Mar 27, 2023.
+    <span class="right">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.4.3.
+    </span>
+    </div>
+  </body>
+</html>

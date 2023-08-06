@@ -1,0 +1,1290 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!--
+##
+##  This file is part of the pyFormex project.
+##  pyFormex is a tool for generating, manipulating and transforming 3D
+##  geometrical models by sequences of mathematical operations.
+##  Home page: http://pyformex.org
+##  Project page:  http://savannah.nongnu.org/projects/pyformex/
+##  Copyright (C) Benedict Verhegghe (benedict.verhegghe@ugent.be)
+##  Distributed under the GNU General Public License version 3 or later.
+##
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see http://www.gnu.org/licenses/.
+##
+-->
+    <title>gui.image &#8212; pyFormex 3.3 documentation</title>
+
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pyformex.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+<link rel="icon" type="image/png" href="../../_static/pyformex_fav.png" />
+
+  </head><body>
+
+<div class="header">
+  <a href="http://pyformex.org">
+  <img src="../../_static/scallop_dome_small.png" alt="scallop dome" border="0" hspace="20" vspace="12" align="left" />
+  <img src="../../_static/pyformex-logo-2.png" alt="pyformex logo" border="0" hspace="10" vspace="8" align="left" />
+  </a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">gui.image</a></li--> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<!-- PYFORMEX_SIDEBAR_LOGO -->
+<!-- PYFORMEX_WEBSITE_SIDEBAR_TOP -->
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for gui.image</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1">##</span>
+<span class="c1">##  SPDX-FileCopyrightText: © 2007-2023 Benedict Verhegghe &lt;bverheg@gmail.com&gt;</span>
+<span class="c1">##  SPDX-License-Identifier: GPL-3.0-or-later</span>
+<span class="c1">##</span>
+<span class="c1">##  This file is part of pyFormex 3.3  (Sun Mar 26 20:16:15 CEST 2023)</span>
+<span class="c1">##  pyFormex is a tool for generating, manipulating and transforming 3D</span>
+<span class="c1">##  geometrical models by sequences of mathematical operations.</span>
+<span class="c1">##  Home page: https://pyformex.org</span>
+<span class="c1">##  Project page: https://savannah.nongnu.org/projects/pyformex/</span>
+<span class="c1">##  Development: https://gitlab.com/bverheg/pyformex</span>
+<span class="c1">##  Distributed under the GNU General Public License version 3 or later.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is free software: you can redistribute it and/or modify</span>
+<span class="c1">##  it under the terms of the GNU General Public License as published by</span>
+<span class="c1">##  the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1">##  (at your option) any later version.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is distributed in the hope that it will be useful,</span>
+<span class="c1">##  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1">##  GNU General Public License for more details.</span>
+<span class="c1">##</span>
+<span class="c1">##  You should have received a copy of the GNU General Public License</span>
+<span class="c1">##  along with this program.  If not, see http://www.gnu.org/licenses/.</span>
+<span class="c1">##</span>
+<span class="sd">&quot;&quot;&quot;Saving OpenGL renderings to image files.</span>
+
+<span class="sd">This module defines some functions that can be used to save the</span>
+<span class="sd">OpenGL rendering and the pyFormex GUI to image files. There are even</span>
+<span class="sd">functions for automatically saving multiple renderings to a series of</span>
+<span class="sd">files, for creating a movie from these images and for recording the GUI</span>
+<span class="sd">directly to a video file.</span>
+
+<span class="sd">The most important functions in this module are</span>
+
+<span class="sd">- :func:`saveImage`: save (parts of) the GUI to an image file</span>
+<span class="sd">- :func:`recordSession`: record (parts of) the GUI to a video file</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
+
+<span class="kn">import</span> <span class="nn">pyformex</span> <span class="k">as</span> <span class="nn">pf</span>
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">pyformex.gui</span> <span class="kn">import</span> <span class="n">QtGui</span>
+<span class="kn">from</span> <span class="nn">pyformex.gui</span> <span class="kn">import</span> <span class="n">qtutils</span>
+
+<span class="c1"># global parameters for multisave mode</span>
+<span class="n">multisave</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="c1"># imported module</span>
+<span class="n">gl2ps</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="c1"># The image formats recognized by pyFormex</span>
+<span class="n">image_formats</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;qt&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="s1">&#39;pil&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="s1">&#39;magick&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="s1">&#39;gl2ps&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="get_image_formats_qt"><a class="viewcode-back" href="../../ref/gui.image.html#gui.image.get_image_formats_qt">[docs]</a><span class="k">def</span> <span class="nf">get_image_formats_qt</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;List the image formats supported by :class:`~Qt.QtGui.QImage`</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    formats_r: list of str</span>
+<span class="sd">        List of image formats that can be read by QImage</span>
+<span class="sd">    formats_w: list of str</span>
+<span class="sd">        List of image formats that can be written by QImage</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">formats_r</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">toStr</span><span class="p">()</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QImageReader</span><span class="o">.</span><span class="n">supportedImageFormats</span><span class="p">()]</span>
+    <span class="n">formats_w</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">toStr</span><span class="p">()</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QImageWriter</span><span class="o">.</span><span class="n">supportedImageFormats</span><span class="p">()]</span>
+    <span class="k">return</span> <span class="n">formats_r</span><span class="p">,</span> <span class="n">formats_w</span></div>
+
+
+<div class="viewcode-block" id="get_image_formats_pil"><a class="viewcode-back" href="../../ref/gui.image.html#gui.image.get_image_formats_pil">[docs]</a><span class="k">def</span> <span class="nf">get_image_formats_pil</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;List the image formats supported by PIL</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    formats_r: list of str</span>
+<span class="sd">        List of image formats that can be read by PIL</span>
+<span class="sd">    formats_w: list of str</span>
+<span class="sd">        List of image formats that can be written by PIL</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">Image</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+    <span class="n">formats_r</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">Image</span><span class="o">.</span><span class="n">EXTENSION</span><span class="p">]</span>
+    <span class="n">formats_w</span> <span class="o">=</span> <span class="n">formats_r</span>
+    <span class="k">return</span> <span class="n">formats_r</span><span class="p">,</span> <span class="n">formats_w</span></div>
+
+
+<div class="viewcode-block" id="get_image_formats_magick"><a class="viewcode-back" href="../../ref/gui.image.html#gui.image.get_image_formats_magick">[docs]</a><span class="k">def</span> <span class="nf">get_image_formats_magick</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;List the image formats supported by ImageMagick</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    formats_r: list of str</span>
+<span class="sd">        List of image formats that can be read by ImageMagick</span>
+<span class="sd">    formats_w: list of str</span>
+<span class="sd">        List of image formats that can be written by ImageMagick</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">External</span><span class="o">.</span><span class="n">has</span><span class="p">(</span><span class="s1">&#39;imagemagick&#39;</span><span class="p">):</span>
+        <span class="c1"># ImageMagick not installed/detected</span>
+        <span class="k">return</span> <span class="p">[],</span> <span class="p">[]</span>
+    <span class="c1"># Detection with external ImageMagick command</span>
+    <span class="n">P</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s2">&quot;identify -list format&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">P</span><span class="o">.</span><span class="n">returncode</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[],</span> <span class="p">[]</span>
+    <span class="n">formats_r</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">formats_w</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">ok</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">P</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">line</span><span class="p">[:</span><span class="mi">8</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;-&#39;</span><span class="o">*</span><span class="mi">8</span><span class="p">:</span>
+            <span class="n">ok</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">continue</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">fmt</span><span class="p">,</span> <span class="n">mod</span><span class="p">,</span> <span class="n">sup</span> <span class="o">=</span> <span class="n">s</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s1">&#39;*&#39;</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sup</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">fmt</span> <span class="o">=</span> <span class="n">fmt</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">sup</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;r&#39;</span><span class="p">:</span>
+                <span class="n">formats_r</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fmt</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">sup</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;w&#39;</span><span class="p">:</span>
+                <span class="n">formats_w</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fmt</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">formats_r</span><span class="p">,</span> <span class="n">formats_w</span></div>
+
+
+<div class="viewcode-block" id="get_image_formats_gl2ps"><a class="viewcode-back" href="../../ref/gui.image.html#gui.image.get_image_formats_gl2ps">[docs]</a><span class="k">def</span> <span class="nf">get_image_formats_gl2ps</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;List the image formats supported by gl2ps</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    formats_r: list of str</span>
+<span class="sd">        An empty list, since gl2ps is write only.</span>
+<span class="sd">    formats_w: list of str</span>
+<span class="sd">        List of image formats that can be written by gl2ps</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">gl2ps</span><span class="p">,</span> <span class="n">_producer</span><span class="p">,</span> <span class="n">_gl2ps_types</span>
+    <span class="k">if</span> <span class="n">utils</span><span class="o">.</span><span class="n">Module</span><span class="o">.</span><span class="n">has</span><span class="p">(</span><span class="s1">&#39;gl2ps&#39;</span><span class="p">):</span>
+        <span class="kn">import</span> <span class="nn">gl2ps</span>
+        <span class="c1"># set some globals</span>
+        <span class="n">_producer</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">pf</span><span class="o">.</span><span class="n">Version</span><span class="p">()</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;help/website&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="n">_gl2ps_types</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;ps&#39;</span><span class="p">:</span> <span class="n">gl2ps</span><span class="o">.</span><span class="n">GL2PS_PS</span><span class="p">,</span>
+            <span class="s1">&#39;eps&#39;</span><span class="p">:</span> <span class="n">gl2ps</span><span class="o">.</span><span class="n">GL2PS_EPS</span><span class="p">,</span>
+            <span class="s1">&#39;tex&#39;</span><span class="p">:</span> <span class="n">gl2ps</span><span class="o">.</span><span class="n">GL2PS_TEX</span><span class="p">,</span>
+            <span class="s1">&#39;pdf&#39;</span><span class="p">:</span> <span class="n">gl2ps</span><span class="o">.</span><span class="n">GL2PS_PDF</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="k">if</span> <span class="n">utils</span><span class="o">.</span><span class="n">Module</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="s1">&#39;gl2ps&#39;</span><span class="p">,</span> <span class="s1">&#39;&gt;=1.03&#39;</span><span class="p">):</span>
+            <span class="n">_gl2ps_types</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+                <span class="s1">&#39;svg&#39;</span><span class="p">:</span> <span class="n">gl2ps</span><span class="o">.</span><span class="n">GL2PS_SVG</span><span class="p">,</span>
+                <span class="s1">&#39;pgf&#39;</span><span class="p">:</span> <span class="n">gl2ps</span><span class="o">.</span><span class="n">GL2PS_PGF</span><span class="p">,</span>
+                <span class="p">})</span>
+        <span class="k">return</span> <span class="p">[],</span> <span class="p">[</span><span class="n">fmt</span> <span class="k">for</span> <span class="n">fmt</span> <span class="ow">in</span> <span class="n">_gl2ps_types</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[],</span> <span class="p">[]</span></div>
+
+
+<div class="viewcode-block" id="get_image_formats"><a class="viewcode-back" href="../../ref/gui.image.html#gui.image.get_image_formats">[docs]</a><span class="k">def</span> <span class="nf">get_image_formats</span><span class="p">(</span><span class="n">tool</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return the image formats supported by a specific tool.</span>
+
+<span class="sd">    Detects and stores the formats or returns the already detected</span>
+<span class="sd">    and stored formats.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    tool: str</span>
+<span class="sd">        The key corresponding with the tool to be used to read/write</span>
+<span class="sd">        the image file.</span>
+<span class="sd">        It should be one of &#39;qt&#39;, &#39;pil&#39;, &#39;magick&#39;, &#39;gl2ps&#39;.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    formats_r: list of str</span>
+<span class="sd">        List of the supported formats in read operations.</span>
+<span class="sd">    formats_w: list of str</span>
+<span class="sd">        List of the supported formats in write operations.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The returned formats are lower case strings corresponding with the</span>
+<span class="sd">    conventional filename extension without the leading dot.</span>
+<span class="sd">    Examples: &#39;png&#39;, &#39;gif&#39;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">image_formats</span><span class="p">[</span><span class="n">tool</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">detect</span> <span class="o">=</span> <span class="nb">globals</span><span class="p">()[</span><span class="s1">&#39;get_image_formats_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">tool</span><span class="p">)]</span>
+        <span class="n">image_formats</span><span class="p">[</span><span class="n">tool</span><span class="p">]</span> <span class="o">=</span> <span class="n">detect</span><span class="p">()</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Detected image formats for </span><span class="si">{</span><span class="n">tool</span><span class="si">}</span><span class="s2">:&quot;</span>
+                 <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">image_formats</span><span class="p">[</span><span class="n">tool</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">IMAGE</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">image_formats</span><span class="p">[</span><span class="n">tool</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="imageFormats"><a class="viewcode-back" href="../../ref/gui.image.html#gui.image.imageFormats">[docs]</a><span class="k">def</span> <span class="nf">imageFormats</span><span class="p">(</span><span class="n">tool</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Detect and return the list of supported image formats.</span>
+
+<span class="sd">    pyFormex supports reading and writing image files through different</span>
+<span class="sd">    underlying tools: &#39;qt&#39;, &#39;PIL&#39;, &#39;ImageMagick&#39;, &#39;gl2ps&#39;.</span>
+<span class="sd">    Each tool has its own supported set of image formats, often different</span>
+<span class="sd">    for reading and writing.</span>
+<span class="sd">    In pyFormex, image formats are lowercase strings corresponding with the</span>
+<span class="sd">    conventional filename extension without the leading dot. Examples are</span>
+<span class="sd">    &#39;png&#39;, &#39;gif&#39;, &#39;ppm&#39;, &#39;eps&#39;, &#39;jpg&#39;, &#39;jpeg&#39;.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    tool: str, optional</span>
+<span class="sd">        If specified, it is a key corresponding with the underlying tool</span>
+<span class="sd">        to be used to read/write the image file. It should be one of</span>
+<span class="sd">        &#39;qt&#39;, &#39;pil&#39;, &#39;magick&#39;, &#39;gl2ps&#39;. If not specified, returns</span>
+<span class="sd">        a dict with results for all tools.</span>
+<span class="sd">    mode: &#39;r&#39; | &#39;w&#39;, optional</span>
+<span class="sd">        The purpose of the format: read or write. If not specified, returns</span>
+<span class="sd">        results for both. This parameter can only be used if tool is specified</span>
+<span class="sd">        as well.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list, tuple or dict</span>
+<span class="sd">        If both tool and mode are specified, returns a list with the</span>
+<span class="sd">        supported formats by that tool for the specified mode. The list</span>
+<span class="sd">        contains lower case strings corresponding with the conventional</span>
+<span class="sd">        filename extension without the leading dot. Examples are</span>
+<span class="sd">        &#39;png&#39;, &#39;gif&#39;, &#39;ppm&#39;, &#39;eps&#39;, &#39;jpg&#39;, &#39;jpeg&#39;.</span>
+
+<span class="sd">        If mode is not specified, returns a tuple (formats_r, formats_w)</span>
+<span class="sd">        where formats_r is the list of supported formats for reading, and</span>
+<span class="sd">        formats_w for writing.</span>
+
+<span class="sd">        Without parameters, returns a dict where the keys are the valid</span>
+<span class="sd">        tool names and the values are the corresponding (formats_r, formats_w)</span>
+<span class="sd">        tuples.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">tool</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">tool</span> <span class="ow">in</span> <span class="n">image_formats</span><span class="p">:</span>
+            <span class="n">get_image_formats</span><span class="p">(</span><span class="n">tool</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">image_formats</span>
+
+    <span class="n">get_image_formats</span><span class="p">(</span><span class="n">tool</span><span class="p">)</span>
+    <span class="n">formats</span> <span class="o">=</span> <span class="n">image_formats</span><span class="p">[</span><span class="n">tool</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;r&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">formats</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;w&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">formats</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">formats</span></div>
+
+
+<div class="viewcode-block" id="checkImageFormat"><a class="viewcode-back" href="../../ref/gui.image.html#gui.image.checkImageFormat">[docs]</a><span class="k">def</span> <span class="nf">checkImageFormat</span><span class="p">(</span><span class="n">tool</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">fmt</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Check that an image format is supported by tool and mode.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    tool: str</span>
+<span class="sd">        The key corresponding with the tool to be used to read/write</span>
+<span class="sd">        the image file.</span>
+<span class="sd">        It should be one of &#39;qt&#39;, &#39;pil&#39;, &#39;magick&#39;, &#39;gl2ps&#39;.</span>
+<span class="sd">    mode: &#39;r&#39; | &#39;w&#39;</span>
+<span class="sd">        The purpose of the format: read or write.</span>
+<span class="sd">    fmt: str</span>
+<span class="sd">        The image format to check.</span>
+<span class="sd">    verbose: bool</span>
+<span class="sd">        If True, a warning message will be displayed to the user</span>
+<span class="sd">        if the format is not supported.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str | None</span>
+<span class="sd">        The image format if it is supported by the specified</span>
+<span class="sd">        tool and mode, or else None.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Format requested: </span><span class="si">{</span><span class="n">tool</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">fmt</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">IMAGE</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">fmt</span> <span class="ow">in</span> <span class="n">imageFormats</span><span class="p">(</span><span class="n">tool</span><span class="p">,</span> <span class="n">mode</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s1">&#39;tex&#39;</span> <span class="ow">and</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="n">pf</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;This will only write a LaTeX fragment to include&quot;</span>
+                       <span class="s2">&quot; the &#39;eps&#39; image</span><span class="se">\n</span><span class="s2">You have to create the .eps&quot;</span>
+                       <span class="s2">&quot; image file separately.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">fmt</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">pyformex.gui</span> <span class="kn">import</span> <span class="n">draw</span>
+            <span class="n">draw</span><span class="o">.</span><span class="n">showError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Sorry, can not save in </span><span class="si">{</span><span class="n">fmt</span><span class="si">}</span><span class="s2"> format!</span><span class="se">\n</span><span class="s2">&quot;</span>
+                       <span class="s2">&quot;I suggest you use &#39;png&#39; format ;)&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<span class="c1"># TODO: should we keep this undocumented old functionality?</span>
+<span class="k">def</span> <span class="nf">convertEPS</span><span class="p">(</span><span class="n">epsfile</span><span class="p">,</span> <span class="n">tofile</span><span class="p">,</span> <span class="n">fmt</span><span class="p">):</span>
+    <span class="n">epsfile</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">epsfile</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">epsfile</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;pstopnm -portrait -stdout </span><span class="si">{</span><span class="n">epsfile</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="n">fmt</span> <span class="o">!=</span> <span class="s1">&#39;ppm&#39;</span><span class="p">:</span>
+            <span class="n">cmd</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; | pnmto</span><span class="si">{</span><span class="n">fmt</span><span class="si">}</span><span class="s2"> &gt; </span><span class="si">{</span><span class="n">tofile</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+
+<span class="c1">######## LOW LEVEL FUNCTIONS ###############</span>
+
+<div class="viewcode-block" id="save_qt"><a class="viewcode-back" href="../../ref/gui.image.html#gui.image.save_qt">[docs]</a><span class="k">def</span> <span class="nf">save_qt</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">format</span><span class="p">,</span> <span class="n">quality</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">canvas</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">crop</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Save an OpenGL canvas rendering as an image file.</span>
+
+<span class="sd">    Saves a :class:`~gui.viewport.QtCanvas` rendering using the Qt library</span>
+<span class="sd">    functions. This provides the &#39;qt&#39; tool functionality of :func:`saveImage`,</span>
+<span class="sd">    which is the prefered user level function for saving pyFormex renderings</span>
+<span class="sd">    to image files.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename: :term:`path_like`</span>
+<span class="sd">        The file path to which to save the image.</span>
+<span class="sd">    format: str</span>
+<span class="sd">        One of the supported image formats. Any format supported by QImage</span>
+<span class="sd">        for writing. The list can be got from ``imageFormats(&#39;qt&#39;, &#39;w&#39;)``.</span>
+<span class="sd">    quality: int, optional</span>
+<span class="sd">        The image quality for compressed formats.</span>
+<span class="sd">    canvas: :class:`~gui.viewport.QtCanvas`, optional</span>
+<span class="sd">        The canvas to be saved. If not specified, the current active canvas</span>
+<span class="sd">        is used.</span>
+<span class="sd">    size: int tuple, optional</span>
+<span class="sd">        A tuple (width, height) specifying the size of the output image.</span>
+<span class="sd">        The default is to use the canvas size.</span>
+<span class="sd">    crop: int 4-tuple, optional</span>
+<span class="sd">        A tuple (x, y, w, h) defining a rectangular area to crop from the</span>
+<span class="sd">        image. (x,y) is the top left corner and (w,h) are the width and</span>
+<span class="sd">        height in pixels. The stored image will thus have size (w,h).</span>
+<span class="sd">        Note that combining this parmeter with a canvas resizing using the</span>
+<span class="sd">        `size` parameter will make it difficult to predict what exactly will</span>
+<span class="sd">        end up in the cropped image. Therefore this parameter is commonly only</span>
+<span class="sd">        used with the original canvas size.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    saveImage: the recommended high level versatile image saving function</span>
+<span class="sd">    save_window: save the pyFormex window as image file</span>
+<span class="sd">    save_gl2ps: save the OpenGL rendering in a vector format</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;save_qt&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">IMAGE</span><span class="p">)</span>
+    <span class="c1"># make sure we have the current content displayed (on top)</span>
+    <span class="n">canvas</span><span class="o">.</span><span class="n">makeCurrent</span><span class="p">()</span>
+    <span class="n">canvas</span><span class="o">.</span><span class="n">raise_</span><span class="p">()</span>
+    <span class="n">canvas</span><span class="o">.</span><span class="n">display</span><span class="p">()</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">processEvents</span><span class="p">()</span>
+
+    <span class="n">sta</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># Flag failure</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">format</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">format</span> <span class="o">=</span> <span class="n">filename</span><span class="o">.</span><span class="n">lsuffix</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">format</span> <span class="ow">in</span> <span class="n">imageFormats</span><span class="p">(</span><span class="s1">&#39;qt&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">):</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Image format can be saved by Qt&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">IMAGE</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">size</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">size</span> <span class="o">==</span> <span class="n">canvas</span><span class="o">.</span><span class="n">getSize</span><span class="p">():</span>
+            <span class="c1">#</span>
+            <span class="c1"># Use direct grabbing from current buffer</span>
+            <span class="c1"># TODO: We could grab from the OpenGL buffers here!!</span>
+            <span class="c1">#</span>
+            <span class="n">canvas</span><span class="o">.</span><span class="n">glFinish</span><span class="p">()</span>
+            <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saving image from opengl buffer with&quot;</span>
+                     <span class="sa">f</span><span class="s2">&quot;size </span><span class="si">{</span><span class="n">canvas</span><span class="o">.</span><span class="n">getSize</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">IMAGE</span><span class="p">)</span>
+            <span class="n">qim</span> <span class="o">=</span> <span class="n">canvas</span><span class="o">.</span><span class="n">grabFrameBuffer</span><span class="p">(</span><span class="n">withAlpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Render in an off-screen buffer and grab from there</span>
+            <span class="c1"># TODO: the offscreen buffer should be properly initialized</span>
+            <span class="c1"># according to the current canvas</span>
+            <span class="c1">#</span>
+            <span class="n">wc</span><span class="p">,</span> <span class="n">hc</span> <span class="o">=</span> <span class="n">canvas</span><span class="o">.</span><span class="n">getSize</span><span class="p">()</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">size</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">wc</span><span class="p">,</span> <span class="n">hc</span>
+            <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saving image from virtual buffer with size </span><span class="si">{</span><span class="n">w</span><span class="si">}</span><span class="s2">x</span><span class="si">{</span><span class="n">h</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                     <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">IMAGE</span><span class="p">)</span>
+            <span class="n">qim</span> <span class="o">=</span> <span class="n">canvas</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">resize</span><span class="o">=</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">),</span> <span class="n">remove_alpha</span><span class="o">=</span><span class="ow">not</span> <span class="n">alpha</span><span class="p">)</span>
+
+        <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Image has alpha channel: </span><span class="si">{</span><span class="n">qim</span><span class="o">.</span><span class="n">hasAlphaChannel</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                 <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">IMAGE</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">crop</span><span class="p">:</span>
+            <span class="n">qim</span> <span class="o">=</span> <span class="n">qim</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="o">*</span><span class="n">crop</span><span class="p">)</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saving canvas to </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2"> in format </span><span class="si">{</span><span class="nb">format</span><span class="si">}</span><span class="s2">&quot;</span>
+                 <span class="sa">f</span><span class="s2">&quot; with size (</span><span class="si">{</span><span class="n">crop</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">4</span><span class="p">]</span><span class="si">}</span><span class="s2">) and quality </span><span class="si">{</span><span class="n">quality</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                 <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">IMAGE</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">qim</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">format</span><span class="p">,</span> <span class="n">quality</span><span class="p">):</span>
+            <span class="n">sta</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">return</span> <span class="n">sta</span></div>
+
+
+<span class="c1"># if we have gl2ps, or when building docs</span>
+<span class="k">if</span> <span class="n">gl2ps</span> <span class="ow">or</span> <span class="n">pf</span><span class="o">.</span><span class="n">sphinx</span> <span class="p">:</span>
+
+<div class="viewcode-block" id="save_gl2ps"><a class="viewcode-back" href="../../ref/gui.image.html#gui.image.save_gl2ps">[docs]</a>    <span class="k">def</span> <span class="nf">save_gl2ps</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">canvas</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">producer</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+               <span class="c1"># viewport=None</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Export the OpenGL rendering to PostScript/PDF/TeX format.</span>
+
+<span class="sd">        Exporting OpenGL renderings to PostScript is based on the PS2GL</span>
+<span class="sd">        library by Christophe Geuzaine (http://geuz.org/gl2ps/), linked</span>
+<span class="sd">        to Python by Toby Whites&#39;s wrapper</span>
+<span class="sd">        (http://www.esc.cam.ac.uk/~twhi03/software/python-gl2ps-1.1.2.tar.gz)</span>
+
+<span class="sd">        This function is only defined if the gl2ps module is found.</span>
+<span class="sd">        It provides the &#39;gl2ps&#39; tool functionality of :func:`saveImage`,</span>
+<span class="sd">        which is the prefered user level function for saving pyFormex</span>
+<span class="sd">        renderings to image files.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filename: :term:`path_like`</span>
+<span class="sd">            The file path to which to save the image.</span>
+<span class="sd">        format: str</span>
+<span class="sd">            One of the supported image formats. Any format supported by gl2ps.</span>
+<span class="sd">            The list can be got from ``imageFormats(&#39;gl2ps&#39;, &#39;w&#39;)``,</span>
+<span class="sd">            but at least includes &#39;ps&#39;, &#39;eps&#39;, &#39;pdf&#39; and &#39;tex&#39;.</span>
+<span class="sd">            In the case of &#39;tex&#39;, two files are actually written: one with</span>
+<span class="sd">            the .tex extension, and one with .eps extension.</span>
+<span class="sd">            If format is not specified, it is derived from the filename</span>
+<span class="sd">            extension.</span>
+<span class="sd">        canvas: :class:`~gui.viewport.QtCanvas`, optional</span>
+<span class="sd">            The canvas to be saved. If not specified, the current active canvas</span>
+<span class="sd">            is used.</span>
+<span class="sd">        title: str, optional</span>
+<span class="sd">            An optional title to be written into the image file.</span>
+<span class="sd">        producer: str, optional</span>
+<span class="sd">            A producer string to be written in the image file. Default</span>
+<span class="sd">            is a pyFormex identification.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        saveImage: the recommended high level versatile image saving function</span>
+<span class="sd">        save_qt: save the OpenGL rendering as a raster image</span>
+<span class="sd">        save_window: save the pyFormex window as image file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">pyformex.opengl.gl</span> <span class="kn">import</span> <span class="n">GL</span>
+
+        <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;save_window_gl2ps&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">IMAGE</span><span class="p">)</span>
+        <span class="c1"># make sure we have the current content displayed (on top)</span>
+        <span class="n">canvas</span><span class="o">.</span><span class="n">makeCurrent</span><span class="p">()</span>
+        <span class="n">canvas</span><span class="o">.</span><span class="n">raise_</span><span class="p">()</span>
+        <span class="n">canvas</span><span class="o">.</span><span class="n">display</span><span class="p">()</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">processEvents</span><span class="p">()</span>
+
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">format</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">format</span> <span class="o">=</span> <span class="n">filename</span><span class="o">.</span><span class="n">lsuffix</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">format</span> <span class="ow">in</span> <span class="n">imageFormats</span><span class="p">(</span><span class="s1">&#39;gl2ps&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">):</span>
+            <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Image format can be saved by gl2ps&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">IMAGE</span><span class="p">)</span>
+            <span class="n">filetype</span> <span class="o">=</span> <span class="n">_gl2ps_types</span><span class="p">[</span><span class="n">filetype</span><span class="p">]</span>
+
+        <span class="n">fp</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">title</span><span class="p">:</span>
+            <span class="n">title</span> <span class="o">=</span> <span class="n">filename</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">producer</span><span class="p">:</span>
+            <span class="n">producer</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">fullVersion</span><span class="p">()</span>
+        <span class="c1"># if not viewport:</span>
+        <span class="c1">#     viewport = GL.glGetIntegerv(GL.GL_VIEWPORT)</span>
+        <span class="n">bufsize</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="n">gl2ps</span><span class="o">.</span><span class="n">GL2PS_OVERFLOW</span>
+        <span class="n">opts</span> <span class="o">=</span> <span class="p">(</span> <span class="n">gl2ps</span><span class="o">.</span><span class="n">GL2PS_SILENT</span> <span class="o">|</span>
+                 <span class="n">gl2ps</span><span class="o">.</span><span class="n">GL2PS_SIMPLE_LINE_OFFSET</span> <span class="o">|</span>
+                 <span class="n">gl2ps</span><span class="o">.</span><span class="n">GL2PS_USE_CURRENT_VIEWPORT</span>
+                 <span class="p">)</span>
+        <span class="c1">##| gl2ps.GL2PS_NO_BLENDING | gl2ps.GL2PS_OCCLUSION_CULL | gl2ps.GL2PS_BEST_ROOT</span>
+        <span class="c1">##color = GL[[0.,0.,0.,0.]]</span>
+        <span class="c1">#print(f&quot;VIEWPORT {viewport}&quot;)</span>
+        <span class="c1">#print(fp)</span>
+        <span class="n">viewport</span><span class="o">=</span><span class="kc">None</span>
+        <span class="k">while</span> <span class="n">state</span> <span class="o">==</span> <span class="n">gl2ps</span><span class="o">.</span><span class="n">GL2PS_OVERFLOW</span><span class="p">:</span>
+            <span class="n">bufsize</span> <span class="o">+=</span> <span class="mi">1024</span><span class="o">*</span><span class="mi">1024</span>
+            <span class="n">gl2ps</span><span class="o">.</span><span class="n">gl2psBeginPage</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">_producer</span><span class="p">,</span> <span class="n">viewport</span><span class="p">,</span> <span class="n">filetype</span><span class="p">,</span>
+                                 <span class="n">gl2ps</span><span class="o">.</span><span class="n">GL2PS_BSP_SORT</span><span class="p">,</span> <span class="n">opts</span><span class="p">,</span> <span class="n">GL</span><span class="o">.</span><span class="n">GL_RGBA</span><span class="p">,</span>
+                                 <span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">bufsize</span><span class="p">,</span> <span class="n">fp</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="n">canvas</span><span class="o">.</span><span class="n">display</span><span class="p">()</span>
+            <span class="n">canvas</span><span class="o">.</span><span class="n">glFinish</span><span class="p">()</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="n">gl2ps</span><span class="o">.</span><span class="n">gl2psEndPage</span><span class="p">()</span>
+        <span class="n">fp</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="mi">0</span></div>
+
+
+<div class="viewcode-block" id="save_window"><a class="viewcode-back" href="../../ref/gui.image.html#gui.image.save_window">[docs]</a><span class="k">def</span> <span class="nf">save_window</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">format</span><span class="p">,</span> <span class="n">quality</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">windowname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">crop</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Save (part of) a window as an image file.</span>
+
+<span class="sd">    Saves any window or part of it to an image file. This uses the &#39;import&#39;</span>
+<span class="sd">    command from ImageMagick and can save in any format supported by it.</span>
+<span class="sd">    It provides the &#39;magick&#39; tool functionality of :func:`saveImage`,</span>
+<span class="sd">    which is the prefered user level function for saving the pyFormex window</span>
+<span class="sd">    to image files.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename: :term:`path_like`</span>
+<span class="sd">        The filename on which to save the image.</span>
+<span class="sd">    format: str</span>
+<span class="sd">        One of the supported image formats. See ImageMagick. The format needs</span>
+<span class="sd">        to be specified. It is currently not derived from the file name.</span>
+<span class="sd">    quality: int, optional</span>
+<span class="sd">        See :func:`save_window_rect`</span>
+<span class="sd">    windowname: str, optional</span>
+<span class="sd">        The name of the window to be saved. The windowid or name of the window</span>
+<span class="sd">        you want to save. To find the id/name of an open window, you can run</span>
+<span class="sd">        the command xwininfo and click on the window. If not specified, the</span>
+<span class="sd">        pyFormex main window is used. A value &#39;root&#39; will save the full</span>
+<span class="sd">        desktop window.</span>
+<span class="sd">    crop: tuple|str, optional</span>
+<span class="sd">        Define a subregion of the window to be saved. A subregion can</span>
+<span class="sd">        be specified as a tuple (x,y,w,h) defining the rectangle to be saved:</span>
+<span class="sd">        (x,y) is the position of the upper left corner with respect to the</span>
+<span class="sd">        window origin; (w,h) are the width and height of the rectangle.</span>
+<span class="sd">        Some subregions can also be conveniently specified by a string:</span>
+<span class="sd">        &#39;all&#39; will save all viewports of the central widget, &#39;vp&#39; will save</span>
+<span class="sd">        only the current viewport. The default None will</span>
+<span class="sd">        save the whole window (without border decorations).</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    While this function can be used to save any window, it is primarily provided</span>
+<span class="sd">    to save pyFormex windows. Therefore, in all cases, the pyFormex GUI and</span>
+<span class="sd">    current canvas are raised and updated before saving.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    saveImage: the recommended high level versatile image saving function</span>
+<span class="sd">    save_qt: save the OpenGL rendering as a raster image</span>
+<span class="sd">    save_gl2ps: save the OpenGL rendering in a vector format</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;save_window&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">IMAGE</span><span class="p">)</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">raise_</span><span class="p">()</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">repaint</span><span class="p">()</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">toolbar</span><span class="o">.</span><span class="n">repaint</span><span class="p">()</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">makeCurrent</span><span class="p">()</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">raise_</span><span class="p">()</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">processEvents</span><span class="p">()</span>
+    <span class="c1"># Deprecated value &#39;canvas&#39;</span>
+    <span class="k">if</span> <span class="n">crop</span> <span class="o">==</span> <span class="s1">&#39;canvas&#39;</span><span class="p">:</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;crop=&#39;canvas&#39; is deprecated. Use crop=&#39;all&#39; instead&quot;</span><span class="p">)</span>
+        <span class="n">crop</span> <span class="o">=</span> <span class="s1">&#39;all&#39;</span>
+    <span class="k">if</span> <span class="n">crop</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="s1">&#39;vp&#39;</span><span class="p">]:</span>
+        <span class="n">windowname</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">windowTitle</span><span class="p">()</span>
+        <span class="n">widget</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">central</span> <span class="k">if</span> <span class="n">crop</span><span class="o">==</span><span class="s1">&#39;all&#39;</span> <span class="k">else</span> <span class="n">pf</span><span class="o">.</span><span class="n">canvas</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">qtutils</span><span class="o">.</span><span class="n">relPos</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span>
+        <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">qtutils</span><span class="o">.</span><span class="n">Size</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span>
+        <span class="n">crop</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">windowname</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">windowname</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">windowTitle</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">save_window_rect</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">format</span><span class="p">,</span> <span class="n">quality</span><span class="p">,</span> <span class="n">windowname</span><span class="p">,</span> <span class="n">crop</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="save_window_rect"><a class="viewcode-back" href="../../ref/gui.image.html#gui.image.save_window_rect">[docs]</a><span class="k">def</span> <span class="nf">save_window_rect</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">format</span><span class="p">,</span> <span class="n">quality</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="s1">&#39;root&#39;</span><span class="p">,</span> <span class="n">crop</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Save a rectangular part of the screen to a an image file.</span>
+
+<span class="sd">    This uses the external program &#39;import&#39; from Imagemagick to save a</span>
+<span class="sd">    rectangle from any window on the screen.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename: :term:`path_like`</span>
+<span class="sd">        The name of the file on which to save the image.</span>
+<span class="sd">    format: str</span>
+<span class="sd">        The format of the image file. The available formats can be</span>
+<span class="sd">        obtained from `imageFormats(&#39;magick&#39;, &#39;w&#39;)`.</span>
+<span class="sd">    quality: int</span>
+<span class="sd">        For compressed images, this defines the quality in percent.</span>
+<span class="sd">        For PNG images, this is a value 0..9, where 0 is uncompressed</span>
+<span class="sd">        and 9 is maximal compression. For JPEG, this is a value 1..100</span>
+<span class="sd">        where 100 is maximum quality.</span>
+<span class="sd">        A value -1 selects the default quality, which is 0 for PNG and</span>
+<span class="sd">        90 for JPEG.</span>
+<span class="sd">    crop: tuple of int, optional</span>
+<span class="sd">        A tuple (x,y,w,h) specifying the rectangle to be saved from</span>
+<span class="sd">        the window. (x,y,) is the top left corner relative to the</span>
+<span class="sd">        window. (w,h) is the size of the rectangle. The default is</span>
+<span class="sd">        to save the whole window.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    saveImage: the recommended high level versatile image saving function</span>
+<span class="sd">    save_window: save the pyFormex window to an image file</span>
+<span class="sd">    record_rect: record a screen rectangle to a video file</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;save_window_rect(</span><span class="si">{</span><span class="n">filename</span><span class="si">!r}</span><span class="s2">, </span><span class="si">{</span><span class="nb">format</span><span class="si">!r}</span><span class="s2">,&quot;</span>
+             <span class="sa">f</span><span class="s2">&quot; quality=</span><span class="si">{</span><span class="n">quality</span><span class="si">}</span><span class="s2">, window=</span><span class="si">{</span><span class="n">window</span><span class="si">!r}</span><span class="s2">, crop=</span><span class="si">{</span><span class="n">crop</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
+             <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">IMAGE</span><span class="p">)</span>
+    <span class="n">utils</span><span class="o">.</span><span class="n">External</span><span class="o">.</span><span class="n">require</span><span class="p">(</span><span class="s1">&#39;imagemagick&#39;</span><span class="p">)</span>
+    <span class="nb">format</span> <span class="o">=</span> <span class="nb">format</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;import&#39;</span><span class="p">,</span> <span class="s1">&#39;-window&#39;</span><span class="p">,</span> <span class="n">window</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">crop</span><span class="p">:</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">crop</span>
+        <span class="n">cmd</span> <span class="o">+=</span> <span class="p">[</span><span class="s1">&#39;-crop&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">w</span><span class="si">}</span><span class="s2">x</span><span class="si">{</span><span class="n">h</span><span class="si">}</span><span class="s2">+</span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2">+</span><span class="si">{</span><span class="n">y</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">quality</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">format</span> <span class="o">==</span> <span class="s1">&#39;png&#39;</span><span class="p">:</span>
+            <span class="n">quality</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">elif</span> <span class="nb">format</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;jpg&#39;</span><span class="p">,</span> <span class="s1">&#39;jpeg&#39;</span><span class="p">]:</span>
+            <span class="n">quality</span> <span class="o">=</span> <span class="mi">90</span>
+        <span class="n">cmd</span> <span class="o">+=</span> <span class="p">[</span><span class="s1">&#39;-quality&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">quality</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+    <span class="n">cmd</span> <span class="o">+=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">format</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+    <span class="n">P</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">P</span><span class="o">.</span><span class="n">returncode</span></div>
+
+<span class="c1">######## saveImage ######################</span>
+
+<span class="c1"># For each saving tool, record the possible extents</span>
+<span class="n">_image_tools</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;qt&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;canvas&#39;</span><span class="p">,</span> <span class="s1">&#39;rectangle&#39;</span><span class="p">,</span> <span class="s1">&#39;allvps&#39;</span><span class="p">]</span>  <span class="c1"># always available</span>
+<span class="p">}</span>
+<span class="n">_image_tools_detected</span> <span class="o">=</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="add_tool_options"><a class="viewcode-back" href="../../ref/gui.image.html#gui.image.add_tool_options">[docs]</a><span class="k">def</span> <span class="nf">add_tool_options</span><span class="p">(</span><span class="n">tool</span><span class="p">,</span> <span class="n">extents</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Add extra tool if detected&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">tool</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_image_tools</span><span class="p">:</span>
+        <span class="n">_image_tools</span><span class="p">[</span><span class="n">tool</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">extent</span> <span class="ow">in</span> <span class="n">extents</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">extent</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_image_tools</span><span class="p">[</span><span class="n">tool</span><span class="p">]:</span>
+            <span class="n">_image_tools</span><span class="p">[</span><span class="n">tool</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">extent</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="extent_options"><a class="viewcode-back" href="../../ref/gui.image.html#gui.image.extent_options">[docs]</a><span class="k">def</span> <span class="nf">extent_options</span><span class="p">(</span><span class="n">tool</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return possible extents for a tool&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_image_tools</span><span class="p">[</span><span class="n">tool</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="tool_options"><a class="viewcode-back" href="../../ref/gui.image.html#gui.image.tool_options">[docs]</a><span class="k">def</span> <span class="nf">tool_options</span><span class="p">(</span><span class="n">extent</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return possible tools for an extent&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">_image_tools</span> <span class="k">if</span> <span class="n">extent</span> <span class="ow">in</span> <span class="n">_image_tools</span><span class="p">[</span><span class="n">t</span><span class="p">]]</span></div>
+
+
+<div class="viewcode-block" id="detect_tools"><a class="viewcode-back" href="../../ref/gui.image.html#gui.image.detect_tools">[docs]</a><span class="k">def</span> <span class="nf">detect_tools</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Detect optional image saving tools&quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">_image_tools_detected</span>
+    <span class="k">if</span> <span class="n">utils</span><span class="o">.</span><span class="n">External</span><span class="o">.</span><span class="n">has</span><span class="p">(</span><span class="s1">&#39;imagemagick&#39;</span><span class="p">):</span>
+        <span class="n">add_tool_options</span><span class="p">(</span>
+            <span class="s1">&#39;magick&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;canvas&#39;</span><span class="p">,</span> <span class="s1">&#39;central&#39;</span><span class="p">,</span> <span class="s1">&#39;window&#39;</span><span class="p">,</span> <span class="s1">&#39;border&#39;</span><span class="p">,</span> <span class="s1">&#39;screen&#39;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">utils</span><span class="o">.</span><span class="n">Module</span><span class="o">.</span><span class="n">has</span><span class="p">(</span><span class="s1">&#39;gl2ps&#39;</span><span class="p">):</span>
+        <span class="n">add_tool_options</span><span class="p">(</span><span class="s1">&#39;gl2ps&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;canvas&#39;</span><span class="p">])</span>
+    <span class="n">_image_tools_detected</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="image_tools"><a class="viewcode-back" href="../../ref/gui.image.html#gui.image.image_tools">[docs]</a><span class="k">def</span> <span class="nf">image_tools</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Return a list with all image tools&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_image_tools_detected</span><span class="p">:</span>
+        <span class="n">detect_tools</span><span class="p">()</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">_image_tools</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="image_extents"><a class="viewcode-back" href="../../ref/gui.image.html#gui.image.image_extents">[docs]</a><span class="k">def</span> <span class="nf">image_extents</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Return a list with all image extents&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_image_tools_detected</span><span class="p">:</span>
+        <span class="n">detect_tools</span><span class="p">()</span>
+    <span class="n">extents</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">_image_tools</span><span class="p">:</span>
+        <span class="n">extents</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">_image_tools</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="k">if</span> <span class="n">e</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">extents</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">extents</span></div>
+
+
+<div class="viewcode-block" id="saveImage"><a class="viewcode-back" href="../../ref/gui.image.html#gui.image.saveImage">[docs]</a><span class="k">def</span> <span class="nf">saveImage</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+              <span class="n">extent</span><span class="o">=</span><span class="s1">&#39;canvas&#39;</span><span class="p">,</span> <span class="n">tool</span><span class="o">=</span><span class="s1">&#39;qt&#39;</span><span class="p">,</span>
+              <span class="nb">format</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">quality</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+              <span class="n">multi</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">hotkey</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">autosave</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+              <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Save the pyFormex rendering or window to an image file.</span>
+
+<span class="sd">    This is the recommended high level function for saving a pyFormex</span>
+<span class="sd">    canvas rendering or even the whole pyFormex GUI window to an</span>
+<span class="sd">    image file in one of the many supported formats.</span>
+
+<span class="sd">    This function can also be used to start/stop multisave mode, which can</span>
+<span class="sd">    save a series of images.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename: :term:`path_like` or :class:`~utils.NameSequence`</span>
+<span class="sd">        The path where the image is to be saved. If it is a NameSequence,</span>
+<span class="sd">        the actual filename will be ``next(filename)``.</span>
+<span class="sd">        If no filename is specified, nothing is saved and multisave mode</span>
+<span class="sd">        is turned off if it was on (see also ``multi``).</span>
+<span class="sd">    extent: str</span>
+<span class="sd">        Identifies which part of the GUI is to be saved. It should be</span>
+<span class="sd">        one of the following</span>
+
+<span class="sd">        - &#39;canvas&#39;: the current OpenGL viewport</span>
+<span class="sd">        - &#39;rectangle&#39;: let the user pick a rectangle from the canvas</span>
+<span class="sd">        - &#39;allvps&#39;: all the OpenGL viewports, each in their own file.</span>
+<span class="sd">          If there is more than one viewport, actual file names are derived</span>
+<span class="sd">          from the specified filename by adding &#39;_vp#&#39; (where # is the</span>
+<span class="sd">          viewport number) before the file extension</span>
+<span class="sd">        - &#39;central&#39;: the central widget of the GUI, including all the OpenGL</span>
+<span class="sd">          viewports, in a single image</span>
+<span class="sd">        - &#39;window&#39;: the pyFormex GUI main window, without the border</span>
+<span class="sd">        - &#39;border&#39;: the pyFormex GUI main window including border decorations</span>
+<span class="sd">        - &#39;screen&#39;: saves the full primary X11 screen</span>
+
+<span class="sd">        Depending on the installed tools on your system, some options may</span>
+<span class="sd">        not be available. The actually available options are given by</span>
+<span class="sd">        :func:`image_extents`.</span>
+<span class="sd">    tool: &#39;qt&#39; | &#39;magick&#39; | &#39;gl2ps&#39;</span>
+<span class="sd">        The tool to be used to save the image. &#39;qt&#39; is always available.</span>
+<span class="sd">        The others depend on your installation. The actually available</span>
+<span class="sd">        tools are given by :func:`image_tools`. The tool defines the possible</span>
+<span class="sd">        values of ``extent``:</span>
+
+<span class="sd">        - qt: &#39;canvas&#39;, &#39;rectangle, &#39;allvps&#39;</span>
+<span class="sd">        - magick: &#39;canvas&#39;, &#39;central&#39;, &#39;window&#39;, &#39;border&#39;, &#39;screen&#39;</span>
+<span class="sd">        - gl2ps: &#39;canvas&#39;</span>
+
+<span class="sd">    format: str</span>
+<span class="sd">        One of the supported image formats. The list of supported</span>
+<span class="sd">        image formats depends on ``tool`` and can be found from</span>
+<span class="sd">        ``imageFormats(&#39;qt&#39;, &#39;w&#39;)``.</span>
+<span class="sd">        If not specified, it is derived from the filename extension,</span>
+<span class="sd">        converted to lower case and without the leading dot.</span>
+<span class="sd">    quality: int, optional</span>
+<span class="sd">        See :func:`save_window_rect`.</span>
+<span class="sd">    size: tuple (w,h), optional</span>
+<span class="sd">        A tuple of width and height specifying the requested image size.</span>
+<span class="sd">        The default is to use the size of the current onscreen rendering</span>
+<span class="sd">        as this ensures the best quality.</span>
+<span class="sd">        If the output size is not equal to the actual rendering size,</span>
+<span class="sd">        the image is rendered offscreen and some OpenGL features might</span>
+<span class="sd">        not be shown correctly.</span>
+<span class="sd">    alpha: bool, optional</span>
+<span class="sd">        This is an experimental feature not ready for use.</span>
+<span class="sd">    multi: bool, optional</span>
+<span class="sd">        If True and a filename was specified, multisave mode is switched on.</span>
+<span class="sd">        In multisave mode, images will repeatedly be saved on demand or</span>
+<span class="sd">        automatically. The filename is turned into a</span>
+<span class="sd">        :class:`~utils.NameSequence`</span>
+<span class="sd">        to generate consecutive file names for the images. The images are saved</span>
+<span class="sd">        with the same format, quality and size. In multisave mode, each call</span>
+<span class="sd">        to :func:`saveNext` will save an image to the next generated file name.</span>
+<span class="sd">        The starting of multisave mode in itself does not save any image.</span>
+<span class="sd">        See also the ``hotkey`` and ``autosave`` options.</span>
+<span class="sd">        Multisave mode can be turned off from the GUI File menu or by calling</span>
+<span class="sd">        saveImage without a filename. Starting a new multisave mode</span>
+<span class="sd">        will also quietly stop a previous multisave.</span>
+<span class="sd">    hotkey: bool, optional</span>
+<span class="sd">        If True (default) when multisave mode is activated, a new image can</span>
+<span class="sd">        be saved by hitting a hotkey (configurable in the settings).</span>
+<span class="sd">    autosave: bool, optional</span>
+<span class="sd">        If True, a new image will be saved on each execution of the</span>
+<span class="sd">        :func:`~gui.draw` function.</span>
+<span class="sd">    verbose: True, optional</span>
+<span class="sd">        If True, additional error or warning messages may be displayed.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    save_window: save the pyFormex window to an image file</span>
+<span class="sd">    save_qt: save the OpenGL rendering as a raster image</span>
+<span class="sd">    save_gl2ps: save the OpenGL rendering in a vector format</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">multisave</span>
+
+    <span class="c1"># Leave multisave mode if no filename or starting new multisave mode</span>
+    <span class="k">if</span> <span class="n">multisave</span> <span class="ow">and</span> <span class="p">(</span><span class="n">filename</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">multi</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Leave multisave mode&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">multisave</span><span class="p">[</span><span class="s1">&#39;hotkey&#39;</span><span class="p">]:</span>
+            <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">signals</span><span class="o">.</span><span class="n">SAVE</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="n">saveNext</span><span class="p">)</span>
+        <span class="n">multisave</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">utils</span><span class="o">.</span><span class="n">NameSequence</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">multi</span><span class="p">:</span>
+        <span class="n">fileseq</span> <span class="o">=</span> <span class="n">filename</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">fileseq</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">fileseq</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="c1"># Check tool/extent</span>
+    <span class="k">if</span> <span class="n">tool</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">image_tools</span><span class="p">()</span> <span class="ow">or</span> <span class="n">extent</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">extent_options</span><span class="p">(</span><span class="n">tool</span><span class="p">):</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Invalid combination of tool/extent parameters&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="c1"># Get/Check format</span>
+    <span class="k">if</span> <span class="nb">format</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">format</span> <span class="o">=</span> <span class="n">filename</span><span class="o">.</span><span class="n">lsuffix</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+    <span class="nb">format</span> <span class="o">=</span> <span class="n">checkImageFormat</span><span class="p">(</span><span class="s1">&#39;qt&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="nb">format</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">format</span><span class="p">:</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Can not save image in format </span><span class="si">{</span><span class="nb">format</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="n">crop</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">extent</span> <span class="o">==</span> <span class="s1">&#39;rectangle&#39;</span><span class="p">:</span>
+        <span class="c1"># Set crop from rectangle picked by user</span>
+        <span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">y1</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">getRectangle</span><span class="p">(</span><span class="n">yup</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">crop</span> <span class="o">=</span> <span class="p">(</span><span class="n">x0</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">y0</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">x1</span> <span class="o">-</span> <span class="n">x0</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">y1</span> <span class="o">-</span> <span class="n">y0</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">multi</span><span class="p">:</span>  <span class="c1"># Start multisave mode</span>
+        <span class="n">fileseq</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">NameSequence</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="k">while</span> <span class="n">Path</span><span class="p">(</span><span class="n">fileseq</span><span class="o">.</span><span class="n">peek</span><span class="p">())</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="nb">next</span><span class="p">(</span><span class="n">fileseq</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Start multisave mode to files: </span><span class="si">{</span><span class="n">fileseq</span><span class="o">.</span><span class="n">template</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="nb">format</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">hotkey</span><span class="p">:</span>
+             <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">signals</span><span class="o">.</span><span class="n">SAVE</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">saveNext</span><span class="p">)</span>
+             <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                 <span class="n">pf</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                     <span class="sa">f</span><span class="s2">&quot;Each time you hit the </span><span class="si">{</span><span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;keys/save&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> key,&quot;</span>
+                     <span class="sa">f</span><span class="s2">&quot; the image will be saved to the next numbered file.&quot;</span><span class="p">)</span>
+        <span class="n">multisave</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;filename&#39;</span><span class="p">:</span> <span class="n">fileseq</span><span class="p">,</span> <span class="s1">&#39;tool&#39;</span><span class="p">:</span> <span class="n">tool</span><span class="p">,</span> <span class="s1">&#39;extent&#39;</span><span class="p">:</span> <span class="n">extent</span><span class="p">,</span>
+                     <span class="s1">&#39;format&#39;</span><span class="p">:</span> <span class="nb">format</span><span class="p">,</span> <span class="s1">&#39;quality&#39;</span><span class="p">:</span> <span class="n">quality</span><span class="p">,</span> <span class="s1">&#39;size&#39;</span><span class="p">:</span> <span class="n">size</span><span class="p">,</span>
+                     <span class="s1">&#39;crop&#39;</span><span class="p">:</span> <span class="n">crop</span><span class="p">,</span> <span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="n">alpha</span><span class="p">,</span>
+                     <span class="s1">&#39;hotkey&#39;</span><span class="p">:</span> <span class="n">hotkey</span><span class="p">,</span> <span class="s1">&#39;autosave&#39;</span><span class="p">:</span> <span class="n">autosave</span><span class="p">}</span>
+        <span class="c1"># verbosity 2</span>
+        <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">verbosity</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Multisave params: </span><span class="si">{</span><span class="n">multisave</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">multisave</span> <span class="ow">is</span> <span class="kc">None</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Save the image</span>
+        <span class="n">sta</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">if</span> <span class="n">tool</span> <span class="o">==</span> <span class="s1">&#39;magick&#39;</span><span class="p">:</span>
+            <span class="c1"># Grab from X server buffers (needs external ImageMagick)</span>
+            <span class="n">utils</span><span class="o">.</span><span class="n">External</span><span class="o">.</span><span class="n">require</span><span class="p">(</span><span class="s1">&#39;imagemagick&#39;</span><span class="p">)</span>
+            <span class="n">windowname</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># use pyFormex window</span>
+            <span class="k">if</span> <span class="n">extent</span> <span class="o">==</span> <span class="s1">&#39;canvas&#39;</span><span class="p">:</span>
+                <span class="n">crop</span> <span class="o">=</span> <span class="s1">&#39;vp&#39;</span>
+            <span class="k">elif</span> <span class="n">extent</span> <span class="o">==</span> <span class="s1">&#39;central&#39;</span><span class="p">:</span>
+                <span class="n">crop</span> <span class="o">=</span> <span class="s1">&#39;all&#39;</span>
+            <span class="k">elif</span> <span class="n">extent</span> <span class="o">==</span> <span class="s1">&#39;window&#39;</span><span class="p">:</span>
+                <span class="n">crop</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># use whole window</span>
+            <span class="k">elif</span> <span class="n">extent</span> <span class="o">==</span> <span class="s1">&#39;border&#39;</span><span class="p">:</span>
+                <span class="n">windowname</span> <span class="o">=</span> <span class="s1">&#39;root&#39;</span>
+                <span class="n">crop</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">frameGeometry</span><span class="p">()</span><span class="o">.</span><span class="n">getRect</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="n">extent</span> <span class="o">==</span> <span class="s1">&#39;screen&#39;</span><span class="p">:</span>
+                <span class="n">windowname</span> <span class="o">=</span> <span class="s1">&#39;root&#39;</span>
+                <span class="n">crop</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">primaryScreen</span><span class="p">()</span><span class="o">.</span><span class="n">geometry</span><span class="p">()</span><span class="o">.</span><span class="n">getRect</span><span class="p">()</span>
+            <span class="n">sta</span> <span class="o">=</span> <span class="n">save_window</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">format</span><span class="p">,</span> <span class="n">quality</span><span class="p">,</span> <span class="n">windowname</span><span class="o">=</span><span class="n">windowname</span><span class="p">,</span>
+                              <span class="n">crop</span><span class="o">=</span><span class="n">crop</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">tool</span> <span class="o">==</span> <span class="s1">&#39;qt&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">extent</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;canvas&#39;</span><span class="p">,</span> <span class="s1">&#39;rectangle&#39;</span><span class="p">]:</span>
+                <span class="n">sta</span> <span class="o">=</span> <span class="n">save_qt</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">format</span><span class="p">,</span> <span class="n">quality</span><span class="p">,</span> <span class="n">canvas</span><span class="o">=</span><span class="n">pf</span><span class="o">.</span><span class="n">canvas</span><span class="p">,</span>
+                              <span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">,</span> <span class="n">crop</span><span class="o">=</span><span class="n">crop</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">extent</span> <span class="o">==</span> <span class="s1">&#39;allvps&#39;</span><span class="p">:</span>
+                <span class="n">suffix</span> <span class="o">=</span> <span class="n">filename</span><span class="o">.</span><span class="n">lsuffix</span>
+                <span class="n">fileseq</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">NameSequence</span><span class="p">(</span>
+                    <span class="n">filename</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s1">&#39;_vp0&#39;</span><span class="p">),</span> <span class="n">suffix</span><span class="p">)</span>
+                <span class="n">sta</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">for</span> <span class="n">vp</span> <span class="ow">in</span> <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">viewports</span><span class="o">.</span><span class="n">all</span><span class="p">:</span>
+                    <span class="n">filename</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">fileseq</span><span class="p">)</span>
+                    <span class="n">sta</span> <span class="o">+=</span> <span class="n">save_qt</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">format</span><span class="p">,</span> <span class="n">quality</span><span class="p">,</span> <span class="n">canvas</span><span class="o">=</span><span class="n">vp</span><span class="p">,</span>
+                                   <span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">sta</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Image file </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2"> written&quot;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">break</span>
+
+
+        <span class="k">elif</span> <span class="n">tool</span> <span class="o">==</span> <span class="s1">&#39;ps2gl&#39;</span><span class="p">:</span>
+            <span class="n">sta</span> <span class="o">=</span> <span class="n">save_ps</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">canvas</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">filetype</span><span class="o">=</span><span class="nb">format</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">sta</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">extent</span> <span class="o">!=</span> <span class="s1">&#39;allvps&#39;</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Image file </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2"> written&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Error while saving image </span><span class="si">{filename}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">IMAGE</span><span class="p">)</span></div>
+
+
+<span class="c1"># REMOVED 2023-01</span>
+<span class="c1"># @utils.deprecated_by(&#39;image.save&#39;, &#39;image.saveImage&#39;)</span>
+<span class="c1"># def save(filename=None,</span>
+<span class="c1">#          grab=False, window=False, border=False,</span>
+<span class="c1">#          format=None, quality=-1, size=None, alpha=True,</span>
+<span class="c1">#          multi=False, hotkey=True, autosave=False,</span>
+<span class="c1">#          verbose=False):</span>
+<span class="c1">#     &quot;&quot;&quot;Save the pyFormex rendering to an image file.</span>
+
+<span class="c1">#     This is a wrapper around :func:`saveImage`, using a slightly</span>
+<span class="c1">#     different (but deprecated) interface with reduced functionality.</span>
+<span class="c1">#     We describe here only the parameters that are different.</span>
+<span class="c1">#     The ``extent`` and ``tool`` parameters are missing and are</span>
+<span class="c1">#     replaced with ``window``, ``border`` and ``grab``.</span>
+
+<span class="c1">#     Parameters</span>
+<span class="c1">#     ----------</span>
+<span class="c1">#     window: bool</span>
+<span class="c1">#         If True, the full pyFormex window is saved. The default (False)</span>
+<span class="c1">#         only saves the central widget with the OpenGL rendering. If there</span>
+<span class="c1">#         are multiple viewports, only the current viewport is saved.</span>
+<span class="c1">#     border: bool</span>
+<span class="c1">#         If True, and also ``window`` is True, the image will also contain</span>
+<span class="c1">#         the window border decorations.</span>
+<span class="c1">#     grab: bool</span>
+<span class="c1">#         If True, the external &#39;import&#39; program is used to grab the</span>
+<span class="c1">#         window from the screen buffers. This mode is also forced by</span>
+<span class="c1">#         the ``window=True`` option. The default (False) saves the</span>
+<span class="c1">#         image directly using the Qt GUI libraries.</span>
+
+<span class="c1">#     &quot;&quot;&quot;</span>
+<span class="c1">#     if grab:</span>
+<span class="c1">#         tool = &#39;magick&#39;</span>
+<span class="c1">#         if window:</span>
+<span class="c1">#             if border:</span>
+<span class="c1">#                 extent = &#39;bordered&#39;</span>
+<span class="c1">#             else:</span>
+<span class="c1">#                 extent = &#39;window&#39;</span>
+<span class="c1">#         else:</span>
+<span class="c1">#             extent = &#39;current viewport&#39;</span>
+<span class="c1">#     else:</span>
+<span class="c1">#         tool = &#39;qt&#39;</span>
+<span class="c1">#         extent = &#39;current viewport&#39;</span>
+<span class="c1">#     saveImage(filename=filename, extent=extent, tool=tool,</span>
+<span class="c1">#               format=format, quality=quality, size=size, alpha=alpha,</span>
+<span class="c1">#               multi=multi, hotkey=hotkey, autosave=autosave,</span>
+<span class="c1">#               verbose=verbose)</span>
+
+
+<div class="viewcode-block" id="saveNext"><a class="viewcode-back" href="../../ref/gui.image.html#gui.image.saveNext">[docs]</a><span class="k">def</span> <span class="nf">saveNext</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;In multisave mode, save the next image.</span>
+
+<span class="sd">    This is a quiet function that does nothing if multisave was not activated.</span>
+<span class="sd">    It can thus safely be called on regular places in scripts where one would</span>
+<span class="sd">    like to have a saved image. In interactive use, the user then has to be</span>
+<span class="sd">    asked only once whether to activate the multisave mode or not.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">multisave</span><span class="p">:</span>
+        <span class="n">saveImage</span><span class="p">(</span><span class="n">multi</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">multisave</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="autoSaveOn"><a class="viewcode-back" href="../../ref/gui.image.html#gui.image.autoSaveOn">[docs]</a><span class="k">def</span> <span class="nf">autoSaveOn</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Returns True if autosave multisave mode is currently on.</span>
+
+<span class="sd">    Use this function instead of directly accessing the multisave variable.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">multisave</span> <span class="ow">and</span> <span class="n">multisave</span><span class="p">[</span><span class="s1">&#39;autosave&#39;</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="createMovie"><a class="viewcode-back" href="../../ref/gui.image.html#gui.image.createMovie">[docs]</a><span class="k">def</span> <span class="nf">createMovie</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="n">encoder</span><span class="o">=</span><span class="s1">&#39;convert&#39;</span><span class="p">,</span> <span class="n">outfn</span><span class="o">=</span><span class="s1">&#39;output&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create a movie from a saved sequence of images.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    files: list of str</span>
+<span class="sd">        A list of filenames, or a string with one or more filenames</span>
+<span class="sd">        separated by whitespace. The filenames can also contain wildcards</span>
+<span class="sd">        interpreted by the shell.</span>
+<span class="sd">    encoder: str</span>
+<span class="sd">        The external program to be used to create the movie.</span>
+<span class="sd">        This will also define the type of output file, and the extra parameters</span>
+<span class="sd">        that can be passed. The external program has to be installed on the</span>
+<span class="sd">        computer. The default is &#39;convert&#39;, which will create animated gif.</span>
+<span class="sd">        Other possible values are &#39;mencoder&#39; and &#39;ffmeg&#39;, creating meg4</span>
+<span class="sd">        encode movies from jpeg input files.</span>
+<span class="sd">    outfn: str</span>
+<span class="sd">        output file name (not including the extension).</span>
+<span class="sd">        Default is &#39;output&#39;.</span>
+<span class="sd">    **kargs:</span>
+<span class="sd">        Other parameters may be passed and may be needed, depending on the</span>
+<span class="sd">       converter program used. Thus, for the default &#39;convert&#39; program,</span>
+<span class="sd">       each extra keyword parameter will be translated to an option</span>
+<span class="sd">       ``-keyword value`` for the command. Example::</span>
+
+<span class="sd">           createMovie(&#39;images*.png&#39;,delay=1,colors=256)</span>
+
+<span class="sd">       will create an animated gif &#39;output.gif&#39;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">outfn</span> <span class="o">=</span> <span class="n">path</span><span class="p">(</span><span class="n">outfn</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">verbosity</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Encoding </span><span class="si">{</span><span class="n">files</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">files</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">files</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">encoder</span> <span class="o">==</span> <span class="s1">&#39;convert&#39;</span><span class="p">:</span>
+        <span class="n">outfile</span> <span class="o">=</span> <span class="n">outfn</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s1">&#39;.gif&#39;</span><span class="p">)</span>
+        <span class="n">cmd</span><span class="o">=</span> <span class="s2">&quot;convert &quot;</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;-</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">kargs</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">kargs</span><span class="p">])</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">files</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">outfile</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">elif</span> <span class="n">encoder</span> <span class="o">==</span> <span class="s1">&#39;mencoder&#39;</span><span class="p">:</span>
+        <span class="n">outfile</span> <span class="o">=</span> <span class="n">outfn</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s1">&#39;.avi&#39;</span><span class="p">)</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;mencoder </span><span class="se">\&quot;</span><span class="s2">mf://</span><span class="si">{</span><span class="n">files</span><span class="si">}</span><span class="se">\&quot;</span><span class="s2"> -o </span><span class="si">{</span><span class="n">outfile</span><span class="si">}</span><span class="s2"> -mf fps=</span><span class="si">{</span><span class="n">kargs</span><span class="p">[</span><span class="s1">&#39;fps&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> &quot;</span>
+               <span class="sa">f</span><span class="s2">&quot;-ovc lavc -lavcopts vcodec=msmpeg4v2:vbitrate=</span><span class="si">{</span><span class="n">kargs</span><span class="p">[</span><span class="s1">&#39;vbirate&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">outfile</span> <span class="o">=</span> <span class="n">outfn</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s1">&#39;.mp4&#39;</span><span class="p">)</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;ffmpeg -qscale 1 -r 1 -i </span><span class="si">{</span><span class="n">files</span><span class="si">}</span><span class="s2"> output.mp4&quot;</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">IMAGE</span><span class="p">)</span>
+    <span class="n">P</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">verbosity</span><span class="p">(</span><span class="mi">1</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Created video file </span><span class="si">{</span><span class="n">outfile</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">P</span><span class="o">.</span><span class="n">returncode</span></div>
+
+
+<div class="viewcode-block" id="changeBackgroundColorXPM"><a class="viewcode-back" href="../../ref/gui.image.html#gui.image.changeBackgroundColorXPM">[docs]</a><span class="k">def</span> <span class="nf">changeBackgroundColorXPM</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">color</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Change the background color of an .xpm image.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fn: :term:`path_like`</span>
+<span class="sd">        The file name of an .xpm image file.</span>
+<span class="sd">    color: str</span>
+<span class="sd">        The color to be set as background color. It is an X11 color name or</span>
+<span class="sd">        a web format hexadecimal color (&#39;#FFF&#39; or &#39;#FFFFFF&#39; is white).</span>
+<span class="sd">        A special value &#39;None&#39; may be used to set a transparent background.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The current background color is selected from the lower left pixel.</span>
+<span class="sd">    All pixels having that color will be changed.</span>
+
+<span class="sd">    This function is mainly intended for use by :func:`saveIcon`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span><span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fil</span><span class="p">:</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">fil</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">t</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">l</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">):</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">l</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">verbosity</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found &#39;</span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s2">&#39; as background character&quot;</span><span class="p">)</span>
+            <span class="k">break</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">c</span> <span class="ow">and</span> <span class="n">pf</span><span class="o">.</span><span class="n">verbosity</span><span class="p">(</span><span class="mi">1</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Can not change background color of &#39;</span><span class="si">{</span><span class="n">fn</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">l</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s1"> c &#39;</span><span class="p">):</span>
+            <span class="n">t</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s1"> c None&quot;,</span><span class="se">\n</span><span class="s1">&#39;</span>
+            <span class="k">break</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fil</span><span class="p">:</span>
+        <span class="n">fil</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="n">t</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="saveIcon"><a class="viewcode-back" href="../../ref/gui.image.html#gui.image.saveIcon">[docs]</a><span class="k">def</span> <span class="nf">saveIcon</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">transparent</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Save the current rendering as an icon.</span>
+
+<span class="sd">    Saves the current rendering as an .xpm image file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fn: :term:`path_like`</span>
+<span class="sd">        File name of the target image file. If it does not end with &#39;.xpm&#39;,</span>
+<span class="sd">        this extension will be appended.</span>
+<span class="sd">    size: int</span>
+<span class="sd">        Pixel size of the output image.</span>
+<span class="sd">    transparent: bool</span>
+<span class="sd">        If True (default), the background will be set to transparent.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This function is primarily intended for creating icons for the</span>
+<span class="sd">    pyFormex GUI.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">fn</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.xpm&#39;</span><span class="p">):</span>
+        <span class="n">fn</span> <span class="o">+=</span> <span class="s1">&#39;.xpm&#39;</span>
+    <span class="n">save_qt</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;xpm&#39;</span><span class="p">,</span> <span class="n">canvas</span><span class="o">=</span><span class="n">pf</span><span class="o">.</span><span class="n">canvas</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">size</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">verbosity</span><span class="p">(</span><span class="mi">1</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved icon to file </span><span class="si">{</span><span class="n">fn</span><span class="si">}</span><span class="s2"> in </span><span class="si">{</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">transparent</span><span class="p">:</span>
+        <span class="n">changeBackgroundColorXPM</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="s1">&#39;None&#39;</span><span class="p">)</span></div>
+
+
+<span class="n">_recording_P</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">_recording_button</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">record_extents</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;canvas&#39;</span><span class="p">,</span> <span class="s1">&#39;central&#39;</span><span class="p">,</span> <span class="s1">&#39;window&#39;</span><span class="p">,</span> <span class="s1">&#39;border&#39;</span><span class="p">,</span> <span class="s1">&#39;screen&#39;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="recordSession"><a class="viewcode-back" href="../../ref/gui.image.html#gui.image.recordSession">[docs]</a><span class="k">def</span> <span class="nf">recordSession</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="s1">&#39;window&#39;</span><span class="p">,</span> <span class="n">framerate</span><span class="o">=</span><span class="mi">25</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create a video from the pyFormex window or another zone on the screen.</span>
+
+<span class="sd">    This uses ffmpeg to record a rectangular area of the screen to a video file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename: :term:`path_like`</span>
+<span class="sd">        The path to the file to save. The filename should have an extension</span>
+<span class="sd">        .mp4 for the &#39;ffmpeg&#39; tool, and &#39;.ogv&#39; for the &#39;recordmydesktop&#39;</span>
+<span class="sd">        tool.</span>
+<span class="sd">    extent: str</span>
+<span class="sd">        The part</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">_recording_P</span><span class="p">,</span> <span class="n">_recording_button</span>
+    <span class="k">if</span> <span class="n">_recording_P</span><span class="p">:</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Another recorder is already running!&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_recording_P</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Recording your session to file </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">raise_</span><span class="p">()</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">repaint</span><span class="p">()</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">toolbar</span><span class="o">.</span><span class="n">repaint</span><span class="p">()</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">makeCurrent</span><span class="p">()</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">raise_</span><span class="p">()</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">processEvents</span><span class="p">()</span>
+    <span class="c1"># we need screen offsets, so get the main window geometry first</span>
+    <span class="k">if</span> <span class="n">extent</span> <span class="o">==</span> <span class="s1">&#39;canvas&#39;</span><span class="p">:</span>
+        <span class="n">geom</span> <span class="o">=</span> <span class="n">qtutils</span><span class="o">.</span><span class="n">absRect</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">canvas</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">extent</span> <span class="o">==</span> <span class="s1">&#39;central&#39;</span><span class="p">:</span>
+        <span class="n">geom</span> <span class="o">=</span> <span class="n">qtutils</span><span class="o">.</span><span class="n">absRect</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">central</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">extent</span> <span class="o">==</span> <span class="s1">&#39;window&#39;</span><span class="p">:</span>
+        <span class="n">geom</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">geometry</span><span class="p">()</span><span class="o">.</span><span class="n">getRect</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">extent</span> <span class="o">==</span> <span class="s1">&#39;border&#39;</span><span class="p">:</span>
+        <span class="n">geom</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">frameGeometry</span><span class="p">()</span><span class="o">.</span><span class="n">getRect</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">extent</span> <span class="o">==</span> <span class="s1">&#39;screen&#39;</span><span class="p">:</span>
+        <span class="n">geom</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">primaryScreen</span><span class="p">()</span><span class="o">.</span><span class="n">geometry</span><span class="p">()</span><span class="o">.</span><span class="n">getRect</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Geometry: geom&quot;</span><span class="p">)</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">geom</span>
+    <span class="n">cmd</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ffmpeg -video_size </span><span class="si">{</span><span class="n">w</span><span class="si">}</span><span class="s2">x</span><span class="si">{</span><span class="n">h</span><span class="si">}</span><span class="s2"> -framerate </span><span class="si">{</span><span class="n">framerate</span><span class="si">}</span><span class="s2"> -f x11grab&quot;</span>
+           <span class="sa">f</span><span class="s2">&quot; -i :0.0+</span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">y</span><span class="si">}</span><span class="s2"> -y </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">IMAGE</span><span class="p">)</span>
+    <span class="n">_recording_P</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">_recording_P</span><span class="p">:</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">onExit</span><span class="p">(</span><span class="n">stopRecording</span><span class="p">)</span>
+        <span class="n">_recording_button</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">addStatusbarButtons</span><span class="p">(</span>
+            <span class="s1">&#39;:movie:recording&#39;</span><span class="p">,</span> <span class="n">actions</span><span class="o">=</span><span class="p">[(</span><span class="s1">&#39;REC&#39;</span><span class="p">,</span> <span class="n">stopRecording</span><span class="p">)],</span> <span class="n">spacing</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_recording_P</span></div>
+
+
+<span class="k">def</span> <span class="nf">stopRecording</span><span class="p">():</span>
+    <span class="k">global</span> <span class="n">_recording_P</span><span class="p">,</span> <span class="n">_recording_button</span>
+    <span class="k">if</span> <span class="n">_recording_P</span><span class="p">:</span>
+        <span class="c1"># Was recording: finish it</span>
+        <span class="n">_recording_P</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
+        <span class="n">returncode</span> <span class="o">=</span> <span class="n">_recording_P</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Recording stopped with code </span><span class="si">{</span><span class="n">returncode</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">_recording_P</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">_recording_button</span><span class="p">:</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">statusbar</span><span class="o">.</span><span class="n">removeWidget</span><span class="p">(</span><span class="n">_recording_button</span><span class="p">)</span>
+        <span class="n">_recording_button</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">returncode</span>
+
+
+<div class="viewcode-block" id="record_rect"><a class="viewcode-back" href="../../ref/gui.image.html#gui.image.record_rect">[docs]</a><span class="k">def</span> <span class="nf">record_rect</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">framerate</span><span class="o">=</span><span class="mi">25</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Record a rectangular part of the screen to a a video file.</span>
+
+<span class="sd">    This uses the external program &#39;ffmpeg&#39; to record a</span>
+<span class="sd">    rectangle from any window on the screen.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename: :term:`path_like`</span>
+<span class="sd">        The name of the file on which to save the image. This should by</span>
+<span class="sd">        preference be a .mp4 file. If you want another format, one can</span>
+<span class="sd">        always convert afterwards.</span>
+<span class="sd">    size: tuple of int</span>
+<span class="sd">        A tuple (w,h) specifying the width and height of the rectangle to grab.</span>
+<span class="sd">        It is also the size of the output video. If you need another output</span>
+<span class="sd">        size, convert the video afterwards.</span>
+<span class="sd">    pos: tuple of int</span>
+<span class="sd">        A tuple (x,y) with the position of the top left corner of the rectangle</span>
+<span class="sd">        to grab. The values are relative to the primary screen origin.</span>
+<span class="sd">    framerate: int, optional</span>
+<span class="sd">        The number of frames to capture per second.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    recordSession: the recommended high level video recording function</span>
+<span class="sd">    save_window_rect: save a screen rectangle to an image file</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;record_rect size=</span><span class="si">{</span><span class="n">size</span><span class="si">}</span><span class="s2"> pos=</span><span class="si">{</span><span class="n">pos</span><span class="si">}</span><span class="s2"> framerate=</span><span class="si">{</span><span class="n">framerate</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+             <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">IMAGE</span><span class="p">)</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">geom</span>
+    <span class="n">cmd</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ffmpeg -video_size </span><span class="si">{</span><span class="n">w</span><span class="si">}</span><span class="s2">x</span><span class="si">{</span><span class="n">h</span><span class="si">}</span><span class="s2"> -framerate </span><span class="si">{</span><span class="n">framerate</span><span class="si">}</span><span class="s2"> -f x11grab&quot;</span>
+           <span class="sa">f</span><span class="s2">&quot; -i :0.0+</span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">y</span><span class="si">}</span><span class="s2"> -y </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">cmd</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;import -window &#39;</span><span class="si">{</span><span class="n">window</span><span class="si">}</span><span class="s2">&#39; </span><span class="si">{</span><span class="n">options</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="nb">format</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="c1"># We need to use shell=True because window name might contain spaces</span>
+    <span class="c1"># thus we need to add quotes, but these are not stripped off when</span>
+    <span class="c1"># splitting the command line.</span>
+    <span class="c1"># TODO: utils should probably be changed to strip quotes after splitting</span>
+    <span class="n">P</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">P</span><span class="o">.</span><span class="n">returncode</span></div>
+
+<span class="c1">### End</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">gui.image</a></li--> 
+      </ul>
+    </div>
+    <div class="footer">
+    <span class="left">
+        &copy; Copyright 2004-2023, Benedict Verhegghe.
+    </span>
+      Last updated on Mar 27, 2023.
+    <span class="right">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.4.3.
+    </span>
+    </div>
+  </body>
+</html>

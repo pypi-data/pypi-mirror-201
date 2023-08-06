@@ -1,0 +1,233 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!--
+##
+##  This file is part of the pyFormex project.
+##  pyFormex is a tool for generating, manipulating and transforming 3D
+##  geometrical models by sequences of mathematical operations.
+##  Home page: http://pyformex.org
+##  Project page:  http://savannah.nongnu.org/projects/pyformex/
+##  Copyright (C) Benedict Verhegghe (benedict.verhegghe@ugent.be)
+##  Distributed under the GNU General Public License version 3 or later.
+##
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see http://www.gnu.org/licenses/.
+##
+-->
+    <title>plugins.mesh_io &#8212; pyFormex 3.3 documentation</title>
+
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pyformex.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+<link rel="icon" type="image/png" href="../../_static/pyformex_fav.png" />
+
+  </head><body>
+
+<div class="header">
+  <a href="http://pyformex.org">
+  <img src="../../_static/scallop_dome_small.png" alt="scallop dome" border="0" hspace="20" vspace="12" align="left" />
+  <img src="../../_static/pyformex-logo-2.png" alt="pyformex logo" border="0" hspace="10" vspace="8" align="left" />
+  </a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">plugins.mesh_io</a></li--> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<!-- PYFORMEX_SIDEBAR_LOGO -->
+<!-- PYFORMEX_WEBSITE_SIDEBAR_TOP -->
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for plugins.mesh_io</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1">##</span>
+<span class="c1">##  SPDX-FileCopyrightText: © 2007-2023 Benedict Verhegghe &lt;bverheg@gmail.com&gt;</span>
+<span class="c1">##  SPDX-License-Identifier: GPL-3.0-or-later</span>
+<span class="c1">##</span>
+<span class="c1">##  This file is part of pyFormex 3.3  (Sun Mar 26 20:16:15 CEST 2023)</span>
+<span class="c1">##  pyFormex is a tool for generating, manipulating and transforming 3D</span>
+<span class="c1">##  geometrical models by sequences of mathematical operations.</span>
+<span class="c1">##  Home page: https://pyformex.org</span>
+<span class="c1">##  Project page: https://savannah.nongnu.org/projects/pyformex/</span>
+<span class="c1">##  Development: https://gitlab.com/bverheg/pyformex</span>
+<span class="c1">##  Distributed under the GNU General Public License version 3 or later.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is free software: you can redistribute it and/or modify</span>
+<span class="c1">##  it under the terms of the GNU General Public License as published by</span>
+<span class="c1">##  the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1">##  (at your option) any later version.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is distributed in the hope that it will be useful,</span>
+<span class="c1">##  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1">##  GNU General Public License for more details.</span>
+<span class="c1">##</span>
+<span class="c1">##  You should have received a copy of the GNU General Public License</span>
+<span class="c1">##  along with this program.  If not, see http://www.gnu.org/licenses/.</span>
+<span class="c1">##</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Mesh import and export using meshio</span>
+
+<span class="sd">You need to have python3-meshio installed to use this module.</span>
+<span class="sd">Source available from https://github.com/nschloe/meshio</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">software</span>
+<span class="n">software</span><span class="o">.</span><span class="n">Module</span><span class="o">.</span><span class="n">require</span><span class="p">(</span><span class="s1">&#39;meshio&#39;</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">meshio</span>
+
+<span class="kn">import</span> <span class="nn">pyformex</span> <span class="k">as</span> <span class="nn">pf</span>
+<span class="kn">from</span> <span class="nn">pyformex.path</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">pyformex.mesh</span> <span class="kn">import</span> <span class="n">Mesh</span>
+
+<span class="n">pyformex_to_meshio_type</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;line2&#39;</span><span class="p">:</span> <span class="s1">&#39;line&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;line3&#39;</span><span class="p">:</span> <span class="s1">&#39;line3&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;tri3&#39;</span><span class="p">:</span> <span class="s1">&#39;triangle&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;tri6&#39;</span><span class="p">:</span> <span class="s1">&#39;triangle6&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;quad4&#39;</span><span class="p">:</span> <span class="s1">&#39;quad&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;quad8&#39;</span><span class="p">:</span> <span class="s1">&#39;quad8&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;quad9&#39;</span><span class="p">:</span> <span class="s1">&#39;quad9&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;tet4&#39;</span><span class="p">:</span> <span class="s1">&#39;tetra&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;tet10&#39;</span><span class="p">:</span> <span class="s1">&#39;tetra10&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;tet14&#39;</span><span class="p">:</span> <span class="s1">&#39;tetra14&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;wedge6&#39;</span><span class="p">:</span> <span class="s1">&#39;wedge&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;hex8&#39;</span><span class="p">:</span> <span class="s1">&#39;hexahedron&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;hex20&#39;</span><span class="p">:</span> <span class="s1">&#39;hexahedron20&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;hex27&#39;</span><span class="p">:</span> <span class="s1">&#39;hexahedron27&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;pyramid&#39;</span><span class="p">:</span> <span class="s1">&#39;pyramid&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<div class="viewcode-block" id="writeMesh"><a class="viewcode-back" href="../../ref/plugins.mesh_io.html#plugins.mesh_io.writeMesh">[docs]</a><span class="k">def</span> <span class="nf">writeMesh</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">M</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Write a mesh to one of many file formats.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fn: :term:`path_like`</span>
+<span class="sd">        The output file name. The extentension should be any of the</span>
+<span class="sd">        formats accepted by meshio (https://pypi.org/project/meshio/).</span>
+<span class="sd">    mesh: Mesh</span>
+<span class="sd">        The Mesh to be written to the file.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; f = Path(&#39;test_filewrite.off&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; M = Mesh(eltype=&#39;quad4&#39;).convert(&#39;tri3-u&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; writeMesh(f, M)</span>
+<span class="sd">    &gt;&gt;&gt; print(f.read_text())</span>
+<span class="sd">    OFF</span>
+<span class="sd">    # Created by meshio</span>
+<span class="sd">    &lt;BLANKLINE&gt;</span>
+<span class="sd">    4 2 0</span>
+<span class="sd">    &lt;BLANKLINE&gt;</span>
+<span class="sd">    0.0 0.0 0.0</span>
+<span class="sd">    1.0 0.0 0.0</span>
+<span class="sd">    1.0 1.0 0.0</span>
+<span class="sd">    0.0 1.0 0.0</span>
+<span class="sd">    3  0 1 2</span>
+<span class="sd">    3  2 3 0</span>
+<span class="sd">    &lt;BLANKLINE&gt;</span>
+<span class="sd">    &gt;&gt;&gt; f.remove()</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fn</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
+    <span class="n">eltype</span> <span class="o">=</span> <span class="n">M</span><span class="o">.</span><span class="n">elName</span><span class="p">()</span>
+    <span class="n">cell_type</span> <span class="o">=</span> <span class="n">pyformex_to_meshio_type</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">eltype</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">cell_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Can not write Mesh with eltype </span><span class="si">{</span><span class="n">eltype</span><span class="si">}</span><span class="s2"> to file </span><span class="si">{</span><span class="n">fn</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Write Mesh to file </span><span class="si">{</span><span class="n">fn</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">points</span> <span class="o">=</span> <span class="n">M</span><span class="o">.</span><span class="n">coords</span>
+    <span class="n">cells</span> <span class="o">=</span> <span class="p">{</span> <span class="n">cell_type</span><span class="p">:</span> <span class="n">M</span><span class="o">.</span><span class="n">elems</span> <span class="p">}</span>
+    <span class="n">meshio</span><span class="o">.</span><span class="n">write_points_cells</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">cells</span><span class="p">)</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;File size: </span><span class="si">{</span><span class="n">fn</span><span class="o">.</span><span class="n">size</span><span class="si">}</span><span class="s2"> bytes&quot;</span><span class="p">)</span></div>
+
+
+<span class="c1"># End</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">plugins.mesh_io</a></li--> 
+      </ul>
+    </div>
+    <div class="footer">
+    <span class="left">
+        &copy; Copyright 2004-2023, Benedict Verhegghe.
+    </span>
+      Last updated on Mar 27, 2023.
+    <span class="right">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.4.3.
+    </span>
+    </div>
+  </body>
+</html>

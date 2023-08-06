@@ -1,0 +1,1180 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!--
+##
+##  This file is part of the pyFormex project.
+##  pyFormex is a tool for generating, manipulating and transforming 3D
+##  geometrical models by sequences of mathematical operations.
+##  Home page: http://pyformex.org
+##  Project page:  http://savannah.nongnu.org/projects/pyformex/
+##  Copyright (C) Benedict Verhegghe (benedict.verhegghe@ugent.be)
+##  Distributed under the GNU General Public License version 3 or later.
+##
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see http://www.gnu.org/licenses/.
+##
+-->
+    <title>opengl.canvas &#8212; pyFormex 3.3 documentation</title>
+
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pyformex.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+<link rel="icon" type="image/png" href="../../_static/pyformex_fav.png" />
+
+  </head><body>
+
+<div class="header">
+  <a href="http://pyformex.org">
+  <img src="../../_static/scallop_dome_small.png" alt="scallop dome" border="0" hspace="20" vspace="12" align="left" />
+  <img src="../../_static/pyformex-logo-2.png" alt="pyformex logo" border="0" hspace="10" vspace="8" align="left" />
+  </a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">opengl.canvas</a></li--> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<!-- PYFORMEX_SIDEBAR_LOGO -->
+<!-- PYFORMEX_WEBSITE_SIDEBAR_TOP -->
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for opengl.canvas</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1">##</span>
+<span class="c1">##  SPDX-FileCopyrightText: © 2007-2023 Benedict Verhegghe &lt;bverheg@gmail.com&gt;</span>
+<span class="c1">##  SPDX-License-Identifier: GPL-3.0-or-later</span>
+<span class="c1">##</span>
+<span class="c1">##  This file is part of pyFormex 3.3  (Sun Mar 26 20:16:15 CEST 2023)</span>
+<span class="c1">##  pyFormex is a tool for generating, manipulating and transforming 3D</span>
+<span class="c1">##  geometrical models by sequences of mathematical operations.</span>
+<span class="c1">##  Home page: https://pyformex.org</span>
+<span class="c1">##  Project page: https://savannah.nongnu.org/projects/pyformex/</span>
+<span class="c1">##  Development: https://gitlab.com/bverheg/pyformex</span>
+<span class="c1">##  Distributed under the GNU General Public License version 3 or later.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is free software: you can redistribute it and/or modify</span>
+<span class="c1">##  it under the terms of the GNU General Public License as published by</span>
+<span class="c1">##  the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1">##  (at your option) any later version.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is distributed in the hope that it will be useful,</span>
+<span class="c1">##  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1">##  GNU General Public License for more details.</span>
+<span class="c1">##</span>
+<span class="c1">##  You should have received a copy of the GNU General Public License</span>
+<span class="c1">##  along with this program.  If not, see http://www.gnu.org/licenses/.</span>
+<span class="c1">##</span>
+<span class="sd">&quot;&quot;&quot;This implements an OpenGL drawing widget for painting 3D scenes.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">import</span> <span class="nn">pyformex</span> <span class="k">as</span> <span class="nn">pf</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">gl</span>
+<span class="kn">from</span> <span class="nn">.gl</span> <span class="kn">import</span> <span class="n">GL</span><span class="p">,</span> <span class="n">GLU</span>
+
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">arraytools</span> <span class="k">as</span> <span class="n">at</span>
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">colors</span>
+<span class="kn">from</span> <span class="nn">pyformex.coords</span> <span class="kn">import</span> <span class="n">Coords</span><span class="p">,</span> <span class="n">bbox</span>
+<span class="kn">from</span> <span class="nn">pyformex.mydict</span> <span class="kn">import</span> <span class="n">Dict</span>
+<span class="kn">from</span> <span class="nn">pyformex.collection</span> <span class="kn">import</span> <span class="n">Collection</span>
+<span class="kn">from</span> <span class="nn">pyformex.simple</span> <span class="kn">import</span> <span class="n">cuboid2d</span>
+<span class="kn">from</span> <span class="nn">pyformex.gui</span> <span class="kn">import</span> <span class="n">views</span>
+<span class="kn">from</span> <span class="nn">.sanitize</span> <span class="kn">import</span> <span class="n">saneColor</span>
+<span class="kn">from</span> <span class="nn">.canvas_settings</span> <span class="kn">import</span> <span class="n">CanvasSettings</span><span class="p">,</span> <span class="n">Light</span><span class="p">,</span> <span class="n">LightProfile</span>
+<span class="kn">from</span> <span class="nn">.scene</span> <span class="kn">import</span> <span class="n">Scene</span><span class="p">,</span> <span class="n">ItemList</span>
+<span class="kn">from</span> <span class="nn">.renderer</span> <span class="kn">import</span> <span class="n">Renderer</span>
+<span class="kn">from</span> <span class="nn">.actors</span> <span class="kn">import</span> <span class="n">Actor</span>
+<span class="kn">from</span> <span class="nn">.camera</span> <span class="kn">import</span> <span class="n">Camera</span>
+<span class="kn">from</span> <span class="nn">.decors</span> <span class="kn">import</span> <span class="n">Grid2D</span>
+
+<span class="c1">### Some (OLD) drawing functions ############################################</span>
+
+<span class="c1"># But still kept because used!</span>
+
+<div class="viewcode-block" id="drawDot"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.drawDot">[docs]</a><span class="k">def</span> <span class="nf">drawDot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Draw a dot at canvas coordinates (x,y).&quot;&quot;&quot;</span>
+    <span class="n">GL</span><span class="o">.</span><span class="n">glBegin</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_POINTS</span><span class="p">)</span>
+    <span class="n">GL</span><span class="o">.</span><span class="n">glVertex2f</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+    <span class="n">GL</span><span class="o">.</span><span class="n">glEnd</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="drawLine"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.drawLine">[docs]</a><span class="k">def</span> <span class="nf">drawLine</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">y2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Draw a straight line from (x1,y1) to (x2,y2) in canvas coordinates.&quot;&quot;&quot;</span>
+    <span class="n">GL</span><span class="o">.</span><span class="n">glBegin</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_LINES</span><span class="p">)</span>
+    <span class="n">GL</span><span class="o">.</span><span class="n">glVertex2f</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">)</span>
+    <span class="n">GL</span><span class="o">.</span><span class="n">glVertex2f</span><span class="p">(</span><span class="n">x2</span><span class="p">,</span> <span class="n">y2</span><span class="p">)</span>
+    <span class="n">GL</span><span class="o">.</span><span class="n">glEnd</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="drawRect"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.drawRect">[docs]</a><span class="k">def</span> <span class="nf">drawRect</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">y2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Draw the circumference of a rectangle.&quot;&quot;&quot;</span>
+    <span class="n">GL</span><span class="o">.</span><span class="n">glBegin</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_LINE_LOOP</span><span class="p">)</span>
+    <span class="n">GL</span><span class="o">.</span><span class="n">glVertex2f</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">)</span>
+    <span class="n">GL</span><span class="o">.</span><span class="n">glVertex2f</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">y2</span><span class="p">)</span>
+    <span class="n">GL</span><span class="o">.</span><span class="n">glVertex2f</span><span class="p">(</span><span class="n">x2</span><span class="p">,</span> <span class="n">y2</span><span class="p">)</span>
+    <span class="n">GL</span><span class="o">.</span><span class="n">glVertex2f</span><span class="p">(</span><span class="n">x2</span><span class="p">,</span> <span class="n">y1</span><span class="p">)</span>
+    <span class="n">GL</span><span class="o">.</span><span class="n">glEnd</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="drawGrid"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.drawGrid">[docs]</a><span class="k">def</span> <span class="nf">drawGrid</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">y2</span><span class="p">,</span> <span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Draw a rectangular grid of lines</span>
+
+<span class="sd">    The rectangle has (x1,y1) and and (x2,y2) as opposite corners.</span>
+<span class="sd">    There are (nx,ny) subdivisions along the (x,y)-axis. So the grid</span>
+<span class="sd">    has (nx+1) * (ny+1) lines. nx=ny=1 draws a rectangle.</span>
+<span class="sd">    nx=0 draws 1 vertical line (at x1). nx=-1 draws no vertical lines.</span>
+<span class="sd">    ny=0 draws 1 horizontal line (at y1). ny=-1 draws no horizontal lines.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">GL</span><span class="o">.</span><span class="n">glBegin</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_LINES</span><span class="p">)</span>
+    <span class="n">ix</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">nx</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">nx</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+        <span class="n">jx</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">nx</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">jx</span> <span class="o">=</span> <span class="n">ix</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">ix</span><span class="p">,</span> <span class="n">jx</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="n">i</span><span class="o">*</span><span class="n">x2</span><span class="o">+</span><span class="n">j</span><span class="o">*</span><span class="n">x1</span><span class="p">)</span><span class="o">/</span><span class="n">nx</span>
+        <span class="n">GL</span><span class="o">.</span><span class="n">glVertex2f</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y1</span><span class="p">)</span>
+        <span class="n">GL</span><span class="o">.</span><span class="n">glVertex2f</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y2</span><span class="p">)</span>
+
+    <span class="n">iy</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">ny</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ny</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+        <span class="n">jy</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">ny</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">jy</span> <span class="o">=</span> <span class="n">iy</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">iy</span><span class="p">,</span> <span class="n">jy</span><span class="p">):</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="p">(</span><span class="n">i</span><span class="o">*</span><span class="n">y2</span><span class="o">+</span><span class="n">j</span><span class="o">*</span><span class="n">y1</span><span class="p">)</span><span class="o">/</span><span class="n">ny</span>
+        <span class="n">GL</span><span class="o">.</span><span class="n">glVertex2f</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="n">GL</span><span class="o">.</span><span class="n">glVertex2f</span><span class="p">(</span><span class="n">x2</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+    <span class="n">GL</span><span class="o">.</span><span class="n">glEnd</span><span class="p">()</span></div>
+
+
+<span class="c1">#############################################################################</span>
+<span class="c1">#############################################################################</span>
+<span class="c1">#</span>
+<span class="c1">#  The Canvas</span>
+<span class="c1">#</span>
+<span class="c1">#############################################################################</span>
+<span class="c1">#############################################################################</span>
+
+
+<span class="k">def</span> <span class="nf">print_camera</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">report</span><span class="p">())</span>
+
+
+<span class="k">def</span> <span class="nf">print_lighting</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">settings</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">viewports</span><span class="o">.</span><span class="n">current</span><span class="o">.</span><span class="n">settings</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: LIGTHING </span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">settings</span><span class="o">.</span><span class="n">lighting</span><span class="p">,</span> <span class="nb">id</span><span class="p">(</span><span class="n">settings</span><span class="p">)))</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No settings yet&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Canvas"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.Canvas">[docs]</a><span class="k">class</span> <span class="nc">Canvas</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;A canvas for OpenGL rendering.</span>
+
+<span class="sd">    The Canvas is a class holding all global data of an OpenGL scene rendering.</span>
+<span class="sd">    It always contains a Scene with the actors and decorations that are drawn</span>
+<span class="sd">    on the canvas. The canvas has a Camera holding the viewing parameters</span>
+<span class="sd">    needed to project the scene on the canvas.</span>
+<span class="sd">    Settings like colors, line types, rendering mode and the lighting</span>
+<span class="sd">    information are gathered in a CanvasSettings object.</span>
+<span class="sd">    There are attributes for some special purpose decorations (Triade, Grid)</span>
+<span class="sd">    that can not be handled by the standard drawing and Scene changing</span>
+<span class="sd">    functions.</span>
+
+<span class="sd">    The Canvas class does not however contain the viewport size and position.</span>
+<span class="sd">    The class is intended as a mixin to be used by some OpenGL widget class</span>
+<span class="sd">    that will hold this information (such as the QtCanvas class).</span>
+
+<span class="sd">    Important note: the Camera object is not initalized by the class</span>
+<span class="sd">    initialization. The derived class initialization should therefore</span>
+<span class="sd">    explicitely call the `initCamera` method before trying to draw anything</span>
+<span class="sd">    to the canvas. This is because initializing the camera requires a working</span>
+<span class="sd">    OpenGL format, which is only established by the derived OpenGL widget.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">settings</span><span class="o">=</span><span class="p">{}):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize an empty canvas with default settings.&quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">pyformex.gui</span> <span class="kn">import</span> <span class="n">views</span>
+        <span class="c1">#loadLibGL()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scene</span> <span class="o">=</span> <span class="n">Scene</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">renderer</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">highlights</span> <span class="o">=</span> <span class="n">ItemList</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">camera</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">triade</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">settings</span> <span class="o">=</span> <span class="n">CanvasSettings</span><span class="p">(</span><span class="o">**</span><span class="n">settings</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mode2D</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setRenderMode</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;draw/rendermode&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">picking</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resetLighting</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_focus</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">focus</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Canvas Setting:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">DRAW</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">makeCurrent</span><span class="p">()</span>  <span class="c1"># we need correct OpenGL context</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">rendermode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">rendermode</span>
+
+    <span class="nd">@rendermode</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">rendermode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">CanvasSettings</span><span class="o">.</span><span class="n">RenderProfiles</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid render mode </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">mode</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">rendermode</span> <span class="o">=</span> <span class="n">mode</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">focus</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_focus</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+    <span class="nd">@focus</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">focus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">onoff</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">onoff</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_focus_rectangle</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">remove_focus_rectangle</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">updateGL</span><span class="p">()</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">actors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">actors</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">bbox</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">bbox</span>
+
+<div class="viewcode-block" id="Canvas.sceneBbox"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.Canvas.sceneBbox">[docs]</a>    <span class="k">def</span> <span class="nf">sceneBbox</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the bbox of all actors in the scene&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">bbox</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">actors</span><span class="p">)</span></div>
+
+
+    <span class="c1">## def enable_lighting(self, state):</span>
+    <span class="c1">##     &quot;&quot;&quot;Toggle OpenGL lighting on/off.&quot;&quot;&quot;</span>
+    <span class="c1">##     glLighting(state)</span>
+
+
+<div class="viewcode-block" id="Canvas.resetDefaults"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.Canvas.resetDefaults">[docs]</a>    <span class="k">def</span> <span class="nf">resetDefaults</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">dict</span><span class="o">=</span><span class="p">{}):</span>
+        <span class="sd">&quot;&quot;&quot;Return all the settings to their default values.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resetLighting</span><span class="p">()</span></div>
+        <span class="c1">## self.resetLights()</span>
+
+<div class="viewcode-block" id="Canvas.setAmbient"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.Canvas.setAmbient">[docs]</a>    <span class="k">def</span> <span class="nf">setAmbient</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ambient</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the global ambient lighting for the canvas&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lightprof</span><span class="o">.</span><span class="n">ambient</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">ambient</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Canvas.setMaterial"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.Canvas.setMaterial">[docs]</a>    <span class="k">def</span> <span class="nf">setMaterial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">matname</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the default material light properties for the canvas&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">material</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">GUI</span><span class="o">.</span><span class="n">materials</span><span class="p">[</span><span class="n">matname</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="Canvas.resetLighting"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.Canvas.resetLighting">[docs]</a>    <span class="k">def</span> <span class="nf">resetLighting</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Change the light parameters&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lightmodel</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;render/lightmodel&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setMaterial</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;render/material&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lightset</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;render/lights&#39;</span><span class="p">]</span>
+        <span class="n">lights</span> <span class="o">=</span> <span class="p">[</span><span class="n">Light</span><span class="p">(</span><span class="o">**</span><span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;light/</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">light</span><span class="p">])</span> <span class="k">for</span> <span class="n">light</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lightset</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lightprof</span> <span class="o">=</span> <span class="n">LightProfile</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;render/ambient&#39;</span><span class="p">],</span> <span class="n">lights</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Canvas.resetOptions"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.Canvas.resetOptions">[docs]</a>    <span class="k">def</span> <span class="nf">resetOptions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Reset the Drawing options to default values&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">drawoptions</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">view</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>        <span class="c1"># Keep the current camera angles</span>
+            <span class="n">bbox</span> <span class="o">=</span> <span class="s1">&#39;auto&#39;</span><span class="p">,</span>      <span class="c1"># Automatically zoom on the drawed object</span>
+            <span class="n">clear_</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>     <span class="c1"># Clear on each drawing action</span>
+            <span class="n">shrink</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">shrink_factor</span> <span class="o">=</span> <span class="mf">0.8</span><span class="p">,</span>
+            <span class="n">wait</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">silent</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">single</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="p">)</span></div>
+
+<div class="viewcode-block" id="Canvas.setOptions"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.Canvas.setOptions">[docs]</a>    <span class="k">def</span> <span class="nf">setOptions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the Drawing options to some values&quot;&quot;&quot;</span>
+
+        <span class="c1">## # BEWARE</span>
+        <span class="c1">## # We rename the &#39;clear&#39; to &#39;clear_&#39;, because we use a Dict</span>
+        <span class="c1">## # to store these (in __init__.draw) and Dict does not allow</span>
+        <span class="c1">## # a &#39;clear&#39; key.</span>
+
+        <span class="k">if</span> <span class="s1">&#39;clear&#39;</span> <span class="ow">in</span> <span class="n">d</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s1">&#39;clear&#39;</span><span class="p">],</span> <span class="nb">bool</span><span class="p">):</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;clear_&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;clear&#39;</span><span class="p">]</span>
+            <span class="k">del</span> <span class="n">d</span><span class="p">[</span><span class="s1">&#39;clear&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">drawoptions</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">d</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Canvas.setRenderMode"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.Canvas.setRenderMode">[docs]</a>    <span class="k">def</span> <span class="nf">setRenderMode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">lighting</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the rendering mode.</span>
+
+<span class="sd">        This sets or changes the rendermode and lighting attributes.</span>
+<span class="sd">        If lighting is not specified, it is set depending on the rendermode.</span>
+
+<span class="sd">        If the canvas has not been initialized, this merely sets the</span>
+<span class="sd">        attributes self.rendermode and self.settings.lighting.</span>
+<span class="sd">        If the canvas was already initialized (it has a camera), and one of</span>
+<span class="sd">        the specified settings is different from the existing, the new mode</span>
+<span class="sd">        is set, the canvas is re-initialized according to the newly set mode,</span>
+<span class="sd">        and everything is redrawn with the new mode.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">CanvasSettings</span><span class="o">.</span><span class="n">RenderProfiles</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid render mode </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">mode</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">CanvasSettings</span><span class="o">.</span><span class="n">RenderProfiles</span><span class="p">[</span><span class="n">mode</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">lighting</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">lighting</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">lighting</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">camera</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">mode</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rendermode</span> <span class="ow">or</span> <span class="n">lighting</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">lighting</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">rendermode</span> <span class="o">=</span> <span class="n">mode</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">changeMode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">lighting</span> <span class="o">=</span> <span class="n">lighting</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;NO camera, but setting rendermode anyways&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">OPENGL</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rendermode</span> <span class="o">=</span> <span class="n">mode</span></div>
+
+
+<div class="viewcode-block" id="Canvas.setWireMode"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.Canvas.setWireMode">[docs]</a>    <span class="k">def</span> <span class="nf">setWireMode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the wire mode.</span>
+
+<span class="sd">        This toggles the drawing of edges on top of 2D and 3D geometry.</span>
+<span class="sd">        State is either True or False, mode is 1, 2 or 3 to switch:</span>
+
+<span class="sd">        1: all edges</span>
+<span class="sd">        2: feature edges</span>
+<span class="sd">        3: border edges</span>
+
+<span class="sd">        If no mode is specified, the current wiremode is used. A negative</span>
+<span class="sd">        value inverses the state.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">oldstate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">wiremode</span>
+        <span class="k">if</span> <span class="n">state</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">mode</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># just toggle</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="o">-</span><span class="n">oldstate</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">mode</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">mode</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">oldstate</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">state</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+                <span class="n">state</span> <span class="o">=</span> <span class="o">-</span><span class="n">mode</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">state</span> <span class="o">=</span> <span class="n">mode</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">wiremode</span> <span class="o">=</span> <span class="n">state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">do_wiremode</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">oldstate</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Canvas.getToggle"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.Canvas.getToggle">[docs]</a>    <span class="k">def</span> <span class="nf">getToggle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the value of a toggle attribute&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">attr</span> <span class="o">==</span> <span class="s1">&#39;perspective&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">perspective</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="Canvas.setToggle"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.Canvas.setToggle">[docs]</a>    <span class="k">def</span> <span class="nf">setToggle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set or toggle a boolean settings attribute</span>
+
+<span class="sd">        Furthermore, if a Canvas method do_ATTR is defined, it will be called</span>
+<span class="sd">        with the old and new toggle state as a parameter.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">oldstate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getToggle</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">state</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">]:</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">oldstate</span>
+        <span class="k">if</span> <span class="n">attr</span> <span class="o">==</span> <span class="s1">&#39;perspective&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">perspective</span> <span class="o">=</span> <span class="n">state</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span> <span class="o">=</span> <span class="n">state</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">func</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;do_&#39;</span><span class="o">+</span><span class="n">attr</span><span class="p">)</span>
+            <span class="n">func</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">oldstate</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="Canvas.do_wiremode"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.Canvas.do_wiremode">[docs]</a>    <span class="k">def</span> <span class="nf">do_wiremode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">oldstate</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Change the wiremode&quot;&quot;&quot;</span>
+        <span class="c1">#print(&quot;CANVAS.do_wiremode: %s -&gt; %s&quot;%(oldstate, state))</span>
+        <span class="k">if</span> <span class="n">state</span> <span class="o">!=</span> <span class="n">oldstate</span> <span class="ow">and</span> <span class="p">(</span><span class="n">state</span><span class="o">&gt;</span><span class="mi">0</span> <span class="ow">or</span> <span class="n">oldstate</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">):</span>
+            <span class="c1"># switching between two &lt;= modes does not change anything</span>
+            <span class="c1">#print(&quot;Changemode %s&quot; % self.settings.wiremode)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">changeMode</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">display</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Canvas.do_alphablend"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.Canvas.do_alphablend">[docs]</a>    <span class="k">def</span> <span class="nf">do_alphablend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">oldstate</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Toggle alphablend on/off.&quot;&quot;&quot;</span>
+        <span class="c1">#print(&quot;CANVAS.do_alphablend: %s -&gt; %s&quot;%(state,oldstate))</span>
+        <span class="k">if</span> <span class="n">state</span> <span class="o">!=</span> <span class="n">oldstate</span><span class="p">:</span>
+            <span class="c1">#self.renderer.changeMode(self)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">changeMode</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">display</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Canvas.do_lighting"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.Canvas.do_lighting">[docs]</a>    <span class="k">def</span> <span class="nf">do_lighting</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">oldstate</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Toggle lights on/off.&quot;&quot;&quot;</span>
+        <span class="c1">#print(&quot;CANVAS.do_lighting: %s -&gt; %s&quot;%(state,oldstate))</span>
+        <span class="k">if</span> <span class="n">state</span> <span class="o">!=</span> <span class="n">oldstate</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">enable_lighting</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">changeMode</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">display</span><span class="p">()</span></div>
+
+
+    <span class="k">def</span> <span class="nf">do_avgnormals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">oldstate</span><span class="p">):</span>
+        <span class="c1">#print(&quot;CANVAS.do_avgnormals: %s -&gt; %s&quot; % (state, oldstate))</span>
+        <span class="k">if</span> <span class="n">state</span><span class="o">!=</span><span class="n">oldstate</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">lighting</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">changeMode</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">display</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="Canvas.setLineWidth"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.Canvas.setLineWidth">[docs]</a>    <span class="k">def</span> <span class="nf">setLineWidth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lw</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the linewidth for line rendering.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">linewidth</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">lw</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Canvas.setLineStipple"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.Canvas.setLineStipple">[docs]</a>    <span class="k">def</span> <span class="nf">setLineStipple</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repeat</span><span class="p">,</span> <span class="n">pattern</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the linestipple for line rendering.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;linestipple&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">repeat</span><span class="p">,</span> <span class="n">pattern</span><span class="p">)})</span></div>
+
+
+<div class="viewcode-block" id="Canvas.setPointSize"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.Canvas.setPointSize">[docs]</a>    <span class="k">def</span> <span class="nf">setPointSize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sz</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the size for point drawing.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">pointsize</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">sz</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Canvas.setBackground"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.Canvas.setBackground">[docs]</a>    <span class="k">def</span> <span class="nf">setBackground</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the color(s) and image.</span>
+
+<span class="sd">        Change the background settings according to the specified parameters</span>
+<span class="sd">        and set the canvas background accordingly. Only (and all) the specified</span>
+<span class="sd">        parameters get a new value.</span>
+
+<span class="sd">        Parameters:</span>
+
+<span class="sd">        - `color`: either a single color, a list of two colors or a list of</span>
+<span class="sd">          four colors.</span>
+<span class="sd">        - `image`: an image to be set.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">backgrounds</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">color</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">bgcolor</span><span class="o">=</span><span class="n">color</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">image</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">bgimage</span><span class="o">=</span><span class="n">image</span><span class="p">))</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">bgcolor</span>
+        <span class="k">if</span> <span class="n">color</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">bgimage</span><span class="p">:</span>
+            <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Clearing fancy background&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">DRAW</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">createBackground</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Canvas.createBackground"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.Canvas.createBackground">[docs]</a>    <span class="k">def</span> <span class="nf">createBackground</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create the background object.&quot;&quot;&quot;</span>
+        <span class="n">F</span> <span class="o">=</span> <span class="n">cuboid2d</span><span class="p">(</span><span class="n">xmin</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">1.</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.</span><span class="p">],</span> <span class="n">xmax</span><span class="o">=</span><span class="p">[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">])</span>
+        <span class="c1"># TODO: Currently need a Mesh for texture</span>
+        <span class="n">F</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">toMesh</span><span class="p">()</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">bgimage</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">pyformex.plugins.imagearray</span> <span class="kn">import</span> <span class="n">qimage2numpy</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">image</span> <span class="o">=</span> <span class="n">qimage2numpy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">bgimage</span><span class="p">,</span> <span class="n">indexed</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="k">pass</span>
+        <span class="n">actor</span> <span class="o">=</span> <span class="n">Actor</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;background&#39;</span><span class="p">,</span> <span class="n">rendermode</span><span class="o">=</span><span class="s1">&#39;smooth&#39;</span><span class="p">,</span>
+                      <span class="n">color</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">bgcolor</span><span class="p">],</span> <span class="n">texture</span><span class="o">=</span><span class="n">image</span><span class="p">,</span>
+                      <span class="n">rendertype</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">opak</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">lighting</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">view</span><span class="o">=</span><span class="s1">&#39;front&#39;</span><span class="p">,</span>
+                      <span class="n">sticky</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">addAny</span><span class="p">(</span><span class="n">actor</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="Canvas.setFgColor"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.Canvas.setFgColor">[docs]</a>    <span class="k">def</span> <span class="nf">setFgColor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">color</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the default foreground color.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">fgcolor</span> <span class="o">=</span> <span class="n">colors</span><span class="o">.</span><span class="n">GLcolor</span><span class="p">(</span><span class="n">color</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Canvas.setSlColor"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.Canvas.setSlColor">[docs]</a>    <span class="k">def</span> <span class="nf">setSlColor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">color</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the highlight color.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">slcolor</span> <span class="o">=</span> <span class="n">colors</span><span class="o">.</span><span class="n">GLcolor</span><span class="p">(</span><span class="n">color</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Canvas.setTriade"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.Canvas.setTriade">[docs]</a>    <span class="k">def</span> <span class="nf">setTriade</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="s1">&#39;lb&#39;</span><span class="p">,</span> <span class="n">siz</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">triade</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the Triade for this canvas.</span>
+
+<span class="sd">        Display the Triade on the current viewport.</span>
+<span class="sd">        The Triade is a reserved Actor displaying the orientation of</span>
+<span class="sd">        the global axes. It has special methods to show/hide it.</span>
+<span class="sd">        See also: :meth:`removeTriade`, :meth:`hasTriade`</span>
+
+<span class="sd">        Parameters:</span>
+
+<span class="sd">        - `pos`: string of two characters. The characters define the horizontal</span>
+<span class="sd">          (one of &#39;l&#39;, &#39;c&#39;, or &#39;r&#39;) and vertical (one of &#39;t&#39;, &#39;c&#39;, &#39;b&#39;) position</span>
+<span class="sd">          on the camera&#39;s viewport. Default is left-bottom.</span>
+<span class="sd">        - `siz`: float: intended size (in pixels) of the triade.</span>
+<span class="sd">        - `triade`: None or Geometry: defines the Geometry to be used for</span>
+<span class="sd">          representing the global axes.</span>
+
+<span class="sd">          If None, use the previously set triade, or set a default if no</span>
+<span class="sd">          previous.</span>
+
+<span class="sd">          If Geometry, use this to represent the axes. To be useful and properly</span>
+<span class="sd">          displayed, the Geometry&#39;s bbox should be around [(-1,-1,-1),(1,1,1)].</span>
+<span class="sd">          Drawing attributes may be set on the Geometry to influence</span>
+<span class="sd">          the appearance. This allows to fully customize the Triade.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">triade</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">removeTriade</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">triade</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">pyformex.gui.draw</span> <span class="kn">import</span> <span class="n">draw</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">triade</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">GL</span><span class="o">.</span><span class="n">glGetIntegerv</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_VIEWPORT</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;l&#39;</span><span class="p">:</span>
+                <span class="n">x0</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">siz</span>
+            <span class="k">elif</span> <span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span><span class="s1">&#39;r&#39;</span><span class="p">:</span>
+                <span class="n">x0</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">w</span> <span class="o">-</span> <span class="n">siz</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">x0</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">w</span> <span class="o">//</span> <span class="mi">2</span>
+            <span class="k">if</span> <span class="n">pos</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;b&#39;</span><span class="p">:</span>
+                <span class="n">y0</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="n">siz</span>
+            <span class="k">elif</span> <span class="n">pos</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;t&#39;</span><span class="p">:</span>
+                <span class="n">y0</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="n">h</span> <span class="o">-</span> <span class="n">siz</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">y0</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="n">h</span> <span class="o">//</span> <span class="mi">2</span>
+            <span class="n">A</span> <span class="o">=</span> <span class="n">draw</span><span class="p">(</span><span class="n">triade</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="n">siz</span><span class="p">),</span> <span class="n">rendertype</span><span class="o">=-</span><span class="mi">2</span><span class="p">,</span> <span class="n">single</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">siz</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">x0</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">triade</span> <span class="o">=</span> <span class="n">A</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">triade</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">addAny</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">triade</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Canvas.removeTriade"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.Canvas.removeTriade">[docs]</a>    <span class="k">def</span> <span class="nf">removeTriade</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Remove the Triade from the canvas.</span>
+
+<span class="sd">        Remove the Triade from the current viewport.</span>
+<span class="sd">        The Triade is a reserved Actor displaying the orientation of</span>
+<span class="sd">        the global axes. It has special methods to draw/undraw it.</span>
+<span class="sd">        See also: :meth:`setTriade`, :meth:`hasTriade`</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hasTriade</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">removeAny</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">triade</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Canvas.hasTriade"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.Canvas.hasTriade">[docs]</a>    <span class="k">def</span> <span class="nf">hasTriade</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check if the canvas has a Triade displayed.</span>
+
+<span class="sd">        Return True if the Triade is currently displayed.</span>
+<span class="sd">        The Triade is a reserved Actor displaying the orientation of</span>
+<span class="sd">        the global axes.</span>
+<span class="sd">        See also: :meth:`setTriade`, :meth:`removeTriade`</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">triade</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">triade</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">decorations</span></div>
+
+
+<div class="viewcode-block" id="Canvas.setGrid"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.Canvas.setGrid">[docs]</a>    <span class="k">def</span> <span class="nf">setGrid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the canvas Grid for this canvas.</span>
+
+<span class="sd">        Display the Grid on the current viewport.</span>
+<span class="sd">        The Grid is a 2D grid fixed to the canvas.</span>
+<span class="sd">        See also: :meth:`removeGrid`, :meth:`hasGrid`</span>
+
+<span class="sd">        Parameters:</span>
+
+<span class="sd">        - `grid`: None or Actor: The Actor to be displayed as grid. This will</span>
+<span class="sd">          normall be a Grid2D Actor.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">removeGrid</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">grid</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">grid</span> <span class="o">=</span> <span class="n">grid</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">addAny</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Canvas.removeGrid"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.Canvas.removeGrid">[docs]</a>    <span class="k">def</span> <span class="nf">removeGrid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Remove the Grid from the canvas.</span>
+
+<span class="sd">        Remove the Grid from the current viewport.</span>
+<span class="sd">        The Grid is a 2D grid fixed to the canvas.</span>
+<span class="sd">        See also: :meth:`setGrid`, :meth:`hasGrid`</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hasGrid</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">removeAny</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Canvas.hasGrid"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.Canvas.hasGrid">[docs]</a>    <span class="k">def</span> <span class="nf">hasGrid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check if the canvas has a Grid displayed.</span>
+
+<span class="sd">        Return True if the Grid is currently displayed.</span>
+<span class="sd">        The Grid is a 2D grid fixed to the canvas.</span>
+<span class="sd">        See also: :meth:`setGrid`, :meth:`removeGrid`</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">decorations</span></div>
+
+
+<div class="viewcode-block" id="Canvas.initCamera"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.Canvas.initCamera">[docs]</a>    <span class="k">def</span> <span class="nf">initCamera</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">camera</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize the current canvas camera</span>
+
+<span class="sd">        If a camera is provided, that camera is set. Else a new</span>
+<span class="sd">        default camera is constructed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">makeCurrent</span><span class="p">()</span>  <span class="c1"># we need correct OpenGL context for camera</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">camera</span><span class="p">,</span> <span class="n">Camera</span><span class="p">):</span>
+            <span class="n">camera</span> <span class="o">=</span> <span class="n">Camera</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">camera</span> <span class="o">=</span> <span class="n">camera</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">renderer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">renderer</span> <span class="o">=</span> <span class="n">Renderer</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">renderer</span><span class="o">.</span><span class="n">camera</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">camera</span></div>
+
+
+<div class="viewcode-block" id="Canvas.clearCanvas"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.Canvas.clearCanvas">[docs]</a>    <span class="k">def</span> <span class="nf">clearCanvas</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Clear the canvas to the background color.&quot;&quot;&quot;</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">bgcolor</span>
+        <span class="k">if</span> <span class="n">color</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">color</span> <span class="o">=</span> <span class="n">color</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">GL</span><span class="o">.</span><span class="n">glClear</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_COLOR_BUFFER_BIT</span> <span class="o">|</span> <span class="n">GL</span><span class="o">.</span><span class="n">GL_DEPTH_BUFFER_BIT</span><span class="p">)</span>
+        <span class="n">GL</span><span class="o">.</span><span class="n">glClearColor</span><span class="p">(</span><span class="o">*</span><span class="n">colors</span><span class="o">.</span><span class="n">RGBA</span><span class="p">(</span><span class="n">color</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setDefaults</span><span class="p">()</span></div>
+
+
+    <span class="k">def</span> <span class="nf">setSize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">h</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># prevent divide by zero</span>
+            <span class="n">h</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">GL</span><span class="o">.</span><span class="n">glViewport</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">aspect</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">w</span><span class="p">)</span><span class="o">/</span><span class="n">h</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">setLens</span><span class="p">(</span><span class="n">aspect</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">aspect</span><span class="p">)</span>
+        <span class="c1">## if self.scene.background:</span>
+        <span class="c1">##     # recreate the background to match the current size</span>
+        <span class="c1">##     self.createBackground()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">display</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="Canvas.drawit"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.Canvas.drawit">[docs]</a>    <span class="k">def</span> <span class="nf">drawit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;_Perform the drawing of a single item&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setDefaults</span><span class="p">()</span>
+        <span class="n">a</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Canvas.setDefaults"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.Canvas.setDefaults">[docs]</a>    <span class="k">def</span> <span class="nf">setDefaults</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Activate the canvas settings in the GL machine.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">activate</span><span class="p">()</span>
+        <span class="c1">#self.enable_lighting(self.settings.lighting)</span>
+        <span class="n">GL</span><span class="o">.</span><span class="n">glDepthFunc</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_LESS</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Canvas.overrideMode"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.Canvas.overrideMode">[docs]</a>    <span class="k">def</span> <span class="nf">overrideMode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Override some settings&quot;&quot;&quot;</span>
+        <span class="n">settings</span> <span class="o">=</span> <span class="n">CanvasSettings</span><span class="o">.</span><span class="n">RenderProfiles</span><span class="p">[</span><span class="n">mode</span><span class="p">]</span>
+        <span class="n">CanvasSettings</span><span class="o">.</span><span class="n">glOverride</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Canvas.reset"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.Canvas.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Reset the rendering engine.</span>
+
+<span class="sd">        The rendering machine is initialized according to self.settings:</span>
+<span class="sd">        - self.rendermode: one of</span>
+<span class="sd">        - self.lighting</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setDefaults</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setBackground</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">bgcolor</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">bgimage</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clearCanvas</span><span class="p">()</span>
+        <span class="n">GL</span><span class="o">.</span><span class="n">glClearDepth</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>	       <span class="c1"># Enables Clearing Of The Depth Buffer</span>
+        <span class="n">GL</span><span class="o">.</span><span class="n">glEnable</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_DEPTH_TEST</span><span class="p">)</span>	       <span class="c1"># Enables Depth Testing</span>
+        <span class="n">GL</span><span class="o">.</span><span class="n">glEnable</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_CULL_FACE</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">rendermode</span> <span class="o">==</span> <span class="s1">&#39;wireframe&#39;</span><span class="p">:</span>
+            <span class="n">gl</span><span class="o">.</span><span class="n">gl_polygonoffset</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">gl</span><span class="o">.</span><span class="n">gl_polygonoffset</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Canvas.glinit"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.Canvas.glinit">[docs]</a>    <span class="k">def</span> <span class="nf">glinit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize the rendering engine.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Canvas.glFinish"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.Canvas.glFinish">[docs]</a>    <span class="k">def</span> <span class="nf">glFinish</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Flush all OpenGL commands, making sure the display is updated.&quot;&quot;&quot;</span>
+        <span class="n">GL</span><span class="o">.</span><span class="n">glFinish</span><span class="p">()</span></div>
+
+
+    <span class="c1"># TODO: this is here for compatibility reasons</span>
+    <span class="c1"># should be removed after complete transition to shaders</span>
+<div class="viewcode-block" id="Canvas.draw_sorted_objects"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.Canvas.draw_sorted_objects">[docs]</a>    <span class="k">def</span> <span class="nf">draw_sorted_objects</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">objects</span><span class="p">,</span> <span class="n">alphablend</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Draw a list of sorted objects through the fixed pipeline.</span>
+
+<span class="sd">        If alphablend is True, objects are separated in opaque</span>
+<span class="sd">        and transparent ones, and the opaque are drawn first.</span>
+<span class="sd">        Inside each group, ordering is preserved.</span>
+<span class="sd">        Else, the objects are drawn in the order submitted.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">alphablend</span><span class="p">:</span>
+            <span class="n">opaque</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">objects</span> <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">opak</span><span class="p">]</span>
+            <span class="n">transp</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">objects</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">a</span><span class="o">.</span><span class="n">opak</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">opaque</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">setDefaults</span><span class="p">()</span>
+                <span class="n">obj</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">canvas</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+            <span class="n">GL</span><span class="o">.</span><span class="n">glEnable</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_BLEND</span><span class="p">)</span>
+            <span class="n">GL</span><span class="o">.</span><span class="n">glDepthMask</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_FALSE</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;draw/disable_depth_test&#39;</span><span class="p">]:</span>
+                <span class="n">GL</span><span class="o">.</span><span class="n">glDisable</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_DEPTH_TEST</span><span class="p">)</span>
+            <span class="n">GL</span><span class="o">.</span><span class="n">glBlendFunc</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_SRC_ALPHA</span><span class="p">,</span> <span class="n">GL</span><span class="o">.</span><span class="n">GL_ONE_MINUS_SRC_ALPHA</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">transp</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">setDefaults</span><span class="p">()</span>
+                <span class="n">obj</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">canvas</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+            <span class="n">GL</span><span class="o">.</span><span class="n">glEnable</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_DEPTH_TEST</span><span class="p">)</span>
+            <span class="n">GL</span><span class="o">.</span><span class="n">glDepthMask</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_TRUE</span><span class="p">)</span>
+            <span class="n">GL</span><span class="o">.</span><span class="n">glDisable</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_BLEND</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">objects</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">setDefaults</span><span class="p">()</span>
+                <span class="n">obj</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">canvas</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Canvas.display"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.Canvas.display">[docs]</a>    <span class="k">def</span> <span class="nf">display</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;(Re)display all the actors in the scene.</span>
+
+<span class="sd">        This should e.g. be used when actors are added to the scene,</span>
+<span class="sd">        or after changing  camera position/orientation or lens.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">makeCurrent</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">picking</span><span class="p">:</span>
+            <span class="c1">#self.settings.lighting = False</span>
+            <span class="n">GL</span><span class="o">.</span><span class="n">glClear</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_COLOR_BUFFER_BIT</span> <span class="o">|</span> <span class="n">GL</span><span class="o">.</span><span class="n">GL_DEPTH_BUFFER_BIT</span><span class="p">)</span>
+            <span class="n">GL</span><span class="o">.</span><span class="n">glClearColor</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span><span class="mf">0.0</span><span class="p">,</span><span class="mf">0.0</span><span class="p">,</span><span class="mf">0.0</span><span class="p">)</span>
+            <span class="n">gl</span><span class="o">.</span><span class="n">gl_flat</span><span class="p">()</span>
+            <span class="n">GL</span><span class="o">.</span><span class="n">glDisable</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_BLEND</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">clearCanvas</span><span class="p">()</span>
+            <span class="n">gl</span><span class="o">.</span><span class="n">gl_smooth</span><span class="p">()</span>
+        <span class="n">gl</span><span class="o">.</span><span class="n">gl_fill</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">renderer</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">picking</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">glFinish</span><span class="p">()</span></div>
+
+
+    <span class="k">def</span> <span class="nf">create_pickitems</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj_type</span><span class="p">):</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># 0 is used to identify background pixels</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pick_nitems</span> <span class="o">=</span> <span class="p">[</span><span class="n">start</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">actors</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">debugon</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">PICK</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Actor </span><span class="si">{</span><span class="n">a</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">, pickable: </span><span class="si">{</span><span class="n">a</span><span class="o">.</span><span class="n">pickable</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">pickable</span><span class="p">:</span>
+                <span class="n">start</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">_add_pick</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">obj_type</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pick_nitems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">start</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Canvas.renderpick"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.Canvas.renderpick">[docs]</a>    <span class="k">def</span> <span class="nf">renderpick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj_type</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Show rendering for picking&quot;&quot;&quot;</span>
+        <span class="c1"># Create pickitems</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_pickitems</span><span class="p">(</span><span class="n">obj_type</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">picking</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">display</span><span class="p">()</span></div>
+
+
+    <span class="k">def</span> <span class="nf">zoom_2D</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">zoom</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">zoom</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">zoom</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">(),</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">())</span>
+        <span class="n">GLU</span><span class="o">.</span><span class="n">gluOrtho2D</span><span class="p">(</span><span class="o">*</span><span class="n">zoom</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Canvas.begin_2D_drawing"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.Canvas.begin_2D_drawing">[docs]</a>    <span class="k">def</span> <span class="nf">begin_2D_drawing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set up the canvas for 2D drawing on top of 3D canvas.</span>
+
+<span class="sd">        The 2D drawing operation should be ended by calling end_2D_drawing.</span>
+<span class="sd">        It is assumed that you will not try to change/refresh the normal</span>
+<span class="sd">        3D drawing cycle during this operation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1">#pf.debug(&quot;Start 2D drawing&quot;,pf.DEBUG.DRAW)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode2D</span><span class="p">:</span>
+            <span class="c1">#pf.debug(&quot;WARNING: ALREADY IN 2D MODE&quot;,pf.DEBUG.DRAW)</span>
+            <span class="k">return</span>
+        <span class="n">GL</span><span class="o">.</span><span class="n">glMatrixMode</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_MODELVIEW</span><span class="p">)</span>
+        <span class="n">GL</span><span class="o">.</span><span class="n">glPushMatrix</span><span class="p">()</span>
+        <span class="n">GL</span><span class="o">.</span><span class="n">glLoadIdentity</span><span class="p">()</span>
+        <span class="n">GL</span><span class="o">.</span><span class="n">glMatrixMode</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_PROJECTION</span><span class="p">)</span>
+        <span class="n">GL</span><span class="o">.</span><span class="n">glPushMatrix</span><span class="p">()</span>
+        <span class="n">GL</span><span class="o">.</span><span class="n">glLoadIdentity</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zoom_2D</span><span class="p">()</span>
+        <span class="n">GL</span><span class="o">.</span><span class="n">glDisable</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_DEPTH_TEST</span><span class="p">)</span>
+        <span class="c1">#self.enable_lighting(False)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mode2D</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="Canvas.end_2D_drawing"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.Canvas.end_2D_drawing">[docs]</a>    <span class="k">def</span> <span class="nf">end_2D_drawing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Cancel the 2D drawing mode initiated by begin_2D_drawing.&quot;&quot;&quot;</span>
+        <span class="c1">#pf.debug(&quot;End 2D drawing&quot;,pf.DEBUG.DRAW)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode2D</span><span class="p">:</span>
+            <span class="n">GL</span><span class="o">.</span><span class="n">glEnable</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_DEPTH_TEST</span><span class="p">)</span>
+            <span class="n">GL</span><span class="o">.</span><span class="n">glMatrixMode</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_PROJECTION</span><span class="p">)</span>
+            <span class="n">GL</span><span class="o">.</span><span class="n">glPopMatrix</span><span class="p">()</span>
+            <span class="n">GL</span><span class="o">.</span><span class="n">glMatrixMode</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_MODELVIEW</span><span class="p">)</span>
+            <span class="n">GL</span><span class="o">.</span><span class="n">glPopMatrix</span><span class="p">()</span>
+            <span class="c1">#self.enable_lighting(self.settings.lighting)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mode2D</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="Canvas.addHighlight"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.Canvas.addHighlight">[docs]</a>    <span class="k">def</span> <span class="nf">addHighlight</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">itemlist</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add a highlight or a list thereof to the 3D scene&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">highlights</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">itemlist</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">removeHighlight</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">itemlist</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Remove a highlight or a list thereof from the 3D scene.</span>
+
+<span class="sd">        Without argument, removes all highlights from the scene.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">itemlist</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">itemlist</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">highlights</span><span class="p">[:]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">highlights</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">itemlist</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">addAny</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">itemlist</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">addAny</span><span class="p">(</span><span class="n">itemlist</span><span class="p">)</span>
+
+
+    <span class="n">addActor</span> <span class="o">=</span> <span class="n">addAnnotation</span> <span class="o">=</span> <span class="n">addDecoration</span> <span class="o">=</span> <span class="n">addAny</span>
+
+    <span class="k">def</span> <span class="nf">removeAny</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">itemlist</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">removeAny</span><span class="p">(</span><span class="n">itemlist</span><span class="p">)</span>
+
+    <span class="n">removeActor</span> <span class="o">=</span> <span class="n">removeAnnotation</span> <span class="o">=</span> <span class="n">removeDecoration</span> <span class="o">=</span> <span class="n">removeAny</span>
+
+
+    <span class="k">def</span> <span class="nf">removeAll</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">clear</span><span class="p">(</span><span class="n">sticky</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">highlights</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+
+
+    <span class="k">def</span> <span class="nf">dummy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="n">redrawAll</span> <span class="o">=</span> <span class="n">dummy</span>
+
+
+    <span class="k">def</span> <span class="nf">setBbox</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bbox</span><span class="p">):</span>
+        <span class="c1">#print(&quot;SETBBOX %s&quot; % bbox)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">bbox</span> <span class="o">=</span> <span class="n">bbox</span>
+
+
+<div class="viewcode-block" id="Canvas.setCamera"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.Canvas.setCamera">[docs]</a>    <span class="k">def</span> <span class="nf">setCamera</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bbox</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">angles</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;xy&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sets the camera looking under angles at bbox.</span>
+
+<span class="sd">        This function sets the camera parameters to view the specified</span>
+<span class="sd">        bbox volume from the specified viewing direction.</span>
+
+<span class="sd">        Parameters:</span>
+
+<span class="sd">        - `bbox`: the bbox of the volume looked at</span>
+<span class="sd">        - `angles`: the camera angles specifying the viewing direction.</span>
+<span class="sd">          It can also be a string, the key of one of the predefined</span>
+<span class="sd">          camera directions</span>
+
+<span class="sd">        If no angles are specified, the viewing direction remains constant.</span>
+<span class="sd">        The scene center (camera focus point), camera distance, fovy and</span>
+<span class="sd">        clipping planes are adjusted to make the whole bbox viewed from the</span>
+<span class="sd">        specified direction fit into the screen.</span>
+
+<span class="sd">        If no bbox is specified, the following remain constant:</span>
+<span class="sd">        the center of the scene, the camera distance, the lens opening</span>
+<span class="sd">        and aspect ratio, the clipping planes. In other words the camera</span>
+<span class="sd">        is moving on a spherical surface and keeps focusing on the same</span>
+<span class="sd">        point.</span>
+
+<span class="sd">        If both are specified, then first the scene center is set,</span>
+<span class="sd">        then the camera angles, and finally the camera distance.</span>
+
+<span class="sd">        In the current implementation, the lens fovy and aspect are not</span>
+<span class="sd">        changed by this function. Zoom adjusting is performed solely by</span>
+<span class="sd">        changing the camera distance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1">#</span>
+        <span class="c1"># TODO: we should add the rectangle (digital) zooming to</span>
+        <span class="c1">#       the docstring</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">makeCurrent</span><span class="p">()</span>
+
+        <span class="c1"># set scene center</span>
+        <span class="k">if</span> <span class="n">bbox</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;SETTING BBOX: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">bbox</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">DRAW</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setBbox</span><span class="p">(</span><span class="n">bbox</span><span class="p">)</span>
+
+            <span class="n">X0</span><span class="p">,</span> <span class="n">X1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">bbox</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">focus</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">X0</span><span class="o">+</span><span class="n">X1</span><span class="p">)</span>
+
+        <span class="c1"># set camera angles</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">angles</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="c1">#print(&quot;canvas0: %s (%s)&quot; % (angles, orient))</span>
+            <span class="n">angles</span><span class="p">,</span> <span class="n">orient</span> <span class="o">=</span> <span class="n">views</span><span class="o">.</span><span class="n">getAngles</span><span class="p">(</span><span class="n">angles</span><span class="p">)</span>
+            <span class="c1">#print(&quot;canvas1: %s (%s)&quot; % (angles, orient))</span>
+        <span class="k">if</span> <span class="n">angles</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1">#print(&quot;canvas2: %s (%s)&quot; % (angles, orient))</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">axes</span> <span class="o">=</span> <span class="n">views</span><span class="o">.</span><span class="n">getAngleAxes</span><span class="p">(</span><span class="n">orient</span><span class="p">)</span>
+                <span class="c1">#print(&quot;canvas3: %s&quot; % str(axes))</span>
+                <span class="k">if</span> <span class="n">orient</span> <span class="o">==</span> <span class="s1">&#39;xz&#39;</span><span class="p">:</span>
+                    <span class="n">angles</span> <span class="o">=</span> <span class="n">angles</span> <span class="o">+</span> <span class="p">(</span><span class="o">-</span><span class="mf">90.</span><span class="p">,)</span>
+                    <span class="n">axes</span> <span class="o">=</span> <span class="n">axes</span> <span class="o">+</span> <span class="p">((</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">),)</span>
+                    <span class="c1">#print(&quot;canvas4: %s (%s)&quot; % (angles, axes))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">setAngles</span><span class="p">(</span><span class="n">angles</span><span class="p">,</span> <span class="n">axes</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid view angles specified: </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">angles</span><span class="p">,</span> <span class="n">orient</span><span class="p">))</span>
+
+        <span class="c1"># set camera distance and clipping planes</span>
+        <span class="k">if</span> <span class="n">bbox</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1">#print(&quot;SET CAMERA %s&quot; % bbox)</span>
+            <span class="c1"># Currently, we keep the default fovy/aspect</span>
+            <span class="c1"># and change the camera distance to focus</span>
+            <span class="n">fovy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">fovy</span>
+            <span class="c1">#pf.debug(&quot;FOVY: %s&quot; % fovy,pf.DEBUG.DRAW)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">setLens</span><span class="p">(</span><span class="n">fovy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">aspect</span><span class="p">)</span>
+            <span class="c1"># Default correction is sqrt(3)</span>
+            <span class="n">correction</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;gui/autozoomfactor&#39;</span><span class="p">])</span>
+            <span class="n">tf</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">tand</span><span class="p">(</span><span class="n">fovy</span><span class="o">/</span><span class="mf">2.</span><span class="p">)</span>
+
+            <span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">simple</span>
+            <span class="n">bbix</span> <span class="o">=</span> <span class="n">simple</span><span class="o">.</span><span class="n">regularGrid</span><span class="p">(</span><span class="n">X0</span><span class="p">,</span> <span class="n">X1</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">swapaxes</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">bbix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">bbix</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">rot</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">])</span>
+            <span class="n">bbox</span> <span class="o">=</span> <span class="n">Coords</span><span class="p">(</span><span class="n">bbix</span><span class="p">)</span><span class="o">.</span><span class="n">bbox</span><span class="p">()</span>
+            <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">,</span> <span class="n">dz</span> <span class="o">=</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">vsize</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">dx</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">aspect</span><span class="p">,</span> <span class="n">dy</span><span class="p">)</span>
+            <span class="n">dsize</span> <span class="o">=</span> <span class="n">bbox</span><span class="o">.</span><span class="n">dsize</span><span class="p">()</span>
+            <span class="n">offset</span> <span class="o">=</span> <span class="n">dz</span>
+            <span class="n">dist</span> <span class="o">=</span> <span class="p">(</span><span class="n">vsize</span><span class="o">/</span><span class="n">tf</span> <span class="o">+</span> <span class="n">offset</span><span class="p">)</span> <span class="o">/</span> <span class="n">correction</span>
+
+            <span class="k">if</span> <span class="n">dist</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span> <span class="ow">or</span> <span class="n">dist</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">:</span>
+                <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;DIST: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">dist</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">DRAW</span><span class="p">)</span>
+                <span class="k">return</span>
+            <span class="k">if</span> <span class="n">dist</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
+                <span class="n">dist</span> <span class="o">=</span> <span class="mf">1.0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">dist</span> <span class="o">=</span> <span class="n">dist</span>
+
+            <span class="c1">## print &quot;vsize,dist = %s, %s&quot; % (vsize,dist)</span>
+            <span class="c1">## near,far = 0.01*dist,100.*dist</span>
+            <span class="c1">## print &quot;near,far = %s, %s&quot; % (near,far)</span>
+            <span class="c1">#near,far = dist-1.2*offset/correction,dist+1.2*offset/correction</span>
+            <span class="n">near</span><span class="p">,</span> <span class="n">far</span> <span class="o">=</span> <span class="n">dist</span><span class="o">-</span><span class="mf">2.0</span><span class="o">*</span><span class="n">dsize</span><span class="p">,</span> <span class="n">dist</span><span class="o">+</span><span class="mf">2.0</span><span class="o">*</span><span class="n">dsize</span>
+            <span class="c1"># print &quot;near,far = %s, %s&quot; % (near,far)</span>
+            <span class="c1">#print (0.0001*vsize,0.01*dist,near)</span>
+            <span class="c1"># We set this very extreme, because near and far are not changed</span>
+            <span class="c1"># in the zoom functions. TODO: fix this.</span>
+            <span class="n">near</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">near</span><span class="p">,</span> <span class="mf">0.001</span><span class="o">*</span><span class="n">vsize</span><span class="p">,</span> <span class="mf">0.001</span><span class="o">*</span><span class="n">dist</span><span class="p">)</span>
+            <span class="n">far</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">far</span><span class="p">,</span> <span class="mf">10000.</span><span class="o">*</span><span class="n">vsize</span><span class="p">,</span> <span class="mf">1000.</span><span class="o">*</span><span class="n">dist</span><span class="p">)</span>
+            <span class="c1"># make sure near is positive far &gt; near</span>
+            <span class="c1">#print(f&quot;NEAR = {near}; FAR = {far}&quot;)</span>
+            <span class="c1"># Very small near gives rounding problems</span>
+            <span class="n">near</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">near</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
+            <span class="c1">#if near &lt; 0.:</span>
+            <span class="c1">#    near = np.finfo(at.Float).eps</span>
+            <span class="k">if</span> <span class="n">far</span> <span class="o">&lt;=</span> <span class="n">near</span><span class="p">:</span>
+                <span class="n">far</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">near</span>
+            <span class="c1"># print(f&quot;DIST={dist}; DSIZE={dsize}; NEAR={near}; FAR={far}&quot;)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">setClip</span><span class="p">(</span><span class="n">near</span><span class="p">,</span> <span class="n">far</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">resetArea</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Canvas.project"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.Canvas.project">[docs]</a>    <span class="k">def</span> <span class="nf">project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Map the object coordinates (x,y,z) to window coordinates.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">project</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="Canvas.unproject"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.Canvas.unproject">[docs]</a>    <span class="k">def</span> <span class="nf">unproject</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Map the window coordinates (x,y,z) to object coordinates.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">unproject</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="Canvas.zoom"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.Canvas.zoom">[docs]</a>    <span class="k">def</span> <span class="nf">zoom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">dolly</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Dolly zooming.</span>
+
+<span class="sd">        Zooms in with a factor `f` by moving the camera closer</span>
+<span class="sd">        to the scene. This does not change the camera&#39;s FOV setting.</span>
+<span class="sd">        It will change the perspective view though.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">dolly</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">dolly</span><span class="p">(</span><span class="n">f</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Canvas.zoomRectangle"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.Canvas.zoomRectangle">[docs]</a>    <span class="k">def</span> <span class="nf">zoomRectangle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Rectangle zooming.</span>
+
+<span class="sd">        Zooms in/out by changing the area and position of the visible</span>
+<span class="sd">        part of the lens.</span>
+<span class="sd">        Unlike zoom(), this does not change the perspective view.</span>
+
+<span class="sd">        `x0,y0,x1,y1` are pixel coordinates of the lower left and upper right</span>
+<span class="sd">        corners of the area of the lens that will be mapped on the</span>
+<span class="sd">        canvas viewport.</span>
+<span class="sd">        Specifying values that lead to smaller width/height will zoom in.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">()),</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">setArea</span><span class="p">(</span><span class="n">x0</span><span class="o">/</span><span class="n">w</span><span class="p">,</span> <span class="n">y0</span><span class="o">/</span><span class="n">h</span><span class="p">,</span> <span class="n">x1</span><span class="o">/</span><span class="n">w</span><span class="p">,</span> <span class="n">y1</span><span class="o">/</span><span class="n">h</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Canvas.zoomCentered"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.Canvas.zoomCentered">[docs]</a>    <span class="k">def</span> <span class="nf">zoomCentered</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Rectangle zooming with specified center.</span>
+
+<span class="sd">        This is like zoomRectangle, but the zoom rectangle is specified</span>
+<span class="sd">        by its center and size, which may be more appropriate when using</span>
+<span class="sd">        off-center zooming.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zoomRectangle</span><span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="n">w</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">y</span><span class="o">-</span><span class="n">h</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">x</span><span class="o">+</span><span class="n">w</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">y</span><span class="o">+</span><span class="n">w</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Canvas.zoomAll"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.Canvas.zoomAll">[docs]</a>    <span class="k">def</span> <span class="nf">zoomAll</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Zoom to make full scene visible.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setCamera</span><span class="p">(</span><span class="n">bbox</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sceneBbox</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="Canvas.saveBuffer"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.Canvas.saveBuffer">[docs]</a>    <span class="k">def</span> <span class="nf">saveBuffer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Save the current OpenGL buffer&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_buffer</span> <span class="o">=</span> <span class="n">GL</span><span class="o">.</span><span class="n">glGetIntegerv</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_DRAW_BUFFER</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Canvas.showBuffer"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.Canvas.showBuffer">[docs]</a>    <span class="k">def</span> <span class="nf">showBuffer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Show the saved buffer&quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="Canvas.add_focus_rectangle"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.Canvas.add_focus_rectangle">[docs]</a>    <span class="k">def</span> <span class="nf">add_focus_rectangle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="o">.</span><span class="n">pyformex_pink</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Draw the focus rectangle.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_focus</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_focus</span> <span class="o">=</span> <span class="n">Grid2D</span><span class="p">(</span><span class="o">-</span><span class="mf">1.</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">rendertype</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_focus</span><span class="o">.</span><span class="n">sticky</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_focus</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">backgrounds</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">addAny</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_focus</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">()</span></div>
+
+
+    <span class="k">def</span> <span class="nf">remove_focus_rectangle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_focus</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">removeAny</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_focus</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_focus</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+<div class="viewcode-block" id="Canvas.highlightSelection"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.Canvas.highlightSelection">[docs]</a>    <span class="k">def</span> <span class="nf">highlightSelection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">K</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Highlight a selection of items on the canvas.</span>
+
+<span class="sd">        K is Collection of actors/items as returned by the pick() method.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">removeHighlight</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">K</span><span class="o">.</span><span class="n">obj_type</span> <span class="o">==</span> <span class="s1">&#39;actor&#39;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">K</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">[]):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">actors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">setHighlight</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">K</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">K</span><span class="o">.</span><span class="n">obj_type</span> <span class="o">==</span> <span class="s1">&#39;element&#39;</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">actors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">addHighlightElements</span><span class="p">(</span><span class="n">K</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                    <span class="k">elif</span> <span class="n">K</span><span class="o">.</span><span class="n">obj_type</span> <span class="o">==</span> <span class="s1">&#39;point&#39;</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">actors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">addHighlightPoints</span><span class="p">(</span><span class="n">K</span><span class="p">[</span><span class="n">i</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="Canvas.removeHighlight"><a class="viewcode-back" href="../../ref/opengl.canvas.html#opengl.canvas.Canvas.removeHighlight">[docs]</a>    <span class="k">def</span> <span class="nf">removeHighlight</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Remove a highlight or a list thereof from the 3D scene.</span>
+
+<span class="sd">        Without argument, removes all highlights from the scene.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">removeHighlight</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">actor</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">actors</span><span class="p">:</span>
+            <span class="n">actor</span><span class="o">.</span><span class="n">removeHighlight</span><span class="p">()</span></div></div>
+
+
+<span class="c1">### End</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">opengl.canvas</a></li--> 
+      </ul>
+    </div>
+    <div class="footer">
+    <span class="left">
+        &copy; Copyright 2004-2023, Benedict Verhegghe.
+    </span>
+      Last updated on Mar 27, 2023.
+    <span class="right">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.4.3.
+    </span>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,1055 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!--
+##
+##  This file is part of the pyFormex project.
+##  pyFormex is a tool for generating, manipulating and transforming 3D
+##  geometrical models by sequences of mathematical operations.
+##  Home page: http://pyformex.org
+##  Project page:  http://savannah.nongnu.org/projects/pyformex/
+##  Copyright (C) Benedict Verhegghe (benedict.verhegghe@ugent.be)
+##  Distributed under the GNU General Public License version 3 or later.
+##
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see http://www.gnu.org/licenses/.
+##
+-->
+    <title>plugins.tools &#8212; pyFormex 3.3 documentation</title>
+
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pyformex.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+<link rel="icon" type="image/png" href="../../_static/pyformex_fav.png" />
+
+  </head><body>
+
+<div class="header">
+  <a href="http://pyformex.org">
+  <img src="../../_static/scallop_dome_small.png" alt="scallop dome" border="0" hspace="20" vspace="12" align="left" />
+  <img src="../../_static/pyformex-logo-2.png" alt="pyformex logo" border="0" hspace="10" vspace="8" align="left" />
+  </a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">plugins.tools</a></li--> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<!-- PYFORMEX_SIDEBAR_LOGO -->
+<!-- PYFORMEX_WEBSITE_SIDEBAR_TOP -->
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for plugins.tools</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1">##</span>
+<span class="c1">##  SPDX-FileCopyrightText: © 2007-2023 Benedict Verhegghe &lt;bverheg@gmail.com&gt;</span>
+<span class="c1">##  SPDX-License-Identifier: GPL-3.0-or-later</span>
+<span class="c1">##</span>
+<span class="c1">##  This file is part of pyFormex 3.3  (Sun Mar 26 20:16:15 CEST 2023)</span>
+<span class="c1">##  pyFormex is a tool for generating, manipulating and transforming 3D</span>
+<span class="c1">##  geometrical models by sequences of mathematical operations.</span>
+<span class="c1">##  Home page: https://pyformex.org</span>
+<span class="c1">##  Project page: https://savannah.nongnu.org/projects/pyformex/</span>
+<span class="c1">##  Development: https://gitlab.com/bverheg/pyformex</span>
+<span class="c1">##  Distributed under the GNU General Public License version 3 or later.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is free software: you can redistribute it and/or modify</span>
+<span class="c1">##  it under the terms of the GNU General Public License as published by</span>
+<span class="c1">##  the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1">##  (at your option) any later version.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is distributed in the hope that it will be useful,</span>
+<span class="c1">##  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1">##  GNU General Public License for more details.</span>
+<span class="c1">##</span>
+<span class="c1">##  You should have received a copy of the GNU General Public License</span>
+<span class="c1">##  along with this program.  If not, see http://www.gnu.org/licenses/.</span>
+<span class="c1">##</span>
+
+<span class="sd">&quot;&quot;&quot;A collection of graphical tools for pyFormex.</span>
+
+<span class="sd">This is a collection of graphical tools for the pyFormex GUI. Many of</span>
+<span class="sd">these tools can be invoked from the Tools menu.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">pyformex</span> <span class="k">as</span> <span class="nn">pf</span>
+<span class="kn">from</span> <span class="nn">pyformex.core</span> <span class="kn">import</span> <span class="n">np</span><span class="p">,</span> <span class="n">at</span><span class="p">,</span> <span class="n">gt</span><span class="p">,</span> <span class="n">utils</span><span class="p">,</span> <span class="n">Coords</span><span class="p">,</span> <span class="n">Formex</span><span class="p">,</span> <span class="n">Mesh</span><span class="p">,</span> <span class="n">TriSurface</span>
+<span class="kn">from</span> <span class="nn">pyformex.collection</span> <span class="kn">import</span> <span class="n">Collection</span>
+<span class="kn">from</span> <span class="nn">pyformex.gui</span> <span class="kn">import</span> <span class="n">draw</span> <span class="k">as</span> <span class="n">gs</span>
+<span class="kn">from</span> <span class="nn">pyformex.gui.draw</span> <span class="kn">import</span> <span class="n">_T</span><span class="p">,</span> <span class="n">_I</span>
+
+
+<div class="viewcode-block" id="mergedSurface"><a class="viewcode-back" href="../../ref/plugins.tools.html#plugins.tools.mergedSurface">[docs]</a><span class="k">def</span> <span class="nf">mergedSurface</span><span class="p">(</span><span class="o">*</span><span class="n">objects</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create a single surface from multiple Geometry objects</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    objects: list of Geometry</span>
+<span class="sd">        Any number of Geometry subclass instances. The objects that are</span>
+<span class="sd">        TriSurface or convertible to TriSurface are merged into a single</span>
+<span class="sd">        surface. The other ones are skipped with a message.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    TriSurface</span>
+<span class="sd">        A single TriSurface containing all the geometry objects convertable</span>
+<span class="sd">        to surface.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">surfaces</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">objects</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">TriSurface</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">obj</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">toSurface</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">))</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Skipping object </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">: can not be converted to TriSurface&quot;</span><span class="p">)</span>
+                <span class="k">continue</span>
+        <span class="n">surfaces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">surfaces</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">TriSurface</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">surfaces</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">TriSurface</span><span class="p">()</span></div>
+
+<span class="c1">########################### Labels ####################################</span>
+
+<div class="viewcode-block" id="Label"><a class="viewcode-back" href="../../ref/plugins.tools.html#plugins.tools.Label">[docs]</a><span class="k">class</span> <span class="nc">Label</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;A colored string attached to a point in 3D.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    point: :term:`coords_like` (3,)</span>
+<span class="sd">        The coordinates of the point where the label is attached.</span>
+<span class="sd">    text: str</span>
+<span class="sd">        The string to display at the given point</span>
+<span class="sd">    color: int</span>
+<span class="sd">        The color to display the string with. It is an index into</span>
+<span class="sd">        the current palette (pf.canvas.settings.colormap)</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The Label class is intended to add discrete annotations to a rendering.</span>
+<span class="sd">    It should not be used to add large annotation sets, like the numbers</span>
+<span class="sd">    of all elements or nodes. Use :func:`drawNumbers` for that purpose.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">point</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">point</span> <span class="o">=</span> <span class="n">Coords</span><span class="p">(</span><span class="n">point</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">3</span><span class="p">,)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">color</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Label(</span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">point</span><span class="p">)</span><span class="si">}</span><span class="s2">, &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="si">}</span><span class="s2">&#39;, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">color</span><span class="si">}</span><span class="s2">)&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">printoptions</span><span class="p">(</span><span class="n">sign</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="n">floatmode</span><span class="o">=</span><span class="s1">&#39;fixed&#39;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">color</span><span class="si">}</span><span class="s2">) </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">array2string</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">point</span><span class="p">,</span> <span class="n">separator</span><span class="o">=</span><span class="s1">&#39;, &#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="si">}</span><span class="s2">&quot;</span>
+
+<div class="viewcode-block" id="Label.match"><a class="viewcode-back" href="../../ref/plugins.tools.html#plugins.tools.Label.match">[docs]</a>    <span class="k">def</span> <span class="nf">match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">point</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check if Label attributes match the given values.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        True if the Label&#39;s attributes match all the specified arguments.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">((</span><span class="n">point</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">point</span><span class="p">,</span> <span class="n">point</span><span class="p">))</span> <span class="ow">and</span>
+                <span class="p">(</span><span class="n">text</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">==</span> <span class="n">text</span><span class="p">)</span> <span class="ow">and</span>
+                <span class="p">(</span><span class="n">color</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">color</span> <span class="o">==</span> <span class="n">color</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Label.print"><a class="viewcode-back" href="../../ref/plugins.tools.html#plugins.tools.Label.print">[docs]</a>    <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Print a Label to the console&quot;&quot;&quot;</span>
+        <span class="n">gs</span><span class="o">.</span><span class="n">printc</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}{</span><span class="bp">self</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">color</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Label.edit"><a class="viewcode-back" href="../../ref/plugins.tools.html#plugins.tools.Label.edit">[docs]</a>    <span class="k">def</span> <span class="nf">edit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xactions</span><span class="o">=</span><span class="p">[]):</span>
+        <span class="sd">&quot;&quot;&quot;Interactively edit a Label.</span>
+
+<span class="sd">        Pops up a Dialog to edit each of the Label&#39;s attributes.</span>
+<span class="sd">        A list of extra action tuples (buttontext, function) may</span>
+<span class="sd">        be specified to add extra action buttons on the Dialog.</span>
+<span class="sd">        The default has a Cancen and an OK button.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">gs</span><span class="o">.</span><span class="n">askItems</span><span class="p">(</span><span class="n">caption</span><span class="o">=</span><span class="s1">&#39;Edit Label&#39;</span><span class="p">,</span> <span class="n">items</span><span class="o">=</span><span class="p">[</span>
+            <span class="n">_I</span><span class="p">(</span><span class="s1">&#39;point&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">point</span><span class="p">,</span> <span class="n">itemtype</span><span class="o">=</span><span class="s1">&#39;point&#39;</span><span class="p">),</span>
+            <span class="n">_I</span><span class="p">(</span><span class="s1">&#39;text&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">),</span>
+            <span class="n">_I</span><span class="p">(</span><span class="s1">&#39;color&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">color</span><span class="p">),</span>
+        <span class="p">],</span> <span class="n">actions</span><span class="o">=</span><span class="n">xactions</span><span class="o">+</span><span class="p">[(</span><span class="s1">&#39;Cancel&#39;</span><span class="p">,),</span> <span class="p">(</span><span class="s1">&#39;OK&#39;</span><span class="p">,)])</span>
+        <span class="k">if</span> <span class="n">res</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">res</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span></div></div>
+
+
+<div class="viewcode-block" id="Labels"><a class="viewcode-back" href="../../ref/plugins.tools.html#plugins.tools.Labels">[docs]</a><span class="k">class</span> <span class="nc">Labels</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;A flexibel collection of point annotations</span>
+
+<span class="sd">    The Labels class can hold a collection of Label items</span>
+<span class="sd">    and provides function to interactively add, remove, or edit</span>
+<span class="sd">    the labels. It can automatically generate text and color for</span>
+<span class="sd">    new labels. Labels can also be added programmatically.</span>
+<span class="sd">    In autodraw mode all changes are dynamically</span>
+<span class="sd">    propagated to the rendering.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    gentext: callable, optional</span>
+<span class="sd">        A function that returns the text for a new label. The</span>
+<span class="sd">        default will generate texts like &#39;point-0&#39;, &#39;point-1&#39;...</span>
+<span class="sd">    gencolor: callable, optional</span>
+<span class="sd">        A function that returns the color index for a new label.</span>
+<span class="sd">        The default generates the sequence 0, 1,...</span>
+<span class="sd">    pointsize: int</span>
+<span class="sd">        The size of the point drawn where the label is attached.</span>
+<span class="sd">    gravity: str</span>
+<span class="sd">        The gravity for alignment of the string with the attachment point.</span>
+<span class="sd">    fontsize: int</span>
+<span class="sd">        The font size to use for the label text.</span>
+<span class="sd">    autodraw: bool</span>
+<span class="sd">        If True (default), the labels are (re)drawn automatically after</span>
+<span class="sd">        each add or remove operation.</span>
+<span class="sd">    autoprint: bool</span>
+<span class="sd">        If True (default), every label that is added is also printed to the</span>
+<span class="sd">        console with its color.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gentext</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gencolor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">pointsize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">gravity</span><span class="o">=</span><span class="s1">&#39;ne&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+                 <span class="n">autodraw</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">autoprint</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="n">gentext</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gentext</span> <span class="o">=</span> <span class="nb">staticmethod</span><span class="p">(</span><span class="n">gentext</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gentext</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">autoName</span><span class="p">(</span><span class="s1">&#39;point&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="n">gencolor</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gencolor</span> <span class="o">=</span> <span class="nb">staticmethod</span><span class="p">(</span><span class="n">gencolor</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gencolor</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">Counter</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">actors</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pointsize</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">pointsize</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gravity</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">gravity</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fontsize</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">fontsize</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">autodraw</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">autodraw</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">autoprint</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">autoprint</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Labels.clear"><a class="viewcode-back" href="../../ref/plugins.tools.html#plugins.tools.Labels.clear">[docs]</a>    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Remove all labels.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">autodraw</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">undraw</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">labellist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">actors</span> <span class="o">=</span> <span class="p">[]</span></div>
+
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return an iterator for the Collection&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">labellist</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">nlabels</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the number of labels&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">labellist</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">points</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a Coords with all label attachment points&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Coords</span><span class="p">([</span><span class="n">l</span><span class="o">.</span><span class="n">point</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">labellist</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">texts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a list with all label texts&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">l</span><span class="o">.</span><span class="n">text</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">labellist</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">colors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return an int array with all labels colors&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">l</span><span class="o">.</span><span class="n">color</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">labellist</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">at</span><span class="o">.</span><span class="n">Int</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;Labels:</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">l</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">labellist</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">labellist</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+
+<div class="viewcode-block" id="Labels.printc"><a class="viewcode-back" href="../../ref/plugins.tools.html#plugins.tools.Labels.printc">[docs]</a>    <span class="k">def</span> <span class="nf">printc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="s1">&#39;LABELS:&#39;</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="s1">&#39;  &#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Print the list of labels in color on the console&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">header</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">labellist</span><span class="p">:</span>
+            <span class="n">gs</span><span class="o">.</span><span class="n">printc</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">indent</span><span class="si">}{</span><span class="n">l</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">l</span><span class="o">.</span><span class="n">color</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Labels.add"><a class="viewcode-back" href="../../ref/plugins.tools.html#plugins.tools.Labels.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add one or more labels</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        labels: Label | list[Label]</span>
+<span class="sd">            One or more :class:`Label` instances to add to the Labels.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">Label</span><span class="p">):</span>
+            <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">labels</span><span class="p">]</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span>
+                <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">Label</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">labellist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">labellist</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">autodraw</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">autoprint</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">:</span>
+                    <span class="n">label</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expected Label or list of Labels&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Labels.genLabel"><a class="viewcode-back" href="../../ref/plugins.tools.html#plugins.tools.Labels.genLabel">[docs]</a>    <span class="k">def</span> <span class="nf">genLabel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">point</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a new Label without adding it to the collection.</span>
+
+<span class="sd">        Parameters: see :class:`Label`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Label</span>
+<span class="sd">            A Label with the provided attributes or where not provided,</span>
+<span class="sd">            those generated by the specified or default gentext/gencolor</span>
+<span class="sd">            function. This Label is not automatically added to the Labels</span>
+<span class="sd">            collection.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        add: add a Label to the Labels collection</span>
+<span class="sd">        addLabel: create a Label and add it to the collection</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">point</span> <span class="o">=</span> <span class="n">Coords</span><span class="p">(</span><span class="n">point</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gentext</span><span class="p">()</span> <span class="k">if</span> <span class="n">text</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gencolor</span><span class="p">()</span> <span class="k">if</span> <span class="n">color</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Label</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">color</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Labels.addLabel"><a class="viewcode-back" href="../../ref/plugins.tools.html#plugins.tools.Labels.addLabel">[docs]</a>    <span class="k">def</span> <span class="nf">addLabel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">point</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a new label and add it to the collection.&quot;&quot;&quot;</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">genLabel</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">color</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">label</span></div>
+
+<div class="viewcode-block" id="Labels.match"><a class="viewcode-back" href="../../ref/plugins.tools.html#plugins.tools.Labels.match">[docs]</a>    <span class="k">def</span> <span class="nf">match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">point</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Match labels by point, text and/or color</span>
+
+<span class="sd">        Matches all labels in the collection with the given parameters.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool array</span>
+<span class="sd">             A bool array holding True or False for every Label in the</span>
+<span class="sd">             collection.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        find: return indices of matching labels</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">item</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">color</span><span class="p">)</span>
+                         <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">labellist</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">bool</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Labels.find"><a class="viewcode-back" href="../../ref/plugins.tools.html#plugins.tools.Labels.find">[docs]</a>    <span class="k">def</span> <span class="nf">find</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">point</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return indices fo matching labels.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int array</span>
+<span class="sd">            The indices of the labels matching the provided parameters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">at</span><span class="o">.</span><span class="n">where_1d</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">color</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Labels.remove"><a class="viewcode-back" href="../../ref/plugins.tools.html#plugins.tools.Labels.remove">[docs]</a>    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">point</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Remove labels by point coordinates, text or color</span>
+
+<span class="sd">        Removes all the labels matching the provided parameters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">rem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">color</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">labellist</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">labellist</span><span class="p">[</span><span class="o">~</span><span class="n">rem</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">autodraw</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Labels.removeLabel"><a class="viewcode-back" href="../../ref/plugins.tools.html#plugins.tools.Labels.removeLabel">[docs]</a>    <span class="k">def</span> <span class="nf">removeLabel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Remove a label</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        label: Label</span>
+<span class="sd">            A Label to be removed.</span>
+
+<span class="sd">        Removed all the labels matching the provided Label&#39;s attributes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">label</span><span class="o">.</span><span class="n">point</span><span class="p">,</span> <span class="n">label</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="n">label</span><span class="o">.</span><span class="n">color</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Labels.draw"><a class="viewcode-back" href="../../ref/plugins.tools.html#plugins.tools.Labels.draw">[docs]</a>    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Draw the collection of labels.</span>
+
+<span class="sd">        This keeps track of the generated scene actors, and removes the</span>
+<span class="sd">        previous ones when a new draw is done. Two actors are drawn: one</span>
+<span class="sd">        with the dots representing the points, and one with the text strings.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">colors</span>
+        <span class="n">A</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">gs</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">pointsize</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pointsize</span><span class="p">,</span>
+                    <span class="n">ontop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">rendertype</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">bbox</span><span class="o">=</span><span class="s1">&#39;last&#39;</span><span class="p">,</span> <span class="n">view</span><span class="o">=</span><span class="kc">None</span><span class="p">),</span>
+            <span class="n">gs</span><span class="o">.</span><span class="n">drawMarks</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">texts</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
+                         <span class="n">gravity</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">gravity</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fontsize</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="n">gs</span><span class="o">.</span><span class="n">drawActor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">actors</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span>
+        <span class="n">gs</span><span class="o">.</span><span class="n">undraw</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">actors</span><span class="p">[:</span><span class="mi">2</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">actors</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">A</span></div>
+
+<div class="viewcode-block" id="Labels.undraw"><a class="viewcode-back" href="../../ref/plugins.tools.html#plugins.tools.Labels.undraw">[docs]</a>    <span class="k">def</span> <span class="nf">undraw</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Remove the labels from the rendering&quot;&quot;&quot;</span>
+        <span class="n">gs</span><span class="o">.</span><span class="n">undraw</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">actors</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="labelPoints"><a class="viewcode-back" href="../../ref/plugins.tools.html#plugins.tools.labelPoints">[docs]</a><span class="k">def</span> <span class="nf">labelPoints</span><span class="p">(</span><span class="n">labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gentext</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">edit</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Interactively create/edit/remove point labels.</span>
+
+<span class="sd">    Starts a point picking mode and creates a label for every picked</span>
+<span class="sd">    point. The labels are collected in a Labels instance, can be edited</span>
+<span class="sd">    and removed, and are drawn automatically.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    labels: Labels, optional</span>
+<span class="sd">        A Labels collection of labels. If provided, the labels are added to</span>
+<span class="sd">        this collection and existing labels can be edited. If not provided,</span>
+<span class="sd">        a default Labels is created.</span>
+<span class="sd">    gentext: callable, optional</span>
+<span class="sd">        Only used if no ``labels`` was provided. The created default Labels</span>
+<span class="sd">        will then use this function to generate the label text.</span>
+<span class="sd">    edit: bool, optional</span>
+<span class="sd">        If True (default), every generated label will immediately show</span>
+<span class="sd">        an edit Dialog to change its attributes. If False, generated</span>
+<span class="sd">        labels can not be changed, but may be edited afterwards.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Labels</span>
+<span class="sd">        The Labels collection: either the update one that was passed in,</span>
+<span class="sd">        or a newly generated one.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Points can be picked one by one or multiple at once. Picked points</span>
+<span class="sd">    are then handled one by one. If no label exists at point, a new one</span>
+<span class="sd">    is generated. If edit is True, the label (new or old) can then be</span>
+<span class="sd">    edited. The edit dialog allows to accept, change or remove the label.</span>
+<span class="sd">    When all points are handled, a new pick can be done.</span>
+<span class="sd">    If the CTRL key is depressed during picking, existing labels at the points</span>
+<span class="sd">    are removed instead of adding/editing labels.</span>
+<span class="sd">    The procedure stops when the ESC key or right mouse button is pressed.</span>
+<span class="sd">    The Labels collection is then returned. Labels.undraw() can be used</span>
+<span class="sd">    to remove them from the screen, and Labels.draw() to show them again.</span>
+
+<span class="sd">    Currently, if you edit the coordinates of a point thus that they do</span>
+<span class="sd">    not match a point of a regular actor, you will not be able to pick</span>
+<span class="sd">    that point again and thus to edit/remove that label.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">modify_labels</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">pyformex.gui.qtcanvas</span> <span class="kn">import</span> <span class="n">_PICK_SET</span><span class="p">,</span> <span class="n">_PICK_ADD</span><span class="p">,</span> <span class="n">_PICK_REMOVE</span>
+        <span class="k">nonlocal</span> <span class="n">labels</span>
+        <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="n">b</span><span class="p">):</span>
+            <span class="n">labels</span><span class="o">.</span><span class="n">removeLabel</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+            <span class="n">b</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">reject</span><span class="p">()</span>
+        <span class="n">xactions</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">&#39;Remove&#39;</span><span class="p">,</span> <span class="n">remove</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">highlightSelection</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">picked</span><span class="p">)</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="n">getPoints</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">picked</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mod</span> <span class="ow">in</span> <span class="p">(</span><span class="n">_PICK_ADD</span><span class="p">,</span> <span class="n">_PICK_SET</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">points</span><span class="p">:</span>
+                <span class="n">ids</span> <span class="o">=</span> <span class="n">labels</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">mod</span> <span class="o">==</span> <span class="n">_PICK_ADD</span><span class="p">:</span>
+                    <span class="n">label</span> <span class="o">=</span> <span class="n">labels</span><span class="o">.</span><span class="n">addLabel</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">edit</span><span class="p">:</span>
+                        <span class="n">ids</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">edit</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">ids</span><span class="p">:</span>
+                        <span class="n">label</span> <span class="o">=</span> <span class="n">labels</span><span class="o">.</span><span class="n">labellist</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                        <span class="k">if</span> <span class="n">label</span><span class="o">.</span><span class="n">edit</span><span class="p">(</span><span class="n">xactions</span><span class="o">=</span><span class="n">xactions</span><span class="p">):</span>
+                            <span class="n">labels</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">mod</span> <span class="o">==</span> <span class="n">_PICK_REMOVE</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">points</span><span class="p">:</span>
+                <span class="n">labels</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">removeHighlight</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">label_points_func</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">nonlocal</span> <span class="n">labels</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">selection</span><span class="o">.</span><span class="n">keep_order</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># TODO:this should be an option of pick</span>
+        <span class="c1">#self.modify_selection()</span>
+        <span class="n">modify_labels</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Current labels:&quot;</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">Labels</span><span class="p">):</span>
+        <span class="n">labels</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="n">Labels</span><span class="p">(</span><span class="n">gentext</span><span class="o">=</span><span class="n">gentext</span><span class="p">)</span>
+    <span class="n">gs</span><span class="o">.</span><span class="n">pick</span><span class="p">(</span><span class="s1">&#39;point&#39;</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="n">label_points_func</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">labels</span></div>
+
+
+<span class="c1"># Label text options for labelPoints2D</span>
+<span class="k">def</span> <span class="nf">label_coords2D</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">prec</span><span class="p">):</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot; (</span><span class="si">{</span><span class="n">P</span><span class="o">.</span><span class="n">x</span><span class="si">:{</span><span class="n">prec</span><span class="si">}}</span><span class="s2">, </span><span class="si">{</span><span class="n">P</span><span class="o">.</span><span class="n">y</span><span class="si">:{</span><span class="n">prec</span><span class="si">}}</span><span class="s2">)&quot;</span>
+
+<span class="k">def</span> <span class="nf">label_dist2D</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">prec</span><span class="p">):</span>
+    <span class="n">PQ</span> <span class="o">=</span> <span class="n">Q</span><span class="o">-</span><span class="n">P</span>
+    <span class="c1"># return f&quot; h={PQ.x:{prec}}, v={PQ.y:{prec}}, d={at.length(PQ[:2]):{prec}}&quot;</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot; dist=</span><span class="si">{</span><span class="n">at</span><span class="o">.</span><span class="n">length</span><span class="p">(</span><span class="n">PQ</span><span class="p">[:</span><span class="mi">2</span><span class="p">])</span><span class="si">:{</span><span class="n">prec</span><span class="si">}}</span><span class="s2"> (</span><span class="si">{</span><span class="n">PQ</span><span class="o">.</span><span class="n">x</span><span class="si">:{</span><span class="n">prec</span><span class="si">}}</span><span class="s2">, </span><span class="si">{</span><span class="n">PQ</span><span class="o">.</span><span class="n">y</span><span class="si">:{</span><span class="n">prec</span><span class="si">}}</span><span class="s2">)&quot;</span>
+
+<span class="k">def</span> <span class="nf">label_angle2D</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">prec</span><span class="p">):</span>
+    <span class="n">angle</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">rotationAngle</span><span class="p">(</span><span class="n">R</span><span class="o">-</span><span class="n">Q</span><span class="p">,</span> <span class="n">P</span><span class="o">-</span><span class="n">Q</span><span class="p">,</span> <span class="n">m</span><span class="o">=</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span><span class="mf">0.</span><span class="p">,</span><span class="mf">1.</span><span class="p">),</span> <span class="n">angle_spec</span><span class="o">=</span><span class="n">at</span><span class="o">.</span><span class="n">DEG</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot; angle=</span><span class="si">{</span><span class="n">angle</span><span class="si">:{</span><span class="n">prec</span><span class="si">}}</span><span class="s2">&quot;</span>
+
+
+<div class="viewcode-block" id="labelPoints2D"><a class="viewcode-back" href="../../ref/plugins.tools.html#plugins.tools.labelPoints2D">[docs]</a><span class="k">def</span> <span class="nf">labelPoints2D</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="s1">&#39;point&#39;</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span>
+                  <span class="n">surface</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">missing</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">zvalue</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">npoints</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+                  <span class="n">labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gravity</span><span class="o">=</span><span class="s1">&#39;e&#39;</span><span class="p">,</span> <span class="n">drawstyle</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                  <span class="n">prec</span><span class="o">=</span><span class="s1">&#39;+.4f&#39;</span><span class="p">,</span> <span class="n">labeltext</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="c1">#                  every=1, keeplines=False</span>
+                  <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Interactively create and label points on a plane or a surface.</span>
+
+<span class="sd">    Puts the user in an interactive projective mode where each mouse click</span>
+<span class="sd">    generates a 3D point. Since the mouse click only generates two coordinates</span>
+<span class="sd">    (in a plane perpendicular to the camera axis), the third coordinate</span>
+<span class="sd">    (depth) has to be defined by projection in the direction of the camera</span>
+<span class="sd">    axis) onto a surface or a plane. This only works well visually if the camera</span>
+<span class="sd">    is in projection mode. Therefore perspective mode is switched off during</span>
+<span class="sd">    the operation (which may slightly change the rendering) and the camera is</span>
+<span class="sd">    locked. The camera is restored at the end.</span>
+
+<span class="sd">    The &#39;query&#39; parameter defines what type of info is put in the labels</span>
+<span class="sd">    attached to the/some points. There are currently 4 modes:</span>
+
+<span class="sd">    - &#39;point&#39;: every point is labeled with an index.</span>
+<span class="sd">    - &#39;coords&#39;: every point is labeled with the 2D coordinates of the point.</span>
+<span class="sd">    - &#39;dist&#39;: every second point is labeled with the 2D distance from the</span>
+<span class="sd">      previous point.</span>
+<span class="sd">    - &#39;angle&#39;: after every third point the penultimate point is labeled with</span>
+<span class="sd">      the 2D angle between the 2D line segments from that point to the next</span>
+<span class="sd">      and to the previous point.</span>
+
+<span class="sd">    All labeled points are collected in a</span>
+<span class="sd">    :class:`~pyformex.plugins.tools.Labels` instance.</span>
+<span class="sd">    The operation ends when either a required number of labeled points is</span>
+<span class="sd">    generated, or the user stops the interactive mode by accepting (right</span>
+<span class="sd">    mouse button or ENTER key) or cancelling (ESC key).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    query: str</span>
+<span class="sd">        Defines what type of information is put in the labels and how many</span>
+<span class="sd">        points are labeled. It should be one of &#39;point&#39;, &#39;coords&#39;, &#39;dist&#39;</span>
+<span class="sd">        or &#39;angle&#39;. See explanation above.</span>
+<span class="sd">    surface: :class:`TriSurface` | &#39;_merged_&#39;, optional</span>
+<span class="sd">        A surface on which to draw the points. If provided, the points are</span>
+<span class="sd">        created on that surface. A special value &#39;_merged_&#39; will create</span>
+<span class="sd">        a merged surface of all current actors that can be converted to</span>
+<span class="sd">        surfaces. Thus it is possible to draw points on a quad Mesh or even</span>
+<span class="sd">        on the surface of a volume Mesh.</span>
+<span class="sd">        Mouse clicks outside the surface are handled according to the missing</span>
+<span class="sd">        parameter.</span>
+<span class="sd">        Note that this function does not draw the surface itself. The caller</span>
+<span class="sd">        must make sure that the proper surface is drawn beforehand to guide</span>
+<span class="sd">        the user in putting the points.</span>
+<span class="sd">    missing: &#39;r&#39; | &#39;o&#39; | &#39;e&#39;</span>
+<span class="sd">        In surface mode, defines what to do when clicking outside the surface:</span>
+<span class="sd">        with the default &#39;r&#39;, no point is created; with &#39;o&#39;, a point is created</span>
+<span class="sd">        on a plane in front of the surface; with &#39;e&#39; a ProjecionMissing is</span>
+<span class="sd">        raised.</span>
+<span class="sd">    zvalue: float, optional</span>
+<span class="sd">        The depth value of a plane perpendicular on the camera axis on which</span>
+<span class="sd">        the points will be created. It is measured from the focus</span>
+<span class="sd">        point towards the camera eye. Only used if no surface was provided.</span>
+<span class="sd">        If not provided (and neither is surface), a plane through</span>
+<span class="sd">        the camera focus is used.</span>
+<span class="sd">    npoints: int, optional</span>
+<span class="sd">        The number of points to be created. If &lt; 0 (default), an unlimited number</span>
+<span class="sd">        of points can be created. It is stopped by clicking the right</span>
+<span class="sd">        mouse button of hitting ENTER.</span>
+<span class="sd">    labels: :class:`Labels`, optional</span>
+<span class="sd">        The Labels class where the generated points should be added. If not</span>
+<span class="sd">        provided, a new Labels instance is created.</span>
+<span class="sd">    gravity: str | None</span>
+<span class="sd">        If not None, overrides the gravity for the labels.</span>
+<span class="sd">    drawstyle: int</span>
+<span class="sd">        Type of line decorations drawn with query = &#39;point&#39; or &#39;coords&#39;.</span>
+<span class="sd">    linewidth: float</span>
+<span class="sd">         Line width to be used in line decorations.</span>
+<span class="sd">    prec: str</span>
+<span class="sd">        Format string to use for each of the coordinate values.</span>
+<span class="sd">    labeltext: callable | None</span>
+<span class="sd">        If provided, overrides the default label text generator. The</span>
+<span class="sd">        parameters passed to the callable depend on the query mode: for</span>
+<span class="sd">        &#39;point&#39; and &#39;coords&#39;, it is (P, prec), where P is the point in camera</span>
+<span class="sd">        coodinates and prec is the prec argument; for &#39;dist&#39; mode, two</span>
+<span class="sd">        points are passed (P, Q, prec) and for &#39;angle&#39; mode three points</span>
+<span class="sd">        (P, Q, R, prec).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    labels: :class:`Labels`</span>
+<span class="sd">        Returns the passed or created Labels instance, with the generated</span>
+<span class="sd">        points added to it. The 3D global coordinates of the points can be</span>
+<span class="sd">        obtained from labels.points.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    :func:`pyformex.plugins.tools_menu.labelPoints2DDialog`: provides a</span>
+<span class="sd">        dialog to set and remember some of the parameters for this function</span>
+<span class="sd">        and then calls this function with the global Labels collection of the</span>
+<span class="sd">        Tools menu.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">Labels</span><span class="p">):</span>
+        <span class="n">labels</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="n">Labels</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">gravity</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">labels</span><span class="o">.</span><span class="n">gravity</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">gravity</span><span class="p">)</span>
+    <span class="n">color</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">labels</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">labels</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">labeltext</span><span class="p">:</span>
+        <span class="n">labeltext</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;point&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s1">&#39;coords&#39;</span><span class="p">:</span> <span class="n">label_coords2D</span><span class="p">,</span>
+            <span class="s1">&#39;dist&#39;</span><span class="p">:</span> <span class="n">label_dist2D</span><span class="p">,</span>
+            <span class="s1">&#39;angle&#39;</span><span class="p">:</span> <span class="n">label_angle2D</span><span class="p">,</span>
+            <span class="p">}[</span><span class="n">query</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">query</span> <span class="o">!=</span> <span class="s1">&#39;coords&#39;</span><span class="p">:</span>
+        <span class="n">drawstyle</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">connectPoints</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Draw connection between two points&quot;&quot;&quot;</span>
+        <span class="k">nonlocal</span> <span class="n">color</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">cs</span>
+        <span class="n">PP</span> <span class="o">=</span> <span class="n">P</span><span class="o">.</span><span class="n">toCS</span><span class="p">(</span><span class="n">cs</span><span class="p">)</span>
+        <span class="n">QQ</span> <span class="o">=</span> <span class="n">Q</span><span class="o">.</span><span class="n">toCS</span><span class="p">(</span><span class="n">cs</span><span class="p">)</span>
+        <span class="n">RR</span> <span class="o">=</span> <span class="n">Coords</span><span class="p">([</span><span class="n">QQ</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">PP</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="mf">0.</span><span class="p">])</span>
+        <span class="c1">#SS = Coords([QQ.x, QQ.y, 0.])</span>
+        <span class="n">R</span> <span class="o">=</span> <span class="n">RR</span><span class="o">.</span><span class="n">fromCS</span><span class="p">(</span><span class="n">cs</span><span class="p">)</span>
+        <span class="c1">#S = SS.fromCS(cs)</span>
+        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">style</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">F</span> <span class="o">=</span> <span class="n">Formex</span><span class="p">([[</span><span class="n">P</span><span class="p">,</span> <span class="n">Q</span><span class="p">]])</span><span class="o">.</span><span class="n">setProp</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">abs</span><span class="p">(</span><span class="n">style</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">F</span> <span class="o">=</span> <span class="n">Formex</span><span class="p">([[</span><span class="n">P</span><span class="p">,</span> <span class="n">R</span><span class="p">],</span> <span class="p">[</span><span class="n">R</span><span class="p">,</span> <span class="n">Q</span><span class="p">]])</span><span class="o">.</span><span class="n">setProp</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">abs</span><span class="p">(</span><span class="n">style</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">F</span> <span class="o">=</span> <span class="n">PolyLine</span><span class="p">([</span><span class="n">P</span><span class="p">,</span> <span class="p">(</span><span class="n">Q</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">P</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">P</span><span class="o">.</span><span class="n">z</span><span class="p">),</span> <span class="p">(</span><span class="n">Q</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">Q</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">P</span><span class="o">.</span><span class="n">z</span><span class="p">),</span> <span class="n">Q</span><span class="p">])</span><span class="o">.</span><span class="n">setProp</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
+        <span class="n">A</span> <span class="o">=</span> <span class="n">gs</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;prop&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="n">linewidth</span><span class="p">,</span> <span class="n">ontop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1">#labels.actors.append(A)</span>
+        <span class="k">return</span> <span class="n">A</span>
+
+    <span class="k">def</span> <span class="nf">add_point</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">nonlocal</span> <span class="n">surface</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">cs</span>
+        <span class="n">P</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">drawn</span>
+        <span class="k">if</span> <span class="n">surface</span><span class="p">:</span>
+            <span class="n">P</span> <span class="o">=</span> <span class="n">P</span><span class="o">.</span><span class="n">projectOnSurface</span><span class="p">(</span>
+                <span class="n">surface</span><span class="p">,</span> <span class="nb">dir</span><span class="o">=</span><span class="n">pf</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">axis</span><span class="p">,</span> <span class="n">missing</span><span class="o">=</span><span class="n">missing</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">P</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span>  <span class="c1"># No point is created</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">drawing</span> <span class="o">=</span> <span class="n">Coords</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">drawing</span><span class="p">,</span> <span class="n">P</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">query</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;point&#39;</span><span class="p">,</span> <span class="s1">&#39;coords&#39;</span><span class="p">]:</span>
+            <span class="n">P</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">drawing</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">drawstyle</span><span class="p">:</span>
+                <span class="n">connectPoints</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">o</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">drawstyle</span><span class="p">)</span>
+            <span class="n">PP</span> <span class="o">=</span> <span class="n">P</span><span class="o">.</span><span class="n">toCS</span><span class="p">(</span><span class="n">cs</span><span class="p">)</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">labeltext</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">labeltext</span><span class="p">(</span><span class="n">PP</span><span class="p">,</span> <span class="n">prec</span><span class="p">)</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="n">labels</span><span class="o">.</span><span class="n">addLabel</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">text</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+            <span class="n">color</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">query</span> <span class="o">==</span> <span class="s1">&#39;dist&#39;</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">drawing</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">P</span><span class="p">,</span> <span class="n">Q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">drawing</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:]</span>
+                <span class="n">drawn</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">connectPoints</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">Q</span><span class="p">))</span>
+                <span class="n">PP</span><span class="p">,</span> <span class="n">QQ</span> <span class="o">=</span> <span class="n">P</span><span class="o">.</span><span class="n">toCS</span><span class="p">(</span><span class="n">cs</span><span class="p">),</span> <span class="n">Q</span><span class="o">.</span><span class="n">toCS</span><span class="p">(</span><span class="n">cs</span><span class="p">)</span>
+                <span class="n">text</span> <span class="o">=</span> <span class="n">labeltext</span><span class="p">(</span><span class="n">PP</span><span class="p">,</span> <span class="n">QQ</span><span class="p">,</span> <span class="n">prec</span><span class="p">)</span>
+                <span class="n">label</span> <span class="o">=</span> <span class="n">labels</span><span class="o">.</span><span class="n">addLabel</span><span class="p">(</span><span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">P</span><span class="o">+</span><span class="n">Q</span><span class="p">),</span> <span class="n">text</span><span class="o">=</span><span class="n">text</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+                <span class="n">color</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">elif</span> <span class="n">query</span> <span class="o">==</span> <span class="s1">&#39;angle&#39;</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">drawing</span><span class="p">)</span> <span class="o">%</span> <span class="mi">3</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">P</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">R</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">drawing</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">:]</span>
+                <span class="n">drawn</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">connectPoints</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">Q</span><span class="p">),</span> <span class="n">connectPoints</span><span class="p">(</span><span class="n">Q</span><span class="p">,</span> <span class="n">R</span><span class="p">)])</span>
+                <span class="n">PP</span><span class="p">,</span> <span class="n">QQ</span><span class="p">,</span> <span class="n">RR</span> <span class="o">=</span> <span class="n">P</span><span class="o">.</span><span class="n">toCS</span><span class="p">(</span><span class="n">cs</span><span class="p">),</span> <span class="n">Q</span><span class="o">.</span><span class="n">toCS</span><span class="p">(</span><span class="n">cs</span><span class="p">),</span> <span class="n">R</span><span class="o">.</span><span class="n">toCS</span><span class="p">(</span><span class="n">cs</span><span class="p">)</span>
+                <span class="n">text</span> <span class="o">=</span> <span class="n">labeltext</span><span class="p">(</span><span class="n">PP</span><span class="p">,</span> <span class="n">QQ</span><span class="p">,</span> <span class="n">RR</span><span class="p">,</span> <span class="n">prec</span><span class="p">)</span>
+                <span class="n">label</span> <span class="o">=</span> <span class="n">labels</span><span class="o">.</span><span class="n">addLabel</span><span class="p">(</span><span class="n">Q</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">text</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+                <span class="n">color</span> <span class="o">+=</span> <span class="mi">1</span>
+
+
+    <span class="n">drawn</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">canvas</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">canvas</span>
+    <span class="n">cam</span> <span class="o">=</span> <span class="n">canvas</span><span class="o">.</span><span class="n">camera</span>
+    <span class="n">_save_perspective</span> <span class="o">=</span> <span class="n">cam</span><span class="o">.</span><span class="n">perspective</span>
+    <span class="n">gs</span><span class="o">.</span><span class="n">perspective</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">cam</span><span class="o">.</span><span class="n">lock</span><span class="p">()</span>  <span class="c1"># Needed to ensure unproject</span>
+    <span class="n">cs</span> <span class="o">=</span> <span class="n">cam</span><span class="o">.</span><span class="n">coordsys</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">surface</span> <span class="o">==</span> <span class="s1">&#39;_merged_&#39;</span><span class="p">:</span>
+        <span class="n">surface</span> <span class="o">=</span> <span class="n">mergedSurface</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="n">a</span><span class="o">.</span><span class="n">object</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">canvas</span><span class="o">.</span><span class="n">actors</span><span class="p">])</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">surface</span><span class="p">,</span> <span class="n">TriSurface</span><span class="p">):</span>
+        <span class="c1"># Use a z value guaranteeing the closest point to the viewer</span>
+        <span class="n">zvalue</span> <span class="o">=</span> <span class="n">surface</span><span class="o">.</span><span class="n">center</span><span class="p">()</span><span class="o">.</span><span class="n">toCS</span><span class="p">(</span><span class="n">cs</span><span class="p">)[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">surface</span><span class="o">.</span><span class="n">dsize</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">surface</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">zvalue</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">zvalue</span> <span class="o">=</span> <span class="mf">0.</span>
+    <span class="n">front</span> <span class="o">=</span> <span class="n">Coords</span><span class="p">((</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="n">zvalue</span><span class="p">))</span><span class="o">.</span><span class="n">fromCS</span><span class="p">(</span><span class="n">cs</span><span class="p">)</span>
+    <span class="n">zplane</span> <span class="o">=</span> <span class="n">cam</span><span class="o">.</span><span class="n">project</span><span class="p">(</span><span class="n">front</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">3</span><span class="p">)[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">canvas</span><span class="o">.</span><span class="n">idraw</span><span class="p">(</span><span class="n">zplane</span><span class="o">=</span><span class="n">zplane</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="n">add_point</span><span class="p">,</span> <span class="n">mouseline</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">canvas</span><span class="o">.</span><span class="n">removeHighlight</span><span class="p">()</span>
+    <span class="n">cam</span><span class="o">.</span><span class="n">unlock</span><span class="p">()</span>
+    <span class="n">gs</span><span class="o">.</span><span class="n">perspective</span><span class="p">(</span><span class="n">_save_perspective</span><span class="p">)</span>
+    <span class="n">labels</span><span class="o">.</span><span class="n">actors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">drawn</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">labels</span></div>
+
+
+<span class="c1">########################### Planes ####################################</span>
+
+<span class="k">class</span> <span class="nc">Plane</span><span class="p">():</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">normal</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)):</span>
+        <span class="n">pts</span> <span class="o">=</span> <span class="n">Coords</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">pts</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="mi">3</span><span class="p">,)</span> <span class="ow">and</span> <span class="n">normal</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">P</span> <span class="o">=</span> <span class="n">pts</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="n">Coords</span><span class="p">(</span><span class="n">normal</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">n</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;normal does not have correct shape&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">pts</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,):</span>
+            <span class="n">P</span> <span class="o">=</span> <span class="n">pts</span><span class="o">.</span><span class="n">centroid</span><span class="p">()</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">pts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">pts</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pts</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">-</span><span class="n">pts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;points has incorrect shape (</span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">Coords</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">P</span> <span class="o">=</span> <span class="n">P</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">=</span> <span class="n">n</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">s</span> <span class="o">=</span> <span class="n">s</span>
+
+
+    <span class="k">def</span> <span class="nf">point</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">P</span>
+
+    <span class="k">def</span> <span class="nf">normal</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span>
+
+    <span class="k">def</span> <span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">s</span>
+
+    <span class="k">def</span> <span class="nf">bbox</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">P</span><span class="o">.</span><span class="n">bbox</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;P:</span><span class="si">%s</span><span class="s1"> n:</span><span class="si">%s</span><span class="s1"> s:</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">P</span><span class="p">),</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">),</span>
+                                   <span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">])))</span>
+
+
+    <span class="k">def</span> <span class="nf">actor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">pyformex.opengl</span> <span class="kn">import</span> <span class="n">actors</span>
+        <span class="n">actor</span> <span class="o">=</span> <span class="n">actors</span><span class="o">.</span><span class="n">PlaneActor</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="n">P</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">P</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">actor</span>
+
+
+<span class="c1">################# Report information about picked objects ################</span>
+
+<div class="viewcode-block" id="getPoints"><a class="viewcode-back" href="../../ref/plugins.tools.html#plugins.tools.getPoints">[docs]</a><span class="k">def</span> <span class="nf">getPoints</span><span class="p">(</span><span class="n">K</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return all points in the Collection as a Coords&quot;&quot;&quot;</span>
+    <span class="n">points</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">K</span><span class="o">.</span><span class="n">obj_type</span> <span class="o">==</span> <span class="s1">&#39;point&#39;</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">K</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="n">K</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+            <span class="n">o</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">actors</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">object</span>
+            <span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">o</span><span class="o">.</span><span class="n">points</span><span class="p">()[</span><span class="n">v</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">Coords</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">points</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">report</span><span class="p">(</span><span class="n">K</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">K</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="s1">&#39;obj_type&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">K</span><span class="o">.</span><span class="n">obj_type</span> <span class="o">==</span> <span class="s1">&#39;actor&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">reportActors</span><span class="p">(</span><span class="n">K</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">K</span><span class="o">.</span><span class="n">obj_type</span> <span class="o">==</span> <span class="s1">&#39;element&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">reportElements</span><span class="p">(</span><span class="n">K</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">K</span><span class="o">.</span><span class="n">obj_type</span> <span class="o">==</span> <span class="s1">&#39;point&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">reportPoints</span><span class="p">(</span><span class="n">K</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">K</span><span class="o">.</span><span class="n">obj_type</span> <span class="o">==</span> <span class="s1">&#39;edge&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">reportEdges</span><span class="p">(</span><span class="n">K</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">K</span><span class="o">.</span><span class="n">obj_type</span> <span class="o">==</span> <span class="s1">&#39;prop&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">reportProps</span><span class="p">(</span><span class="n">K</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">K</span><span class="o">.</span><span class="n">obj_type</span> <span class="o">==</span> <span class="s1">&#39;partition&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">reportPartitions</span><span class="p">(</span><span class="n">K</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s1">&#39;&#39;</span>
+
+
+<div class="viewcode-block" id="indent_str"><a class="viewcode-back" href="../../ref/plugins.tools.html#plugins.tools.indent_str">[docs]</a><span class="k">def</span> <span class="nf">indent_str</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Indent a multiline string&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39; &#39;</span><span class="o">*</span><span class="n">n</span> <span class="o">+</span> <span class="n">line</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">s</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)])</span></div>
+
+
+<span class="k">def</span> <span class="nf">reportActors</span><span class="p">(</span><span class="n">K</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_format</span><span class="p">(</span><span class="n">actor</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">actor</span><span class="o">.</span><span class="n">object</span><span class="p">,</span> <span class="s1">&#39;report&#39;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">indent_str</span><span class="p">(</span><span class="n">actor</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">report</span><span class="p">(),</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">actor</span><span class="o">.</span><span class="n">getType</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;Actor report</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="n">s</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;Actors </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;  Actor </span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">:&quot;</span> <span class="o">+</span> <span class="n">_format</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">actors</span><span class="p">[</span><span class="n">k</span><span class="p">])</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">v</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">s</span>
+
+
+<span class="k">def</span> <span class="nf">reportElements</span><span class="p">(</span><span class="n">K</span><span class="p">):</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;Element report</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">K</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">K</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">actors</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">object</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;Actor </span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">obj</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">); Elements </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">v</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">Formex</span><span class="p">):</span>
+                <span class="n">s</span> <span class="o">+=</span> <span class="n">at</span><span class="o">.</span><span class="n">stringar</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Element </span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2">: &quot;</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="n">p</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">Mesh</span><span class="p">):</span>
+                <span class="n">e</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">elems</span><span class="p">[</span><span class="n">p</span><span class="p">]</span>
+                <span class="n">s</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;  Element </span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="n">s</span> <span class="o">+=</span> <span class="n">at</span><span class="o">.</span><span class="n">stringar</span><span class="p">(</span><span class="s2">&quot;    Coords: &quot;</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="n">e</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">p</span> <span class="o">!=</span> <span class="n">v</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+    <span class="k">return</span> <span class="n">s</span>
+
+
+<span class="k">def</span> <span class="nf">reportPoints</span><span class="p">(</span><span class="n">K</span><span class="p">):</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;Point report</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">K</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">K</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+        <span class="n">A</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">actors</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;Actor </span><span class="si">%s</span><span class="s2"> (type </span><span class="si">%s</span><span class="s2">); Points </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">A</span><span class="o">.</span><span class="n">getType</span><span class="p">(),</span> <span class="n">v</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">points</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">v</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;  Point </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">x</span><span class="p">[</span><span class="n">p</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">s</span>
+
+
+<span class="k">def</span> <span class="nf">reportProps</span><span class="p">(</span><span class="n">K</span><span class="p">):</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;Property report</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">K</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">K</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+        <span class="n">A</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">actors</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">getType</span><span class="p">()</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;Actor </span><span class="si">%s</span><span class="s2"> (type </span><span class="si">%s</span><span class="s2">); Props </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">v</span><span class="p">:</span>
+            <span class="n">w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">prop</span> <span class="o">==</span> <span class="n">p</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;  Elements with prop </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">w</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">s</span>
+
+
+<span class="k">def</span> <span class="nf">reportEdges</span><span class="p">(</span><span class="n">K</span><span class="p">):</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;Edge report</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">K</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">K</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+        <span class="n">A</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">actors</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;Actor </span><span class="si">%s</span><span class="s2"> (type </span><span class="si">%s</span><span class="s2">); Edges </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">A</span><span class="o">.</span><span class="n">getType</span><span class="p">(),</span> <span class="n">v</span><span class="p">)</span>
+        <span class="n">e</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">edges</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">v</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;  Edge </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">e</span><span class="p">[</span><span class="n">p</span><span class="p">])</span>
+
+
+<span class="k">def</span> <span class="nf">reportPartitions</span><span class="p">(</span><span class="n">K</span><span class="p">):</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;Partition report</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">K</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">P</span> <span class="o">=</span> <span class="n">K</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">A</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">actors</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">getType</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">P</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="n">P</span><span class="p">[</span><span class="n">l</span><span class="p">]</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;Actor </span><span class="si">%s</span><span class="s2"> (type </span><span class="si">%s</span><span class="s2">); Partition </span><span class="si">%s</span><span class="s2">; Elements </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">t</span> <span class="o">==</span> <span class="s1">&#39;Formex&#39;</span><span class="p">:</span>
+                <span class="n">e</span> <span class="o">=</span> <span class="n">A</span>
+            <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="s1">&#39;TriSurface&#39;</span><span class="p">:</span>
+                <span class="n">e</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">_elems</span>
+            <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">v</span><span class="p">:</span>
+                <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;  Element </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">e</span><span class="p">[</span><span class="n">p</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">s</span>
+
+
+<div class="viewcode-block" id="getObjectItems"><a class="viewcode-back" href="../../ref/plugins.tools.html#plugins.tools.getObjectItems">[docs]</a><span class="k">def</span> <span class="nf">getObjectItems</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">items</span><span class="p">,</span> <span class="n">mode</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Get the specified items from object.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;actor&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">obj</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">object</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">items</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="s1">&#39;object&#39;</span><span class="p">)]</span>
+    <span class="k">elif</span> <span class="n">mode</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;element&#39;</span><span class="p">,</span> <span class="s1">&#39;partition&#39;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s1">&#39;object&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">object</span><span class="p">,</span> <span class="s1">&#39;select&#39;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">items</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;point&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s1">&#39;points&#39;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">object</span><span class="o">.</span><span class="n">points</span><span class="p">()[</span><span class="n">items</span><span class="p">]</span>
+    <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="getCollection"><a class="viewcode-back" href="../../ref/plugins.tools.html#plugins.tools.getCollection">[docs]</a><span class="k">def</span> <span class="nf">getCollection</span><span class="p">(</span><span class="n">K</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns a collection.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">K</span><span class="o">.</span><span class="n">obj_type</span> <span class="o">==</span> <span class="s1">&#39;actor&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">pf</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">actors</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)]</span><span class="o">.</span><span class="n">object</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">K</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">[])</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">actors</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)],</span> <span class="s1">&#39;object&#39;</span><span class="p">)]</span>
+    <span class="k">elif</span> <span class="n">K</span><span class="o">.</span><span class="n">obj_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;element&#39;</span><span class="p">,</span> <span class="s1">&#39;point&#39;</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">getObjectItems</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">actors</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">K</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">K</span><span class="o">.</span><span class="n">obj_type</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">K</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
+    <span class="k">elif</span> <span class="n">K</span><span class="o">.</span><span class="n">obj_type</span> <span class="o">==</span> <span class="s1">&#39;partition&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">getObjectItems</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">actors</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">K</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="n">prop</span><span class="p">],</span> <span class="n">K</span><span class="o">.</span><span class="n">obj_type</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">K</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">for</span> <span class="n">prop</span> <span class="ow">in</span> <span class="n">K</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="growCollection"><a class="viewcode-back" href="../../ref/plugins.tools.html#plugins.tools.growCollection">[docs]</a><span class="k">def</span> <span class="nf">growCollection</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Grow the collection with n frontal rings.</span>
+
+<span class="sd">    K should be a collection of elements.</span>
+<span class="sd">    This should work on any objects that have a growSelection method, like</span>
+<span class="sd">    a Mesh.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">K</span><span class="o">.</span><span class="n">obj_type</span> <span class="o">==</span> <span class="s1">&#39;element&#39;</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">K</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">o</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">actors</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">object</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="s1">&#39;growSelection&#39;</span><span class="p">):</span>
+                <span class="n">K</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="n">growSelection</span><span class="p">(</span><span class="n">K</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="o">**</span><span class="n">kargs</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">utils</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Can not grow selection on type </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">o</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="partitionCollection"><a class="viewcode-back" href="../../ref/plugins.tools.html#plugins.tools.partitionCollection">[docs]</a><span class="k">def</span> <span class="nf">partitionCollection</span><span class="p">(</span><span class="n">K</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Partition the collection according to node adjacency.</span>
+
+<span class="sd">    The actor numbers will be connected to a collection of property numbers,</span>
+<span class="sd">    e.g. 0 [1 [4,12] 2 [6,20]], where 0 is the actor number, 1 and 2 are the</span>
+<span class="sd">    property numbers and 4, 12, 6 and 20 are the element numbers.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sel</span> <span class="o">=</span> <span class="n">getCollection</span><span class="p">(</span><span class="n">K</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sel</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Nothing to partition!&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
+    <span class="k">if</span> <span class="n">K</span><span class="o">.</span><span class="n">obj_type</span> <span class="o">==</span> <span class="s1">&#39;actor&#39;</span><span class="p">:</span>
+        <span class="n">actor_numbers</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">K</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">actor_numbers</span><span class="p">:</span>
+            <span class="n">K</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">sel</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)]</span><span class="o">.</span><span class="n">nelems</span><span class="p">()),</span> <span class="n">i</span><span class="p">)</span>
+    <span class="n">prop</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">K</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">sel</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">partitionByConnection</span><span class="p">()</span> <span class="o">+</span> <span class="n">prop</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Actor </span><span class="si">%s</span><span class="s2"> partitioned in </span><span class="si">%s</span><span class="s2"> parts&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">-</span><span class="n">p</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">C</span> <span class="o">=</span> <span class="n">Collection</span><span class="p">()</span>
+        <span class="n">C</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">p</span><span class="p">,</span> <span class="n">K</span><span class="p">[</span><span class="n">i</span><span class="p">]])))</span>
+        <span class="n">K</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">C</span>
+        <span class="n">prop</span> <span class="o">+=</span> <span class="n">p</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">-</span><span class="n">p</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">+</span><span class="mi">1</span>
+        <span class="n">j</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="n">K</span><span class="o">.</span><span class="n">obj_type</span> <span class="o">=</span> <span class="s1">&#39;partition&#39;</span></div>
+
+
+<div class="viewcode-block" id="getPartition"><a class="viewcode-back" href="../../ref/plugins.tools.html#plugins.tools.getPartition">[docs]</a><span class="k">def</span> <span class="nf">getPartition</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">prop</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Remove all partitions with property not in prop.&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">K</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">K</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">p</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">prop</span><span class="p">:</span>
+                <span class="n">K</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">K</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="n">p</span><span class="p">],</span> <span class="n">p</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="exportObjects"><a class="viewcode-back" href="../../ref/plugins.tools.html#plugins.tools.exportObjects">[docs]</a><span class="k">def</span> <span class="nf">exportObjects</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">single</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Export a list of objects under the given name.</span>
+
+<span class="sd">    If obj is a list, and single=True, each element of the list is exported</span>
+<span class="sd">    as a single item. The items will be given the names name-0, name-1, etc.</span>
+<span class="sd">    Else, the obj is exported as is under the name.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">pyformex.script</span> <span class="kn">import</span> <span class="n">export</span>
+    <span class="k">if</span> <span class="n">single</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">export</span><span class="p">(</span><span class="nb">dict</span><span class="p">([(</span><span class="sa">f</span><span class="s2">&quot;name-</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">obj</span><span class="p">)]))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">export</span><span class="p">({</span><span class="n">name</span><span class="p">:</span> <span class="n">obj</span><span class="p">})</span></div>
+
+
+<div class="viewcode-block" id="actorDialog"><a class="viewcode-back" href="../../ref/plugins.tools.html#plugins.tools.actorDialog">[docs]</a><span class="k">def</span> <span class="nf">actorDialog</span><span class="p">(</span><span class="n">actorids</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create an actor dialog for the specified actors (by index)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;actorDialog </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">actorids</span><span class="p">)</span>
+    <span class="n">actors</span> <span class="o">=</span> <span class="p">[</span><span class="n">pf</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">actors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">actorids</span><span class="p">]</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">gs</span><span class="o">.</span><span class="n">askItems</span><span class="p">([</span><span class="n">_T</span><span class="p">(</span><span class="s2">&quot;actor_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">i</span><span class="p">,</span> <span class="p">[</span>
+        <span class="n">_I</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">name</span><span class="p">)),</span>
+        <span class="n">_I</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">getType</span><span class="p">()),</span> <span class="n">readonly</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+        <span class="n">_I</span><span class="p">(</span><span class="s1">&#39;visible&#39;</span><span class="p">,</span> <span class="nb">bool</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">visible</span><span class="p">)),</span>
+        <span class="n">_I</span><span class="p">(</span><span class="s1">&#39;alpha&#39;</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">alpha</span><span class="p">)),</span>
+        <span class="n">_I</span><span class="p">(</span><span class="s1">&#39;objcolor&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">objcolor</span><span class="p">),</span> <span class="n">itemtype</span><span class="o">=</span><span class="s1">&#39;color&#39;</span><span class="p">),</span>
+    <span class="p">])</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">actorids</span><span class="p">,</span> <span class="n">actors</span><span class="p">)])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">res</span><span class="p">)</span></div>
+
+<span class="c1"># End</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">plugins.tools</a></li--> 
+      </ul>
+    </div>
+    <div class="footer">
+    <span class="left">
+        &copy; Copyright 2004-2023, Benedict Verhegghe.
+    </span>
+      Last updated on Mar 27, 2023.
+    <span class="right">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.4.3.
+    </span>
+    </div>
+  </body>
+</html>

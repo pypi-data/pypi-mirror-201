@@ -1,0 +1,338 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!--
+##
+##  This file is part of the pyFormex project.
+##  pyFormex is a tool for generating, manipulating and transforming 3D
+##  geometrical models by sequences of mathematical operations.
+##  Home page: http://pyformex.org
+##  Project page:  http://savannah.nongnu.org/projects/pyformex/
+##  Copyright (C) Benedict Verhegghe (benedict.verhegghe@ugent.be)
+##  Distributed under the GNU General Public License version 3 or later.
+##
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see http://www.gnu.org/licenses/.
+##
+-->
+    <title>multi &#8212; pyFormex 3.3 documentation</title>
+
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pyformex.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+<link rel="icon" type="image/png" href="../_static/pyformex_fav.png" />
+
+  </head><body>
+
+<div class="header">
+  <a href="http://pyformex.org">
+  <img src="../_static/scallop_dome_small.png" alt="scallop dome" border="0" hspace="20" vspace="12" align="left" />
+  <img src="../_static/pyformex-logo-2.png" alt="pyformex logo" border="0" hspace="10" vspace="8" align="left" />
+  </a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">multi</a></li--> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<!-- PYFORMEX_SIDEBAR_LOGO -->
+<!-- PYFORMEX_WEBSITE_SIDEBAR_TOP -->
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for multi</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1">##</span>
+<span class="c1">##  SPDX-FileCopyrightText: © 2007-2023 Benedict Verhegghe &lt;bverheg@gmail.com&gt;</span>
+<span class="c1">##  SPDX-License-Identifier: GPL-3.0-or-later</span>
+<span class="c1">##</span>
+<span class="c1">##  This file is part of pyFormex 3.3  (Sun Mar 26 20:16:15 CEST 2023)</span>
+<span class="c1">##  pyFormex is a tool for generating, manipulating and transforming 3D</span>
+<span class="c1">##  geometrical models by sequences of mathematical operations.</span>
+<span class="c1">##  Home page: https://pyformex.org</span>
+<span class="c1">##  Project page: https://savannah.nongnu.org/projects/pyformex/</span>
+<span class="c1">##  Development: https://gitlab.com/bverheg/pyformex</span>
+<span class="c1">##  Distributed under the GNU General Public License version 3 or later.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is free software: you can redistribute it and/or modify</span>
+<span class="c1">##  it under the terms of the GNU General Public License as published by</span>
+<span class="c1">##  the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1">##  (at your option) any later version.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is distributed in the hope that it will be useful,</span>
+<span class="c1">##  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1">##  GNU General Public License for more details.</span>
+<span class="c1">##</span>
+<span class="c1">##  You should have received a copy of the GNU General Public License</span>
+<span class="c1">##  along with this program.  If not, see http://www.gnu.org/licenses/.</span>
+<span class="c1">##</span>
+<span class="c1">#</span>
+<span class="sd">&quot;&quot;&quot;Framework for multi-processing in pyFormex</span>
+
+<span class="sd">This module contains some functions to perform multiprocessing</span>
+<span class="sd">in pyFormex in a unified way.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">multiprocessing</span> <span class="k">as</span> <span class="nn">mp</span>
+<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">cpu_count</span>  <span class="c1"># noqa: F401 (imported from here)</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">import</span> <span class="nn">pyformex</span> <span class="k">as</span> <span class="nn">pf</span>
+<span class="kn">from</span> <span class="nn">pyformex.arraytools</span> <span class="kn">import</span> <span class="n">splitar</span>
+
+
+<span class="c1"># def cpu_count():</span>
+<span class="c1">#     &quot;&quot;&quot;Return the number of cpus that can actually be used.</span>
+
+<span class="c1">#     This may be different from os.cpu_count or multiprocessing.cpu_count,</span>
+<span class="c1">#     which both return the number of cpus in the system.</span>
+<span class="c1">#     &quot;&quot;&quot;</span>
+<span class="c1">#     import os</span>
+<span class="c1">#     return len(os.sched_getaffinity(0))</span>
+
+
+<div class="viewcode-block" id="splitArgs"><a class="viewcode-back" href="../ref/multi.html#multi.splitArgs">[docs]</a><span class="k">def</span> <span class="nf">splitArgs</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nproc</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">close</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Split data blocks over multiple processors.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    args: list or tuple of :term:`array_like`</span>
+<span class="sd">        A sequence of data blocks that may need to be split for parallel</span>
+<span class="sd">        processing over multiple processors. Splitting is done along the</span>
+<span class="sd">        first dimension, which should therefore be the same for all arrays</span>
+<span class="sd">        in the sequence that need to be split.</span>
+<span class="sd">    mask: list or tuple of bool</span>
+<span class="sd">        If provided, this flags the items in ``args`` that should be split.</span>
+<span class="sd">        The list should have the same length as ``args``.</span>
+<span class="sd">        If not provided, all array type items in ``args`` will be split.</span>
+<span class="sd">    nproc: int</span>
+<span class="sd">        Intended number of processors. If negative (default), it is set equal</span>
+<span class="sd">        to the number of processors detected on the host machine.</span>
+<span class="sd">    close: bool</span>
+<span class="sd">        If True, the elements where the arrays are split are included in both</span>
+<span class="sd">        blocks delimited by the element. Thus splitting an array [1, 2, 3]</span>
+<span class="sd">        in two results in [1, 2] and [2, 3], while the default split would</span>
+<span class="sd">        be [1, 2] and [3].</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of tuples.</span>
+<span class="sd">        The list contains ``nproc`` tuples and each tuple contains the same</span>
+<span class="sd">        number of items as the input ``args`` and in the same order, whereby</span>
+<span class="sd">        the (nonmasked) arrays are replaced by a slice of the array along</span>
+<span class="sd">        its first axis, and the masked and non-array items are replicated</span>
+<span class="sd">        as is.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    arraytools.splitar: the low level function used to do the splitting</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; splitArgs([np.arange(5),&#39;abcde&#39;],nproc=3)</span>
+<span class="sd">    [(array([0, 1]), &#39;abcde&#39;), (array([2]), &#39;abcde&#39;), (array([3, 4]), &#39;abcde&#39;)]</span>
+<span class="sd">    &gt;&gt;&gt; for i in splitArgs([np.eye(5),&#39;=&gt;&#39;,np.arange(5)],nproc=3):</span>
+<span class="sd">    ...     print(&quot;%s %s %s&quot; % i)</span>
+<span class="sd">    [[1. 0. 0. 0. 0.]</span>
+<span class="sd">     [0. 1. 0. 0. 0.]] =&gt; [0 1]</span>
+<span class="sd">    [[0. 0. 1. 0. 0.]] =&gt; [2]</span>
+<span class="sd">    [[0. 0. 0. 1. 0.]</span>
+<span class="sd">     [0. 0. 0. 0. 1.]] =&gt; [3 4]</span>
+<span class="sd">    &gt;&gt;&gt; for i in splitArgs([np.eye(5),&#39;=&gt;&#39;,np.arange(5)],mask=[1,0,0],nproc=3):</span>
+<span class="sd">    ...     print(&quot;%s %s %s&quot; % i)</span>
+<span class="sd">    [[1. 0. 0. 0. 0.]</span>
+<span class="sd">     [0. 1. 0. 0. 0.]] =&gt; [0 1 2 3 4]</span>
+<span class="sd">    [[0. 0. 1. 0. 0.]] =&gt; [0 1 2 3 4]</span>
+<span class="sd">    [[0. 0. 0. 1. 0.]</span>
+<span class="sd">     [0. 0. 0. 0. 1.]] =&gt; [0 1 2 3 4]</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">nproc</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">nproc</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">mask</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="p">[</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">args</span><span class="p">]</span>
+    <span class="n">split</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">splitar</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">nproc</span><span class="p">,</span> <span class="n">close</span><span class="o">=</span><span class="n">close</span><span class="p">)</span> <span class="k">if</span> <span class="n">m</span> <span class="k">else</span> <span class="p">[</span><span class="n">a</span><span class="p">]</span> <span class="o">*</span> <span class="n">nproc</span>
+        <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">mask</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">split</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="dofunc"><a class="viewcode-back" href="../ref/multi.html#multi.dofunc">[docs]</a><span class="k">def</span> <span class="nf">dofunc</span><span class="p">(</span><span class="n">arg</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Helper function for the multitask function.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    arg: tuple</span>
+<span class="sd">        The first item of the tuple is a callable. The remaining</span>
+<span class="sd">        items are its arguments.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    object</span>
+<span class="sd">        The value of the callable when passed the remaining items as</span>
+<span class="sd">        arguments.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; dofunc((max,(2, 5, 3)))</span>
+<span class="sd">    5</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">func</span><span class="p">,</span> <span class="n">args</span> <span class="o">=</span> <span class="n">arg</span>
+    <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="multitask"><a class="viewcode-back" href="../ref/multi.html#multi.multitask">[docs]</a><span class="k">def</span> <span class="nf">multitask</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="n">nproc</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">_async</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Perform tasks in parallel.</span>
+
+<span class="sd">    Runs a number of tasks in parallel over a number of subprocesses.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    tasks: list of tuples</span>
+<span class="sd">        Each task in the list is a tuple where the first item is a callable</span>
+<span class="sd">        and the other items are the arguments to be passed to the callable.</span>
+<span class="sd">    nproc: int</span>
+<span class="sd">        The number of subprocesses to be started. This may be</span>
+<span class="sd">        different from the number of tasks to run: processes finishing a</span>
+<span class="sd">        task will pick up a next one. There is no benefit in starting more</span>
+<span class="sd">        processes than the number of tasks or the number of processing units</span>
+<span class="sd">        available. The default will set ``nproc`` to the minimum of these two</span>
+<span class="sd">        values.</span>
+<span class="sd">    _async: bool</span>
+<span class="sd">        If True (default), the tasks are executed asynchronously and the</span>
+<span class="sd">        results are collected when they are done. This has two benefits:</span>
+
+<span class="sd">        - multitask can be run in &#39;script&#39; execution mode,</span>
+<span class="sd">        - the tasks can execute external commands (using :func:`process.run`,</span>
+<span class="sd">          not :func:`utils.system` or :func:`utils.command`).</span>
+
+<span class="sd">        If False, a small speedup may be obtained for tasks that do not</span>
+<span class="sd">        need _async=True. But since the gain is marginal, this is not made</span>
+<span class="sd">        the default. The use of this option is discouraged. It may be</span>
+<span class="sd">        removed in future.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError:</span>
+<span class="sd">        When using _async=False in script mode.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; task1 = (int.__add__, (2, 3))</span>
+<span class="sd">    &gt;&gt;&gt; task2 = (int.__mul__, (2, 3))</span>
+<span class="sd">    &gt;&gt;&gt; multitask((task1, task2))</span>
+<span class="sd">    [5, 6]</span>
+<span class="sd">    &gt;&gt;&gt; from pyformex import process</span>
+<span class="sd">    &gt;&gt;&gt; tasks = [(process.run, (&#39;ls -d .&#39;,)), (process.run, (&#39;uname&#39;,))]</span>
+<span class="sd">    &gt;&gt;&gt; for res in multitask(tasks, _async=True): print(res.stdout)</span>
+<span class="sd">    .</span>
+<span class="sd">    Linux</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">nproc</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">nproc</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tasks</span><span class="p">),</span> <span class="n">mp</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">())</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Multiprocessing using </span><span class="si">{</span><span class="n">nproc</span><span class="si">}</span><span class="s2"> processors&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">MULTI</span><span class="p">)</span>
+
+    <span class="n">pool</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="n">nproc</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">_async</span><span class="p">:</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">map_async</span><span class="p">(</span><span class="n">dofunc</span><span class="p">,</span> <span class="n">tasks</span><span class="p">)</span>
+        <span class="n">pool</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">pool</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">res</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">scriptMode</span> <span class="o">==</span> <span class="s1">&#39;script&#39;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;_async=False can not be used in &#39;script&#39; mode&quot;</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">dofunc</span><span class="p">,</span> <span class="n">tasks</span><span class="p">)</span>
+        <span class="n">pool</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">res</span></div>
+
+
+<span class="c1"># End</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">multi</a></li--> 
+      </ul>
+    </div>
+    <div class="footer">
+    <span class="left">
+        &copy; Copyright 2004-2023, Benedict Verhegghe.
+    </span>
+      Last updated on Mar 27, 2023.
+    <span class="right">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.4.3.
+    </span>
+    </div>
+  </body>
+</html>

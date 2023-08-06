@@ -1,0 +1,404 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!--
+##
+##  This file is part of the pyFormex project.
+##  pyFormex is a tool for generating, manipulating and transforming 3D
+##  geometrical models by sequences of mathematical operations.
+##  Home page: http://pyformex.org
+##  Project page:  http://savannah.nongnu.org/projects/pyformex/
+##  Copyright (C) Benedict Verhegghe (benedict.verhegghe@ugent.be)
+##  Distributed under the GNU General Public License version 3 or later.
+##
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see http://www.gnu.org/licenses/.
+##
+-->
+    <title>plugins.isopar &#8212; pyFormex 3.3 documentation</title>
+
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pyformex.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+<link rel="icon" type="image/png" href="../../_static/pyformex_fav.png" />
+
+  </head><body>
+
+<div class="header">
+  <a href="http://pyformex.org">
+  <img src="../../_static/scallop_dome_small.png" alt="scallop dome" border="0" hspace="20" vspace="12" align="left" />
+  <img src="../../_static/pyformex-logo-2.png" alt="pyformex logo" border="0" hspace="10" vspace="8" align="left" />
+  </a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">plugins.isopar</a></li--> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<!-- PYFORMEX_SIDEBAR_LOGO -->
+<!-- PYFORMEX_WEBSITE_SIDEBAR_TOP -->
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for plugins.isopar</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1">##</span>
+<span class="c1">##  SPDX-FileCopyrightText: © 2007-2023 Benedict Verhegghe &lt;bverheg@gmail.com&gt;</span>
+<span class="c1">##  SPDX-License-Identifier: GPL-3.0-or-later</span>
+<span class="c1">##</span>
+<span class="c1">##  This file is part of pyFormex 3.3  (Sun Mar 26 20:16:15 CEST 2023)</span>
+<span class="c1">##  pyFormex is a tool for generating, manipulating and transforming 3D</span>
+<span class="c1">##  geometrical models by sequences of mathematical operations.</span>
+<span class="c1">##  Home page: https://pyformex.org</span>
+<span class="c1">##  Project page: https://savannah.nongnu.org/projects/pyformex/</span>
+<span class="c1">##  Development: https://gitlab.com/bverheg/pyformex</span>
+<span class="c1">##  Distributed under the GNU General Public License version 3 or later.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is free software: you can redistribute it and/or modify</span>
+<span class="c1">##  it under the terms of the GNU General Public License as published by</span>
+<span class="c1">##  the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1">##  (at your option) any later version.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is distributed in the hope that it will be useful,</span>
+<span class="c1">##  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1">##  GNU General Public License for more details.</span>
+<span class="c1">##</span>
+<span class="c1">##  You should have received a copy of the GNU General Public License</span>
+<span class="c1">##  along with this program.  If not, see http://www.gnu.org/licenses/.</span>
+<span class="c1">##</span>
+
+<span class="sd">&quot;&quot;&quot;Isoparametric transformations</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">arraytools</span> <span class="k">as</span> <span class="n">at</span>
+<span class="kn">from</span> <span class="nn">pyformex.coords</span> <span class="kn">import</span> <span class="n">Coords</span>
+<span class="kn">from</span> <span class="nn">pyformex.plugins.polynomial</span> <span class="kn">import</span> <span class="n">Polynomial</span>
+
+
+<div class="viewcode-block" id="exponents"><a class="viewcode-back" href="../../ref/plugins.isopar.html#plugins.isopar.exponents">[docs]</a><span class="k">def</span> <span class="nf">exponents</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="s1">&#39;lag&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create tuples of polynomial exponents.</span>
+
+<span class="sd">    Create the exponents of polynomials in 1 to 3 dimensions</span>
+<span class="sd">    which can be used to construct interpolation function over lagrangian,</span>
+<span class="sd">    triangular or serendipity grids.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    n: tuple of int</span>
+<span class="sd">        A tuple of 1 to 3 integers, specifying the degree of the polynomials</span>
+<span class="sd">        in the x up to z directions. For a lagrangian layout, this is one less</span>
+<span class="sd">        than the number of points in each direction.</span>
+<span class="sd">    layout: str</span>
+<span class="sd">        A string specifying the layout of the grid and the selection of</span>
+<span class="sd">        monomials to be used. Should be one of &#39;lagrangian&#39;, &#39;triangular&#39;,</span>
+<span class="sd">        &#39;serendipity&#39; or &#39;border&#39;. The string can be abbreviated to its</span>
+<span class="sd">        first 3 characters.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    int array</span>
+<span class="sd">        An integer array with shape (ndim,npoints), where ndim = len(n)</span>
+<span class="sd">        and npoints depends on the layout:</span>
+
+<span class="sd">        - lagrangian: npoints = prod(n). The point layout is a rectangular</span>
+<span class="sd">          lagrangian grid form by n[i] points in direction i. As an example,</span>
+<span class="sd">          specifying n=(3,2) uses a grid of 3 points in x-direction and 2 points</span>
+<span class="sd">          in y-direction.</span>
+<span class="sd">        - triangular: requires that all values in n are equal. For ndim=2, the</span>
+<span class="sd">          number of points is n*(n+1)//2.</span>
+<span class="sd">        - border: this is like the lagrangian grid with all internal points</span>
+<span class="sd">          removed. For ndim=2, we have npoints = 2 * sum(n) - 4. For ndim=3 we</span>
+<span class="sd">          have npoints = 2 * sum(nx*ny+ny*nz+nz*nx) - 4 * sum(n) + 8.</span>
+<span class="sd">          Thus n=(3,3,3) will yield 2*3*3*3 - 4*(3+3+3) + 8 = 26</span>
+<span class="sd">        - serendipity: tries to use only the corner and edge nodes, but uses</span>
+<span class="sd">          a convex domain of the monomials. This may require some nodes inside</span>
+<span class="sd">          the faces or the volume. Currently works up to (4,4) in 2D or (3,3,3)</span>
+<span class="sd">          in 3D.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    interpoly: Returns the corresponding interpolation polynomial</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Quadratic in x, linear in y:</span>
+
+<span class="sd">    &gt;&gt;&gt; exponents((2,1))</span>
+<span class="sd">    array([[0, 0],</span>
+<span class="sd">           [1, 0],</span>
+<span class="sd">           [2, 0],</span>
+<span class="sd">           [0, 1],</span>
+<span class="sd">           [1, 1],</span>
+<span class="sd">           [2, 1]])</span>
+
+<span class="sd">    Linear in x,y,x:</span>
+
+<span class="sd">    &gt;&gt;&gt; exponents((1,1,1))</span>
+<span class="sd">    array([[0, 0, 0],</span>
+<span class="sd">           [1, 0, 0],</span>
+<span class="sd">           [0, 1, 0],</span>
+<span class="sd">           [1, 1, 0],</span>
+<span class="sd">           [0, 0, 1],</span>
+<span class="sd">           [1, 0, 1],</span>
+<span class="sd">           [0, 1, 1],</span>
+<span class="sd">           [1, 1, 1]])</span>
+
+<span class="sd">    Quadratic serendipity in x,y:</span>
+
+<span class="sd">    &gt;&gt;&gt; exponents((2,2), &#39;ser&#39;)</span>
+<span class="sd">    array([[0, 0],</span>
+<span class="sd">           [1, 0],</span>
+<span class="sd">           [2, 0],</span>
+<span class="sd">           [0, 1],</span>
+<span class="sd">           [1, 1],</span>
+<span class="sd">           [2, 1],</span>
+<span class="sd">           [0, 2],</span>
+<span class="sd">           [1, 2]])</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">checkArray</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,),</span> <span class="s1">&#39;i&#39;</span><span class="p">)</span>
+    <span class="n">ndim</span> <span class="o">=</span> <span class="n">n</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">ndim</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">ndim</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Expected a 1..3 length tuple&quot;</span><span class="p">)</span>
+
+    <span class="n">layout</span> <span class="o">=</span> <span class="n">layout</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">layout</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;tri&#39;</span><span class="p">,</span> <span class="s1">&#39;ser&#39;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">n</span> <span class="o">==</span> <span class="n">n</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">&quot;For triangular and serendipity grids, all axes should &quot;</span>
+                <span class="s2">&quot;have the same number of points&quot;</span><span class="p">)</span>
+
+    <span class="c1"># First create the full lagrangian set</span>
+    <span class="n">exp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">indices</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">ndim</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">layout</span> <span class="o">!=</span> <span class="s1">&#39;lag&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">layout</span> <span class="o">==</span> <span class="s1">&#39;tri&#39;</span><span class="p">:</span>
+            <span class="c1"># Select by total maximal degree</span>
+            <span class="n">ok</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">n</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">layout</span> <span class="o">==</span> <span class="s1">&#39;bor&#39;</span><span class="p">:</span>
+            <span class="c1"># Select if any value is not higher than 1</span>
+            <span class="n">ok</span> <span class="o">=</span> <span class="p">(</span><span class="n">exp</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">layout</span> <span class="o">==</span> <span class="s1">&#39;ser&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">npts</span> <span class="o">=</span> <span class="mi">8</span> <span class="o">+</span> <span class="mi">12</span><span class="o">*</span><span class="p">(</span><span class="n">n</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># minimal number of points</span>
+                <span class="n">sdeg</span> <span class="o">=</span> <span class="n">n</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="n">ok</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">sdeg</span>
+                <span class="k">if</span> <span class="n">ok</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">npts</span><span class="p">:</span>
+                    <span class="n">sdeg</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">ok</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">sdeg</span>
+                    <span class="n">ok1</span> <span class="o">=</span> <span class="p">(</span><span class="n">exp</span> <span class="o">==</span> <span class="n">n</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">1</span>
+                    <span class="n">ok</span> <span class="o">=</span> <span class="n">ok</span><span class="o">*</span><span class="n">ok1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">npts</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">+</span> <span class="mi">4</span><span class="o">*</span><span class="p">(</span><span class="n">n</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># minimal number of points</span>
+                <span class="n">ok</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">n</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">ok</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">npts</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No solution for eltype </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">layout</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Unknown layout </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">layout</span><span class="p">)</span>
+        <span class="n">exp</span> <span class="o">=</span> <span class="n">exp</span><span class="p">[</span><span class="n">ok</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">exp</span></div>
+
+
+<div class="viewcode-block" id="interpoly"><a class="viewcode-back" href="../../ref/plugins.isopar.html#plugins.isopar.interpoly">[docs]</a><span class="k">def</span> <span class="nf">interpoly</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="s1">&#39;lag&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create an interpolation polynomial.</span>
+
+<span class="sd">    This is syntactical sugar for::</span>
+
+<span class="sd">        Polynomial(exponents(n, layout))</span>
+
+<span class="sd">    Parameters: see :func:`exponents`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Polynomial:</span>
+<span class="sd">        The :class:`Polynomial` constructed from the :func:`exponents`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">Polynomial</span><span class="p">(</span><span class="n">exponents</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">layout</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="Isopar"><a class="viewcode-back" href="../../ref/plugins.isopar.html#plugins.isopar.Isopar">[docs]</a><span class="k">class</span> <span class="nc">Isopar</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;A class representing an isoparametric transformation</span>
+
+<span class="sd">        eltype is one of the keys in Isopar.isodata</span>
+<span class="sd">        coords and oldcoords can be either arrays, Coords or Formex instances,</span>
+<span class="sd">        but should be of equal shape, and match the number of atoms in the</span>
+<span class="sd">        specified transformation type</span>
+
+<span class="sd">    The following three formulations are equivalent ::</span>
+
+<span class="sd">       trf = Isopar(eltype,coords,oldcoords)</span>
+<span class="sd">       G = F.isopar(trf)</span>
+
+<span class="sd">       trf = Isopar(eltype,coords,oldcoords)</span>
+<span class="sd">       G = trf.transform(F)</span>
+
+<span class="sd">       G = isopar(F,eltype,coords,oldcoords)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Store the interpolation polynomials corresponding with</span>
+    <span class="c1"># some element</span>
+    <span class="n">isodata</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="p">}</span>
+
+    <span class="n">isodata_alias</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;line2&#39;</span><span class="p">:</span> <span class="s1">&#39;lag-1&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;line3&#39;</span><span class="p">:</span> <span class="s1">&#39;lag-2&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;line4&#39;</span><span class="p">:</span> <span class="s1">&#39;lag-3&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;tri3&#39;</span><span class="p">:</span> <span class="s1">&#39;tri-1-1&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;tri6&#39;</span><span class="p">:</span> <span class="s1">&#39;tri-2-2&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;tri10&#39;</span><span class="p">:</span> <span class="s1">&#39;tri-3-3&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;quad4&#39;</span><span class="p">:</span> <span class="s1">&#39;lag-1-1&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;quad9&#39;</span><span class="p">:</span> <span class="s1">&#39;lag-2-2&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;quad16&#39;</span><span class="p">:</span> <span class="s1">&#39;lag-3-3&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;quad8&#39;</span><span class="p">:</span> <span class="s1">&#39;bor-2-2&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;quad12&#39;</span><span class="p">:</span> <span class="s1">&#39;bor-3-3&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;quad13&#39;</span><span class="p">:</span> <span class="s1">&#39;ser-3-3&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;tet4&#39;</span><span class="p">:</span> <span class="s1">&#39;tri-1-1-1&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;tet10&#39;</span><span class="p">:</span> <span class="s1">&#39;tri-2-2-2&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;hex8&#39;</span><span class="p">:</span> <span class="s1">&#39;lag-1-1-1&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;hex20&#39;</span><span class="p">:</span> <span class="s1">&#39;ser-2-2-2&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;hex27&#39;</span><span class="p">:</span> <span class="s1">&#39;lag-2-2-2&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;hex36&#39;</span><span class="p">:</span> <span class="s1">&#39;lag-2-2-3&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;hex64&#39;</span><span class="p">:</span> <span class="s1">&#39;lag-3-3-3&#39;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eltype</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">oldcoords</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create an isoparametric transformation.</span>
+
+<span class="sd">        `eltype`: string: either one of the keys in the isodata dictionary,</span>
+<span class="sd">          or a string in the following format: layout-nx-ny-nz</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">eltype</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">Isopar</span><span class="o">.</span><span class="n">isodata</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">eltype</span> <span class="ow">in</span> <span class="n">Isopar</span><span class="o">.</span><span class="n">isodata_alias</span><span class="p">:</span>
+                <span class="n">eltype</span> <span class="o">=</span> <span class="n">Isopar</span><span class="o">.</span><span class="n">isodata_alias</span><span class="p">[</span><span class="n">eltype</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">eltype</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">Isopar</span><span class="o">.</span><span class="n">isodata</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">eltype</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;lag&#39;</span><span class="p">,</span> <span class="s1">&#39;tri&#39;</span><span class="p">,</span> <span class="s1">&#39;bor&#39;</span><span class="p">,</span> <span class="s1">&#39;ser&#39;</span><span class="p">]:</span>
+                <span class="n">n</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span>
+                <span class="c1">#</span>
+                <span class="c1"># It might be better to just store (ndim,atoms)</span>
+                <span class="c1"># if we use string atoms to evaluate</span>
+                <span class="c1">#</span>
+                <span class="n">Isopar</span><span class="o">.</span><span class="n">isodata</span><span class="p">[</span><span class="n">eltype</span><span class="p">]</span> <span class="o">=</span> <span class="n">interpoly</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Unknown eltype </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">poly</span> <span class="o">=</span> <span class="n">Isopar</span><span class="o">.</span><span class="n">isodata</span><span class="p">[</span><span class="n">eltype</span><span class="p">]</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="n">coords</span><span class="o">.</span><span class="n">view</span><span class="p">()</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="n">oldcoords</span> <span class="o">=</span> <span class="n">oldcoords</span><span class="o">.</span><span class="n">view</span><span class="p">()</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="n">aa</span> <span class="o">=</span> <span class="n">poly</span><span class="o">.</span><span class="n">evalAtoms</span><span class="p">(</span><span class="n">oldcoords</span><span class="p">[:,</span> <span class="p">:</span><span class="n">poly</span><span class="o">.</span><span class="n">ndim</span><span class="p">])</span>
+        <span class="n">ab</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">aa</span><span class="p">,</span> <span class="n">coords</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eltype</span> <span class="o">=</span> <span class="n">eltype</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trf</span> <span class="o">=</span> <span class="n">ab</span>
+
+
+<div class="viewcode-block" id="Isopar.transform"><a class="viewcode-back" href="../../ref/plugins.isopar.html#plugins.isopar.Isopar.transform">[docs]</a>    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Apply isoparametric transform to a set of coordinates.</span>
+
+<span class="sd">        Returns a Coords array with same shape as X</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Coords</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">X</span> <span class="o">=</span> <span class="n">Coords</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expected a Coords object as argument&quot;</span><span class="p">)</span>
+
+        <span class="n">poly</span> <span class="o">=</span> <span class="n">Isopar</span><span class="o">.</span><span class="n">isodata</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">eltype</span><span class="p">]</span>
+        <span class="n">ndim</span> <span class="o">=</span> <span class="n">poly</span><span class="o">.</span><span class="n">ndim</span>
+        <span class="n">aa</span> <span class="o">=</span> <span class="n">poly</span><span class="o">.</span><span class="n">evalAtoms</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)[:,</span> <span class="p">:</span><span class="n">ndim</span><span class="p">])</span>
+        <span class="n">xx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">aa</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">trf</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ndim</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">xx</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">ndim</span><span class="p">:]</span> <span class="o">+=</span> <span class="n">X</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">ndim</span><span class="p">:]</span>
+        <span class="k">return</span> <span class="n">X</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">xx</span><span class="p">)</span></div></div>
+
+
+<span class="c1"># End</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">plugins.isopar</a></li--> 
+      </ul>
+    </div>
+    <div class="footer">
+    <span class="left">
+        &copy; Copyright 2004-2023, Benedict Verhegghe.
+    </span>
+      Last updated on Mar 27, 2023.
+    <span class="right">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.4.3.
+    </span>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,1203 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!--
+##
+##  This file is part of the pyFormex project.
+##  pyFormex is a tool for generating, manipulating and transforming 3D
+##  geometrical models by sequences of mathematical operations.
+##  Home page: http://pyformex.org
+##  Project page:  http://savannah.nongnu.org/projects/pyformex/
+##  Copyright (C) Benedict Verhegghe (benedict.verhegghe@ugent.be)
+##  Distributed under the GNU General Public License version 3 or later.
+##
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see http://www.gnu.org/licenses/.
+##
+-->
+    <title>geomfile &#8212; pyFormex 3.3 documentation</title>
+
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pyformex.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+<link rel="icon" type="image/png" href="../_static/pyformex_fav.png" />
+
+  </head><body>
+
+<div class="header">
+  <a href="http://pyformex.org">
+  <img src="../_static/scallop_dome_small.png" alt="scallop dome" border="0" hspace="20" vspace="12" align="left" />
+  <img src="../_static/pyformex-logo-2.png" alt="pyformex logo" border="0" hspace="10" vspace="8" align="left" />
+  </a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">geomfile</a></li--> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<!-- PYFORMEX_SIDEBAR_LOGO -->
+<!-- PYFORMEX_WEBSITE_SIDEBAR_TOP -->
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for geomfile</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1">##</span>
+<span class="c1">##  SPDX-FileCopyrightText: © 2007-2023 Benedict Verhegghe &lt;bverheg@gmail.com&gt;</span>
+<span class="c1">##  SPDX-License-Identifier: GPL-3.0-or-later</span>
+<span class="c1">##</span>
+<span class="c1">##  This file is part of pyFormex 3.3  (Sun Mar 26 20:16:15 CEST 2023)</span>
+<span class="c1">##  pyFormex is a tool for generating, manipulating and transforming 3D</span>
+<span class="c1">##  geometrical models by sequences of mathematical operations.</span>
+<span class="c1">##  Home page: https://pyformex.org</span>
+<span class="c1">##  Project page: https://savannah.nongnu.org/projects/pyformex/</span>
+<span class="c1">##  Development: https://gitlab.com/bverheg/pyformex</span>
+<span class="c1">##  Distributed under the GNU General Public License version 3 or later.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is free software: you can redistribute it and/or modify</span>
+<span class="c1">##  it under the terms of the GNU General Public License as published by</span>
+<span class="c1">##  the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1">##  (at your option) any later version.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is distributed in the hope that it will be useful,</span>
+<span class="c1">##  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1">##  GNU General Public License for more details.</span>
+<span class="c1">##</span>
+<span class="c1">##  You should have received a copy of the GNU General Public License</span>
+<span class="c1">##  along with this program.  If not, see http://www.gnu.org/licenses/.</span>
+<span class="c1">##</span>
+
+<span class="sd">&quot;&quot;&quot;Export/import of files in pyFormex&#39;s native PGF format</span>
+
+<span class="sd">This module defines a class to work with files in the native</span>
+<span class="sd">pyFormex Geometry File (PGF) format.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">import</span> <span class="nn">pyformex</span> <span class="k">as</span> <span class="nn">pf</span>
+<span class="kn">from</span> <span class="nn">pyformex.software</span> <span class="kn">import</span> <span class="n">SaneVersion</span> <span class="k">as</span> <span class="n">Version</span>
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">filewrite</span>
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">arraytools</span> <span class="k">as</span> <span class="n">at</span>
+<span class="kn">from</span> <span class="nn">pyformex.formex</span> <span class="kn">import</span> <span class="n">Formex</span>
+<span class="kn">from</span> <span class="nn">pyformex.mesh</span> <span class="kn">import</span> <span class="n">Mesh</span>
+<span class="c1"># We need to import the Mesh subclasses that can be read !</span>
+<span class="kn">from</span> <span class="nn">pyformex.trisurface</span> <span class="kn">import</span> <span class="n">TriSurface</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;GeometryFile&#39;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="GeometryFile"><a class="viewcode-back" href="../ref/geomfile.html#geomfile.GeometryFile">[docs]</a><span class="k">class</span> <span class="nc">GeometryFile</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;A class to handle files in the pyFormex Geometry File format.</span>
+
+<span class="sd">    The pyFormex Geometry File (PGF) format allows the persistent storage</span>
+<span class="sd">    of most of the geometrical objects available in pyFormex using a format</span>
+<span class="sd">    that is independent of the pyFormex version. It guarantees a possible read</span>
+<span class="sd">    back in future versions. The format is simple and public, and hence</span>
+<span class="sd">    also allows read back from other software.</span>
+
+<span class="sd">    See http://pyformex.org/doc/file_format for a full description</span>
+<span class="sd">    of the file format(s). Older file formats are supported for reading.</span>
+
+<span class="sd">    Other than just geometry, the pyFormex Geometry File format can also</span>
+<span class="sd">    store some attributes of the objects, like names and colors.</span>
+<span class="sd">    Future versions will also allow to store field variables.</span>
+
+<span class="sd">    The GeometryFile class uses the utils.File class to access the files,</span>
+<span class="sd">    and thus provides for transparent compression and decompression of the</span>
+<span class="sd">    files. When making use of the compression, the PGF files will remain small</span>
+<span class="sd">    even for complex models.</span>
+
+<span class="sd">    A PGF file starts with a specific header identifying the format and</span>
+<span class="sd">    version. When opening a file for reading, the PGF header is read</span>
+<span class="sd">    automatically, and the file is thus positioned ready for reading</span>
+<span class="sd">    the objects. When opening a file for writing (not appending!), the</span>
+<span class="sd">    header is automatically written, and the file is ready for writing objects.</span>
+
+<span class="sd">    In append mode however, nothing is currently done with the header.</span>
+<span class="sd">    This means that it is possible to append to a file using a format</span>
+<span class="sd">    different from that used to create the file initially. This is not a</span>
+<span class="sd">    good practice, as it may hinder the proper read back of the data.</span>
+<span class="sd">    Therefore, append mode should only be used when you are sure that</span>
+<span class="sd">    your current pyFormex uses the same format as the already stored file.</span>
+<span class="sd">    As a reminder, warning is written when opening the file in append mode.</span>
+
+<span class="sd">    The `filename`, `mode`, `compr`, `level` and `delete_temp` arguments are</span>
+<span class="sd">    passed to the utils.File class. See :class:`utils.File` for more</span>
+<span class="sd">    details.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename: :term:`path_like`</span>
+<span class="sd">        The name of the file to open. If the file name ends with &#39;.gz&#39; or</span>
+<span class="sd">        &#39;.bz2&#39;, transparent (de)compression will be used, as provided by</span>
+<span class="sd">        the :class:`utils.File` class.</span>
+<span class="sd">    mode: &#39;rb&#39;, &#39;wb&#39; or &#39;ab&#39;</span>
+<span class="sd">        Specifies that the file should be opened in read, write or append mode</span>
+<span class="sd">        respectively. If omitted, an existing file will be opened in read mode</span>
+<span class="sd">        and a non-existing in write mode. Opening an existing file in &#39;wb&#39; mode</span>
+<span class="sd">        will overwrite the file, while opening it in &#39;ab&#39; mode will allow to</span>
+<span class="sd">        append to the file.</span>
+<span class="sd">    compr: &#39;gz&#39; or &#39;bz2&#39;</span>
+<span class="sd">        The compression type to be used: gzip or bzip2. If the file name is</span>
+<span class="sd">        ending with &#39;.gz&#39; or &#39;.bz2&#39;, this is set automatically from the</span>
+<span class="sd">        suffix.</span>
+<span class="sd">    level: int 1..9</span>
+<span class="sd">        Compression level for gzip/bzip2. Higher values result in smaller</span>
+<span class="sd">        files, but require longer compression times. The default of 5 gives</span>
+<span class="sd">        already a fairly good compression ratio.</span>
+<span class="sd">    delete_temp: bool</span>
+<span class="sd">        If True (default), the temporary files needed to do the (de)compression</span>
+<span class="sd">        are deleted when the GeometryFile is closed.</span>
+<span class="sd">    sep: str</span>
+<span class="sd">        Separator string to be used when writing numpy arrays to the file.</span>
+<span class="sd">        An empty string will make the arrays being written in</span>
+<span class="sd">        binary format. Any other string will force text mode, and the ``sep``</span>
+<span class="sd">        string is used as a separator between subsequent array elements.</span>
+<span class="sd">        See also :func:`numpy.tofile`.</span>
+<span class="sd">    ifmt: str</span>
+<span class="sd">        Format for integer items. If provided, and sep is not empty, arrays</span>
+<span class="sd">        will be written as in line per line text mode.</span>
+<span class="sd">        If None (default), arrays are written as a single block, which</span>
+<span class="sd">        resulting in very long lines.</span>
+<span class="sd">    ffmt: str</span>
+<span class="sd">        Format for float items. If provided, and sep is not empty, arrays</span>
+<span class="sd">        will be written as in line per line text mode.</span>
+<span class="sd">        If None (default), arrays are written as a single block, which</span>
+<span class="sd">        resulting in very long lines.</span>
+<span class="sd">    version: str</span>
+<span class="sd">        Version of PGF format to use when writing. Currently available are</span>
+<span class="sd">        &#39;1.9&#39;, &#39;2.0&#39;, &#39;2.1&#39;. The default is &#39;2.1&#39;.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_version_</span> <span class="o">=</span> <span class="s1">&#39;2.1&#39;</span>
+
+    <span class="c1"># Changes in 2.1:</span>
+    <span class="c1"># Always open files in binary mode (whether arrays are written</span>
+    <span class="c1"># as text or as binary blobs)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">compr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+                 <span class="n">delete_temp</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="n">ifmt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ffmt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create the GeometryFile object.&quot;&quot;&quot;</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">version</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">version</span> <span class="o">=</span> <span class="n">GeometryFile</span><span class="o">.</span><span class="n">_version_</span>
+        <span class="k">if</span> <span class="n">version</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;1.9&#39;</span><span class="p">,</span> <span class="s1">&#39;2.0&#39;</span><span class="p">,</span> <span class="s1">&#39;2.1&#39;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Can not read/write GeometryFile &quot;</span>
+                             <span class="sa">f</span><span class="s2">&quot;of version </span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="n">version</span>
+
+        <span class="k">if</span> <span class="n">mode</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="n">mode</span> <span class="o">=</span> <span class="s1">&#39;rb&#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">mode</span> <span class="o">=</span> <span class="s1">&#39;wb&#39;</span>
+        <span class="c1"># Always force binary mode</span>
+        <span class="k">if</span> <span class="s1">&#39;b&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">mode</span><span class="p">:</span>
+            <span class="n">mode</span> <span class="o">+=</span> <span class="s1">&#39;b&#39;</span>
+
+        <span class="c1"># Check final mode</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;rb&#39;</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">,</span> <span class="s1">&#39;ab&#39;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid file  open mode </span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2"> &quot;</span><span class="p">)</span>
+
+        <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Opening PGF file </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2"> in </span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2"> mode&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">PGF</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">compr</span><span class="p">,</span> <span class="n">level</span><span class="p">,</span> <span class="n">delete_temp</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_autoname</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">writing</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sep</span> <span class="o">=</span> <span class="n">sep</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;i&#39;</span><span class="p">:</span> <span class="n">ifmt</span><span class="p">,</span> <span class="s1">&#39;f&#39;</span><span class="p">:</span> <span class="n">ffmt</span><span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">open</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="GeometryFile.readline"><a class="viewcode-back" href="../ref/geomfile.html#geomfile.GeometryFile.readline">[docs]</a>    <span class="k">def</span> <span class="nf">readline</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read a line from the file&quot;&quot;&quot;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fil</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;latin1&#39;</span><span class="p">)</span>  <span class="c1"># accepts all 256 bytes as chars</span>
+        <span class="k">return</span> <span class="n">s</span></div>
+
+
+<div class="viewcode-block" id="GeometryFile.writeline"><a class="viewcode-back" href="../ref/geomfile.html#geomfile.GeometryFile.writeline">[docs]</a>    <span class="k">def</span> <span class="nf">writeline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Write a text line to the file&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">s</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">):</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;latin1&#39;</span><span class="p">)</span>  <span class="c1"># accepts all 256 bytes as chars</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fil</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">s</span><span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">writing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">mode</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="s1">&#39;wa&#39;</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">autoname</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_autoname</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_autoname</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">autoName</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">projectName</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_autoname</span>
+
+
+    <span class="k">def</span> <span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fil</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">open</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">writing</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">writeHeader</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">readHeader</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="GeometryFile.reopen"><a class="viewcode-back" href="../ref/geomfile.html#geomfile.GeometryFile.reopen">[docs]</a>    <span class="k">def</span> <span class="nf">reopen</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;rb&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Reopen the file, possibly changing the mode.</span>
+
+<span class="sd">        The default mode for the reopen is &#39;rb&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fil</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">reopen</span><span class="p">(</span><span class="n">mode</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">writing</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">writeHeader</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">readHeader</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="GeometryFile.close"><a class="viewcode-back" href="../ref/geomfile.html#geomfile.GeometryFile.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Close the file.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+    <span class="k">def</span> <span class="nf">checkWritable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">writing</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;File is not opened for writing&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">header_done</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">writeHeader</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="GeometryFile.writeHeader"><a class="viewcode-back" href="../ref/geomfile.html#geomfile.GeometryFile.writeHeader">[docs]</a>    <span class="k">def</span> <span class="nf">writeHeader</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Write the header of a pyFormex geometry file.</span>
+
+<span class="sd">        The header identifies the file as a pyFormex geometry file</span>
+<span class="sd">        and sets the following global values:</span>
+
+<span class="sd">        - `version`: the version of the geometry file format</span>
+<span class="sd">        - `sep`: the default separator to be used when not specified in</span>
+<span class="sd">          the data block</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">writeline</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;# pyFormex Geometry File (http://pyformex.org) &quot;</span>
+                       <span class="sa">f</span><span class="s2">&quot;version=&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">&#39;; sep=&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sep</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">header_done</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="GeometryFile.writeData"><a class="viewcode-back" href="../ref/geomfile.html#geomfile.GeometryFile.writeData">[docs]</a>    <span class="k">def</span> <span class="nf">writeData</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">sep</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Write an array of data to a pyFormex geometry file.</span>
+
+<span class="sd">        If fmt is None, the data are written using numpy.tofile, with</span>
+<span class="sd">        the specified separator. If sep is an empty string, the data block</span>
+<span class="sd">        is written in binary mode, leading to smaller files.</span>
+<span class="sd">        If fmt is specified, each</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">writing</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;File is not opened for writing&quot;</span><span class="p">)</span>
+        <span class="n">filewrite</span><span class="o">.</span><span class="n">writeData</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fil</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="n">sep</span><span class="p">,</span>
+                            <span class="n">fmt</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fmt</span><span class="p">[</span><span class="n">data</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">kind</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">writeline</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>  <span class="c1"># Add a &#39;\n&#39;</span></div>
+
+
+<div class="viewcode-block" id="GeometryFile.write"><a class="viewcode-back" href="../ref/geomfile.html#geomfile.GeometryFile.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">geom</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Write a collection of Geometry objects to the Geometry File.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        geom: object</span>
+<span class="sd">            An object of one the supported Geometry data types</span>
+<span class="sd">            or a list or dict of such objects, or a WebGL objdict.</span>
+<span class="sd">            Currently exported geometry objects are</span>
+<span class="sd">            :class:`Coords`, :class:`Formex`, :class:`Mesh`,</span>
+<span class="sd">            :class:`PolyLine`, :class:`BezierSpline`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            The number of objects written.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkWritable</span><span class="p">()</span>
+        <span class="n">nobj</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">geom</span><span class="p">:</span>
+                <span class="n">nobj</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">writeGeometry</span><span class="p">(</span><span class="n">geom</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">name</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">geom</span><span class="p">:</span>
+                <span class="c1">## if hasattr(obj, &#39;obj&#39;):</span>
+                <span class="c1">##     # This must be a WebGL object dict</span>
+                <span class="c1">##     nobj += self.writeDict(obj)</span>
+                <span class="c1">## else:</span>
+                <span class="n">nobj</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">writeGeometry</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="n">sep</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">nobj</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">writeGeometry</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">sep</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">nobj</span></div>
+
+
+<div class="viewcode-block" id="GeometryFile.writeGeometry"><a class="viewcode-back" href="../ref/geomfile.html#geomfile.GeometryFile.writeGeometry">[docs]</a>    <span class="k">def</span> <span class="nf">writeGeometry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">geom</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Write a single Geometry object.</span>
+
+<span class="sd">        Writes a single Geometry object to the Geometry File, using the</span>
+<span class="sd">        specified name and separator.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        geom: a supported Geometry type object</span>
+<span class="sd">            Currently supported Geometry objects are</span>
+<span class="sd">            :class:`Coords`, :class:`Formex`, :class:`Mesh`,</span>
+<span class="sd">            :class:`TriSurface`, :class:`PolyLine`, :class:`BezierSpline`.</span>
+<span class="sd">            Other types are skipped, and a message is written, but processing</span>
+<span class="sd">            continues.</span>
+<span class="sd">        name: str, optional</span>
+<span class="sd">            The name of the object to be stored in the file.</span>
+<span class="sd">            If not specified, and the object has an `attrib` dict containing</span>
+<span class="sd">            a name, that value is used. Else an object name is generated</span>
+<span class="sd">            from the file name.</span>
+<span class="sd">            On readback, the object names are used as keys to store the objects</span>
+<span class="sd">            in a dict.</span>
+<span class="sd">        sep: str</span>
+<span class="sd">            The separator to be used for writing this</span>
+<span class="sd">            object. If not specified, the value given in the constructor will</span>
+<span class="sd">            be used. This argument allows to override it on a per object base.</span>
+
+<span class="sd">        Returns 1 if the object has been written, 0 otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkWritable</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span> <span class="p">(</span><span class="n">Formex</span><span class="p">,</span> <span class="n">Mesh</span><span class="p">,</span> <span class="n">TriSurface</span><span class="p">)):</span>
+            <span class="n">writefunc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">writeFMT</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">writefunc</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;write&#39;</span><span class="o">+</span><span class="n">geom</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">pf</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Can not (yet) write objects of type &quot;</span>
+                           <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">geom</span><span class="p">)</span><span class="si">}</span><span class="s2"> to geometry file: skipping&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+                <span class="k">return</span> <span class="mi">0</span>
+
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">geom</span><span class="o">.</span><span class="n">attrib</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">autoname</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">writefunc</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">sep</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">pf</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error while writing objects of type &quot;</span>
+                       <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">geom</span><span class="p">)</span><span class="si">}</span><span class="s2"> to geometry file: skipping&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="k">return</span> <span class="mi">0</span>
+
+        <span class="k">if</span> <span class="n">geom</span><span class="o">.</span><span class="n">attrib</span> <span class="ow">and</span> <span class="n">Version</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">Version</span><span class="p">(</span><span class="s1">&#39;2.0&#39;</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">writeAttrib</span><span class="p">(</span><span class="n">geom</span><span class="o">.</span><span class="n">attrib</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="n">pf</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error while writing objects of &quot;</span>
+                           <span class="sa">f</span><span class="s2">&quot;type </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">geom</span><span class="p">)</span><span class="si">}</span><span class="s2"> to geometry file: skipping&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="mi">0</span>
+
+        <span class="k">return</span> <span class="mi">1</span></div>
+
+
+<div class="viewcode-block" id="GeometryFile.writeFMT"><a class="viewcode-back" href="../ref/geomfile.html#geomfile.GeometryFile.writeFMT">[docs]</a>    <span class="k">def</span> <span class="nf">writeFMT</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">F</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Write a Formex, Mesh or TriSurface.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        F: :class:`Formex`, :class:`Mesh` or :class:`TriSurface`</span>
+<span class="sd">            The object to be written.</span>
+<span class="sd">        name: str</span>
+<span class="sd">            See :meth:`writeGeometry`</span>
+<span class="sd">        sep: str</span>
+<span class="sd">            See :meth:`writeGeometry`</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        This writes a header line with these attributes and arguments:</span>
+<span class="sd">        objtype, ncoords, nelems, nplex, props(True/False),</span>
+<span class="sd">        eltype, normals(True/False), color, sep, name.</span>
+<span class="sd">        This is followed by the array data for: coords, elems, prop,</span>
+<span class="sd">        normals, color</span>
+
+<span class="sd">        The objtype can/should be overridden for subclasses.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">objtype</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="k">if</span> <span class="n">objtype</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;Mesh&#39;</span><span class="p">,</span> <span class="s1">&#39;Formex&#39;</span><span class="p">,</span> <span class="s1">&#39;TriSurface&#39;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid object type </span><span class="si">{</span><span class="n">objtype</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">sep</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">sep</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sep</span>
+        <span class="n">hasprop</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">prop</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="n">hasnorm</span> <span class="o">=</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="s1">&#39;normals&#39;</span><span class="p">)</span> <span class="ow">and</span> \
+            <span class="nb">isinstance</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">normals</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> \
+            <span class="n">F</span><span class="o">.</span><span class="n">normals</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">nelems</span><span class="p">(),</span> <span class="n">F</span><span class="o">.</span><span class="n">nplex</span><span class="p">(),</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">colormap</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">Fc</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">Fc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">Fc</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">color</span> <span class="o">=</span> <span class="n">Fc</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">Fc</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">checkArray</span><span class="p">(</span><span class="n">Fc</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;f&#39;</span><span class="p">)</span>
+                    <span class="n">colormap</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="n">colorshape</span> <span class="o">=</span> <span class="n">Fc</span><span class="o">.</span><span class="n">shape</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                    <span class="n">Fc</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">checkArray</span><span class="p">(</span><span class="n">Fc</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;i&#39;</span><span class="p">)</span>
+                    <span class="n">colormap</span> <span class="o">=</span> <span class="s1">&#39;default&#39;</span>
+                    <span class="n">colorshape</span> <span class="o">=</span> <span class="n">Fc</span><span class="o">.</span><span class="n">shape</span> <span class="o">+</span> <span class="p">(</span><span class="mi">3</span><span class="p">,)</span>
+                <span class="k">if</span> <span class="n">colorshape</span> <span class="o">==</span> <span class="p">(</span><span class="mi">3</span><span class="p">,):</span>
+                    <span class="n">color</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">Fc</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">colorshape</span> <span class="o">==</span> <span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">nelems</span><span class="p">(),</span> <span class="mi">3</span><span class="p">):</span>
+                    <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;element&#39;</span>
+                <span class="k">elif</span> <span class="n">colorshape</span> <span class="o">==</span> <span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">nelems</span><span class="p">(),</span> <span class="n">F</span><span class="o">.</span><span class="n">nplex</span><span class="p">(),</span> <span class="mi">3</span><span class="p">):</span>
+                    <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;vertex&#39;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Incorrect color shape: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">colorshape</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">head</span> <span class="o">=</span> <span class="p">(</span>    <span class="c1"># use parentheses to allow string continuation</span>
+            <span class="sa">f</span><span class="s2">&quot;# objtype=&#39;</span><span class="si">{</span><span class="n">objtype</span><span class="si">}</span><span class="s2">&#39;; &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;ncoords=</span><span class="si">{</span><span class="n">F</span><span class="o">.</span><span class="n">npoints</span><span class="p">()</span><span class="si">}</span><span class="s2">; nelems=</span><span class="si">{</span><span class="n">F</span><span class="o">.</span><span class="n">nelems</span><span class="p">()</span><span class="si">}</span><span class="s2">; nplex=</span><span class="si">{</span><span class="n">F</span><span class="o">.</span><span class="n">nplex</span><span class="p">()</span><span class="si">}</span><span class="s2">; &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;props=</span><span class="si">{</span><span class="n">hasprop</span><span class="si">}</span><span class="s2">; normals=</span><span class="si">{</span><span class="n">hasnorm</span><span class="si">}</span><span class="s2">; &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;color=</span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="n">color</span><span class="p">)</span><span class="si">}</span><span class="s2">; sep=&#39;</span><span class="si">{</span><span class="n">sep</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">name</span><span class="p">:</span>
+            <span class="n">head</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;; name=&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+        <span class="k">if</span> <span class="n">F</span><span class="o">.</span><span class="n">elName</span><span class="p">():</span>
+            <span class="n">head</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;; eltype=&#39;</span><span class="si">{</span><span class="n">F</span><span class="o">.</span><span class="n">elName</span><span class="p">()</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+        <span class="k">if</span> <span class="n">colormap</span><span class="p">:</span>
+            <span class="n">head</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;; colormap=&#39;</span><span class="si">{</span><span class="n">colormap</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">writeline</span><span class="p">(</span><span class="n">head</span><span class="p">)</span>
+
+        <span class="c1"># Apply a fix to avoid a fewgl bug</span>
+        <span class="c1">#</span>
+        <span class="c1"># pyFormex webgl exporter exports in pgf format.</span>
+        <span class="c1"># Unfortunately, due to a bug in fewgl pgf reader, geometries</span>
+        <span class="c1"># having a first value in the coords block that starts with a</span>
+        <span class="c1"># bit pattern corresponding with a &#39;#&#39; byte, (dec 35), can not</span>
+        <span class="c1"># be read back. The solution is to force the first bit (the least</span>
+        <span class="c1"># significant bit of the mantisse) to zero. This will make sure</span>
+        <span class="c1"># the bit pattern does not match dec 35 (&#39;#&#39;), and have a</span>
+        <span class="c1"># neglectable influence on the value. (Still the solution below</span>
+        <span class="c1"># resets the original value).</span>
+        <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;webgl/avoid_fewgl_read_pgf_bug&#39;</span><span class="p">]:</span>
+            <span class="n">save_first</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+            <span class="c1"># Force least significant bit of the first byte to zero</span>
+            <span class="n">F</span><span class="o">.</span><span class="n">coords</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">&amp;=</span> <span class="o">-</span><span class="mi">2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">writeData</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="n">sep</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;webgl/avoid_fewgl_read_pgf_bug&#39;</span><span class="p">]:</span>
+            <span class="n">F</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">save_first</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">objtype</span> <span class="o">==</span> <span class="s1">&#39;Formex&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">writeData</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">elems</span><span class="p">,</span> <span class="n">sep</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">hasprop</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">writeData</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">prop</span><span class="p">,</span> <span class="n">sep</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">hasnorm</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">writeData</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">normals</span><span class="p">,</span> <span class="n">sep</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">color</span> <span class="o">==</span> <span class="s1">&#39;element&#39;</span> <span class="ow">or</span> <span class="n">color</span> <span class="o">==</span> <span class="s1">&#39;vertex&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">writeData</span><span class="p">(</span><span class="n">Fc</span><span class="p">,</span> <span class="n">sep</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">F</span><span class="o">.</span><span class="n">fields</span><span class="p">:</span>
+            <span class="n">fld</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="n">field</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">writeline</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;# field=&#39;</span><span class="si">{</span><span class="n">fld</span><span class="o">.</span><span class="n">fldname</span><span class="si">}</span><span class="s2">&#39;; fldtype=&#39;</span><span class="si">{</span><span class="n">fld</span><span class="o">.</span><span class="n">fldtype</span><span class="si">}</span><span class="s2">&#39;; &quot;</span>
+                           <span class="sa">f</span><span class="s2">&quot;shape=</span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="n">fld</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="si">}</span><span class="s2">; sep=&#39;</span><span class="si">{</span><span class="n">sep</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">writeData</span><span class="p">(</span><span class="n">fld</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">sep</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GeometryFile.writeCurve"><a class="viewcode-back" href="../ref/geomfile.html#geomfile.GeometryFile.writeCurve">[docs]</a>    <span class="k">def</span> <span class="nf">writeCurve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">F</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">objtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Write a Curve to a pyFormex geometry file.</span>
+
+<span class="sd">        This function writes any curve type to the geometry file.</span>
+<span class="sd">        The `objtype` is automatically detected but can be overridden.</span>
+
+<span class="sd">        The following attributes and arguments are written in the header:</span>
+<span class="sd">        ncoords, closed, name, sep.</span>
+<span class="sd">        The following attributes are written as arrays: coords</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">sep</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">sep</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sep</span>
+        <span class="n">head</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;# objtype=&#39;</span><span class="si">{</span><span class="n">F</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&#39;; &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;ncoords=</span><span class="si">{</span><span class="n">F</span><span class="o">.</span><span class="n">coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">; &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;closed=</span><span class="si">{</span> <span class="n">F</span><span class="o">.</span><span class="n">closed</span><span class="si">}</span><span class="s2">; sep=&#39;</span><span class="si">{</span><span class="n">sep</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">name</span><span class="p">:</span>
+            <span class="n">head</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;; name=&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+        <span class="k">if</span> <span class="n">extra</span><span class="p">:</span>
+            <span class="n">head</span> <span class="o">+=</span> <span class="n">extra</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">writeline</span><span class="p">(</span><span class="n">head</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">writeData</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="n">sep</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GeometryFile.writePolyLine"><a class="viewcode-back" href="../ref/geomfile.html#geomfile.GeometryFile.writePolyLine">[docs]</a>    <span class="k">def</span> <span class="nf">writePolyLine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">F</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Write a PolyLine to a pyFormex geometry file.</span>
+
+<span class="sd">        This is equivalent to writeCurve(F,name,sep,objtype=&#39;PolyLine&#39;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">writeCurve</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="n">sep</span><span class="p">,</span> <span class="n">objtype</span><span class="o">=</span><span class="s1">&#39;PolyLine&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GeometryFile.writeBezierSpline"><a class="viewcode-back" href="../ref/geomfile.html#geomfile.GeometryFile.writeBezierSpline">[docs]</a>    <span class="k">def</span> <span class="nf">writeBezierSpline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">F</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Write a BezierSpline to a pyFormex geometry file.</span>
+
+<span class="sd">        This is equivalent to writeCurve(F,name,sep,objtype=&#39;BezierSpline&#39;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">writeCurve</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="n">sep</span><span class="p">,</span> <span class="n">objtype</span><span class="o">=</span><span class="s1">&#39;BezierSpline&#39;</span><span class="p">,</span>
+                        <span class="n">extra</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;; degree=</span><span class="si">{</span><span class="n">F</span><span class="o">.</span><span class="n">degree</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GeometryFile.writeNurbsCurve"><a class="viewcode-back" href="../ref/geomfile.html#geomfile.GeometryFile.writeNurbsCurve">[docs]</a>    <span class="k">def</span> <span class="nf">writeNurbsCurve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">F</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Write a NurbsCurve to a pyFormex geometry file.</span>
+
+<span class="sd">        This function writes a NurbsCurve instance to the geometry file.</span>
+
+<span class="sd">        The following attributes and arguments are written in the header:</span>
+<span class="sd">        ncoords, nknots, closed, name, sep.</span>
+<span class="sd">        The following attributes are written as arrays: coords, knots</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">sep</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">sep</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sep</span>
+        <span class="n">head</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;# objtype=&#39;</span><span class="si">{</span><span class="n">F</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&#39;; &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;ncoords=</span><span class="si">{</span><span class="n">F</span><span class="o">.</span><span class="n">coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">; nknots=</span><span class="si">{</span><span class="n">F</span><span class="o">.</span><span class="n">knots</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">; &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;closed=</span><span class="si">{</span><span class="n">F</span><span class="o">.</span><span class="n">closed</span><span class="si">}</span><span class="s2">; sep=&#39;</span><span class="si">{</span><span class="n">sep</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">name</span><span class="p">:</span>
+            <span class="n">head</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;; name=&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+        <span class="k">if</span> <span class="n">extra</span><span class="p">:</span>
+            <span class="n">head</span> <span class="o">+=</span> <span class="n">extra</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">writeline</span><span class="p">(</span><span class="n">head</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">writeData</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="n">sep</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">writeData</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">knots</span><span class="p">,</span> <span class="n">sep</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GeometryFile.writeNurbsSurface"><a class="viewcode-back" href="../ref/geomfile.html#geomfile.GeometryFile.writeNurbsSurface">[docs]</a>    <span class="k">def</span> <span class="nf">writeNurbsSurface</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">F</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Write a NurbsSurface to a pyFormex geometry file.</span>
+
+<span class="sd">        This function writes a NurbsSurface instance to the geometry file.</span>
+
+<span class="sd">        The following attributes and arguments are written in the header:</span>
+<span class="sd">        ncoords, nknotsu, nknotsv, closedu, closedv, name, sep.</span>
+<span class="sd">        The following attributes are written as arrays: coords, knotsu, knotsv</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">sep</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">sep</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sep</span>
+        <span class="n">head</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;# objtype=&#39;</span><span class="si">{</span><span class="n">F</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&#39;; &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;ncoords=</span><span class="si">{</span><span class="n">F</span><span class="o">.</span><span class="n">coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">; nuknots=</span><span class="si">{</span><span class="n">F</span><span class="o">.</span><span class="n">uknots</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">; &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;nvknots=</span><span class="si">{</span><span class="n">F</span><span class="o">.</span><span class="n">vknots</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">; &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;uclosed=</span><span class="si">{</span><span class="n">F</span><span class="o">.</span><span class="n">closed</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">; vclosed=</span><span class="si">{</span><span class="n">F</span><span class="o">.</span><span class="n">closed</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">; sep=&#39;</span><span class="si">{</span><span class="n">sep</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">name</span><span class="p">:</span>
+            <span class="n">head</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;; name=&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+        <span class="k">if</span> <span class="n">extra</span><span class="p">:</span>
+            <span class="n">head</span> <span class="o">+=</span> <span class="n">extra</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">writeline</span><span class="p">(</span><span class="n">head</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">writeData</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="n">sep</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">writeData</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">uknots</span><span class="p">,</span> <span class="n">sep</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">writeData</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">vknots</span><span class="p">,</span> <span class="n">sep</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GeometryFile.writeAttrib"><a class="viewcode-back" href="../ref/geomfile.html#geomfile.GeometryFile.writeAttrib">[docs]</a>    <span class="k">def</span> <span class="nf">writeAttrib</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attrib</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Write the Attributes block of the Geometry</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        attrib: :class:`Attributes`</span>
+<span class="sd">            The Attributes dict of a Geometry object.</span>
+
+<span class="sd">        Warning</span>
+<span class="sd">        -------</span>
+<span class="sd">        This is work in progress. Not all Attributes can currently</span>
+<span class="sd">        be stored in the PGF format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">def</span> <span class="nf">filter_attrib</span><span class="p">(</span><span class="n">attrib</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;Filter the storable attributes.</span>
+
+<span class="sd">            Currently, only bool, int, float and str types are stored.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">okkeys</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">attrib</span> <span class="k">if</span> <span class="p">(</span><span class="n">k</span> <span class="o">!=</span> <span class="s1">&#39;color&#39;</span><span class="p">)</span>
+                      <span class="ow">and</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">attrib</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">))</span>
+                           <span class="ow">or</span> <span class="n">at</span><span class="o">.</span><span class="n">isInt</span><span class="p">(</span><span class="n">attrib</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+                           <span class="ow">or</span> <span class="n">at</span><span class="o">.</span><span class="n">isFloat</span><span class="p">(</span><span class="n">attrib</span><span class="p">[</span><span class="n">k</span><span class="p">]))]</span>
+            <span class="k">return</span> <span class="n">utils</span><span class="o">.</span><span class="n">selectDict</span><span class="p">(</span><span class="n">attrib</span><span class="p">,</span> <span class="n">okkeys</span><span class="p">)</span>
+
+        <span class="c1"># We rely on Attributes __repr__ method, but multiple line</span>
+        <span class="c1"># representations are coerced to a single line to allow readback</span>
+
+        <span class="c1"># Select the exportable attributes</span>
+        <span class="n">okattr</span> <span class="o">=</span> <span class="n">filter_attrib</span><span class="p">(</span><span class="n">attrib</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">okattr</span><span class="p">:</span>
+            <span class="c1"># In case we would allow array attributes, we need to set</span>
+            <span class="c1"># numpy printoptions to display the full array, not a truncated one</span>
+            <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">printoptions</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">):</span>
+                <span class="c1"># Get a reversible representation of the attrib dict</span>
+                <span class="n">s</span> <span class="o">=</span> <span class="nb">repr</span><span class="p">(</span><span class="n">filter_attrib</span><span class="p">(</span><span class="n">okattr</span><span class="p">))</span>
+            <span class="c1"># Remove the newlines, so everything can be read as a single line</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1"> *&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+            <span class="c1"># In case arrays are stored, remove the dtype (only int and float</span>
+            <span class="c1"># dtypes are supported, and type is obvious from the stored values)</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;, *dtype=[^)]*\)&#39;</span><span class="p">,</span> <span class="s1">&#39;)&#39;</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+            <span class="c1"># Write the result to the file</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">writeline</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;# attrib = </span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+    <span class="c1">#######################################################################</span>
+    <span class="c1">### READING ###</span>
+
+
+<div class="viewcode-block" id="GeometryFile.read"><a class="viewcode-back" href="../ref/geomfile.html#geomfile.GeometryFile.read">[docs]</a>    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">count</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">warn_version</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read objects from a pyFormex Geometry File.</span>
+
+<span class="sd">        This function reads objects from a Geometry File until the file</span>
+<span class="sd">        ends, or until `count` objects have been read.</span>
+<span class="sd">        The File should have been opened for reading.</span>
+
+<span class="sd">        A count may be specified to limit the number of objects read.</span>
+
+<span class="sd">        Returns a dict with the objects read. The keys of the dict are the</span>
+<span class="sd">        object names found in the file. If the file does not contain</span>
+<span class="sd">        object names, they will be autogenerated from the file name.</span>
+
+<span class="sd">        Note that PGF files of version 1.0 are no longer supported.</span>
+<span class="sd">        The use of formats 1.1 to 1.5 is deprecated, and users are</span>
+<span class="sd">        urged to upgrade these files to a newer format. Support for</span>
+<span class="sd">        these formats may be removed in future.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">writing</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;File is opened for writing, not reading.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">{}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">results</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># used to make sure fields follow geom block</span>
+
+        <span class="k">if</span> <span class="n">Version</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">Version</span><span class="p">(</span><span class="s1">&#39;1.6&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">warn_version</span><span class="p">:</span>
+                <span class="n">pf</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;This is an old PGF format (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">). &quot;</span>
+                    <span class="s2">&quot;We recommend you to convert it to a newer format. &quot;</span>
+                    <span class="s2">&quot;The geometry import menu contains an item to upgrade &quot;</span>
+                    <span class="s2">&quot;a PGF file to the latest format &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">GeometryFile</span><span class="o">.</span><span class="n">_version_</span><span class="si">}</span><span class="s2">).&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">readLegacy</span><span class="p">(</span><span class="n">count</span><span class="p">)</span>
+
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>   <span class="c1"># end of file</span>
+                <span class="k">break</span>
+
+            <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;#&#39;</span><span class="p">):</span>
+
+                <span class="c1"># Remove the leading &#39;#&#39; and space</span>
+                <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+                <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;objtype&#39;</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">count</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">count</span><span class="p">:</span>
+                        <span class="k">break</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">readGeometry</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">s</span><span class="p">))</span>
+
+                <span class="k">elif</span> <span class="n">s</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;field&#39;</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">readField</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">s</span><span class="p">))</span>
+
+                <span class="k">elif</span> <span class="n">s</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;attrib&#39;</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">readAttrib</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">s</span><span class="p">))</span>
+
+                <span class="k">elif</span> <span class="n">s</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;pyFormex Geometry File&#39;</span><span class="p">):</span>
+                    <span class="c1"># we have a new header line</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">readHeader</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+            <span class="c1"># Unrecognized lines are silently ignored, whether starting</span>
+            <span class="c1"># with a &#39;#&#39; or not.</span>
+            <span class="c1"># We recommend to start all comments lines with a &#39;#&#39; though.</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">results</span></div>
+
+
+<div class="viewcode-block" id="GeometryFile.decode"><a class="viewcode-back" href="../ref/geomfile.html#geomfile.GeometryFile.decode">[docs]</a>    <span class="k">def</span> <span class="nf">decode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Decode the announcement line.</span>
+
+<span class="sd">        Returns a dict with the interpreted values of the line.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Empty dict for return value</span>
+        <span class="n">kargs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1"># Dict with defined symbols used in the string repr in PGF format</span>
+        <span class="n">loc</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;array&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">}</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">exec</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">loc</span><span class="p">,</span> <span class="n">kargs</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">&quot;This does not look like a regular pyFormex geometry file. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;I got stuck on the following line:</span><span class="se">\n</span><span class="s2">==&gt; </span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">kargs</span></div>
+
+
+<div class="viewcode-block" id="GeometryFile.readHeader"><a class="viewcode-back" href="../ref/geomfile.html#geomfile.GeometryFile.readHeader">[docs]</a>    <span class="k">def</span> <span class="nf">readHeader</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read the header of a pyFormex geometry file.</span>
+
+<span class="sd">        Without argument, reads a line from the file and interpretes it as</span>
+<span class="sd">        a header line. This is normally used to read the first line of the</span>
+<span class="sd">        file. A string `s` may be specified to interprete further lines as</span>
+<span class="sd">        a header line.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">s</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+
+        <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;PGF header line: </span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">PGF</span><span class="p">)</span>
+        <span class="n">pos</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">rfind</span><span class="p">(</span><span class="s1">&#39;)&#39;</span><span class="p">)</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="n">pos</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">kargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="n">kargs</span><span class="p">[</span><span class="s1">&#39;version&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sep</span> <span class="o">=</span> <span class="n">kargs</span><span class="p">[</span><span class="s1">&#39;sep&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">header_done</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="GeometryFile.doHeader"><a class="viewcode-back" href="../ref/geomfile.html#geomfile.GeometryFile.doHeader">[docs]</a>    <span class="k">def</span> <span class="nf">doHeader</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s1">&#39;1.1&#39;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read the header of a pyFormex geometry file.</span>
+
+<span class="sd">        Sets detected default values</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="n">version</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sep</span> <span class="o">=</span> <span class="n">sep</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">header_done</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="GeometryFile.readGeometry"><a class="viewcode-back" href="../ref/geomfile.html#geomfile.GeometryFile.readGeometry">[docs]</a>    <span class="k">def</span> <span class="nf">readGeometry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">objtype</span><span class="o">=</span><span class="s1">&#39;Formex&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nelems</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">ncoords</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nplex</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">props</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">eltype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">normals</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">colormap</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">degree</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nknots</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read a geometry record of a pyFormex geometry file.</span>
+
+<span class="sd">        If an object was successfully read, it is set in self.geometry</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Reading object of type </span><span class="si">{</span><span class="n">objtype</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">objtype</span> <span class="o">==</span> <span class="s1">&#39;Formex&#39;</span><span class="p">:</span>
+            <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">readFormex</span><span class="p">(</span><span class="n">nelems</span><span class="p">,</span> <span class="n">nplex</span><span class="p">,</span> <span class="n">props</span><span class="p">,</span> <span class="n">eltype</span><span class="p">,</span> <span class="n">sep</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">objtype</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;Mesh&#39;</span><span class="p">,</span> <span class="s1">&#39;TriSurface&#39;</span><span class="p">]:</span>
+            <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">readMesh</span><span class="p">(</span><span class="n">ncoords</span><span class="p">,</span> <span class="n">nelems</span><span class="p">,</span> <span class="n">nplex</span><span class="p">,</span> <span class="n">props</span><span class="p">,</span> <span class="n">eltype</span><span class="p">,</span>
+                                <span class="n">normals</span><span class="p">,</span> <span class="n">sep</span><span class="p">,</span> <span class="n">objtype</span><span class="p">)</span>
+        <span class="c1"># Can not yet write Polygons</span>
+        <span class="c1"># elif objtype == &#39;Polygons&#39;:</span>
+        <span class="c1">#     obj = self.readPolygons(ncoords, nelems, size, props, sep)</span>
+        <span class="k">elif</span> <span class="n">objtype</span> <span class="o">==</span> <span class="s1">&#39;PolyLine&#39;</span><span class="p">:</span>
+            <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">readPolyLine</span><span class="p">(</span><span class="n">ncoords</span><span class="p">,</span> <span class="n">closed</span><span class="p">,</span> <span class="n">sep</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">objtype</span> <span class="o">==</span> <span class="s1">&#39;BezierSpline&#39;</span><span class="p">:</span>
+            <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">readBezierSpline</span><span class="p">(</span><span class="n">ncoords</span><span class="p">,</span> <span class="n">closed</span><span class="p">,</span> <span class="n">degree</span><span class="p">,</span> <span class="n">sep</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">objtype</span> <span class="o">==</span> <span class="s1">&#39;NurbsCurve&#39;</span><span class="p">:</span>
+            <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">readNurbsCurve</span><span class="p">(</span><span class="n">ncoords</span><span class="p">,</span> <span class="n">nknots</span><span class="p">,</span> <span class="n">closed</span><span class="p">,</span> <span class="n">sep</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">objtype</span> <span class="ow">in</span> <span class="nb">globals</span><span class="p">()</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="nb">globals</span><span class="p">()[</span><span class="n">objtype</span><span class="p">],</span> <span class="s1">&#39;read_geom&#39;</span><span class="p">):</span>
+            <span class="n">obj</span> <span class="o">=</span> <span class="nb">globals</span><span class="p">()[</span><span class="n">objtype</span><span class="p">]</span><span class="o">.</span><span class="n">read_geom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">obj</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Can not (yet) read objects of type </span><span class="si">{</span><span class="n">objtype</span><span class="si">}</span><span class="s2"> &quot;</span>
+                  <span class="s2">&quot;from geometry file: skipping&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">obj</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">color</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                    <span class="c1"># Check for special values:</span>
+                    <span class="k">if</span> <span class="n">color</span> <span class="o">==</span> <span class="s1">&#39;element&#39;</span><span class="p">:</span>
+                        <span class="n">colorshape</span> <span class="o">=</span> <span class="p">(</span><span class="n">nelems</span><span class="p">,)</span>
+                    <span class="k">elif</span> <span class="n">color</span> <span class="o">==</span> <span class="s1">&#39;vertex&#39;</span><span class="p">:</span>
+                        <span class="n">colorshape</span> <span class="o">=</span> <span class="p">(</span><span class="n">nelems</span><span class="p">,</span> <span class="n">nplex</span><span class="p">,)</span>
+                    <span class="k">elif</span> <span class="n">color</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                        <span class="c1"># Fix for pre 1.9 versions using color=&#39;&#39; for no color</span>
+                        <span class="n">color</span> <span class="o">=</span> <span class="n">colorshape</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="c1"># string should be a color name</span>
+                        <span class="n">colorshape</span> <span class="o">=</span> <span class="kc">None</span>
+
+                    <span class="k">if</span> <span class="n">colorshape</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">colormap</span> <span class="o">==</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span>
+                            <span class="n">colortype</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">Int</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">colortype</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">Float</span>
+                            <span class="n">colorshape</span> <span class="o">+=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,)</span>
+
+                        <span class="k">try</span><span class="p">:</span>
+                            <span class="c1"># Read the color array</span>
+                            <span class="n">color</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">readArray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fil</span><span class="p">,</span> <span class="n">colortype</span><span class="p">,</span>
+                                                 <span class="n">colorshape</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="n">sep</span><span class="p">)</span>
+                        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Invalid color array on PGF file: skipped. &quot;</span>
+                                  <span class="sa">f</span><span class="s2">&quot;Traceback: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                            <span class="n">color</span> <span class="o">=</span> <span class="kc">None</span>
+
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># A single color encoded in the attribute</span>
+                    <span class="k">if</span> <span class="n">colormap</span> <span class="o">==</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span>
+                        <span class="n">colortype</span> <span class="o">=</span> <span class="s1">&#39;i&#39;</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">colortype</span> <span class="o">=</span> <span class="s1">&#39;f&#39;</span>
+                    <span class="n">colorshape</span> <span class="o">=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,)</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">color</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">checkArray</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="n">colorshape</span><span class="p">,</span> <span class="n">colortype</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Invalid color attribute on PGF file: skipped. &quot;</span>
+                              <span class="sa">f</span><span class="s2">&quot;Traceback: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                        <span class="n">color</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="n">obj</span><span class="o">.</span><span class="n">attrib</span><span class="o">.</span><span class="n">color</span> <span class="o">=</span> <span class="n">color</span>
+
+            <span class="c1"># store the geometry object, and remember as last</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">autoname</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span> <span class="o">=</span> <span class="n">obj</span></div>
+
+
+<div class="viewcode-block" id="GeometryFile.readField"><a class="viewcode-back" href="../ref/geomfile.html#geomfile.GeometryFile.readField">[docs]</a>    <span class="k">def</span> <span class="nf">readField</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fldtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read a Field defined on the last read geometry.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">readArray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fil</span><span class="p">,</span> <span class="n">at</span><span class="o">.</span><span class="n">Float</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="n">sep</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">addField</span><span class="p">(</span><span class="n">fldtype</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GeometryFile.readAttrib"><a class="viewcode-back" href="../ref/geomfile.html#geomfile.GeometryFile.readAttrib">[docs]</a>    <span class="k">def</span> <span class="nf">readAttrib</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attrib</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read an Attributes dict defined on the last read geometry.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">attrib</span><span class="p">(</span><span class="o">**</span><span class="n">attrib</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="c1"># Attributes readback may produce an error with</span>
+            <span class="c1"># complex data types, e.g. vertex color array</span>
+            <span class="n">pf</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;GeometryFile.read: Error while reading an Attribute &quot;</span>
+                       <span class="s2">&quot;block. The current version does not support the &quot;</span>
+                       <span class="s2">&quot;readback of some complex attribute data types &quot;</span>
+                       <span class="s2">&quot;(like a vertex color array). All attributes in &quot;</span>
+                       <span class="s2">&quot;this block will be skipped.&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GeometryFile.readFormex"><a class="viewcode-back" href="../ref/geomfile.html#geomfile.GeometryFile.readFormex">[docs]</a>    <span class="k">def</span> <span class="nf">readFormex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nelems</span><span class="p">,</span> <span class="n">nplex</span><span class="p">,</span> <span class="n">props</span><span class="p">,</span> <span class="n">eltype</span><span class="p">,</span> <span class="n">sep</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read a Formex from a pyFormex geometry file.</span>
+
+<span class="sd">        The coordinate array for nelems*nplex points is read from the file.</span>
+<span class="sd">        If present, the property numbers for nelems elements are read.</span>
+<span class="sd">        From the coords and props a Formex is created and returned.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ndim</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">readArray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fil</span><span class="p">,</span> <span class="n">at</span><span class="o">.</span><span class="n">Float</span><span class="p">,</span> <span class="p">(</span><span class="n">nelems</span><span class="p">,</span> <span class="n">nplex</span><span class="p">,</span> <span class="n">ndim</span><span class="p">),</span> <span class="n">sep</span><span class="o">=</span><span class="n">sep</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">props</span><span class="p">:</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">readArray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fil</span><span class="p">,</span> <span class="n">at</span><span class="o">.</span><span class="n">Int</span><span class="p">,</span> <span class="p">(</span><span class="n">nelems</span><span class="p">,),</span> <span class="n">sep</span><span class="o">=</span><span class="n">sep</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">Formex</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">eltype</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GeometryFile.readMesh"><a class="viewcode-back" href="../ref/geomfile.html#geomfile.GeometryFile.readMesh">[docs]</a>    <span class="k">def</span> <span class="nf">readMesh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ncoords</span><span class="p">,</span> <span class="n">nelems</span><span class="p">,</span> <span class="n">nplex</span><span class="p">,</span> <span class="n">props</span><span class="p">,</span> <span class="n">eltype</span><span class="p">,</span>
+                 <span class="n">normals</span><span class="p">,</span> <span class="n">sep</span><span class="p">,</span> <span class="n">objtype</span><span class="o">=</span><span class="s1">&#39;Mesh&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read a Mesh from a pyFormex geometry file.</span>
+
+<span class="sd">        The following arrays are read from the file:</span>
+<span class="sd">        - a coordinate array with `ncoords` points,</span>
+<span class="sd">        - a connectivity array with `nelems` elements of plexitude `nplex`,</span>
+<span class="sd">        - if present, a property number array for `nelems` elements.</span>
+
+<span class="sd">        Returns the Mesh constructed from these data, or a subclass if</span>
+<span class="sd">        an objtype is specified.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">ndim</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">readArray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fil</span><span class="p">,</span> <span class="n">at</span><span class="o">.</span><span class="n">Float</span><span class="p">,</span> <span class="p">(</span><span class="n">ncoords</span><span class="p">,</span> <span class="n">ndim</span><span class="p">),</span> <span class="n">sep</span><span class="o">=</span><span class="n">sep</span><span class="p">)</span>
+        <span class="n">e</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">readArray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fil</span><span class="p">,</span> <span class="n">at</span><span class="o">.</span><span class="n">Int</span><span class="p">,</span> <span class="p">(</span><span class="n">nelems</span><span class="p">,</span> <span class="n">nplex</span><span class="p">),</span> <span class="n">sep</span><span class="o">=</span><span class="n">sep</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">props</span><span class="p">:</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">readArray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fil</span><span class="p">,</span> <span class="n">at</span><span class="o">.</span><span class="n">Int</span><span class="p">,</span> <span class="p">(</span><span class="n">nelems</span><span class="p">,),</span> <span class="n">sep</span><span class="o">=</span><span class="n">sep</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">M</span> <span class="o">=</span> <span class="n">Mesh</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">eltype</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">objtype</span> <span class="o">!=</span> <span class="s1">&#39;Mesh&#39;</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">clas</span> <span class="o">=</span> <span class="nb">locals</span><span class="p">()[</span><span class="n">objtype</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="n">clas</span> <span class="o">=</span> <span class="nb">globals</span><span class="p">()[</span><span class="n">objtype</span><span class="p">]</span>
+            <span class="n">M</span> <span class="o">=</span> <span class="n">clas</span><span class="p">(</span><span class="n">M</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">normals</span><span class="p">:</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">readArray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fil</span><span class="p">,</span> <span class="n">at</span><span class="o">.</span><span class="n">Float</span><span class="p">,</span> <span class="p">(</span><span class="n">nelems</span><span class="p">,</span> <span class="n">nplex</span><span class="p">,</span> <span class="n">ndim</span><span class="p">),</span> <span class="n">sep</span><span class="o">=</span><span class="n">sep</span><span class="p">)</span>
+            <span class="n">M</span><span class="o">.</span><span class="n">normals</span> <span class="o">=</span> <span class="n">n</span>
+        <span class="k">return</span> <span class="n">M</span></div>
+
+
+<div class="viewcode-block" id="GeometryFile.readPolyLine"><a class="viewcode-back" href="../ref/geomfile.html#geomfile.GeometryFile.readPolyLine">[docs]</a>    <span class="k">def</span> <span class="nf">readPolyLine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ncoords</span><span class="p">,</span> <span class="n">closed</span><span class="p">,</span> <span class="n">sep</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read a Curve from a pyFormex geometry file.</span>
+
+<span class="sd">        The coordinate array for ncoords points is read from the file</span>
+<span class="sd">        and a Curve of type `objtype` is returned.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">pyformex.curve</span> <span class="kn">import</span> <span class="n">PolyLine</span>
+        <span class="n">ndim</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">readArray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fil</span><span class="p">,</span> <span class="n">at</span><span class="o">.</span><span class="n">Float</span><span class="p">,</span> <span class="p">(</span><span class="n">ncoords</span><span class="p">,</span> <span class="n">ndim</span><span class="p">),</span> <span class="n">sep</span><span class="o">=</span><span class="n">sep</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">PolyLine</span><span class="p">(</span><span class="n">control</span><span class="o">=</span><span class="n">coords</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="n">closed</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GeometryFile.readBezierSpline"><a class="viewcode-back" href="../ref/geomfile.html#geomfile.GeometryFile.readBezierSpline">[docs]</a>    <span class="k">def</span> <span class="nf">readBezierSpline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ncoords</span><span class="p">,</span> <span class="n">closed</span><span class="p">,</span> <span class="n">degree</span><span class="p">,</span> <span class="n">sep</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read a BezierSpline from a pyFormex geometry file.</span>
+
+<span class="sd">        The coordinate array for ncoords points is read from the file</span>
+<span class="sd">        and a BezierSpline of the given degree is returned.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">pyformex.curve</span> <span class="kn">import</span> <span class="n">BezierSpline</span>
+        <span class="n">ndim</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">readArray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fil</span><span class="p">,</span> <span class="n">at</span><span class="o">.</span><span class="n">Float</span><span class="p">,</span> <span class="p">(</span><span class="n">ncoords</span><span class="p">,</span> <span class="n">ndim</span><span class="p">),</span> <span class="n">sep</span><span class="o">=</span><span class="n">sep</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">BezierSpline</span><span class="p">(</span><span class="n">control</span><span class="o">=</span><span class="n">coords</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="n">closed</span><span class="p">,</span> <span class="n">degree</span><span class="o">=</span><span class="n">degree</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GeometryFile.readNurbsCurve"><a class="viewcode-back" href="../ref/geomfile.html#geomfile.GeometryFile.readNurbsCurve">[docs]</a>    <span class="k">def</span> <span class="nf">readNurbsCurve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ncoords</span><span class="p">,</span> <span class="n">nknots</span><span class="p">,</span> <span class="n">closed</span><span class="p">,</span> <span class="n">sep</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read a NurbsCurve from a pyFormex geometry file.</span>
+
+<span class="sd">        The coordinate array for ncoords control points and the nknots</span>
+<span class="sd">        knot values are read from the file.</span>
+<span class="sd">        A NurbsCurve of degree p = nknots - ncoords - 1 is returned.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">pyformex.plugins.nurbs</span> <span class="kn">import</span> <span class="n">NurbsCurve</span>
+        <span class="n">ndim</span> <span class="o">=</span> <span class="mi">4</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">readArray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fil</span><span class="p">,</span> <span class="n">at</span><span class="o">.</span><span class="n">Float</span><span class="p">,</span> <span class="p">(</span><span class="n">ncoords</span><span class="p">,</span> <span class="n">ndim</span><span class="p">),</span> <span class="n">sep</span><span class="o">=</span><span class="n">sep</span><span class="p">)</span>
+        <span class="n">knots</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">readArray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fil</span><span class="p">,</span> <span class="n">at</span><span class="o">.</span><span class="n">Float</span><span class="p">,</span> <span class="p">(</span><span class="n">nknots</span><span class="p">,),</span> <span class="n">sep</span><span class="o">=</span><span class="n">sep</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">NurbsCurve</span><span class="p">(</span><span class="n">control</span><span class="o">=</span><span class="n">coords</span><span class="p">,</span> <span class="n">knots</span><span class="o">=</span><span class="n">knots</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="n">closed</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GeometryFile.readNurbsSurface"><a class="viewcode-back" href="../ref/geomfile.html#geomfile.GeometryFile.readNurbsSurface">[docs]</a>    <span class="k">def</span> <span class="nf">readNurbsSurface</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ncoords</span><span class="p">,</span> <span class="n">nuknots</span><span class="p">,</span> <span class="n">nvknots</span><span class="p">,</span> <span class="n">uclosed</span><span class="p">,</span> <span class="n">vclosed</span><span class="p">,</span> <span class="n">sep</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read a NurbsSurface from a pyFormex geometry file.</span>
+
+<span class="sd">        The coordinate array for ncoords control points and the nuknots and</span>
+<span class="sd">        nvknots values of uknots and vknots are read from the file.</span>
+<span class="sd">        A NurbsSurface of degree ``pu = nuknots - ncoords - 1``  and</span>
+<span class="sd">        ``pv = nvknots - ncoords - 1`` is returned.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">pyformex.plugins.nurbs</span> <span class="kn">import</span> <span class="n">NurbsSurface</span>
+        <span class="n">ndim</span> <span class="o">=</span> <span class="mi">4</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">readArray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fil</span><span class="p">,</span> <span class="n">at</span><span class="o">.</span><span class="n">Float</span><span class="p">,</span> <span class="p">(</span><span class="n">ncoords</span><span class="p">,</span> <span class="n">ndim</span><span class="p">),</span> <span class="n">sep</span><span class="o">=</span><span class="n">sep</span><span class="p">)</span>
+        <span class="n">uknots</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">readArray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fil</span><span class="p">,</span> <span class="n">at</span><span class="o">.</span><span class="n">Float</span><span class="p">,</span> <span class="p">(</span><span class="n">nuknots</span><span class="p">,),</span> <span class="n">sep</span><span class="o">=</span><span class="n">sep</span><span class="p">)</span>
+        <span class="n">vknots</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">readArray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fil</span><span class="p">,</span> <span class="n">at</span><span class="o">.</span><span class="n">Float</span><span class="p">,</span> <span class="p">(</span><span class="n">nvknots</span><span class="p">,),</span> <span class="n">sep</span><span class="o">=</span><span class="n">sep</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">NurbsSurface</span><span class="p">(</span><span class="n">control</span><span class="o">=</span><span class="n">coords</span><span class="p">,</span> <span class="n">knots</span><span class="o">=</span><span class="p">(</span><span class="n">uknots</span><span class="p">,</span> <span class="n">vknots</span><span class="p">),</span>
+                            <span class="n">closed</span><span class="o">=</span><span class="p">(</span><span class="n">uclosed</span><span class="p">,</span> <span class="n">vclosed</span><span class="p">))</span></div>
+
+
+    <span class="c1">#######################################################################</span>
+    <span class="c1">### OLD READ FUNCTIONS ###</span>
+
+
+<div class="viewcode-block" id="GeometryFile.readLegacy"><a class="viewcode-back" href="../ref/geomfile.html#geomfile.GeometryFile.readLegacy">[docs]</a>    <span class="k">def</span> <span class="nf">readLegacy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">count</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read the objects from a pyFormex Geometry File format &lt;= 1.7.</span>
+
+<span class="sd">        This function reads all the objects of a Geometry File.</span>
+<span class="sd">        The File should have been opened for reading, and the header</span>
+<span class="sd">        should have been read previously.</span>
+
+<span class="sd">        A count may be specified to limit the number of objects read.</span>
+
+<span class="sd">        Returns a dict with the objects read. The keys of the dict are the</span>
+<span class="sd">        object names found in the file. If the file does not contain</span>
+<span class="sd">        object names, they will be autogenerated from the file name.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">header_done</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">readHeader</span><span class="p">()</span>
+        <span class="n">eltype</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># for compatibility with pre 1.1 .formex files</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="c1"># !! BEWARE</span>
+            <span class="c1"># Make sure that all useful variables in the header are</span>
+            <span class="c1"># reset to defaults, to avoid inheriting values from a</span>
+            <span class="c1"># previous object</span>
+            <span class="c1">#</span>
+            <span class="n">objtype</span> <span class="o">=</span> <span class="s1">&#39;Formex&#39;</span>  <span class="c1"># the default obj type</span>
+            <span class="n">obj</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">nelems</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">nplex</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">ncoords</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">sep</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sep</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">normals</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">color</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">props</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">closed</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">nparts</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">nknots</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>   <span class="c1"># end of file</span>
+                <span class="k">break</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">s</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;#&#39;</span><span class="p">):</span>  <span class="c1"># not a header: skip</span>
+                <span class="k">continue</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">exec</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+                <span class="c1"># pf.debug(f&quot;READ COLOR: {str(color)}&quot;,pf.DEBUG.INFO)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="n">nelems</span> <span class="o">=</span> <span class="n">ncoords</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="k">if</span> <span class="n">nelems</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">ncoords</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># For historical reasons, this is a certain way to test</span>
+                <span class="c1"># that no geom data block is following</span>
+                <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SKIPPING </span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">LEGACY</span><span class="p">)</span>
+                <span class="k">continue</span>  <span class="c1"># not a legal header: skip</span>
+
+            <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Reading object of type </span><span class="si">{</span><span class="n">objtype</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+
+            <span class="c1"># OK, we have a legal header, try to read data</span>
+            <span class="k">if</span> <span class="n">objtype</span> <span class="o">==</span> <span class="s1">&#39;Formex&#39;</span><span class="p">:</span>
+                <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">readFormex</span><span class="p">(</span><span class="n">nelems</span><span class="p">,</span> <span class="n">nplex</span><span class="p">,</span> <span class="n">props</span><span class="p">,</span> <span class="n">eltype</span><span class="p">,</span> <span class="n">sep</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">objtype</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;Mesh&#39;</span><span class="p">,</span> <span class="s1">&#39;TriSurface&#39;</span><span class="p">]:</span>
+                <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">readMesh</span><span class="p">(</span><span class="n">ncoords</span><span class="p">,</span> <span class="n">nelems</span><span class="p">,</span> <span class="n">nplex</span><span class="p">,</span> <span class="n">props</span><span class="p">,</span> <span class="n">eltype</span><span class="p">,</span>
+                                    <span class="n">normals</span><span class="p">,</span> <span class="n">sep</span><span class="p">,</span> <span class="n">objtype</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">objtype</span> <span class="o">==</span> <span class="s1">&#39;PolyLine&#39;</span><span class="p">:</span>
+                <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">readPolyLine</span><span class="p">(</span><span class="n">ncoords</span><span class="p">,</span> <span class="n">closed</span><span class="p">,</span> <span class="n">sep</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">objtype</span> <span class="o">==</span> <span class="s1">&#39;BezierSpline&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s1">&#39;nparts&#39;</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
+                    <span class="c1"># This looks like a version 1.3 BezierSpline</span>
+                    <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oldReadBezierSpline</span><span class="p">(</span><span class="n">ncoords</span><span class="p">,</span> <span class="n">nparts</span><span class="p">,</span> <span class="n">closed</span><span class="p">,</span> <span class="n">sep</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="s1">&#39;degree&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
+                        <span class="c1"># compatibility with 1.4  BezierSpline records</span>
+                        <span class="n">degree</span> <span class="o">=</span> <span class="mi">3</span>
+                    <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">readBezierSpline</span><span class="p">(</span><span class="n">ncoords</span><span class="p">,</span> <span class="n">closed</span><span class="p">,</span> <span class="n">degree</span><span class="p">,</span> <span class="n">sep</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">objtype</span> <span class="o">==</span> <span class="s1">&#39;NurbsCurve&#39;</span><span class="p">:</span>
+                <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">readNurbsCurve</span><span class="p">(</span><span class="n">ncoords</span><span class="p">,</span> <span class="n">nknots</span><span class="p">,</span> <span class="n">closed</span><span class="p">,</span> <span class="n">sep</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">objtype</span> <span class="ow">in</span> <span class="nb">globals</span><span class="p">()</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="nb">globals</span><span class="p">()[</span><span class="n">objtype</span><span class="p">],</span> <span class="s1">&#39;read_geom&#39;</span><span class="p">):</span>
+                <span class="n">obj</span> <span class="o">=</span> <span class="nb">globals</span><span class="p">()[</span><span class="n">objtype</span><span class="p">]</span><span class="o">.</span><span class="n">read_geom</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Can not (yet) read objects of type </span><span class="si">{</span><span class="n">objtype</span><span class="si">}</span><span class="s2"> &quot;</span>
+                      <span class="s2">&quot;from geometry file: skipping&quot;</span><span class="p">)</span>
+                <span class="k">continue</span>  <span class="c1"># skip to next header</span>
+
+
+            <span class="k">if</span> <span class="n">obj</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">color</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">checkArray</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,),</span> <span class="s1">&#39;f&#39;</span><span class="p">)</span>
+                    <span class="n">obj</span><span class="o">.</span><span class="n">color</span> <span class="o">=</span> <span class="n">color</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                    <span class="k">pass</span>
+
+                <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">name</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">autoname</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">obj</span>
+
+            <span class="k">if</span> <span class="n">count</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">count</span><span class="p">:</span>
+                <span class="k">break</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">results</span></div>
+
+
+<div class="viewcode-block" id="GeometryFile.oldReadBezierSpline"><a class="viewcode-back" href="../ref/geomfile.html#geomfile.GeometryFile.oldReadBezierSpline">[docs]</a>    <span class="k">def</span> <span class="nf">oldReadBezierSpline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ncoords</span><span class="p">,</span> <span class="n">nparts</span><span class="p">,</span> <span class="n">closed</span><span class="p">,</span> <span class="n">sep</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read a BezierSpline from a pyFormex geometry file version 1.3.</span>
+
+<span class="sd">        The coordinate array for ncoords points and control point array</span>
+<span class="sd">        for (nparts,2) control points are read from the file.</span>
+<span class="sd">        A BezierSpline of degree 3 is constructed and returned.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">pyformex.curve</span> <span class="kn">import</span> <span class="n">BezierSpline</span>
+        <span class="n">ndim</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">readArray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fil</span><span class="p">,</span> <span class="n">at</span><span class="o">.</span><span class="n">Float</span><span class="p">,</span> <span class="p">(</span><span class="n">ncoords</span><span class="p">,</span> <span class="n">ndim</span><span class="p">),</span> <span class="n">sep</span><span class="o">=</span><span class="n">sep</span><span class="p">)</span>
+        <span class="n">control</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">readArray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fil</span><span class="p">,</span> <span class="n">at</span><span class="o">.</span><span class="n">Float</span><span class="p">,</span> <span class="p">(</span><span class="n">nparts</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">ndim</span><span class="p">),</span> <span class="n">sep</span><span class="o">=</span><span class="n">sep</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">BezierSpline</span><span class="p">(</span><span class="n">control</span><span class="o">=</span><span class="n">at</span><span class="o">.</span><span class="n">interleave</span><span class="p">(</span>
+            <span class="n">coords</span><span class="p">,</span> <span class="n">control</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">control</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]),</span> <span class="n">closed</span><span class="o">=</span><span class="n">closed</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GeometryFile.rewrite"><a class="viewcode-back" href="../ref/geomfile.html#geomfile.GeometryFile.rewrite">[docs]</a>    <span class="k">def</span> <span class="nf">rewrite</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Convert the geometry file to the latest format.</span>
+
+<span class="sd">        The conversion is done by reading all objects from the geometry file</span>
+<span class="sd">        and writing them back. Parts that could not be successfully read will</span>
+<span class="sd">        be skipped.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reopen</span><span class="p">(</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">warn_version</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="n">GeometryFile</span><span class="o">.</span><span class="n">_version_</span>
+        <span class="k">if</span> <span class="n">obj</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">reopen</span><span class="p">(</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div></div>
+
+<span class="c1"># End</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">geomfile</a></li--> 
+      </ul>
+    </div>
+    <div class="footer">
+    <span class="left">
+        &copy; Copyright 2004-2023, Benedict Verhegghe.
+    </span>
+      Last updated on Mar 27, 2023.
+    <span class="right">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.4.3.
+    </span>
+    </div>
+  </body>
+</html>

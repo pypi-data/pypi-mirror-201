@@ -1,0 +1,742 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!--
+##
+##  This file is part of the pyFormex project.
+##  pyFormex is a tool for generating, manipulating and transforming 3D
+##  geometrical models by sequences of mathematical operations.
+##  Home page: http://pyformex.org
+##  Project page:  http://savannah.nongnu.org/projects/pyformex/
+##  Copyright (C) Benedict Verhegghe (benedict.verhegghe@ugent.be)
+##  Distributed under the GNU General Public License version 3 or later.
+##
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see http://www.gnu.org/licenses/.
+##
+-->
+    <title>plugins.tetgen &#8212; pyFormex 3.3 documentation</title>
+
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pyformex.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+<link rel="icon" type="image/png" href="../../_static/pyformex_fav.png" />
+
+  </head><body>
+
+<div class="header">
+  <a href="http://pyformex.org">
+  <img src="../../_static/scallop_dome_small.png" alt="scallop dome" border="0" hspace="20" vspace="12" align="left" />
+  <img src="../../_static/pyformex-logo-2.png" alt="pyformex logo" border="0" hspace="10" vspace="8" align="left" />
+  </a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">plugins.tetgen</a></li--> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<!-- PYFORMEX_SIDEBAR_LOGO -->
+<!-- PYFORMEX_WEBSITE_SIDEBAR_TOP -->
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for plugins.tetgen</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1">##</span>
+<span class="c1">##  SPDX-FileCopyrightText: © 2007-2023 Benedict Verhegghe &lt;bverheg@gmail.com&gt;</span>
+<span class="c1">##  SPDX-License-Identifier: GPL-3.0-or-later</span>
+<span class="c1">##</span>
+<span class="c1">##  This file is part of pyFormex 3.3  (Sun Mar 26 20:16:15 CEST 2023)</span>
+<span class="c1">##  pyFormex is a tool for generating, manipulating and transforming 3D</span>
+<span class="c1">##  geometrical models by sequences of mathematical operations.</span>
+<span class="c1">##  Home page: https://pyformex.org</span>
+<span class="c1">##  Project page: https://savannah.nongnu.org/projects/pyformex/</span>
+<span class="c1">##  Development: https://gitlab.com/bverheg/pyformex</span>
+<span class="c1">##  Distributed under the GNU General Public License version 3 or later.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is free software: you can redistribute it and/or modify</span>
+<span class="c1">##  it under the terms of the GNU General Public License as published by</span>
+<span class="c1">##  the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1">##  (at your option) any later version.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is distributed in the hope that it will be useful,</span>
+<span class="c1">##  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1">##  GNU General Public License for more details.</span>
+<span class="c1">##</span>
+<span class="c1">##  You should have received a copy of the GNU General Public License</span>
+<span class="c1">##  along with this program.  If not, see http://www.gnu.org/licenses/.</span>
+<span class="c1">##</span>
+<span class="sd">&quot;&quot;&quot;Interface with tetgen</span>
+
+<span class="sd">A collection of functions to read/write tetgen files and to run the</span>
+<span class="sd">tetgen program</span>
+
+<span class="sd">tetgen is a quality tetrahedral mesh generator and a 3D Delaunay triangulator.</span>
+<span class="sd">See http://tetgen.org</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="n">utils</span><span class="o">.</span><span class="n">External</span><span class="o">.</span><span class="n">require</span><span class="p">(</span><span class="s1">&#39;tetgen&#39;</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">pyformex.core</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">pyformex.connectivity</span> <span class="kn">import</span> <span class="n">Connectivity</span>
+<span class="kn">from</span> <span class="nn">pyformex.mesh</span> <span class="kn">import</span> <span class="n">Mesh</span>
+<span class="kn">from</span> <span class="nn">pyformex.filewrite</span> <span class="kn">import</span> <span class="o">*</span>
+
+
+<div class="viewcode-block" id="readNodeFile"><a class="viewcode-back" href="../../ref/plugins.tetgen.html#plugins.tetgen.readNodeFile">[docs]</a><span class="k">def</span> <span class="nf">readNodeFile</span><span class="p">(</span><span class="n">fn</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read a tetgen .node file.</span>
+
+<span class="sd">    Returns a tuple as described in :func:`readNodesBlock`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fil</span><span class="p">:</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">skipComments</span><span class="p">(</span><span class="n">fil</span><span class="p">)</span>
+        <span class="n">npts</span><span class="p">,</span> <span class="n">ndim</span><span class="p">,</span> <span class="n">nattr</span><span class="p">,</span> <span class="n">nbmark</span> <span class="o">=</span> <span class="n">getInts</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">readNodesBlock</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="n">npts</span><span class="p">,</span> <span class="n">ndim</span><span class="p">,</span> <span class="n">nattr</span><span class="p">,</span> <span class="n">nbmark</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="readEleFile"><a class="viewcode-back" href="../../ref/plugins.tetgen.html#plugins.tetgen.readEleFile">[docs]</a><span class="k">def</span> <span class="nf">readEleFile</span><span class="p">(</span><span class="n">fn</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read a tetgen .ele file.</span>
+
+<span class="sd">    Returns a tuple as described in readElemsBlock.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fil</span><span class="p">:</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">skipComments</span><span class="p">(</span><span class="n">fil</span><span class="p">)</span>
+        <span class="n">nelems</span><span class="p">,</span> <span class="n">nplex</span><span class="p">,</span> <span class="n">nattr</span> <span class="o">=</span> <span class="n">getInts</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">readElemsBlock</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="n">nelems</span><span class="p">,</span> <span class="n">nplex</span><span class="p">,</span> <span class="n">nattr</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="readFaceFile"><a class="viewcode-back" href="../../ref/plugins.tetgen.html#plugins.tetgen.readFaceFile">[docs]</a><span class="k">def</span> <span class="nf">readFaceFile</span><span class="p">(</span><span class="n">fn</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read a tetgen .face file.</span>
+
+<span class="sd">    Returns a tuple as described in readFacesBlock.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fil</span><span class="p">:</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">skipComments</span><span class="p">(</span><span class="n">fil</span><span class="p">)</span>
+        <span class="n">nelems</span><span class="p">,</span> <span class="n">nbmark</span> <span class="o">=</span> <span class="n">getInts</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">readFacesBlock</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="n">nelems</span><span class="p">,</span> <span class="n">nbmark</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="readSmeshFile"><a class="viewcode-back" href="../../ref/plugins.tetgen.html#plugins.tetgen.readSmeshFile">[docs]</a><span class="k">def</span> <span class="nf">readSmeshFile</span><span class="p">(</span><span class="n">fn</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read a tetgen .smesh file.</span>
+
+<span class="sd">    Returns an array of triangle elements.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fn</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fil</span><span class="p">:</span>
+
+        <span class="c1"># node section.</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">skipComments</span><span class="p">(</span><span class="n">fil</span><span class="p">)</span>
+        <span class="n">npts</span><span class="p">,</span> <span class="n">ndim</span><span class="p">,</span> <span class="n">nattr</span><span class="p">,</span> <span class="n">nbmark</span> <span class="o">=</span> <span class="n">getInts</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">npts</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">nodeInfo</span> <span class="o">=</span> <span class="n">readNodesBlock</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="n">npts</span><span class="p">,</span> <span class="n">ndim</span><span class="p">,</span> <span class="n">nattr</span><span class="p">,</span> <span class="n">nbmark</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># corresponding .node file</span>
+            <span class="n">nodeInfo</span> <span class="o">=</span> <span class="n">readNodeFile</span><span class="p">(</span><span class="n">fn</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s1">&#39;.node&#39;</span><span class="p">))</span>
+
+        <span class="c1"># facet section</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">skipComments</span><span class="p">(</span><span class="n">fil</span><span class="p">)</span>
+        <span class="n">nelems</span><span class="p">,</span> <span class="n">nbmark</span> <span class="o">=</span> <span class="n">getInts</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">facetInfo</span> <span class="o">=</span> <span class="n">readSmeshFacetsBlock</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="n">nelems</span><span class="p">,</span> <span class="n">nbmark</span><span class="p">)</span>
+
+        <span class="n">nodenrs</span> <span class="o">=</span> <span class="n">nodeInfo</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">nodenrs</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">nodenrs</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">==</span><span class="n">nodenrs</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+            <span class="n">elems</span> <span class="o">=</span> <span class="n">facetInfo</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">elems</span><span class="p">:</span>
+                <span class="n">elems</span><span class="p">[</span><span class="n">e</span><span class="p">]</span> <span class="o">-=</span> <span class="mi">1</span>
+
+        <span class="c1"># We currently do not read the holes and attributes</span>
+
+        <span class="k">return</span> <span class="n">nodeInfo</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">facetInfo</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="readPolyFile"><a class="viewcode-back" href="../../ref/plugins.tetgen.html#plugins.tetgen.readPolyFile">[docs]</a><span class="k">def</span> <span class="nf">readPolyFile</span><span class="p">(</span><span class="n">fn</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read a tetgen .poly file.</span>
+
+<span class="sd">    Returns an array of triangle elements.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fn</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fil</span><span class="p">:</span>
+
+        <span class="c1"># node section.</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">skipComments</span><span class="p">(</span><span class="n">fil</span><span class="p">)</span>
+        <span class="n">npts</span><span class="p">,</span> <span class="n">ndim</span><span class="p">,</span> <span class="n">nattr</span><span class="p">,</span> <span class="n">nbmark</span> <span class="o">=</span> <span class="n">getInts</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">npts</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">nodeInfo</span> <span class="o">=</span> <span class="n">readNodesBlock</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="n">npts</span><span class="p">,</span> <span class="n">ndim</span><span class="p">,</span> <span class="n">nattr</span><span class="p">,</span> <span class="n">nbmark</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># corresponding .node file</span>
+            <span class="n">nodeInfo</span> <span class="o">=</span> <span class="n">readNodeFile</span><span class="p">(</span><span class="n">fn</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s1">&#39;.node&#39;</span><span class="p">))</span>
+
+        <span class="c1"># facet section</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">skipComments</span><span class="p">(</span><span class="n">fil</span><span class="p">)</span>
+        <span class="n">nelems</span><span class="p">,</span> <span class="n">nbmark</span> <span class="o">=</span> <span class="n">getInts</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">facetInfo</span> <span class="o">=</span> <span class="n">readFacesBlock</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="n">nelems</span><span class="p">,</span> <span class="n">nbmark</span><span class="p">)</span>
+        <span class="c1">#print(&quot;NEXT LINE:&quot;)</span>
+        <span class="c1">#print(line)</span>
+        <span class="k">return</span> <span class="n">nodeInfo</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">facetInfo</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+        <span class="c1">## s = line.strip(&#39;\n&#39;).split()</span>
+        <span class="c1">## nelems = int(s[0])</span>
+        <span class="c1">## elems = fromfile(fil,sep=&#39; &#39;,dtype=np.int32, count=4*nelems)</span>
+        <span class="c1">## elems = elems.reshape((-1,4))</span>
+        <span class="c1">## return elems[:,1:]</span>
+
+
+<div class="viewcode-block" id="readSurface"><a class="viewcode-back" href="../../ref/plugins.tetgen.html#plugins.tetgen.readSurface">[docs]</a><span class="k">def</span> <span class="nf">readSurface</span><span class="p">(</span><span class="n">fn</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read a tetgen surface from a .node/.face file pair.</span>
+
+<span class="sd">    The given filename is either the .node or .face file.</span>
+<span class="sd">    Returns a tuple of (nodes,elems).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fn</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
+    <span class="n">nodeInfo</span> <span class="o">=</span> <span class="n">readNodeFile</span><span class="p">(</span><span class="n">fn</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s1">&#39;.node&#39;</span><span class="p">))</span>
+    <span class="n">nodes</span> <span class="o">=</span> <span class="n">nodeInfo</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Read </span><span class="si">%s</span><span class="s2"> nodes&quot;</span> <span class="o">%</span> <span class="n">nodes</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">elemInfo</span> <span class="o">=</span> <span class="n">readFaceFile</span><span class="p">(</span><span class="n">fn</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s1">&#39;.face&#39;</span><span class="p">))</span>
+    <span class="n">elems</span> <span class="o">=</span> <span class="n">elemInfo</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Read </span><span class="si">%s</span><span class="s2"> elems&quot;</span> <span class="o">%</span> <span class="n">elems</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="c1">#if numbers[0] == 1:</span>
+    <span class="c1">#    elems -= 1</span>
+    <span class="k">return</span> <span class="n">nodes</span><span class="p">,</span> <span class="n">elems</span></div>
+
+
+<span class="c1">######### Support functions ####################################</span>
+
+
+<div class="viewcode-block" id="skipComments"><a class="viewcode-back" href="../../ref/plugins.tetgen.html#plugins.tetgen.skipComments">[docs]</a><span class="k">def</span> <span class="nf">skipComments</span><span class="p">(</span><span class="n">fil</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Skip comments and blank lines on a tetgen file.</span>
+
+<span class="sd">    Reads from a file until the first non-comment and non-empty line.</span>
+<span class="sd">    Then returns the non-empty, non-comment line, stripped from possible</span>
+<span class="sd">    trailing comments.</span>
+<span class="sd">    Returns None if end of file is reached.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">fil</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>      <span class="c1"># EOF</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">stripLine</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">line</span>         <span class="c1"># non-comment line found</span></div>
+
+
+<div class="viewcode-block" id="stripLine"><a class="viewcode-back" href="../../ref/plugins.tetgen.html#plugins.tetgen.stripLine">[docs]</a><span class="k">def</span> <span class="nf">stripLine</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Strip blanks, newline and comments from a line of text.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">nc</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;#&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">nc</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="p">[:</span><span class="n">nc</span><span class="p">]</span>  <span class="c1"># strip comments</span>
+    <span class="k">return</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>  <span class="c1"># strips blanks and end of line</span></div>
+
+
+<div class="viewcode-block" id="getInts"><a class="viewcode-back" href="../../ref/plugins.tetgen.html#plugins.tetgen.getInts">[docs]</a><span class="k">def</span> <span class="nf">getInts</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">nint</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read a number of ints from a line, adding zero for omitted values.</span>
+
+<span class="sd">    line is a string with b;anks separated integer values.</span>
+<span class="sd">    Returns a list of nint integers. The trailing ones are set to zero</span>
+<span class="sd">    if the strings contains less values.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">nint</span><span class="p">:</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">nint</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="n">s</span></div>
+
+
+<div class="viewcode-block" id="addElem"><a class="viewcode-back" href="../../ref/plugins.tetgen.html#plugins.tetgen.addElem">[docs]</a><span class="k">def</span> <span class="nf">addElem</span><span class="p">(</span><span class="n">elems</span><span class="p">,</span> <span class="n">nrs</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">nplex</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Add an element to a collection.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">nplex</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">elems</span><span class="p">:</span>
+        <span class="n">elems</span><span class="p">[</span><span class="n">nplex</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">nrs</span><span class="p">[</span><span class="n">nplex</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">elems</span><span class="p">[</span><span class="n">nplex</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+    <span class="n">nrs</span><span class="p">[</span><span class="n">nplex</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="readNodesBlock"><a class="viewcode-back" href="../../ref/plugins.tetgen.html#plugins.tetgen.readNodesBlock">[docs]</a><span class="k">def</span> <span class="nf">readNodesBlock</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="n">npts</span><span class="p">,</span> <span class="n">ndim</span><span class="p">,</span> <span class="n">nattr</span><span class="p">,</span> <span class="n">nbmark</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read a tetgen nodes block.</span>
+
+<span class="sd">    Returns a tuple with:</span>
+
+<span class="sd">    - coords: Coords array with nodal coordinates</span>
+<span class="sd">    - nrs: node numbers</span>
+<span class="sd">    - attr: node attributes</span>
+<span class="sd">    - bmrk: node boundary marker</span>
+
+<span class="sd">    The last two may be None.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ndata</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">ndim</span> <span class="o">+</span> <span class="n">nattr</span> <span class="o">+</span> <span class="n">nbmark</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">at</span><span class="o">.</span><span class="n">Float</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="n">npts</span><span class="o">*</span><span class="p">(</span><span class="n">ndata</span><span class="p">))</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">npts</span><span class="p">,</span> <span class="n">ndata</span><span class="p">)</span>
+    <span class="n">nrs</span> <span class="o">=</span> <span class="n">data</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+    <span class="n">coords</span> <span class="o">=</span> <span class="n">Coords</span><span class="p">(</span><span class="n">data</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:</span><span class="n">ndim</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">nattr</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">attr</span> <span class="o">=</span> <span class="n">data</span><span class="p">[:,</span> <span class="mi">1</span><span class="o">+</span><span class="n">ndim</span><span class="p">:</span><span class="mi">1</span><span class="o">+</span><span class="n">ndim</span><span class="o">+</span><span class="n">nattr</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">attr</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">nbmark</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">bmark</span> <span class="o">=</span> <span class="n">data</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">bmark</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">coords</span><span class="p">,</span> <span class="n">nrs</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">bmark</span></div>
+
+
+<div class="viewcode-block" id="readElemsBlock"><a class="viewcode-back" href="../../ref/plugins.tetgen.html#plugins.tetgen.readElemsBlock">[docs]</a><span class="k">def</span> <span class="nf">readElemsBlock</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="n">nelems</span><span class="p">,</span> <span class="n">nplex</span><span class="p">,</span> <span class="n">nattr</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read a tetgen elems block.</span>
+
+<span class="sd">    Returns a tuple with:</span>
+
+<span class="sd">    - elems: Connectivity of type &#39;tet4&#39; or &#39;tet10&#39;</span>
+<span class="sd">    - nrs: the element numbers</span>
+<span class="sd">    - attr: the element attributes</span>
+
+<span class="sd">    The last can be None.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ndata</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">nplex</span> <span class="o">+</span> <span class="n">nattr</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="n">ndata</span><span class="o">*</span><span class="n">nelems</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">nelems</span><span class="p">,</span> <span class="n">ndata</span><span class="p">)</span>
+    <span class="n">nrs</span> <span class="o">=</span> <span class="n">data</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">elems</span> <span class="o">=</span> <span class="n">data</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:</span><span class="mi">1</span><span class="o">+</span><span class="n">nplex</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">nattr</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">attr</span> <span class="o">=</span> <span class="n">data</span><span class="p">[:,</span> <span class="mi">1</span><span class="o">+</span><span class="n">nplex</span><span class="p">:]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">attr</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">nplex</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+        <span class="n">eltype</span> <span class="o">=</span> <span class="s1">&#39;tet4&#39;</span>
+    <span class="k">elif</span> <span class="n">nplex</span> <span class="o">==</span> <span class="mi">10</span><span class="p">:</span>
+        <span class="n">eltype</span><span class="o">=</span> <span class="s1">&#39;tet10&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unknown tetgen .ele plexitude </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">nplex</span><span class="p">)</span>
+    <span class="n">elems</span> <span class="o">=</span> <span class="n">Connectivity</span><span class="p">(</span><span class="n">elems</span><span class="p">,</span> <span class="n">eltype</span><span class="o">=</span><span class="n">eltype</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">elems</span><span class="p">,</span> <span class="n">nrs</span><span class="p">,</span> <span class="n">attr</span></div>
+
+
+<div class="viewcode-block" id="readFacesBlock"><a class="viewcode-back" href="../../ref/plugins.tetgen.html#plugins.tetgen.readFacesBlock">[docs]</a><span class="k">def</span> <span class="nf">readFacesBlock</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="n">nelems</span><span class="p">,</span> <span class="n">nbmark</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read a tetgen faces block.</span>
+
+<span class="sd">    Returns a a tuple with:</span>
+
+<span class="sd">    - elems: Connectivity of type &#39;tri3&#39;</span>
+<span class="sd">    - nrs: face numbers</span>
+<span class="sd">    - bmrk: face boundary marker</span>
+
+<span class="sd">    The last can be None.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ndata</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="mi">3</span> <span class="o">+</span> <span class="n">nbmark</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="n">ndata</span><span class="o">*</span><span class="n">nelems</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">nelems</span><span class="p">,</span> <span class="n">ndata</span><span class="p">)</span>
+    <span class="n">nrs</span> <span class="o">=</span> <span class="n">data</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">elems</span> <span class="o">=</span> <span class="n">data</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:</span><span class="mi">4</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">nbmark</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">bmark</span> <span class="o">=</span> <span class="n">data</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">bmark</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">Connectivity</span><span class="p">(</span><span class="n">elems</span><span class="p">,</span> <span class="n">eltype</span><span class="o">=</span><span class="s1">&#39;tri3&#39;</span><span class="p">),</span> <span class="n">nrs</span><span class="p">,</span> <span class="n">bmark</span></div>
+
+
+<div class="viewcode-block" id="readSmeshFacetsBlock"><a class="viewcode-back" href="../../ref/plugins.tetgen.html#plugins.tetgen.readSmeshFacetsBlock">[docs]</a><span class="k">def</span> <span class="nf">readSmeshFacetsBlock</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="n">nfacets</span><span class="p">,</span> <span class="n">nbmark</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read a tetgen .smesh facets bock.</span>
+
+<span class="sd">    Returns a tuple of dictionaries with plexitudes as keys:</span>
+
+<span class="sd">    - elems: for each plexitude a Connectivity array</span>
+<span class="sd">    - nrs: for each plexitude a list of element numbers in corresponding elems</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">elems</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">nrs</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nfacets</span><span class="p">):</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">fil</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+            <span class="n">nplex</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">nplex</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">e</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">1</span><span class="o">+</span><span class="n">nplex</span><span class="p">]</span>
+                <span class="c1"># bmark currently not read</span>
+                <span class="n">addElem</span><span class="p">(</span><span class="n">elems</span><span class="p">,</span> <span class="n">nrs</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">nplex</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid data line:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">line</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">nplex</span> <span class="ow">in</span> <span class="n">elems</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">nplex</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">eltype</span><span class="o">=</span> <span class="s1">&#39;tri3&#39;</span>
+        <span class="k">elif</span> <span class="n">nplex</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="n">eltype</span> <span class="o">=</span> <span class="s1">&#39;quad4&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">eltype</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">elems</span><span class="p">[</span><span class="n">nplex</span><span class="p">]</span> <span class="o">=</span> <span class="n">Connectivity</span><span class="p">(</span><span class="n">elems</span><span class="p">[</span><span class="n">np</span><span class="p">],</span> <span class="n">eltype</span><span class="o">=</span><span class="n">eltype</span><span class="p">)</span>
+        <span class="n">nrs</span><span class="p">[</span><span class="n">nplex</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">nrs</span><span class="p">[</span><span class="n">np</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">elems</span><span class="p">,</span> <span class="n">nrs</span></div>
+
+
+<div class="viewcode-block" id="readNeigh"><a class="viewcode-back" href="../../ref/plugins.tetgen.html#plugins.tetgen.readNeigh">[docs]</a><span class="k">def</span> <span class="nf">readNeigh</span><span class="p">(</span><span class="n">fn</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read a tetgen .neigh file.</span>
+
+<span class="sd">    Returns an array containing the tetrahedra neighbours:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fil</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+    <span class="n">line</span> <span class="o">=</span> <span class="n">fil</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+    <span class="n">nelems</span><span class="p">,</span> <span class="n">nneigh</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()]</span>
+    <span class="n">elems</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">nelems</span><span class="p">,</span> <span class="n">nneigh</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">elems</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:]</span></div>
+
+
+<div class="viewcode-block" id="writeNodes"><a class="viewcode-back" href="../../ref/plugins.tetgen.html#plugins.tetgen.writeNodes">[docs]</a><span class="k">def</span> <span class="nf">writeNodes</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Write a tetgen .node file&quot;&quot;&quot;</span>
+    <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fil</span><span class="p">:</span>
+        <span class="n">fil</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> </span><span class="si">%d</span><span class="s2"> 0 0</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">coords</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="n">writeIData</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%f</span><span class="s2"> &quot;</span><span class="p">,</span> <span class="n">ind</span><span class="o">=</span><span class="n">offset</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="writeSmesh"><a class="viewcode-back" href="../../ref/plugins.tetgen.html#plugins.tetgen.writeSmesh">[docs]</a><span class="k">def</span> <span class="nf">writeSmesh</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">facets</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">holes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">regions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Write a tetgen .smesh file.</span>
+
+<span class="sd">    Currently it only writes the facets of a triangular surface mesh.</span>
+<span class="sd">    Coords should be written independently to a .node file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fil</span><span class="p">:</span>
+        <span class="n">fil</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# part 1: node list.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">coords</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fil</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;0  3  0  0  # coords are found in </span><span class="si">%s</span><span class="s2">.node.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">fil</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# part 2: facet list.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">fil</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> 0</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">facets</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">facets</span><span class="p">):</span>
+            <span class="c1"># adding comments breaks fast readback</span>
+            <span class="c1"># fil.write(&quot;3 %s %s %s # %s\n&quot; % (n[0],n[1],n[2],i))</span>
+            <span class="n">fil</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;3 </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">n</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">n</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">n</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+        <span class="n">fil</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# part 3: hole list.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">holes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fil</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;0</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">fil</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# part 4: region list.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">regions</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fil</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;0</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">fil</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# Generated by pyFormex</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="writeTmesh"><a class="viewcode-back" href="../../ref/plugins.tetgen.html#plugins.tetgen.writeTmesh">[docs]</a><span class="k">def</span> <span class="nf">writeTmesh</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">elems</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Write a tetgen .ele file.</span>
+
+<span class="sd">    Writes elements of a tet4 mesh.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">elems</span> <span class="o">=</span> <span class="n">asarray</span><span class="p">(</span><span class="n">elems</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fil</span><span class="p">:</span>
+        <span class="n">fil</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> </span><span class="si">%d</span><span class="s2"> 0</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">elems</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span>  <span class="nb">enumerate</span><span class="p">(</span><span class="n">elems</span><span class="p">):</span>
+            <span class="n">fil</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%d</span><span class="s1"> </span><span class="si">%d</span><span class="s1"> </span><span class="si">%d</span><span class="s1"> </span><span class="si">%d</span><span class="s1"> </span><span class="si">%d</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">e</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">e</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">e</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">e</span><span class="p">[</span><span class="mi">3</span><span class="p">]))</span>
+        <span class="n">fil</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# Generated by pyFormex</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="writeSurface"><a class="viewcode-back" href="../../ref/plugins.tetgen.html#plugins.tetgen.writeSurface">[docs]</a><span class="k">def</span> <span class="nf">writeSurface</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">elems</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Write a tetgen surface model to .node and .smesh files.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fn: :term:`path_like`</span>
+<span class="sd">        Filename of the files to which the model sohould be exported.</span>
+<span class="sd">        The provided file name is either the .node or the .smesh filename,</span>
+<span class="sd">        or else it is the basename where .node and .smesh extensions will</span>
+<span class="sd">        be appended.</span>
+<span class="sd">    coords: Coords</span>
+<span class="sd">        The vertices in the surface model.</span>
+<span class="sd">    elems: array</span>
+<span class="sd">        The element definitions in function of the vertex numbers.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fn</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
+    <span class="n">writeNodes</span><span class="p">(</span><span class="n">fn</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s1">&#39;.node&#39;</span><span class="p">),</span> <span class="n">coords</span><span class="p">)</span>
+    <span class="n">writeSmesh</span><span class="p">(</span><span class="n">fn</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s1">&#39;.smesh&#39;</span><span class="p">),</span> <span class="n">elems</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="writeTetMesh"><a class="viewcode-back" href="../../ref/plugins.tetgen.html#plugins.tetgen.writeTetMesh">[docs]</a><span class="k">def</span> <span class="nf">writeTetMesh</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">elems</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Write a tetgen tetrahedral mesh model to .node and .ele files.</span>
+
+<span class="sd">    The provided file name is either the .node or the .smesh filename,</span>
+<span class="sd">    or else it is the basename where .node and .ele extensions will</span>
+<span class="sd">    be appended.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fn</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
+    <span class="n">writeNodes</span><span class="p">(</span><span class="n">fn</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s1">&#39;.node&#39;</span><span class="p">),</span> <span class="n">coords</span><span class="p">)</span>
+    <span class="n">writeTmesh</span><span class="p">(</span><span class="n">fn</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s1">&#39;.ele&#39;</span><span class="p">),</span> <span class="n">elems</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="runTetgen"><a class="viewcode-back" href="../../ref/plugins.tetgen.html#plugins.tetgen.runTetgen">[docs]</a><span class="k">def</span> <span class="nf">runTetgen</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Run tetgen mesher on the specified file.</span>
+
+<span class="sd">    The input file is a closed triangulated surface.</span>
+<span class="sd">    tetgen will generate a volume tetraeder mesh inside the surface,</span>
+<span class="sd">    and create a new approximation of the surface as a by-product.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">External</span><span class="o">.</span><span class="n">has</span><span class="p">(</span><span class="s1">&#39;tetgen&#39;</span><span class="p">):</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;..</span>
+
+<span class="s2">I could not find the &#39;tetgen&#39; command.</span>
+
+<span class="s2">tetgen is a quality tetrahedral mesh generator and a 3D Delaunay triangulator. See http://tetgen.org. It is available from the Debian non-free section.</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="k">if</span> <span class="n">Path</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">P</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s1">&#39;tetgen -z</span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">fn</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">P</span></div>
+
+
+<div class="viewcode-block" id="readTetgen"><a class="viewcode-back" href="../../ref/plugins.tetgen.html#plugins.tetgen.readTetgen">[docs]</a><span class="k">def</span> <span class="nf">readTetgen</span><span class="p">(</span><span class="n">fn</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read a tetgen model.</span>
+
+<span class="sd">    This reads a file created by the &#39;tetgen&#39; tetrahedral mesher</span>
+<span class="sd">    and returns corresponding pyFormex objects.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fn: :term:`path_like`</span>
+<span class="sd">        Path to a tetgen file. This can be one of .node, .ele, .face,</span>
+<span class="sd">        .smesh or .poly files.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        If the suffix of ``fn`` is one of .node, .ele or .face, the dict</span>
+<span class="sd">        contains one item with key &#39;tetgen.SUFFIX&#39;. For suffix .node, the</span>
+<span class="sd">        value is a Coords read from the .node file, for suffix .ele or .face,</span>
+<span class="sd">        the value is a Mesh with elems read from the .ele or .face, and coords</span>
+<span class="sd">        read from the corresponding .node. If the suffix is .smesh or .poly,</span>
+<span class="sd">        the dict contains a number of Meshes, with keys &#39;Mesh-NPLEX&#39; where</span>
+<span class="sd">        NPLEX is the plexitude of the corresponding Mesh.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">fn</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
+    <span class="n">ext</span> <span class="o">=</span> <span class="n">fn</span><span class="o">.</span><span class="n">suffix</span>
+    <span class="k">if</span> <span class="n">ext</span> <span class="o">==</span> <span class="s1">&#39;.node&#39;</span><span class="p">:</span>
+        <span class="n">nodes</span> <span class="o">=</span> <span class="n">readNodeFile</span><span class="p">(</span><span class="n">fn</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">res</span><span class="p">[</span><span class="s1">&#39;tetgen&#39;</span><span class="o">+</span><span class="n">ext</span><span class="p">]</span> <span class="o">=</span> <span class="n">nodes</span>
+    <span class="k">elif</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;.ele&#39;</span><span class="p">,</span> <span class="s1">&#39;.face&#39;</span><span class="p">]:</span>
+        <span class="n">nodes</span><span class="p">,</span> <span class="n">nodenrs</span> <span class="o">=</span> <span class="n">readNodeFile</span><span class="p">(</span><span class="n">fn</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s1">&#39;.node&#39;</span><span class="p">))[:</span><span class="mi">2</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">ext</span> <span class="o">==</span> <span class="s1">&#39;.ele&#39;</span><span class="p">:</span>
+            <span class="n">elems</span> <span class="o">=</span> <span class="n">readEleFile</span><span class="p">(</span><span class="n">fn</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">ext</span> <span class="o">==</span> <span class="s1">&#39;.face&#39;</span><span class="p">:</span>
+            <span class="n">elems</span> <span class="o">=</span> <span class="n">readFaceFile</span><span class="p">(</span><span class="n">fn</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">nodenrs</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">nodenrs</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">==</span><span class="n">nodenrs</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+            <span class="n">elems</span> <span class="o">=</span> <span class="n">elems</span><span class="o">-</span><span class="mi">1</span>
+        <span class="n">M</span> <span class="o">=</span> <span class="n">Mesh</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="n">elems</span><span class="p">,</span> <span class="n">eltype</span><span class="o">=</span><span class="n">elems</span><span class="o">.</span><span class="n">eltype</span><span class="p">)</span>
+        <span class="n">res</span><span class="p">[</span><span class="s1">&#39;tetgen&#39;</span><span class="o">+</span><span class="n">ext</span><span class="p">]</span> <span class="o">=</span> <span class="n">M</span>
+
+    <span class="k">elif</span> <span class="n">ext</span> <span class="o">==</span> <span class="s1">&#39;.smesh&#39;</span><span class="p">:</span>
+        <span class="n">nodes</span><span class="p">,</span> <span class="n">elems</span> <span class="o">=</span> <span class="n">readSmeshFile</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
+        <span class="n">ML</span> <span class="o">=</span> <span class="p">[</span><span class="n">Mesh</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="n">elems</span><span class="p">[</span><span class="n">e</span><span class="p">])</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">elems</span><span class="p">]</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">([(</span><span class="s1">&#39;Mesh-</span><span class="si">%s</span><span class="s1">&#39;</span><span class="o">%</span><span class="n">M</span><span class="o">.</span><span class="n">nplex</span><span class="p">(),</span> <span class="n">M</span><span class="p">)</span> <span class="k">for</span> <span class="n">M</span> <span class="ow">in</span> <span class="n">ML</span><span class="p">])</span>
+
+    <span class="k">elif</span> <span class="n">ext</span> <span class="o">==</span> <span class="s1">&#39;.poly&#39;</span><span class="p">:</span>
+        <span class="n">nodes</span><span class="p">,</span> <span class="n">elems</span> <span class="o">=</span> <span class="n">readPolyFile</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
+        <span class="n">ML</span> <span class="o">=</span> <span class="p">[</span><span class="n">Mesh</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="n">elems</span><span class="p">[</span><span class="n">e</span><span class="p">])</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">elems</span><span class="p">]</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">([(</span><span class="s1">&#39;Mesh-</span><span class="si">%s</span><span class="s1">&#39;</span><span class="o">%</span><span class="n">M</span><span class="o">.</span><span class="n">nplex</span><span class="p">(),</span> <span class="n">M</span><span class="p">)</span> <span class="k">for</span> <span class="n">M</span> <span class="ow">in</span> <span class="n">ML</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">res</span></div>
+
+
+<span class="c1">#</span>
+<span class="c1">#  TODO: This should just be merged with tetMesh</span>
+<span class="c1">#</span>
+<span class="c1">#    This could be made an example:</span>
+<span class="c1">#</span>
+<span class="c1">#    from pyformex.simple import regularGrid</span>
+<span class="c1">#    X = Coords(regularGrid([0., 0., 0.], [1., 1., 1.], [10, 10, 10]).reshape(-1, 3)).addNoise(rsize=0.05,asize=0.5)</span>
+<span class="c1">#    draw(X)</span>
+<span class="c1">#    from pyformex.plugins.tetgen import tetgenConvexHull</span>
+<span class="c1">#    tch, ch =tetgenConvexHull( X)</span>
+<span class="c1">#    draw(ch, color=&#39;red&#39;, marksize=10)</span>
+
+<div class="viewcode-block" id="tetgenConvexHull"><a class="viewcode-back" href="../../ref/plugins.tetgen.html#plugins.tetgen.tetgenConvexHull">[docs]</a><span class="k">def</span> <span class="nf">tetgenConvexHull</span><span class="p">(</span><span class="n">pts</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Tetralize the convex hull of some points.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    pts: Coords</span>
+<span class="sd">        A collection of points to find the convex hull of.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    convexhull: TriSurface</span>
+<span class="sd">        The smallest TriSurface enclosing all the points.</span>
+<span class="sd">    tetmesh: Mesh</span>
+<span class="sd">        A tetraeder Mesh filling the convex hull.</span>
+
+<span class="sd">    If all points are on the same plane there is no convex hull.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">utils</span><span class="o">.</span><span class="n">TempDir</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmpdir</span><span class="p">:</span>
+        <span class="n">fn</span> <span class="o">=</span> <span class="n">tmpdir</span> <span class="o">/</span> <span class="s1">&#39;convexhull.node&#39;</span>
+        <span class="n">writeNodes</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="n">pts</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">P</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s1">&#39;tetgen </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">fn</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">P</span><span class="o">.</span><span class="n">returncode</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">P</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Error occurred in tetgen command&quot;</span><span class="p">)</span>
+        <span class="n">tetmesh</span> <span class="o">=</span> <span class="n">readTetgen</span><span class="p">(</span><span class="n">fn</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s1">&#39;.1.ele&#39;</span><span class="p">))[</span><span class="s1">&#39;tetgen.ele&#39;</span><span class="p">]</span>
+        <span class="n">convexhull</span> <span class="o">=</span> <span class="n">TriSurface</span><span class="p">(</span><span class="n">tetmesh</span><span class="o">.</span><span class="n">getBorderMesh</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">convexhull</span><span class="p">,</span> <span class="n">tetmesh</span></div>
+
+
+<span class="c1">#################################################################</span>
+<span class="c1">## Extra TriSurface Methods ##</span>
+
+<div class="viewcode-block" id="checkSelfIntersectionsWithTetgen"><a class="viewcode-back" href="../../ref/plugins.tetgen.html#plugins.tetgen.checkSelfIntersectionsWithTetgen">[docs]</a><span class="k">def</span> <span class="nf">checkSelfIntersectionsWithTetgen</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;check self intersections using tetgen</span>
+
+<span class="sd">    Returns pairs of intersecting triangles</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">utils</span><span class="o">.</span><span class="n">TempDir</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmpdir</span><span class="p">:</span>
+        <span class="n">fn</span> <span class="o">=</span> <span class="n">tmpdir</span> <span class="o">/</span> <span class="s1">&#39;surface&#39;</span>
+        <span class="n">writeSurface</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">elems</span><span class="p">)</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="s1">&#39;-V&#39;</span> <span class="k">if</span> <span class="n">verbose</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="s2">&quot;tetgen -d </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">fn</span><span class="p">)</span>
+        <span class="n">P</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">P</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">asarray</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">l</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">P</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;acet #&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]])</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span></div>
+
+
+<div class="viewcode-block" id="tetMesh"><a class="viewcode-back" href="../../ref/plugins.tetgen.html#plugins.tetgen.tetMesh">[docs]</a><span class="k">def</span> <span class="nf">tetMesh</span><span class="p">(</span><span class="n">surfacefile</span><span class="p">,</span> <span class="n">quality</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">volume</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">outputdir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create a tetrahedral mesh inside a surface</span>
+
+<span class="sd">    This uses the external program &#39;tetgen&#39; to create a tetrahedral mesh</span>
+<span class="sd">    inside a closed manifold surface.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    surfacefile: :term:`path_like`</span>
+<span class="sd">        Path to a file holding a surface model. The file can be either a .off</span>
+<span class="sd">        or .stl.</span>
+<span class="sd">    quality: float</span>
+<span class="sd">        The quality of the output tetrahedral mesh. The value is a</span>
+<span class="sd">        constraint on the circumradius-to-shortest-edge ratio. The</span>
+<span class="sd">        default (2.0) already provides a high quality mesh. Providing</span>
+<span class="sd">        a larger value will reduce quality but increase speed. With</span>
+<span class="sd">        quality=None, no quality constraint will be imposed.</span>
+<span class="sd">    volume: float, optional</span>
+<span class="sd">        If provided, applies a maximum tetrahedron volume constraint.</span>
+<span class="sd">    outputdir: :term:`path_like`</span>
+<span class="sd">        Path to an existing directory where the results will be placed.</span>
+<span class="sd">        The default is to use the directory where the input file resides.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Mesh</span>
+<span class="sd">        A tetrahedral Mesh (eltype=&#39;tet4&#39;) filling the input surface,</span>
+<span class="sd">        provided the tetgen program finished successfully.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">options</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">quality</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">options</span> <span class="o">+=</span> <span class="s1">&#39;q&#39;</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">quality</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="n">options</span> <span class="o">+=</span> <span class="s1">&#39;q</span><span class="si">%f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">quality</span>
+    <span class="k">if</span> <span class="n">volume</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">options</span> <span class="o">+=</span> <span class="s1">&#39;a</span><span class="si">%f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">volume</span>
+    <span class="n">surfacefile</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">surfacefile</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">surfacefile</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">or</span> \
+       <span class="n">surfacefile</span><span class="o">.</span><span class="n">suffix</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;.off&#39;</span><span class="p">,</span> <span class="s1">&#39;.stl&#39;</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid surfacefile </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">surfacefile</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">outputdir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">outputdir</span> <span class="o">=</span> <span class="n">surfacefile</span><span class="o">.</span><span class="n">parent</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">outputdir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">outputdir</span><span class="p">)</span>
+        <span class="n">surfacefile</span><span class="o">.</span><span class="n">symlink</span><span class="p">(</span><span class="n">outputdir</span><span class="p">)</span>
+        <span class="n">surfacefile</span> <span class="o">=</span> <span class="n">outputdir</span> <span class="o">/</span> <span class="n">surfacefile</span><span class="o">.</span><span class="n">name</span>
+    <span class="n">runTetgen</span><span class="p">(</span><span class="n">surfacefile</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
+    <span class="n">tetfile</span> <span class="o">=</span> <span class="n">surfacefile</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s1">&#39;.1.ele&#39;</span><span class="p">)</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">readTetgen</span><span class="p">(</span><span class="n">tetfile</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">res</span></div>
+
+
+<span class="k">def</span> <span class="nf">install_more_trisurface_methods</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;_</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">pyformex.trisurface</span> <span class="kn">import</span> <span class="n">TriSurface</span>
+    <span class="n">TriSurface</span><span class="o">.</span><span class="n">checkSelfIntersectionsWithTetgen</span> <span class="o">=</span> <span class="n">checkSelfIntersectionsWithTetgen</span>
+
+
+<span class="c1"># End</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">plugins.tetgen</a></li--> 
+      </ul>
+    </div>
+    <div class="footer">
+    <span class="left">
+        &copy; Copyright 2004-2023, Benedict Verhegghe.
+    </span>
+      Last updated on Mar 27, 2023.
+    <span class="right">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.4.3.
+    </span>
+    </div>
+  </body>
+</html>

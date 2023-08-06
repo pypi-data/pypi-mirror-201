@@ -1,0 +1,460 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!--
+##
+##  This file is part of the pyFormex project.
+##  pyFormex is a tool for generating, manipulating and transforming 3D
+##  geometrical models by sequences of mathematical operations.
+##  Home page: http://pyformex.org
+##  Project page:  http://savannah.nongnu.org/projects/pyformex/
+##  Copyright (C) Benedict Verhegghe (benedict.verhegghe@ugent.be)
+##  Distributed under the GNU General Public License version 3 or later.
+##
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see http://www.gnu.org/licenses/.
+##
+-->
+    <title>process &#8212; pyFormex 3.3 documentation</title>
+
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pyformex.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+<link rel="icon" type="image/png" href="../_static/pyformex_fav.png" />
+
+  </head><body>
+
+<div class="header">
+  <a href="http://pyformex.org">
+  <img src="../_static/scallop_dome_small.png" alt="scallop dome" border="0" hspace="20" vspace="12" align="left" />
+  <img src="../_static/pyformex-logo-2.png" alt="pyformex logo" border="0" hspace="10" vspace="8" align="left" />
+  </a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">process</a></li--> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<!-- PYFORMEX_SIDEBAR_LOGO -->
+<!-- PYFORMEX_WEBSITE_SIDEBAR_TOP -->
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for process</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1">##</span>
+<span class="c1">##  SPDX-FileCopyrightText: © 2007-2023 Benedict Verhegghe &lt;bverheg@gmail.com&gt;</span>
+<span class="c1">##  SPDX-License-Identifier: GPL-3.0-or-later</span>
+<span class="c1">##</span>
+<span class="c1">##  This file is part of pyFormex 3.3  (Sun Mar 26 20:16:15 CEST 2023)</span>
+<span class="c1">##  pyFormex is a tool for generating, manipulating and transforming 3D</span>
+<span class="c1">##  geometrical models by sequences of mathematical operations.</span>
+<span class="c1">##  Home page: https://pyformex.org</span>
+<span class="c1">##  Project page: https://savannah.nongnu.org/projects/pyformex/</span>
+<span class="c1">##  Development: https://gitlab.com/bverheg/pyformex</span>
+<span class="c1">##  Distributed under the GNU General Public License version 3 or later.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is free software: you can redistribute it and/or modify</span>
+<span class="c1">##  it under the terms of the GNU General Public License as published by</span>
+<span class="c1">##  the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1">##  (at your option) any later version.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is distributed in the hope that it will be useful,</span>
+<span class="c1">##  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1">##  GNU General Public License for more details.</span>
+<span class="c1">##</span>
+<span class="c1">##  You should have received a copy of the GNU General Public License</span>
+<span class="c1">##  along with this program.  If not, see http://www.gnu.org/licenses/.</span>
+<span class="c1">##</span>
+<span class="sd">&quot;&quot;&quot;Executing external commands.</span>
+
+<span class="sd">This module provides some functions for executing external commands in</span>
+<span class="sd">a subprocess. They are based on the standard Python :mod:`subprocess`</span>
+<span class="sd">module, but provide some practical enhancements.</span>
+
+<span class="sd">Contents:</span>
+
+<span class="sd">- :class:`DoneProcess` is a class to hold information about a terminated</span>
+<span class="sd">  process.</span>
+<span class="sd">- :func:`run` runs a command in a subprocess and waits for it to finish.</span>
+<span class="sd">  Returns a :class:`DoneProcess` about the outcome.</span>
+<span class="sd">- :func:`start` starts a subprocess and does not wait for it.</span>
+<span class="sd">  Returns a :class:`subprocess.Popen` instance that can be used to communicate</span>
+<span class="sd">  with the process.</span>
+
+<span class="sd">This module can be used independently from pyFormex.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">shlex</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+
+<div class="viewcode-block" id="DoneProcess"><a class="viewcode-back" href="../ref/process.html#process.DoneProcess">[docs]</a><span class="k">class</span> <span class="nc">DoneProcess</span><span class="p">(</span><span class="n">subprocess</span><span class="o">.</span><span class="n">CompletedProcess</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A class to return the outcome of a subprocess.</span>
+
+<span class="sd">    This is a subclass of :class:`subprocess.CompletedProcess` with some</span>
+<span class="sd">    extra attributes.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    args: str or sequence of arguments</span>
+<span class="sd">        The args that were used to create the subprocess.</span>
+<span class="sd">    returncode: int</span>
+<span class="sd">        The exit code of the subprocess. Typical a 0 means it ran</span>
+<span class="sd">        succesfully. If the subprocess fails to start, the value</span>
+<span class="sd">        is 127. Other non-zero values can be returned by the child</span>
+<span class="sd">        process to flag some error condition.</span>
+<span class="sd">    stdout: str or bytes or None</span>
+<span class="sd">        The standard output captured from the child process.</span>
+<span class="sd">    stderr: str or bytes or None</span>
+<span class="sd">        The error output captured from the child process.</span>
+<span class="sd">    failed: bool</span>
+<span class="sd">        True if the child process failed to start, e.g. due to a</span>
+<span class="sd">        non-existing or non-loadable executable. The returncode</span>
+<span class="sd">        will be 127 in this case.</span>
+<span class="sd">    timedout: bool</span>
+<span class="sd">        True if the child process exited due to a timeout condition.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">returncode</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">failed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">timedout</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">returncode</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">failed</span> <span class="o">=</span> <span class="n">failed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timedout</span> <span class="o">=</span> <span class="n">timedout</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Textual representation of the DoneProcess</span>
+
+<span class="sd">        This only shows the non-default values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">()</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">rfind</span><span class="p">(</span><span class="s1">&#39;)&#39;</span><span class="p">)</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="p">[:</span><span class="n">i</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">:]]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">failed</span><span class="p">:</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;, failed=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">failed</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">timedout</span><span class="p">:</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;, timedout=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">timedout</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;User-friendly full textual representation</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            An extensive report about the last run command, including</span>
+<span class="sd">            output and error messages.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        This is mostly useful in interactive work, to find out</span>
+<span class="sd">        why a command failed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;DoneProcess report</span><span class="se">\n</span><span class="s2">args: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">failed</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;Command failed to run!</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;returncode: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">returncode</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">for</span> <span class="n">atr</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;stdout&#39;</span><span class="p">,</span> <span class="s1">&#39;stderr&#39;</span><span class="p">]:</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atr</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">s</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">atr</span><span class="si">}</span><span class="s2">:</span><span class="se">\n</span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="k">if</span> <span class="n">s</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">:</span>
+                    <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">timedout</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;timedout: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">timedout</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="n">s</span></div>
+
+
+<div class="viewcode-block" id="run"><a class="viewcode-back" href="../ref/process.html#process.run">[docs]</a><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="nb">input</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Execute a command through the operating system.</span>
+
+<span class="sd">    Run an external command in a subprocess, waiting for its termination</span>
+<span class="sd">    or not. This is similar to Python3&#39;s :func:`subprocess.run`, but</span>
+<span class="sd">    provides the following enhancements:</span>
+
+<span class="sd">    - If `shell` is True, and no `executable` is provided, the shell</span>
+<span class="sd">      will default to the value in the user&#39;s SHELL environment variable,</span>
+<span class="sd">      and if that isn&#39;t set, to &#39;/bin/sh&#39;.</span>
+
+<span class="sd">    - If a string is passed as `args` and `shell` is False, the string is</span>
+<span class="sd">      automatically tokenized into an args list.</span>
+
+<span class="sd">    - If no stdout nor stderr are specified, the output of the command</span>
+<span class="sd">      is captured by default.</span>
+
+<span class="sd">    - The `encoding` is set to &#39;utf-8&#39; by default, so that stdout</span>
+<span class="sd">      and stderr are returned as strings.</span>
+
+<span class="sd">    - stdin, stdout and stderr can be file names. They will be replaced</span>
+<span class="sd">      with the opened files (in mode &#39;r&#39; for stdin, &#39;w&#39; for the others).</span>
+
+<span class="sd">    - Exceptions are captured by default and can be detected from</span>
+<span class="sd">      the return value.</span>
+
+<span class="sd">    - A `wait` parameter allows the same function to be used to just</span>
+<span class="sd">      start a subprocess and not wait for its outcome.</span>
+
+<span class="sd">    Only the new and changed parameters are described hereafter. Except for</span>
+<span class="sd">    the first (`args`), all parameters should be specified by keyword.</span>
+<span class="sd">    For more parameters, see :class:`subprocess.run`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    args: str or list of str.</span>
+<span class="sd">        If a string is provided, it is the command as it should be entered</span>
+<span class="sd">        in a shell. If it is a list, args[0] is the executable to run</span>
+<span class="sd">        and the remainder of args are the arguments to be passed to it.</span>
+
+<span class="sd">        If a string is provided and `shell` is False (default), the string is</span>
+<span class="sd">        split into an args list using :func:`shlex.split`.</span>
+<span class="sd">    capture_output: bool</span>
+<span class="sd">        If True (default), both stdout and stderr are captured and available</span>
+<span class="sd">        from the returned :class:`DoneProcess`. Specifying a value for any of</span>
+<span class="sd">        `stdout` or `stderr` values will however override the capture_output</span>
+<span class="sd">        setting.</span>
+<span class="sd">    shell: bool</span>
+<span class="sd">        Default is False. If True, the command will be run in a new shell.</span>
+<span class="sd">        The `args` argument should be a string in this case.</span>
+<span class="sd">        Note that this uses more resources, may cause a problem in killing the</span>
+<span class="sd">        subprocess and and may pose a security risk.</span>
+<span class="sd">        Unless you need some shell functionality (like parameter expansion,</span>
+<span class="sd">        compound commands, pipes), the advised way to execute a command is</span>
+<span class="sd">        to use the default False.</span>
+<span class="sd">    executable: str</span>
+<span class="sd">        The full path name of the program to be executed.</span>
+<span class="sd">        This can be used to specify the real executable if the</span>
+<span class="sd">        program specified in `args` is not in your PATH, or,</span>
+<span class="sd">        when `shell` is True, if you want to use a shell other than</span>
+<span class="sd">        the default: the value of the &#39;SHELL&#39; environment variable,</span>
+<span class="sd">        and if that is not set, &#39;/bin/sh/&#39;.</span>
+<span class="sd">    encoding: str</span>
+<span class="sd">        The encoding for the returned stdout and stderr. The default is</span>
+<span class="sd">        &#39;utf-8&#39;, making the returned values Python3 str types. Specifying</span>
+<span class="sd">        encoding=None will return bytes. Another encoding may be specified</span>
+<span class="sd">        if needed.</span>
+<span class="sd">    input: str</span>
+<span class="sd">        If provided, passes the provided string as stdin to the started</span>
+<span class="sd">        process. Only available with wait=True.</span>
+<span class="sd">    timeout: int</span>
+<span class="sd">        If provided, this is the maximum number of seconds the process is</span>
+<span class="sd">        allowed to run. After this time the Process will be killed.</span>
+<span class="sd">    check: bool</span>
+<span class="sd">        Default is False.</span>
+<span class="sd">        If True, an exception will be raised when the command did not</span>
+<span class="sd">        terminate normally: a non-zero returncode, a timeout condition</span>
+<span class="sd">        or a failure to start the executable. With the default, these</span>
+<span class="sd">        conditions are captured and reported in the return value.</span>
+<span class="sd">    **kargs: keyword arguments</span>
+<span class="sd">        Any other keyword arguments accepted by :class:`subprocess.Popen`.</span>
+<span class="sd">        See the Python documentation for :class:`subprocess.Popen` for full info.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    :class:`DoneProcess` | :class:`subprocess.Popen`</span>
+<span class="sd">        If ``wait`` is True (default), returns a :class:`DoneProcess`</span>
+<span class="sd">        collecting all relevant info about the finished subprocess.</span>
+<span class="sd">        See :class:`DoneProcess` for details.</span>
+
+<span class="sd">        If ``wait`` is False, returns the created :class:`subprocess.Popen`.</span>
+<span class="sd">        In this case the user if fully responsible for handling the</span>
+<span class="sd">        communication with the process, its termination, and the processing</span>
+<span class="sd">        of its outcome.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; P = run(&quot;pwd&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; P.stdout.strip(&#39;\\n&#39;) == os.getcwd()</span>
+<span class="sd">    True</span>
+
+<span class="sd">    &gt;&gt;&gt; P = run(&quot;pwd&quot;, stdout=subprocess.PIPE)</span>
+<span class="sd">    &gt;&gt;&gt; P.stdout.strip(&#39;\\n&#39;) == os.getcwd()</span>
+<span class="sd">    True</span>
+
+<span class="sd">    &gt;&gt;&gt; P = run(&quot;echo &#39;This is stderr&#39; &gt; /dev/stderr&quot;, shell=True)</span>
+<span class="sd">    &gt;&gt;&gt; P.stderr</span>
+<span class="sd">    &#39;This is stderr\\n&#39;</span>
+
+<span class="sd">    &gt;&gt;&gt; P = run(&#39;false&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; P</span>
+<span class="sd">    DoneProcess(args=[&#39;false&#39;], returncode=1, stdout=&#39;&#39;, stderr=&#39;&#39;)</span>
+
+<span class="sd">    &gt;&gt;&gt; P = run(&#39;false&#39;, capture_output=False)</span>
+<span class="sd">    &gt;&gt;&gt; P</span>
+<span class="sd">    DoneProcess(args=[&#39;false&#39;], returncode=1)</span>
+<span class="sd">    &gt;&gt;&gt; P.stdout is None</span>
+<span class="sd">    True</span>
+
+<span class="sd">    &gt;&gt;&gt; P = run(&#39;False&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; P</span>
+<span class="sd">    DoneProcess(args=[&#39;False&#39;], returncode=127, failed=True)</span>
+
+<span class="sd">    &gt;&gt;&gt; P = run(&quot;sleep 5&quot;, timeout=1, capture_output=False)</span>
+<span class="sd">    &gt;&gt;&gt; P</span>
+<span class="sd">    DoneProcess(args=[&#39;sleep&#39;, &#39;5&#39;], returncode=-1, timedout=True)</span>
+
+<span class="sd">    &gt;&gt;&gt; print(P)</span>
+<span class="sd">    DoneProcess report</span>
+<span class="sd">    args: [&#39;sleep&#39;, &#39;5&#39;]</span>
+<span class="sd">    returncode: -1</span>
+<span class="sd">    timedout: True</span>
+
+<span class="sd">    &gt;&gt;&gt; P = run(&quot;sleep 10&quot;, wait=False)</span>
+<span class="sd">    &gt;&gt;&gt; P.poll() is None</span>
+<span class="sd">    True</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">capture_output</span> <span class="ow">and</span> <span class="s1">&#39;stdout&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kargs</span> <span class="ow">and</span> <span class="s1">&#39;stderr&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kargs</span><span class="p">:</span>
+        <span class="n">kargs</span><span class="p">[</span><span class="s1">&#39;stdout&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span>
+        <span class="n">kargs</span><span class="p">[</span><span class="s1">&#39;stderr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span>
+    <span class="n">kargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;encoding&#39;</span><span class="p">,</span> <span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;stdin&#39;</span><span class="p">,</span> <span class="s1">&#39;stdout&#39;</span><span class="p">,</span> <span class="s1">&#39;stderr&#39;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">kargs</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">kargs</span><span class="p">[</span><span class="n">f</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">f</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;n&#39;</span><span class="p">:</span>
+                <span class="n">mode</span> <span class="o">=</span> <span class="s1">&#39;r&#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">mode</span> <span class="o">=</span> <span class="s1">&#39;w&#39;</span>
+            <span class="n">kargs</span><span class="p">[</span><span class="n">f</span><span class="p">]</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">kargs</span><span class="p">[</span><span class="n">f</span><span class="p">],</span> <span class="n">mode</span><span class="p">)</span>
+    <span class="n">shell</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">kargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;shell&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">shell</span> <span class="ow">and</span> <span class="s1">&#39;executable&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kargs</span><span class="p">:</span>
+        <span class="n">kargs</span><span class="p">[</span><span class="s1">&#39;executable&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;SHELL&#39;</span><span class="p">,</span> <span class="s1">&#39;/bin/sh&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">shell</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+        <span class="c1"># Tokenize the command line</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="n">shlex</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+
+    <span class="n">check</span> <span class="o">=</span> <span class="n">kargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;check&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">P</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">check</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">e</span>
+        <span class="k">return</span> <span class="n">DoneProcess</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="mi">127</span><span class="p">,</span> <span class="n">failed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">wait</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">P</span>
+
+    <span class="k">with</span> <span class="n">P</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="n">P</span><span class="o">.</span><span class="n">communicate</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">TimeoutExpired</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">check</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">e</span>
+            <span class="n">P</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
+            <span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="n">P</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">DoneProcess</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">stderr</span><span class="p">,</span>
+                               <span class="n">timedout</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="c1"># Unexpected error</span>
+            <span class="n">P</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
+            <span class="k">raise</span> <span class="n">e</span>
+        <span class="n">retcode</span> <span class="o">=</span> <span class="n">P</span><span class="o">.</span><span class="n">poll</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">retcode</span> <span class="ow">and</span> <span class="n">check</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span><span class="p">(</span>
+                <span class="n">retcode</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">stderr</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">DoneProcess</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">retcode</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">stderr</span><span class="p">)</span></div>
+
+
+
+<span class="c1"># deprecated: for ccompatibility</span>
+<span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">run</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;This is process.py&quot;</span><span class="p">)</span>
+    <span class="n">P</span> <span class="o">=</span> <span class="n">run</span><span class="p">(</span><span class="s2">&quot;pwd&quot;</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">P</span><span class="p">)</span>
+    <span class="n">P</span> <span class="o">=</span> <span class="n">run</span><span class="p">(</span><span class="s2">&quot;ls -l&quot;</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="s2">&quot;filelist.txt&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">P</span><span class="p">)</span>
+    <span class="n">P</span> <span class="o">=</span> <span class="n">run</span><span class="p">(</span><span class="s2">&quot;sleep 50&quot;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">P</span><span class="p">)</span>
+
+<span class="c1">### End</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">process</a></li--> 
+      </ul>
+    </div>
+    <div class="footer">
+    <span class="left">
+        &copy; Copyright 2004-2023, Benedict Verhegghe.
+    </span>
+      Last updated on Mar 27, 2023.
+    <span class="right">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.4.3.
+    </span>
+    </div>
+  </body>
+</html>

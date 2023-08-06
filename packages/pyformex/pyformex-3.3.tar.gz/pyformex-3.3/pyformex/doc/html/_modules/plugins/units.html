@@ -1,0 +1,307 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!--
+##
+##  This file is part of the pyFormex project.
+##  pyFormex is a tool for generating, manipulating and transforming 3D
+##  geometrical models by sequences of mathematical operations.
+##  Home page: http://pyformex.org
+##  Project page:  http://savannah.nongnu.org/projects/pyformex/
+##  Copyright (C) Benedict Verhegghe (benedict.verhegghe@ugent.be)
+##  Distributed under the GNU General Public License version 3 or later.
+##
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see http://www.gnu.org/licenses/.
+##
+-->
+    <title>plugins.units &#8212; pyFormex 3.3 documentation</title>
+
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pyformex.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+<link rel="icon" type="image/png" href="../../_static/pyformex_fav.png" />
+
+  </head><body>
+
+<div class="header">
+  <a href="http://pyformex.org">
+  <img src="../../_static/scallop_dome_small.png" alt="scallop dome" border="0" hspace="20" vspace="12" align="left" />
+  <img src="../../_static/pyformex-logo-2.png" alt="pyformex logo" border="0" hspace="10" vspace="8" align="left" />
+  </a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">plugins.units</a></li--> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<!-- PYFORMEX_SIDEBAR_LOGO -->
+<!-- PYFORMEX_WEBSITE_SIDEBAR_TOP -->
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for plugins.units</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1">##</span>
+<span class="c1">##  SPDX-FileCopyrightText: © 2007-2023 Benedict Verhegghe &lt;bverheg@gmail.com&gt;</span>
+<span class="c1">##  SPDX-License-Identifier: GPL-3.0-or-later</span>
+<span class="c1">##</span>
+<span class="c1">##  This file is part of pyFormex 3.3  (Sun Mar 26 20:16:15 CEST 2023)</span>
+<span class="c1">##  pyFormex is a tool for generating, manipulating and transforming 3D</span>
+<span class="c1">##  geometrical models by sequences of mathematical operations.</span>
+<span class="c1">##  Home page: https://pyformex.org</span>
+<span class="c1">##  Project page: https://savannah.nongnu.org/projects/pyformex/</span>
+<span class="c1">##  Development: https://gitlab.com/bverheg/pyformex</span>
+<span class="c1">##  Distributed under the GNU General Public License version 3 or later.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is free software: you can redistribute it and/or modify</span>
+<span class="c1">##  it under the terms of the GNU General Public License as published by</span>
+<span class="c1">##  the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1">##  (at your option) any later version.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is distributed in the hope that it will be useful,</span>
+<span class="c1">##  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1">##  GNU General Public License for more details.</span>
+<span class="c1">##</span>
+<span class="c1">##  You should have received a copy of the GNU General Public License</span>
+<span class="c1">##  along with this program.  If not, see http://www.gnu.org/licenses/.</span>
+<span class="c1">##</span>
+<span class="sd">&quot;&quot;&quot;A Python wrapper for unit conversion of physical quantities.</span>
+
+<span class="sd">This module uses the standard UNIX program &#39;units&#39; (available from</span>
+<span class="sd">http://www.gnu.org/software/units/units.html) to do the actual conversions.</span>
+<span class="sd">Obviously, it will only work on systems that have this program available.</span>
+
+<span class="sd">If you really insist on running another OS lacking the units command,</span>
+<span class="sd">have a look at http://home.tiscali.be/be052320/Unum.html and make an</span>
+<span class="sd">implementation based on unum. If you GPL it and send it to me, I might</span>
+<span class="sd">include it in this distribution.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="n">utils</span><span class="o">.</span><span class="n">External</span><span class="o">.</span><span class="n">require</span><span class="p">(</span><span class="s1">&#39;units&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="convertUnits"><a class="viewcode-back" href="../../ref/plugins.units.html#plugins.units.convertUnits">[docs]</a><span class="k">def</span> <span class="nf">convertUnits</span><span class="p">(</span><span class="n">From</span><span class="p">,</span> <span class="n">To</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Converts between conformable units.</span>
+
+<span class="sd">    This function converts the units &#39;From&#39; to units &#39;To&#39;. The units should</span>
+<span class="sd">    be conformable. The &#39;From&#39; argument can (and usually does) include a value.</span>
+<span class="sd">    The return value is a string with the converted value without units. Thus:</span>
+<span class="sd">    convertUnits(&#39;3.45 kg&#39;,&#39;g&#39;) will return &#39;3450&#39;.</span>
+<span class="sd">    This function is merely a wrapper around the GNU &#39;units&#39; command, which</span>
+<span class="sd">    should be installed for this function to work.</span>
+
+<span class="sd">    Examples:</span>
+
+<span class="sd">      &gt;&gt;&gt; convertUnits(&#39;25.4cm&#39;, &#39;in&#39;)</span>
+<span class="sd">      &#39;10&#39;</span>
+<span class="sd">      &gt;&gt;&gt; convertUnits(&#39;31e6mg&#39;, &#39;kg&#39;)</span>
+<span class="sd">      &#39;31&#39;</span>
+<span class="sd">      &gt;&gt;&gt; convertUnits(&#39;1 lightyear&#39;, &#39;km&#39;)</span>
+<span class="sd">      &#39;9.4607305e+12&#39;</span>
+<span class="sd">      &gt;&gt;&gt; convertUnits(&#39;21000 kN/cm**2&#39;, &#39;MPa&#39;)</span>
+<span class="sd">      &#39;210000&#39;</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">P</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s1">&#39;units </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s1"> </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">From</span><span class="p">,</span> <span class="n">To</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">P</span><span class="o">.</span><span class="n">returncode</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Could not convert units from </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s1"> to </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">From</span><span class="p">,</span> <span class="n">To</span><span class="p">))</span>
+    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">P</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">1</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="UnitsSystem"><a class="viewcode-back" href="../../ref/plugins.units.html#plugins.units.UnitsSystem">[docs]</a><span class="k">class</span> <span class="nc">UnitsSystem</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;A class for handling and converting units of physical quantities.</span>
+
+<span class="sd">    The units class provides two built-in consistent units systems:</span>
+<span class="sd">    International() and Engineering().</span>
+<span class="sd">    International() returns the standard International Standard units.</span>
+<span class="sd">    Engineering() returns a consistent engineering system,which is very</span>
+<span class="sd">    practical for use in mechanical engineering. It uses &#39;mm&#39; for length</span>
+<span class="sd">    and &#39;MPa&#39; for pressure and stress. To keep it consistent however,</span>
+<span class="sd">    the density is rather unpractical: &#39;t/mm^3&#39;. If you want to use t/m^3,</span>
+<span class="sd">    you can make a custom units system. Beware with non-consistent unit</span>
+<span class="sd">    systems though!</span>
+<span class="sd">    The better practice is to allow any unit to be specified at input</span>
+<span class="sd">    (and eventually requested for output), and to convert everyting</span>
+<span class="sd">    internally to a consistent system.</span>
+<span class="sd">    Apart from the units for usual physical quantities, Units stores two</span>
+<span class="sd">    special purpose values in its units dictionary:</span>
+<span class="sd">    &#39;model&#39; : defines the length unit used in the geometrical model</span>
+<span class="sd">    &#39;problem&#39; : defines the unit system to be used in the problem.</span>
+<span class="sd">    Defaults are: model=&#39;m&#39;, problem=&#39;international&#39;.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="o">=</span><span class="s1">&#39;international&#39;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Predefined</span><span class="p">(</span><span class="n">system</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">[</span><span class="s1">&#39;model&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;m&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">[</span><span class="s1">&#39;problem&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;international&#39;</span>
+
+
+<div class="viewcode-block" id="UnitsSystem.Add"><a class="viewcode-back" href="../../ref/plugins.units.html#plugins.units.UnitsSystem.Add">[docs]</a>    <span class="k">def</span> <span class="nf">Add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">un</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add the units from dictionary un to the units system&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">un</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span></div>
+
+<div class="viewcode-block" id="UnitsSystem.Predefined"><a class="viewcode-back" href="../../ref/plugins.units.html#plugins.units.UnitsSystem.Predefined">[docs]</a>    <span class="k">def</span> <span class="nf">Predefined</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the predefined units for the specified system&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">system</span> <span class="o">==</span> <span class="s1">&#39;international&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">International</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">system</span> <span class="o">==</span> <span class="s1">&#39;engineering&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">Engineering</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">system</span> <span class="o">==</span> <span class="s1">&#39;user-defined&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Undefined Units system &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">system</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="UnitsSystem.International"><a class="viewcode-back" href="../../ref/plugins.units.html#plugins.units.UnitsSystem.International">[docs]</a>    <span class="k">def</span> <span class="nf">International</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the international units system.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;length&#39;</span><span class="p">:</span> <span class="s1">&#39;m&#39;</span><span class="p">,</span> <span class="s1">&#39;mass&#39;</span><span class="p">:</span> <span class="s1">&#39;kg&#39;</span><span class="p">,</span> <span class="s1">&#39;force&#39;</span><span class="p">:</span> <span class="s1">&#39;N&#39;</span><span class="p">,</span> <span class="s1">&#39;pressure&#39;</span><span class="p">:</span> <span class="s1">&#39;Pa&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;density&#39;</span><span class="p">:</span> <span class="s1">&#39;kg/m^3&#39;</span><span class="p">,</span> <span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="s1">&#39;acceleration&#39;</span><span class="p">:</span> <span class="s1">&#39;m/s^2&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;temperature&#39;</span><span class="p">:</span> <span class="s1">&#39;tempC&#39;</span><span class="p">,</span> <span class="s1">&#39;degrees&#39;</span><span class="p">:</span> <span class="s1">&#39;K&#39;</span><span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="UnitsSystem.Engineering"><a class="viewcode-back" href="../../ref/plugins.units.html#plugins.units.UnitsSystem.Engineering">[docs]</a>    <span class="k">def</span> <span class="nf">Engineering</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a consistent engineering units system.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;length&#39;</span><span class="p">:</span> <span class="s1">&#39;mm&#39;</span><span class="p">,</span> <span class="s1">&#39;mass&#39;</span><span class="p">:</span> <span class="s1">&#39;t&#39;</span><span class="p">,</span> <span class="s1">&#39;force&#39;</span><span class="p">:</span> <span class="s1">&#39;N&#39;</span><span class="p">,</span> <span class="s1">&#39;pressure&#39;</span><span class="p">:</span> <span class="s1">&#39;MPa&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;density&#39;</span><span class="p">:</span> <span class="s1">&#39;t/mm^3&#39;</span><span class="p">,</span> <span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="s1">&#39;acceleration&#39;</span><span class="p">:</span> <span class="s1">&#39;mm/s^2&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;temperature&#39;</span><span class="p">:</span> <span class="s1">&#39;tempC&#39;</span><span class="p">,</span> <span class="s1">&#39;degrees&#39;</span><span class="p">:</span> <span class="s1">&#39;K&#39;</span><span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="UnitsSystem.Read"><a class="viewcode-back" href="../../ref/plugins.units.html#plugins.units.UnitsSystem.Read">[docs]</a>    <span class="k">def</span> <span class="nf">Read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read units from file with specified name.</span>
+
+<span class="sd">        The units file is an ascii file where each line contains a couple of</span>
+<span class="sd">        words separated by a colon and a blank. The first word is the type of</span>
+<span class="sd">        quantity, the second is the unit to be used for this quantity.</span>
+<span class="sd">        Lines starting with &#39;#&#39; are ignored.</span>
+<span class="sd">        A &#39;problem: system&#39; line sets all units to the corresponding value of</span>
+<span class="sd">        the specified units system.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">fil</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fil</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;#&#39;</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="o">=</span> <span class="n">s</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;problem&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">Add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Predefined</span><span class="p">(</span><span class="n">val</span><span class="o">.</span><span class="n">lower</span><span class="p">()))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Ignoring line : </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">line</span><span class="p">)</span>
+        <span class="n">fil</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="UnitsSystem.Get"><a class="viewcode-back" href="../../ref/plugins.units.html#plugins.units.UnitsSystem.Get">[docs]</a>    <span class="k">def</span> <span class="nf">Get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ent</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get units list for the specified entitities.</span>
+
+<span class="sd">        If ent is a single entity, returns the corresponding unit if an entry</span>
+<span class="sd">        ent exists in the current system or else returns ent unchanged.</span>
+<span class="sd">        If ent is a list of entities, returns a list of corresponding units.</span>
+<span class="sd">        Example: with the default units system::</span>
+
+<span class="sd">          Un = UnitsSystem()</span>
+<span class="sd">          Un.Get([&#39;length&#39;,&#39;mass&#39;,&#39;float&#39;])</span>
+
+<span class="sd">        returns: ``[&#39;m&#39;, &#39;kg&#39;, &#39;float&#39;]``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ent</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">Get</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">ent</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">[</span><span class="n">ent</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">ent</span></div></div>
+
+
+<span class="c1">### End</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">plugins.units</a></li--> 
+      </ul>
+    </div>
+    <div class="footer">
+    <span class="left">
+        &copy; Copyright 2004-2023, Benedict Verhegghe.
+    </span>
+      Last updated on Mar 27, 2023.
+    <span class="right">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.4.3.
+    </span>
+    </div>
+  </body>
+</html>

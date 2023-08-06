@@ -1,0 +1,703 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!--
+##
+##  This file is part of the pyFormex project.
+##  pyFormex is a tool for generating, manipulating and transforming 3D
+##  geometrical models by sequences of mathematical operations.
+##  Home page: http://pyformex.org
+##  Project page:  http://savannah.nongnu.org/projects/pyformex/
+##  Copyright (C) Benedict Verhegghe (benedict.verhegghe@ugent.be)
+##  Distributed under the GNU General Public License version 3 or later.
+##
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see http://www.gnu.org/licenses/.
+##
+-->
+    <title>config &#8212; pyFormex 3.3 documentation</title>
+
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pyformex.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+<link rel="icon" type="image/png" href="../_static/pyformex_fav.png" />
+
+  </head><body>
+
+<div class="header">
+  <a href="http://pyformex.org">
+  <img src="../_static/scallop_dome_small.png" alt="scallop dome" border="0" hspace="20" vspace="12" align="left" />
+  <img src="../_static/pyformex-logo-2.png" alt="pyformex logo" border="0" hspace="10" vspace="8" align="left" />
+  </a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">config</a></li--> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<!-- PYFORMEX_SIDEBAR_LOGO -->
+<!-- PYFORMEX_WEBSITE_SIDEBAR_TOP -->
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for config</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1">##</span>
+<span class="c1">##  SPDX-FileCopyrightText: © 2007-2023 Benedict Verhegghe &lt;bverheg@gmail.com&gt;</span>
+<span class="c1">##  SPDX-License-Identifier: GPL-3.0-or-later</span>
+<span class="c1">##</span>
+<span class="c1">##  This file is part of pyFormex 3.3  (Sun Mar 26 20:16:15 CEST 2023)</span>
+<span class="c1">##  pyFormex is a tool for generating, manipulating and transforming 3D</span>
+<span class="c1">##  geometrical models by sequences of mathematical operations.</span>
+<span class="c1">##  Home page: https://pyformex.org</span>
+<span class="c1">##  Project page: https://savannah.nongnu.org/projects/pyformex/</span>
+<span class="c1">##  Development: https://gitlab.com/bverheg/pyformex</span>
+<span class="c1">##  Distributed under the GNU General Public License version 3 or later.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is free software: you can redistribute it and/or modify</span>
+<span class="c1">##  it under the terms of the GNU General Public License as published by</span>
+<span class="c1">##  the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1">##  (at your option) any later version.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is distributed in the hope that it will be useful,</span>
+<span class="c1">##  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1">##  GNU General Public License for more details.</span>
+<span class="c1">##</span>
+<span class="c1">##  You should have received a copy of the GNU General Public License</span>
+<span class="c1">##  along with this program.  If not, see http://www.gnu.org/licenses/.</span>
+<span class="c1">##</span>
+<span class="sd">&quot;&quot;&quot;A general yet simple configuration class.</span>
+
+<span class="sd">| (C) 2005, 2021 Benedict Verhegghe</span>
+<span class="sd">| Distributed under the GNU GPL version 3 or later</span>
+
+<span class="sd">Why</span>
+<span class="sd">   I wrote this simple class because I wanted to use Python</span>
+<span class="sd">   expressions in my configuration files. This is so much more fun</span>
+<span class="sd">   than using .INI style config files.  While there are some other</span>
+<span class="sd">   Python config modules available on the web, I couldn&#39;t find one</span>
+<span class="sd">   that suited my needs and my taste: either they are intended for</span>
+<span class="sd">   more complex configuration needs than mine, or they do not work</span>
+<span class="sd">   with the simple Python syntax I expected.</span>
+
+<span class="sd">What</span>
+<span class="sd">   Our Config class is just a normal Python dictionary which can hold</span>
+<span class="sd">   anything.  Fields can be accessed either as dictionary lookup</span>
+<span class="sd">   (config[&#39;foo&#39;]) or as object attributes (config.foo).  The class</span>
+<span class="sd">   provides a function for reading the dictionary from a flat text</span>
+<span class="sd">   (multiline string or file). I will always use the word &#39;file&#39;</span>
+<span class="sd">   hereafter, because that is what you usually will read the</span>
+<span class="sd">   configuration from.  Your configuration file can have named</span>
+<span class="sd">   sections. Sections are stored as other Python dicts inside the top</span>
+<span class="sd">   Config dictionary. The current version is limited to one level of</span>
+<span class="sd">   sectioning.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">pyformex.mydict</span> <span class="kn">import</span> <span class="n">Dict</span>
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">Path</span>
+
+
+<div class="viewcode-block" id="formatDict"><a class="viewcode-back" href="../ref/config.html#config.formatDict">[docs]</a><span class="k">def</span> <span class="nf">formatDict</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Format a Config in Python source representation.</span>
+
+<span class="sd">    Each (key,value) pair is formatted on a line of the form::</span>
+
+<span class="sd">       key = value</span>
+
+<span class="sd">    If all the keys are strings containing only characters that are</span>
+<span class="sd">    allowed in Python variable names, the resulting text is a legal</span>
+<span class="sd">    Python script to define the items in the dict. It can be stored</span>
+<span class="sd">    on a file and executed.</span>
+
+<span class="sd">    This format is the storage format of the Config class.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; print(formatDict({&#39;str&#39;:&#39;abc&#39;, &#39;path&#39;:Path(), &#39;int&#39;:4}))</span>
+<span class="sd">    str = &#39;abc&#39;</span>
+<span class="sd">    path = Path(&#39;.&#39;)</span>
+<span class="sd">    int = 4</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">)):</span>
+                <span class="n">s</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">v</span><span class="si">!r}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">Path</span><span class="p">):</span>
+                <span class="n">s</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2"> = Path(v!r)</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">s</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="k">return</span> <span class="n">s</span></div>
+
+
+<span class="c1"># TODO: Sections should have a read-only feature to avoid updating</span>
+<span class="c1">#       a default. Suppose a Config C1 has a section &#39;S&#39;,</span>
+<span class="c1">#       and an Config C2 has C1 as default, then</span>
+<span class="c1">#       C1[&#39;S/K&#39;] = V       will update section S in C1</span>
+<span class="c1">#       C2[&#39;S&#39;][&#39;K&#39;] = V    will also update section S in C1  !! UNWANTED</span>
+<span class="c1">#       C2[&#39;S/K&#39;] = V       will update section S in C2</span>
+
+<div class="viewcode-block" id="Section"><a class="viewcode-back" href="../ref/config.html#config.Section">[docs]</a><span class="k">class</span> <span class="nc">Section</span><span class="p">(</span><span class="n">Dict</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A class for storing a section in a :class:`Config`.</span>
+
+<span class="sd">    This is an empty class definition. It only exists to give the</span>
+<span class="sd">    sections another name.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># TODO: this is work in progress</span>
+    <span class="c1"># def __setitem__(self, key, val):</span>
+    <span class="c1">#     &quot;&quot;&quot;Allows items to be set as self[section/key] = val.</span>
+
+    <span class="c1">#     &quot;&quot;&quot;</span>
+    <span class="c1">#     raise ValueError(&quot;Can not change Section&quot;)</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="Config"><a class="viewcode-back" href="../ref/config.html#config.Config">[docs]</a><span class="k">class</span> <span class="nc">Config</span><span class="p">(</span><span class="n">Dict</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A configuration class allowing Python expressions in the input.</span>
+
+<span class="sd">    The Config class is a subclass of the :class:`Dict` mapping, which</span>
+<span class="sd">    provides access to items by either dict-style key lookup</span>
+<span class="sd">    ``config[&#39;foo&#39;]``, attribute syntax ``config.foo`` or call syntax</span>
+<span class="sd">    ``config(&#39;foo&#39;)``. Furthermore, the Dict class allows a default_factory</span>
+<span class="sd">    function to lookup in another Dict. This allows a chain of Config</span>
+<span class="sd">    objects: session_prefs -&gt; user_prefs -&gt; factory_defaults.</span>
+
+<span class="sd">    The Config class is different from its parent Dict class in two ways:</span>
+
+<span class="sd">    - Keys should only be strings that are valid Python variable names,</span>
+<span class="sd">      except that they can also contain a &#39;/&#39; character.</span>
+<span class="sd">      The &#39;/&#39; splits up the key in two parts: the first part becomes a</span>
+<span class="sd">      key in the Config, and its value is a :class:`Section` dict where</span>
+<span class="sd">      the values are stored with the second part of the key.</span>
+<span class="sd">      This allows for creating sections in the configuration. Currently</span>
+<span class="sd">      only one level of sectioning is allowed (keys can only have a single</span>
+<span class="sd">      &#39;/&#39; character.</span>
+
+<span class="sd">    - A Config instance can be initialized or updated with a text in</span>
+<span class="sd">      Python source style. This provides an easy way to store</span>
+<span class="sd">      configurations in files with Python style. The Config class also</span>
+<span class="sd">      provides a way to export its contents to such a Python source text:</span>
+<span class="sd">      updated configurations can thus be written back to a configuration</span>
+<span class="sd">      file. See Notes below for details.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data: dict or multiline string, optional</span>
+<span class="sd">        Data to initialize the Config. If a dict, all keys should follow</span>
+<span class="sd">        the rules for valid config keys formulated above.</span>
+<span class="sd">        If a multiline string, it should be an executable Python source</span>
+<span class="sd">        text, with the limitations and exceptions outlined in the Notes</span>
+<span class="sd">        below.</span>
+<span class="sd">    default: :class:`Config` object, optional</span>
+<span class="sd">        If provided, this object will be used as default lookup for</span>
+<span class="sd">        missing keys.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The configuration object can be initialized from a dict or from</span>
+<span class="sd">    a multiline string. Using a dict is obvious: one only has to obey</span>
+<span class="sd">    the restriction that keys should be valid Python variable names.</span>
+
+<span class="sd">    The format of the multiline config text is described hereafter.</span>
+<span class="sd">    This is also the format in which config files are written and</span>
+<span class="sd">    can be loaded.</span>
+
+<span class="sd">    All config lines should have the format: key = value, where key is a</span>
+<span class="sd">    string and value is a Python expression The first &#39;=&#39; character on the</span>
+<span class="sd">    line is the delimiter between key and value.  Blanks around both the</span>
+<span class="sd">    key and the value are stripped.  The value is then evaluated as a</span>
+<span class="sd">    Python expression and stored in a variable with name specified by the</span>
+<span class="sd">    key. This variable is available for use in subsequent configuration</span>
+<span class="sd">    lines. It is an error to use a variable before it is defined.  The</span>
+<span class="sd">    key,value pair is also stored in the Config dictionary, unless the key</span>
+<span class="sd">    starts with an underscore (&#39;_&#39;): this provides for local variables.</span>
+
+<span class="sd">    Lines starting with &#39;#&#39; are comments and are ignored, as are empty</span>
+<span class="sd">    and blank lines.  Lines ending with &#39;\&#39; are continued on the next</span>
+<span class="sd">    line.  A line starting with &#39;[&#39; starts a new section. A section is</span>
+<span class="sd">    nothing more than a Python dictionary inside the Config</span>
+<span class="sd">    dictionary. The section name is delimited by &#39;[&#39;and &#39;]&#39;. All</span>
+<span class="sd">    subsequent lines will be stored in the section dictionary instead</span>
+<span class="sd">    of the toplevel dictionary.</span>
+
+<span class="sd">    All other lines are executed as Python statements. This allows</span>
+<span class="sd">    e.g. for importing modules.</span>
+
+<span class="sd">    Whole dictionaries can be inserted at once in the Config with the</span>
+<span class="sd">    update() function.</span>
+
+<span class="sd">    All defined variables while reading config files remain available</span>
+<span class="sd">    for use in the config file statements, even over multiple calls to</span>
+<span class="sd">    the read() function. Variables inserted with addSection() will not</span>
+<span class="sd">    be available as individual variables though, but can be accessed as</span>
+<span class="sd">    ``self[&#39;name&#39;]``.</span>
+
+<span class="sd">    As far as the resulting Config contents is concerned, the following are</span>
+<span class="sd">    equivalent::</span>
+
+<span class="sd">       C.update({&#39;key&#39;:&#39;value&#39;})</span>
+<span class="sd">       C.read(&quot;key=&#39;value&#39;\\n&quot;)</span>
+
+<span class="sd">    There is an important difference though: the second line will make a</span>
+<span class="sd">    variable key (with value &#39;value&#39;) available in subsequent Config read()</span>
+<span class="sd">    method calls.</span>
+
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; C = Config(&#39;&#39;&#39;# A simple config example</span>
+<span class="sd">    ...     aa = &#39;bb&#39;</span>
+<span class="sd">    ...     bb = aa</span>
+<span class="sd">    ...     [cc]</span>
+<span class="sd">    ...     aa = &#39;aa&#39;    # yes ! comments are allowed)</span>
+<span class="sd">    ...     _n = 3       # local: will get stripped</span>
+<span class="sd">    ...     rng = list(range(_n))</span>
+<span class="sd">    ...     &#39;&#39;&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; C</span>
+<span class="sd">    Config({&#39;aa&#39;: &#39;bb&#39;, &#39;bb&#39;: &#39;bb&#39;, &#39;cc&#39;: Section({&#39;aa&#39;: &#39;aa&#39;, &#39;rng&#39;: [0, 1, 2]})})</span>
+<span class="sd">    &gt;&gt;&gt; C[&#39;aa&#39;]</span>
+<span class="sd">    &#39;bb&#39;</span>
+<span class="sd">    &gt;&gt;&gt; C[&#39;cc&#39;]</span>
+<span class="sd">    Section({&#39;aa&#39;: &#39;aa&#39;, &#39;rng&#39;: [0, 1, 2]})</span>
+<span class="sd">    &gt;&gt;&gt; C[&#39;cc/aa&#39;]</span>
+<span class="sd">    &#39;aa&#39;</span>
+<span class="sd">    &gt;&gt;&gt; C.keys()</span>
+<span class="sd">    [&#39;aa&#39;, &#39;bb&#39;, &#39;cc&#39;, &#39;cc/aa&#39;, &#39;cc/rng&#39;]</span>
+
+<span class="sd">    Create a new Config with default lookup in C</span>
+
+<span class="sd">    &gt;&gt;&gt; D = Config(default=C)</span>
+<span class="sd">    &gt;&gt;&gt; D</span>
+<span class="sd">    Config({})</span>
+<span class="sd">    &gt;&gt;&gt; D[&#39;aa&#39;]       # Get from C</span>
+<span class="sd">    &#39;bb&#39;</span>
+<span class="sd">    &gt;&gt;&gt; D[&#39;cc&#39;]       # Get from C</span>
+<span class="sd">    Section({&#39;aa&#39;: &#39;aa&#39;, &#39;rng&#39;: [0, 1, 2]})</span>
+<span class="sd">    &gt;&gt;&gt; D[&#39;cc/aa&#39;]            # Get from C</span>
+<span class="sd">    &#39;aa&#39;</span>
+<span class="sd">    &gt;&gt;&gt; D.get(&#39;cc/aa&#39;,&#39;zorro&#39;)      # but get method does not cascade!</span>
+<span class="sd">    &#39;zorro&#39;</span>
+<span class="sd">    &gt;&gt;&gt; D.keys()</span>
+<span class="sd">    []</span>
+
+<span class="sd">    Setting values in D will store them in D while C remains unchanged.</span>
+
+<span class="sd">    &gt;&gt;&gt; D[&#39;aa&#39;] = &#39;wel&#39;</span>
+<span class="sd">    &gt;&gt;&gt; D[&#39;dd&#39;] = &#39;hoe&#39;</span>
+<span class="sd">    &gt;&gt;&gt; D[&#39;cc/aa&#39;] = &#39;ziedewel&#39;</span>
+<span class="sd">    &gt;&gt;&gt; D</span>
+<span class="sd">    Config({&#39;aa&#39;: &#39;wel&#39;, &#39;dd&#39;: &#39;hoe&#39;, &#39;cc&#39;: Section({&#39;aa&#39;: &#39;ziedewel&#39;})})</span>
+<span class="sd">    &gt;&gt;&gt; C</span>
+<span class="sd">    Config({&#39;aa&#39;: &#39;bb&#39;, &#39;bb&#39;: &#39;bb&#39;, &#39;cc&#39;: Section({&#39;aa&#39;: &#39;aa&#39;, &#39;rng&#39;: [0, 1, 2]})})</span>
+<span class="sd">    &gt;&gt;&gt; D[&#39;cc/aa&#39;]</span>
+<span class="sd">    &#39;ziedewel&#39;</span>
+<span class="sd">    &gt;&gt;&gt; D[&#39;cc&#39;]</span>
+<span class="sd">    Section({&#39;aa&#39;: &#39;ziedewel&#39;})</span>
+<span class="sd">    &gt;&gt;&gt; D[&#39;cc/rng&#39;]</span>
+<span class="sd">    [0, 1, 2]</span>
+<span class="sd">    &gt;&gt;&gt; &#39;bb&#39; in D</span>
+<span class="sd">    False</span>
+<span class="sd">    &gt;&gt;&gt; &#39;cc/aa&#39; in D</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; &#39;cc/ee&#39; in D</span>
+<span class="sd">    False</span>
+<span class="sd">    &gt;&gt;&gt; D[&#39;cc/bb&#39;] = &#39;ok&#39;</span>
+<span class="sd">    &gt;&gt;&gt; D.keys()</span>
+<span class="sd">    [&#39;aa&#39;, &#39;dd&#39;, &#39;cc&#39;, &#39;cc/aa&#39;, &#39;cc/bb&#39;]</span>
+<span class="sd">    &gt;&gt;&gt; del D[&#39;aa&#39;]</span>
+<span class="sd">    &gt;&gt;&gt; del D[&#39;cc/aa&#39;]</span>
+<span class="sd">    &gt;&gt;&gt; D.keys()</span>
+<span class="sd">    [&#39;dd&#39;, &#39;cc&#39;, &#39;cc/bb&#39;]</span>
+<span class="sd">    &gt;&gt;&gt; D.sections()</span>
+<span class="sd">    [&#39;cc&#39;]</span>
+<span class="sd">    &gt;&gt;&gt; del D[&#39;cc&#39;]</span>
+<span class="sd">    &gt;&gt;&gt; D.keys()</span>
+<span class="sd">    [&#39;dd&#39;]</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_filename</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">{},</span> <span class="n">default</span><span class="o">=</span><span class="n">Dict</span><span class="o">.</span><span class="n">returnNone</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Creates a new Config instance.</span>
+
+<span class="sd">        The configuration can be initialized with a dictionary, or</span>
+<span class="sd">        with a variable that can be passed to the read() function.</span>
+<span class="sd">        The latter includes the name of a config file, or a multiline string</span>
+<span class="sd">        holding the contents of a configuration file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">default</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">data</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">Config</span><span class="o">.</span><span class="n">_filename</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+<div class="viewcode-block" id="Config.update"><a class="viewcode-back" href="../ref/config.html#config.Config.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">{},</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">removeLocals</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add a dictionary to the Config object.</span>
+
+<span class="sd">        The data, if specified, should be a valid Python dict.</span>
+<span class="sd">        If no name is specified, the data are added to the top dictionary</span>
+<span class="sd">        and will become attributes.</span>
+<span class="sd">        If a name is specified, the data are added to the named attribute,</span>
+<span class="sd">        which should be a dictionary. If the name does not specify a</span>
+<span class="sd">        dictionary, an empty one is created, deleting the existing attribute.</span>
+
+<span class="sd">        If a name is specified, but no data, the effect is to add a new</span>
+<span class="sd">        empty dictionary (section) with that name.</span>
+
+<span class="sd">        If removeLocals is set, keys starting with &#39;_&#39; are removed from the</span>
+<span class="sd">        data before updating the dictionary and not</span>
+<span class="sd">        included in the config. This behaviour can be changed by setting</span>
+<span class="sd">        removeLocals to false.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">removeLocals</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+                <span class="k">if</span> <span class="n">k</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;_&#39;</span><span class="p">:</span>
+                    <span class="k">del</span> <span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">name</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="bp">self</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">Section</span><span class="p">()</span>
+            <span class="bp">self</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_read_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lineno</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filename</span><span class="p">:</span>
+            <span class="n">where</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;config file </span><span class="si">{</span><span class="n">Config</span><span class="o">.</span><span class="n">_filename</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">where</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error in </span><span class="si">{</span><span class="n">where</span><span class="si">}</span><span class="s2"> line </span><span class="si">{</span><span class="n">lineno</span><span class="si">}</span><span class="s2">:</span><span class="se">\n</span><span class="si">{</span><span class="n">line</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Config.load"><a class="viewcode-back" href="../ref/config.html#config.Config.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read a configuration from a file in Config format.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filename: :term:`path_like`</span>
+<span class="sd">            Path of a text file in Config format.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Config</span>
+<span class="sd">            Returns the Config self, updated with the settings read from</span>
+<span class="sd">            the specified file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">Config</span><span class="o">.</span><span class="n">_filename</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">Config</span><span class="o">.</span><span class="n">_filename</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fil</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="n">debug</span><span class="p">)</span>
+        <span class="n">Config</span><span class="o">.</span><span class="n">_filename</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="Config.read"><a class="viewcode-back" href="../ref/config.html#config.Config.read">[docs]</a>    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">txt</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>  <span class="c1"># noqa: C901</span>
+        <span class="sd">&quot;&quot;&quot;Read a configuration from a file or text</span>
+
+<span class="sd">        `txt` is a sequence of strings. Any type that allows a loop like</span>
+<span class="sd">        ``for line in txt:``</span>
+<span class="sd">        to iterate over its text lines will do. This could be an open file, or</span>
+<span class="sd">        a multiline text after splitting on &#39;\\n&#39;.</span>
+
+<span class="sd">        The function will try to react intelligently if a string is passed as</span>
+<span class="sd">        argument. If the string contains at least one &#39;\\n&#39;, it will be</span>
+<span class="sd">        interpreted as a multiline string and be splitted on &#39;\\n&#39;.</span>
+<span class="sd">        Else, the string will be considered and a file with that name will</span>
+<span class="sd">        be opened. It is an error if the file does not exist or can not be</span>
+<span class="sd">        opened.</span>
+
+<span class="sd">        The function returns self, so that you can write: cfg = Config().</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">txt</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="ow">in</span> <span class="n">txt</span><span class="p">:</span>
+            <span class="c1"># It is a multiline string: config text</span>
+            <span class="c1"># Convert to list of strings</span>
+            <span class="n">Config</span><span class="o">.</span><span class="n">_filename</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">txt</span> <span class="o">=</span> <span class="n">txt</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># It is an open file or list of strings</span>
+            <span class="k">pass</span>
+
+        <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">contents</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">lineno</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">continuation</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">comments</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">txt</span><span class="p">:</span>
+            <span class="n">lineno</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">ls</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">comments</span><span class="p">:</span>
+                <span class="n">comments</span> <span class="o">=</span> <span class="n">ls</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">:]</span> <span class="o">!=</span> <span class="s1">&#39;&quot;&quot;&quot;&#39;</span>
+                <span class="n">ls</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">comments</span> <span class="o">=</span> <span class="n">ls</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;&quot;&quot;&quot;&#39;</span>
+
+            <span class="k">if</span> <span class="n">comments</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">ls</span><span class="p">)</span><span class="o">==</span><span class="mi">0</span> <span class="ow">or</span> <span class="n">ls</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;#&#39;</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="k">if</span> <span class="n">continuation</span><span class="p">:</span>
+                <span class="n">s</span> <span class="o">+=</span> <span class="n">ls</span>  <span class="c1"># noqa: F821</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">s</span> <span class="o">=</span> <span class="n">ls</span>
+
+            <span class="n">continuation</span> <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span>
+            <span class="k">if</span> <span class="n">s</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">:</span>
+                <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">continuation</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="k">if</span> <span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;[&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">contents</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">section</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">contents</span><span class="p">,</span> <span class="n">removeLocals</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="n">contents</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;]&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">i</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">read_error</span><span class="p">(</span><span class="n">lineno</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+                <span class="n">section</span> <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="n">i</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Starting new section &#39;</span><span class="si">{</span><span class="n">section</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;READ: &quot;</span><span class="o">+</span><span class="n">line</span><span class="p">)</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="n">s</span><span class="p">[:</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">read_error</span><span class="p">(</span><span class="n">lineno</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+                <span class="n">contents</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+                <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">contents</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">exec</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">contents</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">section</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">contents</span><span class="p">,</span> <span class="n">removeLocals</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Allows items to be set as self[section/key] = val.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">rfind</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">key</span><span class="p">:</span> <span class="n">val</span><span class="p">})</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">key</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">:]:</span> <span class="n">val</span><span class="p">},</span> <span class="n">key</span><span class="p">[:</span><span class="n">i</span><span class="p">])</span>
+
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Allows items to be addressed as self[key].</span>
+
+<span class="sd">        This is equivalent to the Dict lookup, except that items in</span>
+<span class="sd">        subsections can also be retrieved with a single key of the format</span>
+<span class="sd">        section/key.</span>
+<span class="sd">        While this lookup mechanism works for nested subsections, the syntax</span>
+<span class="sd">        for config files allows for only one level of sections!</span>
+<span class="sd">        Also beware that because of this functions, no &#39;/&#39; should be used</span>
+<span class="sd">        inside normal keys and sections names.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">rfind</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">key</span><span class="p">[:</span><span class="n">i</span><span class="p">]]</span>
+                <span class="k">if</span> <span class="n">d</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">key</span><span class="p">[:</span><span class="n">i</span><span class="p">])</span>
+                <span class="k">return</span> <span class="n">d</span><span class="p">[</span><span class="n">key</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">:]]</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__missing__</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="fm">__delitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Allows items to be deleted with del self[section/key].</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">rfind</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+                <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__delitem__</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">del</span> <span class="bp">self</span><span class="p">[</span><span class="n">key</span><span class="p">[:</span><span class="n">i</span><span class="p">]][</span><span class="n">key</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">:]]</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+
+    <span class="k">def</span> <span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Allows to test for a key or section/key&quot;&quot;&quot;</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">rfind</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__contains__</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">section</span> <span class="o">=</span> <span class="n">key</span><span class="p">[:</span><span class="n">i</span><span class="p">]</span>
+            <span class="k">return</span> <span class="p">(</span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__contains__</span><span class="p">(</span><span class="n">section</span><span class="p">)</span> <span class="ow">and</span>
+                    <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">section</span><span class="p">],</span> <span class="n">Section</span><span class="p">)</span> <span class="ow">and</span>
+                    <span class="n">key</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="n">section</span><span class="p">])</span>
+
+
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Format the Config in a way that can be read back.</span>
+
+<span class="sd">        This function is mostly used to format the data for writing it to</span>
+<span class="sd">        a configuration file. See the write() method.</span>
+
+<span class="sd">        The return value is a multiline string with Python statements that can</span>
+<span class="sd">        be read back through Python to recreate the Config data. Usually</span>
+<span class="sd">        this is done with the Config.read() method.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">Section</span><span class="p">):</span>
+                <span class="n">s</span> <span class="o">+=</span> <span class="n">formatDict</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span><span class="p">})</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">Section</span><span class="p">):</span>
+                <span class="n">s</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">[</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">]</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="n">s</span> <span class="o">+=</span> <span class="n">formatDict</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">s</span>
+
+
+<div class="viewcode-block" id="Config.write"><a class="viewcode-back" href="../ref/config.html#config.Config.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span>
+              <span class="n">header</span><span class="o">=</span><span class="s2">&quot;# Config written by pyFormex    -*- PYTHON -*-</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">,</span>
+              <span class="n">trailer</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"># End of config</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Write the config to the given file</span>
+
+<span class="sd">        The configuration data will be written to the file with the given name</span>
+<span class="sd">        in a text format that is both readable by humans and by the</span>
+<span class="sd">        Config.read() method.</span>
+
+<span class="sd">        The header and trailer arguments are strings that will be added at</span>
+<span class="sd">        the start and end of the outputfile. Make sure they are valid</span>
+<span class="sd">        Python statements (or comments) and that they contain the needed</span>
+<span class="sd">        line separators, if you want to be able to read it back.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">filename</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fil</span><span class="p">:</span>
+            <span class="n">fil</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
+            <span class="n">fil</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">fil</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">trailer</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">filename</span></div>
+
+
+<div class="viewcode-block" id="Config.keys"><a class="viewcode-back" href="../ref/config.html#config.Config.keys">[docs]</a>    <span class="k">def</span> <span class="nf">keys</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">descend</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the keys in the config.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        descend: bool, optional</span>
+<span class="sd">            If True (default) also reports the keys in Section objects with</span>
+<span class="sd">            the combined section/item keys. This is the proper use for a</span>
+<span class="sd">            Config with optional sections.</span>
+<span class="sd">            If False, no keys in sections are reported, only the section names.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">descend</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">Section</span><span class="p">):</span>
+                    <span class="n">keys</span> <span class="o">+=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">ki</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">ki</span> <span class="ow">in</span> <span class="n">v</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">keys</span></div>
+
+
+<div class="viewcode-block" id="Config.sections"><a class="viewcode-back" href="../ref/config.html#config.Config.sections">[docs]</a>    <span class="k">def</span> <span class="nf">sections</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the sections&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">Section</span><span class="p">)]</span></div></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+
+    <span class="kn">import</span> <span class="nn">doctest</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">())</span>
+
+<span class="c1"># End</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">config</a></li--> 
+      </ul>
+    </div>
+    <div class="footer">
+    <span class="left">
+        &copy; Copyright 2004-2023, Benedict Verhegghe.
+    </span>
+      Last updated on Mar 27, 2023.
+    <span class="right">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.4.3.
+    </span>
+    </div>
+  </body>
+</html>

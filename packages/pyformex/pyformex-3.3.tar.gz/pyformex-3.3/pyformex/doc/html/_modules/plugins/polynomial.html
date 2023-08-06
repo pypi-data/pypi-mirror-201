@@ -1,0 +1,424 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!--
+##
+##  This file is part of the pyFormex project.
+##  pyFormex is a tool for generating, manipulating and transforming 3D
+##  geometrical models by sequences of mathematical operations.
+##  Home page: http://pyformex.org
+##  Project page:  http://savannah.nongnu.org/projects/pyformex/
+##  Copyright (C) Benedict Verhegghe (benedict.verhegghe@ugent.be)
+##  Distributed under the GNU General Public License version 3 or later.
+##
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see http://www.gnu.org/licenses/.
+##
+-->
+    <title>plugins.polynomial &#8212; pyFormex 3.3 documentation</title>
+
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pyformex.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+<link rel="icon" type="image/png" href="../../_static/pyformex_fav.png" />
+
+  </head><body>
+
+<div class="header">
+  <a href="http://pyformex.org">
+  <img src="../../_static/scallop_dome_small.png" alt="scallop dome" border="0" hspace="20" vspace="12" align="left" />
+  <img src="../../_static/pyformex-logo-2.png" alt="pyformex logo" border="0" hspace="10" vspace="8" align="left" />
+  </a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">plugins.polynomial</a></li--> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<!-- PYFORMEX_SIDEBAR_LOGO -->
+<!-- PYFORMEX_WEBSITE_SIDEBAR_TOP -->
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for plugins.polynomial</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1">##</span>
+<span class="c1">##  SPDX-FileCopyrightText: © 2007-2023 Benedict Verhegghe &lt;bverheg@gmail.com&gt;</span>
+<span class="c1">##  SPDX-License-Identifier: GPL-3.0-or-later</span>
+<span class="c1">##</span>
+<span class="c1">##  This file is part of pyFormex 3.3  (Sun Mar 26 20:16:15 CEST 2023)</span>
+<span class="c1">##  pyFormex is a tool for generating, manipulating and transforming 3D</span>
+<span class="c1">##  geometrical models by sequences of mathematical operations.</span>
+<span class="c1">##  Home page: https://pyformex.org</span>
+<span class="c1">##  Project page: https://savannah.nongnu.org/projects/pyformex/</span>
+<span class="c1">##  Development: https://gitlab.com/bverheg/pyformex</span>
+<span class="c1">##  Distributed under the GNU General Public License version 3 or later.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is free software: you can redistribute it and/or modify</span>
+<span class="c1">##  it under the terms of the GNU General Public License as published by</span>
+<span class="c1">##  the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1">##  (at your option) any later version.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is distributed in the hope that it will be useful,</span>
+<span class="c1">##  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1">##  GNU General Public License for more details.</span>
+<span class="c1">##</span>
+<span class="c1">##  You should have received a copy of the GNU General Public License</span>
+<span class="c1">##  along with this program.  If not, see http://www.gnu.org/licenses/.</span>
+<span class="c1">##</span>
+<span class="c1">#</span>
+
+<span class="sd">&quot;&quot;&quot;Polynomials</span>
+
+<span class="sd">This module defines the class Polynomial, representing a polynomial</span>
+<span class="sd">in n variables.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">arraytools</span> <span class="k">as</span> <span class="n">at</span>
+
+<div class="viewcode-block" id="Polynomial"><a class="viewcode-back" href="../../ref/plugins.polynomial.html#plugins.polynomial.Polynomial">[docs]</a><span class="k">class</span> <span class="nc">Polynomial</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;A polynomial in `n` dimensions.</span>
+
+<span class="sd">    An n-dimensional polynomial is the sum of `nterms` terms, where each</span>
+<span class="sd">    term is the product of a coefficient (a float constant) and a monomial</span>
+<span class="sd">    in the `n` variables. A monomial is the product of each of the variables</span>
+<span class="sd">    raised to a specific exponent. For example, in a 2-dim space, a</span>
+<span class="sd">    polynomial in (x,y) could be::</span>
+
+<span class="sd">        2 + 3 * x - x * y - y**2</span>
+
+<span class="sd">    This contains four terms. We store the monomials as an int array with</span>
+<span class="sd">    shape (nterms, ndim) specifying for each term the exponents of each of</span>
+<span class="sd">    the variables in the monomial. For the above example this becomes:</span>
+<span class="sd">    [(0,0), (1,0), (1,1), 0,1)]. The `nterms` coefficients are stored</span>
+<span class="sd">    as floats: [2.0, 3.0, -1.0, -1.0].</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    exp: :term:`array_like`</span>
+<span class="sd">        An int array of shape (nterms,ndim) with the exponents of each of</span>
+<span class="sd">        the ndim variables in each of the nterms terms of the polynomial.</span>
+<span class="sd">    coeff: :term:`array_like`</span>
+<span class="sd">        A float array with the coefficients of the terms.</span>
+<span class="sd">        If not specified, all coefficients are set to 1.</span>
+<span class="sd">    symbol:str, optional</span>
+<span class="sd">        A string of length at least `ndim` with the symbols to be used</span>
+<span class="sd">        for each of the `ndim` independent variables. The default</span>
+<span class="sd">        is set for a 3-d polynomial.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; p = Polynomial([(0,0),(1,0),(1,1),(0,2)],(2,3,-1,-1))</span>
+<span class="sd">    &gt;&gt;&gt; p.exp</span>
+<span class="sd">    array([[0, 0],</span>
+<span class="sd">           [1, 0],</span>
+<span class="sd">           [1, 1],</span>
+<span class="sd">           [0, 2]])</span>
+<span class="sd">    &gt;&gt;&gt; p.coeff</span>
+<span class="sd">    array([ 2.,  3., -1., -1.])</span>
+<span class="sd">    &gt;&gt;&gt; print(p.atoms())</span>
+<span class="sd">    [&#39;1&#39;, &#39;x&#39;, &#39;x*y&#39;, &#39;y**2&#39;]</span>
+<span class="sd">    &gt;&gt;&gt; print(p)</span>
+<span class="sd">    2.0 +3.0*x -1.0*x*y -1.0*y**2</span>
+<span class="sd">    &gt;&gt;&gt; print(repr(p))</span>
+<span class="sd">    Polynomial([[0, 0], [1, 0], [1, 1], [0, 2]], [2.0, 3.0, -1.0, -1.0], &#39;xyz&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; print(Polynomial([(2,0), (1,1), (0,2)], (1,2,1), &#39;ab&#39;))</span>
+<span class="sd">    a**2 +2.0*a*b +b**2</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exp</span><span class="p">,</span> <span class="n">coeff</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">symbol</span><span class="o">=</span><span class="s1">&#39;xyz&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create an n-d polynomial&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exp</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">checkArray</span><span class="p">(</span><span class="n">exp</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;i&#39;</span><span class="p">,</span> <span class="n">ndim</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">coeff</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">coeff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nterms</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">coeff</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">checkArray</span><span class="p">(</span><span class="n">coeff</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nterms</span><span class="p">,),</span> <span class="s1">&#39;f&#39;</span><span class="p">,</span> <span class="s1">&#39;i&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">symbol</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">ndim</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Insufficient symbols for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ndim</span><span class="si">}</span><span class="s2">-dim Polynimial&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">symbol</span> <span class="o">=</span> <span class="n">symbol</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">nterms</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">exp</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ndim</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">exp</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="Polynomial.degrees"><a class="viewcode-back" href="../../ref/plugins.polynomial.html#plugins.polynomial.Polynomial.degrees">[docs]</a>    <span class="k">def</span> <span class="nf">degrees</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the degree of the polynomial in each of the dimensions.</span>
+
+<span class="sd">        The degree is the maximal exponent for each of the dimensions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">exp</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Polynomial.degree"><a class="viewcode-back" href="../../ref/plugins.polynomial.html#plugins.polynomial.Polynomial.degree">[docs]</a>    <span class="k">def</span> <span class="nf">degree</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the total degree of the polynomial.</span>
+
+<span class="sd">        The degree is the sum of the degrees for all dimensions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">degrees</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Polynomial.atoms"><a class="viewcode-back" href="../../ref/plugins.polynomial.html#plugins.polynomial.Polynomial.atoms">[docs]</a>    <span class="k">def</span> <span class="nf">atoms</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a human representation of the monomials</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of str</span>
+<span class="sd">            A list of the monomials in the Polynomial</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; Polynomial([(0,0),(1,0),(1,1),(0,2)]).atoms()</span>
+<span class="sd">        [&#39;1&#39;, &#39;x&#39;, &#39;x*y&#39;, &#39;y**2&#39;]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">monomial</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">symbol</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">exp</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="Polynomial.human"><a class="viewcode-back" href="../../ref/plugins.polynomial.html#plugins.polynomial.Polynomial.human">[docs]</a>    <span class="k">def</span> <span class="nf">human</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a human representation</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str:</span>
+<span class="sd">            A string representation of the Polynomial</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; Polynomial([(0,0),(1,0),(1,1),(0,2)]).human()</span>
+<span class="sd">        &#39;1 +x +x*y +y**2&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mon</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">atoms</span><span class="p">()</span>
+        <span class="n">mon</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">c</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;*&#39;</span><span class="o">+</span><span class="n">m</span> <span class="k">if</span> <span class="n">c</span> <span class="o">!=</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">m</span> <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coeff</span><span class="p">,</span> <span class="n">mon</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="s1">&#39; +&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mon</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;*1&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;+-&#39;</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">)</span></div>
+
+    <span class="fm">__str__</span> <span class="o">=</span> <span class="n">human</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Polynomial(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">exp</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">coeff</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span><span class="si">}</span><span class="s2">, &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">symbol</span><span class="si">!r}</span><span class="s2">)&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Polynomial.evalAtoms"><a class="viewcode-back" href="../../ref/plugins.polynomial.html#plugins.polynomial.Polynomial.evalAtoms">[docs]</a>    <span class="k">def</span> <span class="nf">evalAtoms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Evaluate the monomials at the given points</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x: :term:`array_like`</span>
+<span class="sd">            An (npoints,ndim) array of points where the polynomial is to</span>
+<span class="sd">            be evaluated.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        array</span>
+<span class="sd">            The (npoints,nterms) array of values of the `nterms` monomials</span>
+<span class="sd">            at the `npoints` points.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; p = Polynomial([(0,0),(1,0),(1,1),(0,2)],(2,3,-1,-1))</span>
+<span class="sd">        &gt;&gt;&gt; p.evalAtoms([[1,2],[3,0],[2,1]])</span>
+<span class="sd">        array([[1., 1., 2., 4.],</span>
+<span class="sd">               [1., 3., 0., 0.],</span>
+<span class="sd">               [1., 2., 2., 1.]])</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">checkArray</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ndim</span><span class="p">),</span> <span class="s1">&#39;f&#39;</span><span class="p">,</span> <span class="s1">&#39;i&#39;</span><span class="p">)</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">([(</span><span class="bp">self</span><span class="o">.</span><span class="n">symbol</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">x</span><span class="p">[:,</span> <span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ndim</span><span class="p">)])</span>
+        <span class="n">atoms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">atoms</span><span class="p">()</span>
+        <span class="n">aa</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">atoms</span><span class="p">)),</span> <span class="n">at</span><span class="o">.</span><span class="n">Float</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">atoms</span><span class="p">):</span>
+            <span class="n">aa</span><span class="p">[:,</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">g</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">aa</span></div>
+
+
+<div class="viewcode-block" id="Polynomial.eval"><a class="viewcode-back" href="../../ref/plugins.polynomial.html#plugins.polynomial.Polynomial.eval">[docs]</a>    <span class="k">def</span> <span class="nf">eval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Evaluate the polynomial at the given points</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x: :term:`array_like`</span>
+<span class="sd">            An (npoints,ndim) array of points where the polynomial is to</span>
+<span class="sd">            be evaluated.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        array</span>
+<span class="sd">            The value of the polynomial at the `npoints` points.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; p = Polynomial([(0,0),(1,0),(1,1),(0,2)],(2,3,-1,-1))</span>
+<span class="sd">        &gt;&gt;&gt; print(p.eval([[1,2],[3,0],[2,1]]))</span>
+<span class="sd">        [-1. 11.  5.]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">terms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">evalAtoms</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coeff</span><span class="o">*</span><span class="n">terms</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span></div></div>
+
+
+<span class="c1"># def polynomial(atoms, x, y=0, z=0):</span>
+<span class="c1">#     &quot;&quot;&quot;Build a matrix of functions of coords.</span>
+
+<span class="c1">#     - `atoms`: a list of text strings representing a mathematical function of</span>
+<span class="c1">#       `x`, and possibly of `y` and `z`.</span>
+<span class="c1">#     - `x`, `y`, `z`: a list of x- (and optionally y-, z-) values at which the</span>
+<span class="c1">#       `atoms` will be evaluated. The lists should have the same length.</span>
+
+<span class="c1">#     Returns a matrix with `nvalues` rows and `natoms` colums.</span>
+<span class="c1">#     &quot;&quot;&quot;</span>
+<span class="c1">#     aa = np.zeros((len(x), len(atoms)), Float)</span>
+<span class="c1">#     for k, a in enumerate(atoms):</span>
+<span class="c1">#         aa[:, k] = eval(a)</span>
+<span class="c1">#     return aa</span>
+
+
+<div class="viewcode-block" id="factor"><a class="viewcode-back" href="../../ref/plugins.polynomial.html#plugins.polynomial.factor">[docs]</a><span class="k">def</span> <span class="nf">factor</span><span class="p">(</span><span class="n">sym</span><span class="p">,</span> <span class="n">exp</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return a string with a variable to some exponent</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    sum: str</span>
+<span class="sd">        The name of the variable</span>
+<span class="sd">    exp: int</span>
+<span class="sd">        The exponent to which the variable is raised</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str:</span>
+<span class="sd">        The expression with the variable `sym` raised to the power `exp`.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; factor(&#39;x&#39;, 3), factor(&#39;y&#39;, 1), factor(&#39;z&#39;, 0)</span>
+<span class="sd">    (&#39;x**3&#39;, &#39;y&#39;, &#39;1&#39;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">exp</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">&#39;1&#39;</span>
+    <span class="k">elif</span> <span class="n">exp</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">sym</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">sym</span><span class="o">+</span><span class="s1">&#39;**&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">exp</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="monomial"><a class="viewcode-back" href="../../ref/plugins.polynomial.html#plugins.polynomial.monomial">[docs]</a><span class="k">def</span> <span class="nf">monomial</span><span class="p">(</span><span class="n">exp</span><span class="p">,</span> <span class="n">symbol</span><span class="o">=</span><span class="s1">&#39;xyz&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return the monomial for the given exponents.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    exp: tuple of int</span>
+<span class="sd">        The integer exponents to which to raise the ndim independent variables.</span>
+<span class="sd">    symbol: str</span>
+<span class="sd">        A string of at least the same length as `exp`, containing the</span>
+<span class="sd">        variables to use for each of the ndim independent variables.</span>
+<span class="sd">        The default is set for a 3-dimensional space.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        A string representation of a monomial created by raising</span>
+<span class="sd">        the symbols to the corresponding exponent.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; monomial((2,1))</span>
+<span class="sd">    &#39;x**2*y&#39;</span>
+<span class="sd">    &gt;&gt;&gt; monomial((0,3,2))</span>
+<span class="sd">    &#39;y**3*z**2&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">factors</span> <span class="o">=</span> <span class="p">[</span><span class="n">factor</span><span class="p">(</span><span class="n">symbol</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">j</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">exp</span><span class="p">)]</span>
+    <span class="c1"># Join and sanitize (note we do not have &#39;**1&#39;)</span>
+    <span class="k">return</span> <span class="s1">&#39;*&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">factors</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;1*&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;*1&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span></div>
+
+<span class="c1"># End</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">plugins.polynomial</a></li--> 
+      </ul>
+    </div>
+    <div class="footer">
+    <span class="left">
+        &copy; Copyright 2004-2023, Benedict Verhegghe.
+    </span>
+      Last updated on Mar 27, 2023.
+    <span class="right">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.4.3.
+    </span>
+    </div>
+  </body>
+</html>

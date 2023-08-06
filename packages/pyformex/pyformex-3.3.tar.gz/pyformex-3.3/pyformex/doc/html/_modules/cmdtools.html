@@ -1,0 +1,510 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!--
+##
+##  This file is part of the pyFormex project.
+##  pyFormex is a tool for generating, manipulating and transforming 3D
+##  geometrical models by sequences of mathematical operations.
+##  Home page: http://pyformex.org
+##  Project page:  http://savannah.nongnu.org/projects/pyformex/
+##  Copyright (C) Benedict Verhegghe (benedict.verhegghe@ugent.be)
+##  Distributed under the GNU General Public License version 3 or later.
+##
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see http://www.gnu.org/licenses/.
+##
+-->
+    <title>cmdtools &#8212; pyFormex 3.3 documentation</title>
+
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pyformex.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+<link rel="icon" type="image/png" href="../_static/pyformex_fav.png" />
+
+  </head><body>
+
+<div class="header">
+  <a href="http://pyformex.org">
+  <img src="../_static/scallop_dome_small.png" alt="scallop dome" border="0" hspace="20" vspace="12" align="left" />
+  <img src="../_static/pyformex-logo-2.png" alt="pyformex logo" border="0" hspace="10" vspace="8" align="left" />
+  </a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">cmdtools</a></li--> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<!-- PYFORMEX_SIDEBAR_LOGO -->
+<!-- PYFORMEX_WEBSITE_SIDEBAR_TOP -->
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for cmdtools</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1">##</span>
+<span class="c1">##  SPDX-FileCopyrightText: © 2007-2023 Benedict Verhegghe &lt;bverheg@gmail.com&gt;</span>
+<span class="c1">##  SPDX-License-Identifier: GPL-3.0-or-later</span>
+<span class="c1">##</span>
+<span class="c1">##  This file is part of pyFormex 3.3  (Sun Mar 26 20:16:15 CEST 2023)</span>
+<span class="c1">##  pyFormex is a tool for generating, manipulating and transforming 3D</span>
+<span class="c1">##  geometrical models by sequences of mathematical operations.</span>
+<span class="c1">##  Home page: https://pyformex.org</span>
+<span class="c1">##  Project page: https://savannah.nongnu.org/projects/pyformex/</span>
+<span class="c1">##  Development: https://gitlab.com/bverheg/pyformex</span>
+<span class="c1">##  Distributed under the GNU General Public License version 3 or later.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is free software: you can redistribute it and/or modify</span>
+<span class="c1">##  it under the terms of the GNU General Public License as published by</span>
+<span class="c1">##  the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1">##  (at your option) any later version.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is distributed in the hope that it will be useful,</span>
+<span class="c1">##  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1">##  GNU General Public License for more details.</span>
+<span class="c1">##</span>
+<span class="c1">##  You should have received a copy of the GNU General Public License</span>
+<span class="c1">##  along with this program.  If not, see http://www.gnu.org/licenses/.</span>
+<span class="c1">##</span>
+
+<span class="c1"># This is the only pyFormex module that is imported by the main script,</span>
+<span class="c1"># so this is the place to put startup code</span>
+
+<span class="sd">&quot;&quot;&quot;pyFormex command line tools</span>
+
+<span class="sd">This module contains some command line tools that are run through the</span>
+<span class="sd">pyformex command, but do not start a full pyFormex program: just execute</span>
+<span class="sd">some small task and exit.</span>
+
+<span class="sd">Furthermore it contains some functions for handling the user preferences.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">import</span> <span class="nn">pyformex</span> <span class="k">as</span> <span class="nn">pf</span>
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">software</span>
+
+<span class="c1"># Note: This module and all of the above should NOT import numpy</span>
+
+
+<div class="viewcode-block" id="UninstallError"><a class="viewcode-back" href="../ref/cmdtools.html#cmdtools.UninstallError">[docs]</a><span class="k">class</span> <span class="nc">UninstallError</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">FatalError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Raised on invalid remove request&quot;&quot;&quot;</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="remove_pyFormex"><a class="viewcode-back" href="../ref/cmdtools.html#cmdtools.remove_pyFormex">[docs]</a><span class="k">def</span> <span class="nf">remove_pyFormex</span><span class="p">(</span><span class="n">pyformexdir</span><span class="p">,</span> <span class="n">executable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Remove the pyFormex installation.</span>
+
+<span class="sd">    This will remove a pyFormex installation that was done using</span>
+<span class="sd">    the &#39;python setup.py install&#39; command from a source distribution</span>
+<span class="sd">    in &#39;tar&#39;gz&#39; format.</span>
+<span class="sd">    The procedure is interactive and will ask for confirmation.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    pyformexdir: Path</span>
+<span class="sd">        Absolute Path to the pyFormex installation directory.</span>
+<span class="sd">    executable: Path</span>
+<span class="sd">        Path to the pyformex executable.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This implements the `pyformex --remove` functionality.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">executable</span><span class="o">.</span><span class="n">stem</span> <span class="o">==</span> <span class="s1">&#39;pyformex&#39;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">UninstallError</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">The --remove option can only be used from the pyformex command.</span>
+<span class="s2">Use the command: pyformex --remove.</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span> <span class="o">==</span> <span class="n">pyformexdir</span><span class="o">.</span><span class="n">parent</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">UninstallError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">pyFormex was loaded from: </span><span class="si">{</span><span class="n">pyformexdir</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">Your current working directory is: </span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">The --remove option can not be used from inside the pyformex</span>
+<span class="s2">package directory. Go to another working directory first.</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">installtype</span> <span class="o">==</span> <span class="s1">&#39;D&#39;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">UninstallError</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">It looks like this version of pyFormex was installed from a</span>
+<span class="s2">distribution .deb package. You should use your distribution&#39;s</span>
+<span class="s2">package tools to remove this pyFormex installation.</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">installtype</span> <span class="o">==</span> <span class="s1">&#39;G&#39;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">UninstallError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">It looks like you are running pyFormex directly from a source</span>
+<span class="s2">tree at </span><span class="si">{</span><span class="n">pyformexdir</span><span class="si">}</span><span class="s2">.</span>
+<span class="s2">I will not remove it. If you have enough privileges, you can</span>
+<span class="s2">just remove the whole source tree from the file system.</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">pyformexdir</span><span class="o">.</span><span class="n">is_absolute</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="n">UninstallError</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">The pyFormex installation path is not an absolute path.</span>
+<span class="s2">Probably you are executing this command from inside a pyFormex</span>
+<span class="s2">source directory. The &#39;pyformex --remove&#39; command should be</span>
+<span class="s2">executed from outside the source.</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+
+    <span class="c1"># If we get here, this is likely an install from tarball release</span>
+    <span class="c1"># Remove the installation</span>
+    <span class="n">installdir</span> <span class="o">=</span> <span class="n">pyformexdir</span><span class="o">.</span><span class="n">parent</span>
+    <span class="n">pyfver</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">pf</span><span class="o">.</span><span class="n">__prog__</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">pf</span><span class="o">.</span><span class="n">__version__</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">if</span> <span class="n">installdir</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="n">pyfver</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;INSTALLDIR = </span><span class="si">{installdir}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;VERSION = </span><span class="si">{pyfver}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Version doesn&#39;t match installdir&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">installtype</span> <span class="o">==</span> <span class="s1">&#39;U&#39;</span><span class="p">:</span>
+        <span class="c1"># installed in user space</span>
+        <span class="n">homedir</span> <span class="o">=</span> <span class="n">Path</span><span class="o">.</span><span class="n">home</span><span class="p">()</span>
+        <span class="n">bindir</span> <span class="o">=</span> <span class="n">homedir</span> <span class="o">/</span> <span class="s1">&#39;bin&#39;</span>
+    <span class="k">elif</span> <span class="n">pf</span><span class="o">.</span><span class="n">installtype</span> <span class="o">==</span> <span class="s1">&#39;R&#39;</span><span class="p">:</span>
+        <span class="c1"># installed in root space</span>
+        <span class="n">homedir</span> <span class="o">=</span> <span class="n">Path</span><span class="o">.</span><span class="n">home</span><span class="p">()</span>
+        <span class="n">bindir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;/usr/local/bin&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">pf</span><span class="o">.</span><span class="n">ImplementationError</span><span class="p">(</span><span class="s2">&quot;This should not happen&quot;</span><span class="p">)</span>
+    <span class="n">otherfiles</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">script</span> <span class="o">=</span> <span class="n">bindir</span> <span class="o">/</span> <span class="n">pyfver</span>
+    <span class="k">if</span> <span class="n">script</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">otherfiles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">script</span><span class="p">)</span>
+    <span class="n">script1</span> <span class="o">=</span> <span class="n">bindir</span> <span class="o">/</span> <span class="s1">&#39;pyformex&#39;</span>
+    <span class="n">is_default</span> <span class="o">=</span> <span class="n">script1</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="n">script1</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span> <span class="o">==</span> <span class="n">script</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">is_default</span><span class="p">:</span>
+        <span class="n">otherfiles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">script1</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;#&#39;</span><span class="o">*</span><span class="mi">72</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s2">Beware: this procedure will:</span>
+<span class="s2">- remove the complete pyFormex installation from:</span>
+<span class="s2">  </span><span class="si">{</span><span class="n">installdir</span><span class="si">}</span><span class="s2"></span>
+<span class="s2">- remove the pyFormex executable located at </span><span class="si">{</span><span class="n">script</span><span class="si">}</span><span class="se">\</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">is_default</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- remove the default pyFormex executable </span><span class="si">{</span><span class="n">script1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;#&#39;</span><span class="o">*</span><span class="mi">72</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s2">You should use this only if pyFormex was installed from source with</span>
+<span class="s2">the command ./install.sh. You need proper permissions to actually</span>
+<span class="s2">delete the files. After successful removal, you will not be able</span>
+<span class="s2">to run this pyFormex again, unless you re-install it.</span><span class="se">\</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">is_default</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s2">If you have another pyFormex version installed (with install.sh),</span>
+<span class="s2">you can make that the default by running:</span>
+<span class="s2">pyformex-VERSION --make_default</span><span class="se">\</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Are you sure you want to remove </span><span class="si">{</span><span class="n">pyfver</span><span class="si">}</span><span class="s2">? yes/NO: &quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">s</span> <span class="o">==</span> <span class="s1">&#39;yes&#39;</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Removing pyformex tree: </span><span class="si">{</span><span class="n">installdir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">installdir</span><span class="o">.</span><span class="n">removeTree</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">otherfiles</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Removing </span><span class="si">{</span><span class="n">f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">Path</span><span class="p">(</span><span class="n">f</span><span class="p">)</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not remove </span><span class="si">{</span><span class="n">f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Bye, bye! I won&#39;t be back until you reinstall me!&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">s</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;y&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">s</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;Y&#39;</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;You need to type exactly &#39;yes&#39; to remove me.&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Thanks for letting me stay this time.&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="list_modules"><a class="viewcode-back" href="../ref/cmdtools.html#cmdtools.list_modules">[docs]</a><span class="k">def</span> <span class="nf">list_modules</span><span class="p">(</span><span class="n">pkgs</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;all&#39;</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;Return the list of pure Python modules in a pyFormex subpackage.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    pkgs: list of str</span>
+<span class="sd">        A list of pyFormex subpackage names. The subpackage name is a</span>
+<span class="sd">        subdirectory of the main pyformex package directory.</span>
+<span class="sd">        Two special package names are recognized:</span>
+
+<span class="sd">        - &#39;core&#39;: returns the modules in the top level pyformex package</span>
+<span class="sd">        - &#39;all&#39;: returns all pyFormex modules</span>
+
+<span class="sd">        An empty list is interpreted as [&#39;all&#39;].</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of str</span>
+<span class="sd">        A list of all modules in the specified packages.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This implements the ``pyformex --listmodules`` functionality.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">modules</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">pkgs</span> <span class="o">==</span> <span class="p">[]:</span>
+        <span class="n">pkgs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;all&#39;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">subpkg</span> <span class="ow">in</span> <span class="n">pkgs</span><span class="p">:</span>
+        <span class="n">modules</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">moduleList</span><span class="p">(</span><span class="n">subpkg</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">modules</span></div>
+
+
+<div class="viewcode-block" id="run_pytest"><a class="viewcode-back" href="../ref/cmdtools.html#cmdtools.run_pytest">[docs]</a><span class="k">def</span> <span class="nf">run_pytest</span><span class="p">(</span><span class="n">modules</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Run the pytests for the specified pyFormex modules.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    modules: list of str</span>
+<span class="sd">        A list of pyFormex modules in dotted Python notation,</span>
+<span class="sd">        relative to the pyFormex package. If an empty list is supplied,</span>
+<span class="sd">        all available pytests will be run.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Test modules are stored under the path `pf.cfg[&#39;testdir&#39;]`, with the</span>
+<span class="sd">    same hierarchy as the pyFormex source modules, and are named</span>
+<span class="sd">    `test_MODULE.py`, where MODULE is the corresponding source module.</span>
+
+<span class="sd">    This implements the `pyformex --pytest` functionality.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">import</span> <span class="nn">pytest</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Can not import pytest&quot;</span><span class="p">)</span>
+        <span class="k">pass</span>
+
+    <span class="c1">#warnings.filterwarnings(&quot;always&quot;, category=DeprecationWarning)</span>
+    <span class="c1">#warnings.filterwarnings(&quot;always&quot;, category=PendingDeprecationWarning)</span>
+
+    <span class="n">testpath</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;testdir&#39;</span><span class="p">]</span>
+    <span class="c1">#print(f&quot;TESTPATH={testpath}&quot;)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;--maxfail=10&#39;</span><span class="p">,</span> <span class="s1">&#39;-W&#39;</span><span class="p">,</span> <span class="s1">&#39;always::DeprecationWarning&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">modules</span><span class="p">:</span>
+        <span class="n">pytest</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="n">args</span> <span class="o">+</span> <span class="p">[</span><span class="n">testpath</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Running pytests for modules </span><span class="si">{</span><span class="n">modules</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="o">*</span><span class="n">m</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">))</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">testpath</span> <span class="o">/</span> <span class="n">path</span><span class="o">.</span><span class="n">with_name</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;test_</span><span class="si">{</span><span class="n">path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.py&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="n">pytest</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="n">args</span> <span class="o">+</span> <span class="p">[</span><span class="n">path</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No such test module: </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="run_doctest"><a class="viewcode-back" href="../ref/cmdtools.html#cmdtools.run_doctest">[docs]</a><span class="k">def</span> <span class="nf">run_doctest</span><span class="p">(</span><span class="n">modules</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Run the doctests for the specified pyFormex modules.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    modules: list of str</span>
+<span class="sd">        A list of pyFormex modules in dotted Python notation,</span>
+<span class="sd">        relative to the pyFormex package. If an empty list is supplied,</span>
+<span class="sd">        all doctests in all pyFormex modules will be run.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Doctests are tests embedded in the docstrings of the Python source.</span>
+
+<span class="sd">    To allow consistent output of floats independent of machine precision,</span>
+<span class="sd">    numpy&#39;s floating point print precision is set to two decimals.</span>
+
+<span class="sd">    This implements the `pyformex --doctest` functionality.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">numpy</span>
+    <span class="n">numpy</span><span class="o">.</span><span class="n">set_printoptions</span><span class="p">(</span><span class="n">precision</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">suppress</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">arraytools</span>
+    <span class="n">numpy</span><span class="o">.</span><span class="n">set_string_function</span><span class="p">(</span><span class="n">arraytools</span><span class="o">.</span><span class="n">array2str</span><span class="p">)</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">doctest</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="nb">print</span>
+    <span class="c1"># safe_verbosityset verbosity to 0</span>
+    <span class="c1"># pf.options.verbose = 0</span>
+    <span class="c1"># This has to be run from parentdir</span>
+    <span class="n">save_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span>
+    <span class="n">run_dir</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">pyformexdir</span><span class="o">.</span><span class="n">parent</span>
+    <span class="c1"># we need a writable workdir</span>
+    <span class="k">if</span> <span class="n">save_dir</span><span class="o">.</span><span class="n">is_writable_dir</span><span class="p">():</span>
+        <span class="n">work_dir</span> <span class="o">=</span> <span class="n">save_dir</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">work_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="o">.</span><span class="n">home</span><span class="p">()</span> <span class="o">/</span> <span class="s1">&#39;.local&#39;</span> <span class="o">/</span> <span class="s1">&#39;pyformex&#39;</span> <span class="o">/</span> <span class="s1">&#39;workdir&#39;</span>
+        <span class="n">Path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">run_dir</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">modules</span><span class="p">:</span>
+        <span class="n">modules</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;all&#39;</span><span class="p">]</span>
+    <span class="n">todo</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">mod</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">mod</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;all&#39;</span><span class="p">]</span> <span class="ow">or</span> <span class="n">mod</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">):</span>
+            <span class="n">todo</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">moduleList</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">todo</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mod</span><span class="p">)</span>
+
+    <span class="c1"># Temporary hack moving &#39;software&#39; module to the end,</span>
+    <span class="c1"># as it causes failures for some other modules</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="s1">&#39;software&#39;</span>
+    <span class="k">if</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">todo</span><span class="p">:</span>
+        <span class="n">todo</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+        <span class="n">todo</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+
+    <span class="c1"># Remove modules that we can not test:</span>
+    <span class="n">todo</span> <span class="o">=</span> <span class="p">[</span><span class="n">m</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">todo</span> <span class="k">if</span> <span class="s1">&#39;vtk&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">m</span><span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">software</span><span class="o">.</span><span class="n">Module</span><span class="o">.</span><span class="n">has</span><span class="p">(</span><span class="s1">&#39;meshio&#39;</span><span class="p">):</span>
+        <span class="n">todo</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s1">&#39;meshio&#39;</span><span class="p">)</span>
+
+    <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Final list of modules to test: </span><span class="si">{</span><span class="n">todo</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">DOCTEST</span><span class="p">)</span>
+    <span class="c1"># Now perform the tests</span>
+    <span class="n">FAILED</span><span class="p">,</span> <span class="n">failed</span><span class="p">,</span> <span class="n">attempted</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">work_dir</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">todo</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">doctest_module</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+            <span class="n">failed</span> <span class="o">+=</span> <span class="n">result</span><span class="o">.</span><span class="n">failed</span>
+            <span class="n">attempted</span> <span class="o">+=</span> <span class="n">result</span><span class="o">.</span><span class="n">attempted</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">verbosity</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">e</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;FAIL</span><span class="se">\n</span><span class="s2">  Failed because: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">FAILED</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Module </span><span class="si">{</span><span class="n">m</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">result</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">save_dir</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">todo</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="o">*</span><span class="mi">60</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Totals: attempted=</span><span class="si">{</span><span class="n">attempted</span><span class="si">}</span><span class="s2"> tests, failed=</span><span class="si">{</span><span class="n">failed</span><span class="si">}</span><span class="s2"> tests, &quot;</span>
+              <span class="sa">f</span><span class="s2">&quot;FAILED=</span><span class="si">{</span><span class="n">FAILED</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">todo</span><span class="p">)</span><span class="si">}</span><span class="s2"> modules&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="doctest_module"><a class="viewcode-back" href="../ref/cmdtools.html#cmdtools.doctest_module">[docs]</a><span class="k">def</span> <span class="nf">doctest_module</span><span class="p">(</span><span class="n">module</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Run the doctests in a single module&#39;s docstrings.</span>
+
+<span class="sd">    All the doctests in the docstrings of the specified module will be run.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    module: str</span>
+<span class="sd">        A pyFormex module in dotted path notation. The leading &#39;pyformex.&#39;</span>
+<span class="sd">        can be omitted.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">doctest</span>
+    <span class="kn">import</span> <span class="nn">importlib</span>
+    <span class="kn">import</span> <span class="nn">numpy</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">module</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;pyformex&#39;</span><span class="p">):</span>
+        <span class="n">module</span> <span class="o">=</span> <span class="s1">&#39;pyformex.&#39;</span> <span class="o">+</span> <span class="n">module</span>
+    <span class="n">mod</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
+    <span class="n">printoptions</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="s1">&#39;_numpy_printoptions_&#39;</span><span class="p">,</span> <span class="p">{})</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Always activate when running doctests</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="ne">DeprecationWarning</span><span class="p">)</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="ne">PendingDeprecationWarning</span><span class="p">)</span>
+
+        <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Running doctests on </span><span class="si">{</span><span class="n">mod</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">DOCTEST</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">numpy</span><span class="o">.</span><span class="n">printoptions</span><span class="p">(</span><span class="o">**</span><span class="n">printoptions</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">(</span>
+                <span class="n">mod</span><span class="p">,</span> <span class="n">optionflags</span><span class="o">=</span><span class="n">doctest</span><span class="o">.</span><span class="n">NORMALIZE_WHITESPACE</span> <span class="o">|</span> <span class="n">doctest</span><span class="o">.</span><span class="n">ELLIPSIS</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="migrateUserConfig"><a class="viewcode-back" href="../ref/cmdtools.html#cmdtools.migrateUserConfig">[docs]</a><span class="k">def</span> <span class="nf">migrateUserConfig</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Migrate the user preferences in $HOME/.config</span>
+
+<span class="sd">    Conversion of old style has been abandoned.</span>
+<span class="sd">    Currently this does nothing.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span></div>
+
+
+<span class="c1"># End</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">cmdtools</a></li--> 
+      </ul>
+    </div>
+    <div class="footer">
+    <span class="left">
+        &copy; Copyright 2004-2023, Benedict Verhegghe.
+    </span>
+      Last updated on Mar 27, 2023.
+    <span class="right">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.4.3.
+    </span>
+    </div>
+  </body>
+</html>

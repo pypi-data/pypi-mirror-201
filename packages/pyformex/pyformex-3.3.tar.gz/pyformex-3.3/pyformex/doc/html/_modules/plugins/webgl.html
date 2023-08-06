@@ -1,0 +1,889 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!--
+##
+##  This file is part of the pyFormex project.
+##  pyFormex is a tool for generating, manipulating and transforming 3D
+##  geometrical models by sequences of mathematical operations.
+##  Home page: http://pyformex.org
+##  Project page:  http://savannah.nongnu.org/projects/pyformex/
+##  Copyright (C) Benedict Verhegghe (benedict.verhegghe@ugent.be)
+##  Distributed under the GNU General Public License version 3 or later.
+##
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see http://www.gnu.org/licenses/.
+##
+-->
+    <title>plugins.webgl &#8212; pyFormex 3.3 documentation</title>
+
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pyformex.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+<link rel="icon" type="image/png" href="../../_static/pyformex_fav.png" />
+
+  </head><body>
+
+<div class="header">
+  <a href="http://pyformex.org">
+  <img src="../../_static/scallop_dome_small.png" alt="scallop dome" border="0" hspace="20" vspace="12" align="left" />
+  <img src="../../_static/pyformex-logo-2.png" alt="pyformex logo" border="0" hspace="10" vspace="8" align="left" />
+  </a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">plugins.webgl</a></li--> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<!-- PYFORMEX_SIDEBAR_LOGO -->
+<!-- PYFORMEX_WEBSITE_SIDEBAR_TOP -->
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for plugins.webgl</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1">##</span>
+<span class="c1">##  SPDX-FileCopyrightText: © 2007-2023 Benedict Verhegghe &lt;bverheg@gmail.com&gt;</span>
+<span class="c1">##  SPDX-License-Identifier: GPL-3.0-or-later</span>
+<span class="c1">##</span>
+<span class="c1">##  This file is part of pyFormex 3.3  (Sun Mar 26 20:16:15 CEST 2023)</span>
+<span class="c1">##  pyFormex is a tool for generating, manipulating and transforming 3D</span>
+<span class="c1">##  geometrical models by sequences of mathematical operations.</span>
+<span class="c1">##  Home page: https://pyformex.org</span>
+<span class="c1">##  Project page: https://savannah.nongnu.org/projects/pyformex/</span>
+<span class="c1">##  Development: https://gitlab.com/bverheg/pyformex</span>
+<span class="c1">##  Distributed under the GNU General Public License version 3 or later.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is free software: you can redistribute it and/or modify</span>
+<span class="c1">##  it under the terms of the GNU General Public License as published by</span>
+<span class="c1">##  the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1">##  (at your option) any later version.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is distributed in the hope that it will be useful,</span>
+<span class="c1">##  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1">##  GNU General Public License for more details.</span>
+<span class="c1">##</span>
+<span class="c1">##  You should have received a copy of the GNU General Public License</span>
+<span class="c1">##  along with this program.  If not, see http://www.gnu.org/licenses/.</span>
+<span class="c1">##</span>
+<span class="sd">&quot;&quot;&quot;View and manipulate 3D models in your browser.</span>
+
+<span class="sd">This module defines some classes and function to help with the creation</span>
+<span class="sd">of WebGL models. A WebGL model can be viewed directly from a compatible</span>
+<span class="sd">browser (see http://en.wikipedia.org/wiki/WebGL).</span>
+
+<span class="sd">A WebGL model typically consists out of an HTML file and a Javascript file,</span>
+<span class="sd">possibly also some geometry data files. The HTML file is loaded in the</span>
+<span class="sd">browser and starts the Javascript program, responsible for rendering the</span>
+<span class="sd">WebGL scene.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">import</span> <span class="nn">pyformex</span> <span class="k">as</span> <span class="nn">pf</span>
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">colors</span>
+<span class="kn">from</span> <span class="nn">pyformex.olist</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">intersection</span>
+<span class="kn">from</span> <span class="nn">pyformex.mydict</span> <span class="kn">import</span> <span class="n">Dict</span>
+<span class="kn">from</span> <span class="nn">pyformex.arraytools</span> <span class="kn">import</span> <span class="n">checkFloat</span><span class="p">,</span> <span class="n">checkArray</span><span class="p">,</span> <span class="n">checkInt</span>
+<span class="kn">from</span> <span class="nn">pyformex.mesh</span> <span class="kn">import</span> <span class="n">Mesh</span>
+<span class="kn">from</span> <span class="nn">pyformex.attributes</span> <span class="kn">import</span> <span class="n">Attributes</span>
+<span class="kn">from</span> <span class="nn">pyformex.geometry</span> <span class="kn">import</span> <span class="n">Geometry</span>
+
+
+<span class="n">exported_webgl</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="c1"># Formatting a controller for an attribute</span>
+<span class="c1">#   %N will be replaced with name of object,</span>
+<span class="c1">#   %A will be replaced with name of attribute,</span>
+
+<span class="n">controller_format</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;visible&#39;</span><span class="p">:</span> <span class="s2">&quot;add(%N,&#39;%A&#39;)&quot;</span><span class="p">,</span>
+    <span class="s1">&#39;opacity&#39;</span><span class="p">:</span> <span class="s2">&quot;add(%N,&#39;%A&#39;,0,1)&quot;</span><span class="p">,</span>
+    <span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="s2">&quot;addColor(%N,&#39;%A&#39;)&quot;</span>
+<span class="p">}</span>
+
+<span class="n">default_control</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;visible&#39;</span><span class="p">,</span> <span class="s1">&#39;opacity&#39;</span><span class="p">,</span> <span class="s1">&#39;color&#39;</span><span class="p">,</span> <span class="s1">&#39;face opacity&#39;</span><span class="p">,</span> <span class="s1">&#39;face color&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;show edges&#39;</span><span class="p">,</span> <span class="s1">&#39;edge opacity&#39;</span><span class="p">,</span> <span class="s1">&#39;edge color&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;show wires&#39;</span><span class="p">,</span> <span class="s1">&#39;wire opacity&#39;</span><span class="p">,</span> <span class="s1">&#39;wire color&#39;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="saneSettings"><a class="viewcode-back" href="../../ref/plugins.webgl.html#plugins.webgl.saneSettings">[docs]</a><span class="k">def</span> <span class="nf">saneSettings</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Sanitize sloppy settings for JavaScript output&quot;&quot;&quot;</span>
+    <span class="n">ok</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">ok</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">checkArray</span><span class="p">(</span><span class="n">k</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">],</span> <span class="p">(</span><span class="mi">3</span><span class="p">,),</span> <span class="s1">&#39;f&#39;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">checkInt</span><span class="p">(</span><span class="n">k</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;COLOR INDEX </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">c</span><span class="p">)</span>
+            <span class="n">colormap</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">colormap</span>
+            <span class="n">ok</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">colormap</span><span class="p">[</span><span class="n">c</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">colormap</span><span class="p">)]</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Unexpected color: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">k</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">])</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">ok</span><span class="p">[</span><span class="s1">&#39;alpha&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">checkFloat</span><span class="p">(</span><span class="n">k</span><span class="p">[</span><span class="s1">&#39;alpha&#39;</span><span class="p">],</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">ok</span><span class="p">[</span><span class="s1">&#39;caption&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">[</span><span class="s1">&#39;caption&#39;</span><span class="p">])</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">ok</span><span class="p">[</span><span class="s1">&#39;control&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">intersection</span><span class="p">(</span><span class="n">k</span><span class="p">[</span><span class="s1">&#39;control&#39;</span><span class="p">],</span> <span class="n">controller_format</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">return</span> <span class="n">ok</span></div>
+
+
+<div class="viewcode-block" id="properties"><a class="viewcode-back" href="../../ref/plugins.webgl.html#plugins.webgl.properties">[docs]</a><span class="k">def</span> <span class="nf">properties</span><span class="p">(</span><span class="n">o</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return properties of an object</span>
+
+<span class="sd">    properties are public attributes (not starting with an &#39;_&#39;) that</span>
+<span class="sd">    are not callable.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">dir</span><span class="p">(</span><span class="n">o</span><span class="p">))</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">callable</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">k</span><span class="p">))]</span>
+    <span class="k">return</span> <span class="n">utils</span><span class="o">.</span><span class="n">selectDict</span><span class="p">(</span><span class="n">o</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">,</span> <span class="n">keys</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="WebGL"><a class="viewcode-back" href="../../ref/plugins.webgl.html#plugins.webgl.WebGL">[docs]</a><span class="k">class</span> <span class="nc">WebGL</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;A class to export a 3D scene to WebGL.</span>
+
+<span class="sd">    Exporting a WebGL model creates:</span>
+
+<span class="sd">    - a HTML file calling some Javascript files. This file can be viewed</span>
+<span class="sd">      in a WebGL enabled browser (Firefox, Chrome, Safari)</span>
+<span class="sd">    - a Javascript file describing the model. This file relies an other</span>
+<span class="sd">      Javascript files to do the actual rendering and provide control menus.</span>
+<span class="sd">      The default rendering script is</span>
+<span class="sd">      https://net.feops.com/public/webgl/fewgl-0.2.js</span>
+<span class="sd">      and the gui toolkit is</span>
+<span class="sd">      https://net.feops.com/public/webgl/xtk_xdat.gui.js.</span>
+<span class="sd">      The user can replace them with scripts of his choice.</span>
+<span class="sd">    - a number of geometry files in pyFormex PGF format. These are normally</span>
+<span class="sd">      created automatically by the exportScene method. The user can optionally</span>
+<span class="sd">      add other files.</span>
+
+<span class="sd">    An example of its usage can be found in the WebGL example.</span>
+
+<span class="sd">    Parameters:</span>
+
+<span class="sd">    - `name`: string: the base name for the created HTML and JS files.</span>
+<span class="sd">    - `scripts`: a list of URLs pointing to scripts that will be needed</span>
+<span class="sd">      for the rendering of the scene.</span>
+<span class="sd">    - `bgcolor`: string: the background color of the rendered page. This</span>
+<span class="sd">      can be the name of a color or a hexadecimal WEB color string like</span>
+<span class="sd">      &#39;#F0A0F0&#39;.</span>
+<span class="sd">    - `title`: string: an optional title to be set in the .html file. If not</span>
+<span class="sd">      specified, the `name` is used.</span>
+<span class="sd">    - `description`, `keywords`, `author`: strings: if specified, these</span>
+<span class="sd">      will be added as meta tags to the generated .html file. The first two</span>
+<span class="sd">      have defaults if not specified.</span>
+<span class="sd">    - `htmlheader`: string: a string to be included in the header section</span>
+<span class="sd">      of the exported html file. It should be  al legal html string.</span>
+<span class="sd">    - `jsheader`: string: a string to be included at the start of</span>
+<span class="sd">      the javascript file. It should be a legal javascript text.</span>
+<span class="sd">      Usually, it is only used to insert comments, in which case</span>
+<span class="sd">      all lines should start with &#39;//&#39;, or the whole text should</span>
+<span class="sd">      be included in a &#39;/*&#39;, &#39;*/&#39; pair.</span>
+<span class="sd">    - `dataformat`: string: the extension of the data files used for storing</span>
+<span class="sd">      the geometry. This should be an extension supported by the webgl</span>
+<span class="sd">      rendering script.</span>
+<span class="sd">      The default (https://net.feops.com/public/webgl/fewgl-0.2.js&quot;)</span>
+<span class="sd">      will always support pyFormex native formats &#39;.pgf&#39; and &#39;.pgf.gz&#39;.</span>
+<span class="sd">      Some other formats (like .stl) may also be supported, but the use of</span>
+<span class="sd">      the native formats is prefered, because they are a lot smaller.</span>
+<span class="sd">      Default is to use the compressed &#39;.pgf.gz&#39; format.</span>
+<span class="sd">    - `urlprefix`: string: if specified, this string gets prepended to the</span>
+<span class="sd">      exported .js filename in the .html file, and to the datafiles in the</span>
+<span class="sd">      exported .js file. This can be used to serve the models from a web</span>
+<span class="sd">      server, where the html code is generated dynamically and the model</span>
+<span class="sd">      script and data can not be kept in the same location as the html.</span>
+<span class="sd">    - `gui`: bool: if True, a gui will be added to the model,</span>
+<span class="sd">      allowing some features to be changed interactively.</span>
+<span class="sd">    - `cleanup`: bool: if True, files in the output directory (the current</span>
+<span class="sd">      work directory) starting with the specified base name and having a name</span>
+<span class="sd">      structure used by the exported, will be deleted from the file system.</span>
+<span class="sd">      Currently, this includes files with name patterns NAME.html*, NAME.js*</span>
+<span class="sd">      NAME_*.pgf* and NAME_*.stl*.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">name</span><span class="o">=</span><span class="s1">&#39;Scene1&#39;</span><span class="p">,</span>
+                 <span class="n">scripts</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">bgcolor</span><span class="o">=</span><span class="s1">&#39;white&#39;</span><span class="p">,</span>
+                 <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">description</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">keywords</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">author</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">htmlheader</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">jsheader</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">pgfheader</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+                 <span class="n">dataformat</span><span class="o">=</span><span class="s1">&#39;.pgf.gz&#39;</span><span class="p">,</span>
+                 <span class="n">urlprefix</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">gui</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">cleanup</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a new (empty) WebGL model.&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">scripts</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;webgl/devel&#39;</span><span class="p">]:</span>
+                <span class="n">scripts</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;fewgl.js&#39;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">gui</span><span class="p">:</span>
+                    <span class="n">scripts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;xtk_xdat.gui.js&#39;</span><span class="p">)</span>
+                <span class="n">scripts</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;webgl/devpath&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">f</span><span class="p">)</span><span class="o">.</span><span class="n">as_uri</span><span class="p">()</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">scripts</span>
+                    <span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">scripts</span> <span class="o">=</span> <span class="p">[</span><span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;webgl/script&#39;</span><span class="p">]]</span>
+                <span class="k">if</span> <span class="n">gui</span><span class="p">:</span>
+                    <span class="n">scripts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;webgl/guiscript&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scripts</span> <span class="o">=</span> <span class="n">scripts</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;WebGL scripts: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">scripts</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">title</span> <span class="o">=</span> <span class="s1">&#39;WebGL model </span><span class="si">%s</span><span class="s1">, created by pyFormex&#39;</span> <span class="o">%</span> <span class="n">name</span>
+        <span class="k">if</span> <span class="n">description</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">description</span> <span class="o">=</span> <span class="n">title</span>
+        <span class="k">if</span> <span class="n">keywords</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">keywords</span> <span class="o">=</span> <span class="s2">&quot;pyFormex, WebGL, FEops, XTK, HTML, JavaScript&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">title</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">description</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">keywords</span> <span class="o">=</span> <span class="n">keywords</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">author</span> <span class="o">=</span> <span class="n">author</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">jsfile</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">htmlheader</span> <span class="o">=</span> <span class="n">htmlheader</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">jsheader</span> <span class="o">=</span> <span class="n">jsheader</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pgfheader</span> <span class="o">=</span> <span class="n">pgfheader</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sep</span> <span class="o">=</span> <span class="n">sep</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataformat</span> <span class="o">=</span> <span class="n">dataformat</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">urlprefix</span> <span class="o">=</span> <span class="n">urlprefix</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scenes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">cleanup</span><span class="p">:</span>
+            <span class="n">existing</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;*.html&#39;</span><span class="p">,</span> <span class="s1">&#39;*.js&#39;</span><span class="p">,</span> <span class="s1">&#39;_*.pgf*&#39;</span><span class="p">,</span> <span class="s1">&#39;_*.stl*&#39;</span><span class="p">]:</span>
+                <span class="n">existing</span> <span class="o">+=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="n">g</span><span class="p">)</span><span class="o">.</span><span class="n">glob</span><span class="p">()</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Removing existing files: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">existing</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">existing</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="WebGL.addScene"><a class="viewcode-back" href="../../ref/plugins.webgl.html#plugins.webgl.WebGL.addScene">[docs]</a>    <span class="k">def</span> <span class="nf">addScene</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">camera</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add the current OpenGL scene to the WebGL model.</span>
+
+<span class="sd">        This method adds all the geometry in the current viewport to</span>
+<span class="sd">        the WebGL model. By default it will also add the current camera</span>
+<span class="sd">        and export the scene as a completed WebGL model with the given</span>
+<span class="sd">        name.</span>
+
+<span class="sd">        Parameters:</span>
+
+<span class="sd">        - `name`: a string with the name of the model for the current</span>
+<span class="sd">          scene. When multiple scenes are exported, they will be identified</span>
+<span class="sd">          by this name. This name is also used as the basename for the</span>
+<span class="sd">          exported geometry files. For a single scene export, the name may</span>
+<span class="sd">          be omitted, and will then be set equal to the name of the WebGL</span>
+<span class="sd">          exporter. If no name is specified, the model is not exported.</span>
+<span class="sd">          This allows the user to add more scenes to the same model, and</span>
+<span class="sd">          then to explicitely export it with :func:`exportScene`.</span>
+<span class="sd">        - `camera`: bool or dict : if True, sets the current viewport camera as the</span>
+<span class="sd">          camera in the WebGL model. If False the default camera values of WebGL</span>
+<span class="sd">          will be used. If dict the camera values will be taken from the dictionary.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_actors</span> <span class="o">=</span> <span class="n">List</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gui</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">bgcolor</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">bgcolor</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Exporting </span><span class="si">%s</span><span class="s2"> actors from current scene&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">actors</span><span class="p">))</span>
+        <span class="n">sorted_actors</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">pf</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">actors</span> <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">opak</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">pf</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">actors</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">a</span><span class="o">.</span><span class="n">opak</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sorted_actors</span><span class="p">):</span>
+            <span class="n">o</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">object</span>
+            <span class="n">atype</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">a</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span>
+            <span class="n">otype</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">o</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span>
+            <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Actor </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> Shape=(</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">) Color=</span><span class="si">%s</span><span class="s2">&quot;</span><span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">atype</span><span class="p">,</span> <span class="n">otype</span><span class="p">,</span> <span class="n">o</span><span class="o">.</span><span class="n">nelems</span><span class="p">(),</span> <span class="n">o</span><span class="o">.</span><span class="n">nplex</span><span class="p">(),</span> <span class="n">a</span><span class="o">.</span><span class="n">color</span><span class="p">),</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">WEBGL</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">addActor</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">camera</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">ca</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">camera</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">ca</span><span class="o">.</span><span class="n">report</span><span class="p">())</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">ca</span><span class="o">.</span><span class="n">area</span><span class="p">,</span> <span class="p">((</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">),</span> <span class="p">(</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">))):</span>
+                <span class="n">pf</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;You current display uses soft zooming. The exported WebGL model currently does not have that feature, so the displayed area may be different from the pyFormex view.</span><span class="se">\n</span><span class="s2">To create a pyFormex display without soft zooming, use Camera-&gt;ZoomAll and the zoom in or out using only the Camera-&gt;DollyIn and/or Camera-&gt;Dolly/Out.&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setCamera</span><span class="p">(</span><span class="n">focus</span><span class="o">=</span><span class="n">ca</span><span class="o">.</span><span class="n">focus</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="n">ca</span><span class="o">.</span><span class="n">eye</span><span class="p">,</span> <span class="n">up</span><span class="o">=</span><span class="n">ca</span><span class="o">.</span><span class="n">upvector</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">camera</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_camera</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setCamera</span><span class="p">(</span><span class="o">**</span><span class="n">camera</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">name</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">exportScene</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="WebGL.addActor"><a class="viewcode-back" href="../../ref/plugins.webgl.html#plugins.webgl.WebGL.addActor">[docs]</a>    <span class="k">def</span> <span class="nf">addActor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">actor</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add an actor to the model.</span>
+
+<span class="sd">        The actor&#39;s drawable objects are added to the WebGL model</span>
+<span class="sd">        as a list.</span>
+<span class="sd">        The actor&#39;s controller attributes are added to the controller gui.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">drawables</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">controllers</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># add drawables</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">actor</span><span class="o">.</span><span class="n">drawable</span><span class="p">):</span>
+            <span class="n">attrib</span> <span class="o">=</span> <span class="n">Attributes</span><span class="p">(</span><span class="n">actor</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+            <span class="n">attrib</span><span class="o">.</span><span class="n">file</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">_s</span><span class="si">%s</span><span class="s1">_</span><span class="si">%s%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scenes</span><span class="p">),</span> <span class="n">actor</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataformat</span><span class="p">)</span>
+            <span class="c1"># write the object to a .pgf file</span>
+            <span class="c1"># we do not store the back faces, reuse the front faces file instead</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">attrib</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;_back&#39;</span><span class="p">):</span>
+                <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">attrib</span><span class="o">.</span><span class="n">vbo</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">attrib</span><span class="o">.</span><span class="n">ibo</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">elems</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">attrib</span><span class="o">.</span><span class="n">ibo</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">nelems</span><span class="p">,</span> <span class="n">nplex</span> <span class="o">=</span> <span class="n">coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+                    <span class="n">elems</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nelems</span><span class="o">*</span><span class="n">nplex</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">nelems</span><span class="p">,</span> <span class="n">nplex</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+                <span class="n">coords</span> <span class="o">=</span> <span class="n">coords</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+                <span class="n">obj</span> <span class="o">=</span> <span class="n">Mesh</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">elems</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">attrib</span><span class="o">.</span><span class="n">nbo</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">normals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">attrib</span><span class="o">.</span><span class="n">nbo</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+                    <span class="n">obj</span><span class="o">.</span><span class="n">setNormals</span><span class="p">(</span><span class="n">normals</span><span class="p">[</span><span class="n">elems</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">attrib</span><span class="o">.</span><span class="n">cbo</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">attrib</span><span class="o">.</span><span class="n">useObjectColor</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="c1"># skip the fake cbo buffer</span>
+                        <span class="k">pass</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="c1"># !!!! QUICK FIX for correctly reading colors</span>
+                        <span class="c1">#      from the fewgl.js, which only has RGB no RGBA</span>
+                        <span class="n">color</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">attrib</span><span class="o">.</span><span class="n">cbo</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+                        <span class="n">obj</span><span class="o">.</span><span class="n">attrib</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">[</span><span class="n">elems</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">])</span>
+                <span class="c1">#print(&quot;WRITING %s&quot; % attrib.name)</span>
+                <span class="n">Geometry</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">attrib</span><span class="o">.</span><span class="n">file</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sep</span><span class="p">)</span>
+
+            <span class="c1"># add missing attributes</span>
+            <span class="k">if</span> <span class="n">attrib</span><span class="o">.</span><span class="n">lighting</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">attrib</span><span class="o">.</span><span class="n">lighting</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">lighting</span>
+            <span class="k">if</span> <span class="n">attrib</span><span class="o">.</span><span class="n">useObjectColor</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">attrib</span><span class="o">.</span><span class="n">useObjectColor</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="n">attrib</span><span class="o">.</span><span class="n">color</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">fgcolor</span>
+            <span class="k">if</span> <span class="n">attrib</span><span class="o">.</span><span class="n">alpha</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">attrib</span><span class="o">.</span><span class="n">alpha</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">transparency</span>
+            <span class="n">drawables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">attrib</span><span class="p">)</span>
+
+        <span class="c1"># add controllers</span>
+        <span class="k">if</span> <span class="n">actor</span><span class="o">.</span><span class="n">control</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">control</span> <span class="o">=</span> <span class="n">actor</span><span class="o">.</span><span class="n">control</span>
+        <span class="k">elif</span> <span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;webgl/autogui&#39;</span><span class="p">]:</span>
+            <span class="c1"># Add autogui</span>
+            <span class="n">control</span> <span class="o">=</span> <span class="n">default_control</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">control</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">attrib</span> <span class="ow">in</span> <span class="n">drawables</span><span class="p">:</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="n">attrib</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">if</span> <span class="s1">&#39;show &#39;</span> <span class="o">+</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">control</span><span class="p">:</span>
+                    <span class="n">controllers</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">attrib</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;show &#39;</span> <span class="o">+</span> <span class="n">name</span><span class="p">,</span> <span class="s1">&#39;visible&#39;</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">name</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; opacity&#39;</span> <span class="ow">in</span> <span class="n">control</span><span class="p">:</span>
+                    <span class="n">controllers</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">attrib</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">name</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; opacity&#39;</span><span class="p">,</span> <span class="s1">&#39;opacity&#39;</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">name</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; color&#39;</span> <span class="ow">in</span> <span class="n">control</span> <span class="ow">and</span> <span class="n">attrib</span><span class="o">.</span><span class="n">useObjectColor</span><span class="p">:</span>
+                    <span class="n">controllers</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">attrib</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">name</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; color&#39;</span><span class="p">,</span> <span class="s1">&#39;color&#39;</span><span class="p">))</span>
+
+        <span class="c1"># add faces if there are drawables for the front and back faces</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">attrib</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">attrib</span> <span class="ow">in</span> <span class="n">drawables</span><span class="p">]</span>
+        <span class="c1">#print(&quot;NAMES: %s&quot; % names)</span>
+        <span class="k">if</span> <span class="n">actor</span><span class="o">.</span><span class="n">name</span><span class="o">+</span><span class="s1">&#39;_front&#39;</span> <span class="ow">in</span> <span class="n">names</span> <span class="ow">and</span> <span class="n">actor</span><span class="o">.</span><span class="n">name</span><span class="o">+</span><span class="s1">&#39;_back&#39;</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+            <span class="c1">#print(&quot;ADDING FACES CONTROL&quot;)</span>
+            <span class="n">attrib</span> <span class="o">=</span> <span class="n">Attributes</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">actor</span><span class="o">.</span><span class="n">name</span><span class="o">+</span><span class="s1">&#39;_faces&#39;</span><span class="p">,</span> <span class="n">children</span><span class="o">=</span><span class="p">[</span><span class="n">actor</span><span class="o">.</span><span class="n">name</span><span class="o">+</span><span class="s1">&#39;_front&#39;</span><span class="p">,</span> <span class="n">actor</span><span class="o">.</span><span class="n">name</span><span class="o">+</span><span class="s1">&#39;_back&#39;</span><span class="p">]))</span>
+            <span class="n">contr</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="s1">&#39;show faces&#39;</span> <span class="ow">in</span> <span class="n">control</span><span class="p">:</span>
+                <span class="n">contr</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">attrib</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;show faces&#39;</span><span class="p">,</span> <span class="s1">&#39;visible&#39;</span><span class="p">))</span>
+            <span class="k">if</span> <span class="s1">&#39;face opacity&#39;</span> <span class="ow">in</span> <span class="n">control</span><span class="p">:</span>
+                <span class="n">contr</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">attrib</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;face opacity&#39;</span><span class="p">,</span> <span class="s1">&#39;opacity&#39;</span><span class="p">))</span>
+                <span class="n">attrib</span><span class="o">.</span><span class="n">alpha</span> <span class="o">=</span> <span class="n">drawables</span><span class="p">[</span><span class="n">names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">actor</span><span class="o">.</span><span class="n">name</span><span class="o">+</span><span class="s1">&#39;_front&#39;</span><span class="p">)]</span><span class="o">.</span><span class="n">alpha</span>
+            <span class="k">if</span> <span class="s1">&#39;face color&#39;</span> <span class="ow">in</span> <span class="n">control</span> <span class="ow">and</span> <span class="n">drawables</span><span class="p">[</span><span class="n">names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">actor</span><span class="o">.</span><span class="n">name</span><span class="o">+</span><span class="s1">&#39;_front&#39;</span><span class="p">)]</span><span class="o">.</span><span class="n">useObjectColor</span><span class="p">:</span>
+                <span class="n">contr</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">attrib</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;face color&#39;</span><span class="p">,</span> <span class="s1">&#39;color&#39;</span><span class="p">))</span>
+                <span class="c1"># use frontface color</span>
+                <span class="n">attrib</span><span class="o">.</span><span class="n">useObjectColor</span> <span class="o">=</span> <span class="n">drawables</span><span class="p">[</span><span class="n">names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">actor</span><span class="o">.</span><span class="n">name</span><span class="o">+</span><span class="s1">&#39;_front&#39;</span><span class="p">)]</span><span class="o">.</span><span class="n">useObjectColor</span>
+                <span class="n">attrib</span><span class="o">.</span><span class="n">color</span> <span class="o">=</span> <span class="n">drawables</span><span class="p">[</span><span class="n">names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">actor</span><span class="o">.</span><span class="n">name</span><span class="o">+</span><span class="s1">&#39;_front&#39;</span><span class="p">)]</span><span class="o">.</span><span class="n">color</span>
+            <span class="n">drawables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">attrib</span><span class="p">)</span>
+            <span class="n">controllers</span> <span class="o">=</span> <span class="n">contr</span> <span class="o">+</span> <span class="n">controllers</span>
+            <span class="n">names</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">actor</span><span class="o">.</span><span class="n">name</span><span class="o">+</span><span class="s1">&#39;_front&#39;</span><span class="p">)</span>
+            <span class="n">names</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">actor</span><span class="o">.</span><span class="n">name</span><span class="o">+</span><span class="s1">&#39;_back&#39;</span><span class="p">)</span>
+            <span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">actor</span><span class="o">.</span><span class="n">name</span><span class="o">+</span><span class="s1">&#39;_faces&#39;</span><span class="p">)</span>
+
+        <span class="c1"># add actor</span>
+        <span class="n">attrib</span> <span class="o">=</span> <span class="n">Attributes</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">actor</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">children</span><span class="o">=</span><span class="n">names</span><span class="p">))</span>
+        <span class="n">contr</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="s1">&#39;visible&#39;</span> <span class="ow">in</span> <span class="n">control</span><span class="p">:</span>
+            <span class="n">contr</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">attrib</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;visible&#39;</span><span class="p">,</span> <span class="s1">&#39;visible&#39;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">actor</span><span class="o">.</span><span class="n">visible</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">attrib</span><span class="o">.</span><span class="n">visible</span> <span class="o">=</span> <span class="n">actor</span><span class="o">.</span><span class="n">visible</span>
+        <span class="n">drawables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">attrib</span><span class="p">)</span>
+        <span class="n">controllers</span> <span class="o">=</span> <span class="n">contr</span> <span class="o">+</span> <span class="n">controllers</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_actors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">drawables</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">controllers</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_gui</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">actor</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">actor</span><span class="o">.</span><span class="n">caption</span><span class="p">,</span> <span class="n">controllers</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="WebGL.setCamera"><a class="viewcode-back" href="../../ref/plugins.webgl.html#plugins.webgl.WebGL.setCamera">[docs]</a>    <span class="k">def</span> <span class="nf">setCamera</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the camera position and direction.</span>
+
+<span class="sd">        This takes two (optional) keyword parameters:</span>
+
+<span class="sd">        - `position=`: specify a list of 3 coordinates. The camera will</span>
+<span class="sd">          be positioned at that place, and be looking at the origin.</span>
+<span class="sd">          This should be set to a proper distance from the scene to get</span>
+<span class="sd">          a decent result on first display.</span>
+<span class="sd">        - `upvector=`: specify a list of 3 components of a vector indicating</span>
+<span class="sd">          the upwards direction of the camera. The default is [0.,1.,0.].</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_camera</span> <span class="o">=</span> <span class="n">Dict</span><span class="p">(</span><span class="n">kargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="WebGL.format_actor"><a class="viewcode-back" href="../../ref/plugins.webgl.html#plugins.webgl.WebGL.format_actor">[docs]</a>    <span class="k">def</span> <span class="nf">format_actor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">actor</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Export an actor in Javascript format for fewgl.&quot;&quot;&quot;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">actor</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">name</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;var </span><span class="si">%s</span><span class="s2"> = new X.mesh();</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">name</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">attr</span><span class="o">.</span><span class="n">children</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.children = new Array();</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">name</span>
+                <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">attr</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
+                    <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.children.push(</span><span class="si">%s</span><span class="s2">);</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">child</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">attr</span><span class="o">.</span><span class="n">file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">urlprefix</span><span class="p">:</span>
+                    <span class="n">url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">urlprefix</span> <span class="o">+</span> <span class="n">attr</span><span class="o">.</span><span class="n">file</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">url</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">file</span>
+                <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.file = &#39;</span><span class="si">%s</span><span class="s2">&#39;;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">attr</span><span class="o">.</span><span class="n">caption</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.caption = &#39;</span><span class="si">%s</span><span class="s2">&#39;;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">attr</span><span class="o">.</span><span class="n">caption</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">attr</span><span class="o">.</span><span class="n">useObjectColor</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">attr</span><span class="o">.</span><span class="n">drawface</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="c1"># we have back faces with different color</span>
+                <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.color = </span><span class="si">%s</span><span class="s2">;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">attr</span><span class="o">.</span><span class="n">objectBkColor</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">attr</span><span class="o">.</span><span class="n">useObjectColor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">attr</span><span class="o">.</span><span class="n">useObjectColor</span> <span class="o">&gt;</span> <span class="mi">0</span> \
+                 <span class="ow">and</span> <span class="n">attr</span><span class="o">.</span><span class="n">objectColor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># front faces or back faces same color as front</span>
+                <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.color = </span><span class="si">%s</span><span class="s2">;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">attr</span><span class="o">.</span><span class="n">objectColor</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># TODO: THIS is experimental</span>
+                <span class="c1"># IT WILL DISABLE different front/back colors</span>
+                <span class="c1"># Copy _front color to _faces</span>
+                <span class="k">if</span> <span class="n">attr</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;_faces&quot;</span><span class="p">):</span>
+                    <span class="n">parent_name</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">name</span><span class="p">[:</span><span class="o">-</span><span class="mi">6</span><span class="p">]</span>
+                    <span class="n">front_name</span> <span class="o">=</span> <span class="n">parent_name</span><span class="o">+</span><span class="s2">&quot;_front&quot;</span>
+                    <span class="k">if</span> <span class="n">front_name</span> <span class="ow">in</span> <span class="n">attr</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
+                        <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.color = </span><span class="si">%s</span><span class="s2">.color;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">front_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">attr</span><span class="o">.</span><span class="n">alpha</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.opacity = </span><span class="si">%s</span><span class="s2">;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">attr</span><span class="o">.</span><span class="n">alpha</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">attr</span><span class="o">.</span><span class="n">lighting</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.lighting = </span><span class="si">%s</span><span class="s2">;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="nb">bool</span><span class="p">(</span><span class="n">attr</span><span class="o">.</span><span class="n">lighting</span><span class="p">))</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+            <span class="k">if</span> <span class="n">attr</span><span class="o">.</span><span class="n">cullface</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.cullface = &#39;</span><span class="si">%s</span><span class="s2">&#39;;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">attr</span><span class="o">.</span><span class="n">cullface</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">attr</span><span class="o">.</span><span class="n">magicmode</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.magicmode = &#39;</span><span class="si">%s</span><span class="s2">&#39;;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="nb">bool</span><span class="p">(</span><span class="n">attr</span><span class="o">.</span><span class="n">magicmode</span><span class="p">))</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+            <span class="k">if</span> <span class="n">attr</span><span class="o">.</span><span class="n">visible</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.visible = </span><span class="si">%s</span><span class="s2">;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="nb">bool</span><span class="p">(</span><span class="n">attr</span><span class="o">.</span><span class="n">visible</span><span class="p">))</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">attr</span><span class="o">.</span><span class="n">children</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;r.add(</span><span class="si">%s</span><span class="s2">);</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">name</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="n">s</span></div>
+
+
+<div class="viewcode-block" id="WebGL.format_gui_controller"><a class="viewcode-back" href="../../ref/plugins.webgl.html#plugins.webgl.WebGL.format_gui_controller">[docs]</a>    <span class="k">def</span> <span class="nf">format_gui_controller</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Format a single controller&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">controller_format</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">controller_format</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;%N&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;%A&#39;</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Controller for attribute &#39;</span><span class="si">%s</span><span class="s2">&#39; not implemented&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="WebGL.format_gui"><a class="viewcode-back" href="../../ref/plugins.webgl.html#plugins.webgl.WebGL.format_gui">[docs]</a>    <span class="k">def</span> <span class="nf">format_gui</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create the controller GUI script&quot;&quot;&quot;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">r.onShowtime = function() {</span>
+<span class="s2">var gui = new dat.GUI();</span>
+<span class="s2">the_controls = gui;</span>
+<span class="s2">&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">caption</span><span class="p">,</span> <span class="n">attrs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gui</span><span class="p">:</span>
+            <span class="n">guiname</span> <span class="o">=</span> <span class="s2">&quot;gui_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">name</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">caption</span><span class="p">:</span>
+                <span class="n">caption</span> <span class="o">=</span> <span class="n">name</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;var </span><span class="si">%s</span><span class="s2"> = gui.addFolder(&#39;</span><span class="si">%s</span><span class="s2">&#39;);</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">guiname</span><span class="p">,</span> <span class="n">caption</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">objname</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">attrs</span><span class="p">:</span>
+                <span class="n">cname</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">guiname</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">()))</span>
+                <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;var </span><span class="si">%s</span><span class="s2"> = </span><span class="si">%s</span><span class="s2">.</span><span class="si">%s</span><span class="s2">.name(&#39;</span><span class="si">%s</span><span class="s2">&#39;);</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">cname</span><span class="p">,</span> <span class="n">guiname</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">format_gui_controller</span><span class="p">(</span><span class="n">objname</span><span class="p">,</span> <span class="n">attr</span><span class="p">),</span> <span class="n">name</span><span class="p">)</span>
+
+        <span class="c1"># add camera controls</span>
+        <span class="n">guiname</span> <span class="o">=</span> <span class="s2">&quot;gui_camera&quot;</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">var </span><span class="si">%s</span><span class="s2"> = gui.addFolder(&#39;Camera&#39;);</span>
+<span class="s2">var </span><span class="si">%s</span><span class="s2">_reset = </span><span class="si">%s</span><span class="s2">.add(r.camera,&#39;reset&#39;);</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">guiname</span><span class="p">)</span>
+
+        <span class="c1"># add global controls</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">var gui_global = gui.addFolder(&#39;Global&#39;);</span>
+<span class="s2">var gui_global_alphablend = gui_global.add(r,&#39;toggleAlphablend&#39;);</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+        <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="n">s</span></div>
+
+
+<div class="viewcode-block" id="WebGL.start_js"><a class="viewcode-back" href="../../ref/plugins.webgl.html#plugins.webgl.WebGL.start_js">[docs]</a>    <span class="k">def</span> <span class="nf">start_js</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Export the start of the js file.</span>
+
+<span class="sd">        Parameters:</span>
+
+<span class="sd">        - `name`: string: the name of the model that will be shown</span>
+<span class="sd">          by default when displaying the webgl html page</span>
+
+<span class="sd">        This function should only be executed once, before any</span>
+<span class="sd">        other export functions. It is called automatically by</span>
+<span class="sd">        the first call to exportScene.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">jsname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s1">&#39;.js&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Exporting WebGL script to </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">jsname</span><span class="o">.</span><span class="n">resolve</span><span class="p">())</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">urlprefix</span><span class="p">:</span>
+            <span class="n">jsurl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">urlprefix</span> <span class="o">+</span> <span class="n">jsname</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Include it in the .html page as &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">jsurl</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">jsurl</span> <span class="o">=</span> <span class="n">jsname</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scripts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">jsurl</span><span class="p">)</span>
+
+        <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;// Script generated by </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">pf</span><span class="o">.</span><span class="n">fullVersion</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">jsheader</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">jsheader</span><span class="p">)</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">var the_renderer;</span>
+<span class="s2">var the_controls;</span>
+
+<span class="s2">window.onload = function() {</span>
+<span class="s2">show</span><span class="si">%s</span><span class="s2">();</span>
+<span class="s2">}</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="o">%</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">jsfile</span> <span class="o">=</span> <span class="n">jsname</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">jsfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">s</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="WebGL.exportScene"><a class="viewcode-back" href="../../ref/plugins.webgl.html#plugins.webgl.WebGL.exportScene">[docs]</a>    <span class="k">def</span> <span class="nf">exportScene</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Export the current OpenGL scene to the WebGL model.</span>
+
+<span class="sd">        Parameters:</span>
+
+<span class="sd">        - `name`: string: the name of the model in the current</span>
+<span class="sd">          scene. When multiple scenes are exported, they will be identified</span>
+<span class="sd">          by this name. This name is also used as the basename for the</span>
+<span class="sd">          exported geometry files. For a single scene export, the name may</span>
+<span class="sd">          be omitted, and will then be set equal to the name of the WebGL</span>
+<span class="sd">          exporter.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">jsfile</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">start_js</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">show</span><span class="si">%s</span><span class="s2"> = function(renderer) {</span>
+<span class="s2">if (typeof renderer === &#39;undefined&#39;) {</span>
+<span class="s2">if (the_renderer != null) the_renderer.destroy();</span>
+<span class="s2">var r = new X.renderer3D();</span>
+<span class="s2">the_renderer = r;</span>
+<span class="s2">} else {</span>
+<span class="s2">r = renderer</span>
+<span class="s2">}</span>
+<span class="s2">if (the_controls != null) the_controls.destroy();</span>
+<span class="s2">r.config.ORDERING_COMPARATOR = &#39;ID&#39;;</span>
+<span class="s2">r.init();</span>
+
+<span class="s2">&quot;&quot;&quot;</span> <span class="o">%</span> <span class="n">name</span>
+        <span class="n">js_alphablend</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">alphablend</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;r.setAlphablend(</span><span class="si">%s</span><span class="s2">);</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">js_alphablend</span>
+
+        <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">format_actor</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_actors</span><span class="p">])</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gui</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">format_gui</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_camera</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+            <span class="k">if</span> <span class="s1">&#39;position&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_camera</span><span class="p">:</span>
+                <span class="n">s</span> <span class="o">+=</span>  <span class="s2">&quot;r.camera.position = </span><span class="si">%s</span><span class="s2">;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_camera</span><span class="o">.</span><span class="n">position</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s1">&#39;focus&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_camera</span><span class="p">:</span>
+                <span class="n">s</span> <span class="o">+=</span>  <span class="s2">&quot;r.camera.focus = </span><span class="si">%s</span><span class="s2">;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_camera</span><span class="o">.</span><span class="n">focus</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s1">&#39;up&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_camera</span><span class="p">:</span>
+                <span class="n">s</span> <span class="o">+=</span>  <span class="s2">&quot;r.camera.up = </span><span class="si">%s</span><span class="s2">;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_camera</span><span class="o">.</span><span class="n">up</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s1">&#39;zoomstep&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_camera</span><span class="p">:</span>
+                <span class="n">s</span> <span class="o">+=</span>  <span class="s2">&quot;r.camera.zoomstep = </span><span class="si">%s</span><span class="s2">;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">_camera</span><span class="o">.</span><span class="n">zoomstep</span>
+            <span class="k">if</span> <span class="s1">&#39;fovy&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_camera</span><span class="p">:</span>
+                <span class="n">s</span> <span class="o">+=</span>  <span class="s2">&quot;r.camera.fovy = </span><span class="si">%s</span><span class="s2">;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">_camera</span><span class="o">.</span><span class="n">fovy</span>
+
+        <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">r.render();</span>
+<span class="s2">};</span>
+<span class="s2">&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">jsfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scenes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="WebGL.export"><a class="viewcode-back" href="../../ref/plugins.webgl.html#plugins.webgl.WebGL.export">[docs]</a>    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">body</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">createdby</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Finish the export by creating the html file.</span>
+
+<span class="sd">        Parameters:</span>
+
+<span class="sd">        - `body`: an HTML section to be put in the body</span>
+<span class="sd">        - `createdby`: int. If not zero, a logo &#39;Created by pyFormex&#39;</span>
+<span class="sd">          will appear on the page. If &gt; 0, it specifies the width of the</span>
+<span class="sd">          logo field. If &lt; 0, the logo will be displayed on its natural</span>
+<span class="sd">          width.</span>
+
+<span class="sd">        Returns the full path of the created html file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">jsfile</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">jsfile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">jsfile</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">htmlname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s1">&#39;.html&#39;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">createdby</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">createdby</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                    <span class="n">width</span> <span class="o">=</span> <span class="n">createdby</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">width</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">body</span> <span class="o">+=</span> <span class="n">createdBy</span><span class="p">(</span><span class="n">width</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scenes</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">body</span> <span class="o">+=</span> <span class="n">createSceneButtons</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scenes</span><span class="p">)</span>
+
+            <span class="n">exported_webgl</span> <span class="o">=</span> <span class="n">createWebglHtml</span><span class="p">(</span>
+                <span class="n">htmlname</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">scripts</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bgcolor</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">description</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">keywords</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">author</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Exported WebGL model to </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">exported_webgl</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">exported_webgl</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No jsfile created yet&quot;</span><span class="p">)</span></div></div>
+
+
+<span class="k">def</span> <span class="nf">createSceneButtons</span><span class="p">(</span><span class="n">scenes</span><span class="p">):</span>
+    <span class="n">body</span> <span class="o">=</span> <span class="s2">&quot;&lt;div style=&#39;position:absolute;top:150px;left:10px;&#39;&gt;&quot;</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">scenes</span><span class="p">:</span>
+        <span class="n">body</span> <span class="o">+=</span> <span class="s2">&quot;&lt;button onclick=&#39;show</span><span class="si">%s</span><span class="s2">()&#39;&gt;Show </span><span class="si">%s</span><span class="s2">&lt;/button&gt;&lt;br /&gt;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+    <span class="n">body</span> <span class="o">+=</span> <span class="s2">&quot;&lt;/div&gt;&quot;</span>
+    <span class="k">return</span> <span class="n">body</span>
+
+
+<div class="viewcode-block" id="createdBy"><a class="viewcode-back" href="../../ref/plugins.webgl.html#plugins.webgl.createdBy">[docs]</a><span class="k">def</span> <span class="nf">createdBy</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return a div html element with the created by pyFormex logo&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">width</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">width</span> <span class="o">=</span> <span class="s1">&#39; width=&quot;</span><span class="si">%s%%</span><span class="s1">&quot;&#39;</span> <span class="o">%</span> <span class="n">width</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">width</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="k">return</span> <span class="s2">&quot;&quot;&quot;&lt;div id=&#39;pyformex&#39; style=&#39;position:absolute;top:10px;left:10px;&#39;&gt;</span>
+<span class="s2">&lt;a href=&#39;</span><span class="si">%s</span><span class="s2">&#39; target=_blank&gt;&lt;img src=&#39;</span><span class="si">%s</span><span class="s2">&#39; border=0</span><span class="si">%s</span><span class="s2">&gt;&lt;/a&gt;</span>
+<span class="s2">&lt;/div&gt;&quot;&quot;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;webgl/logo_link&#39;</span><span class="p">],</span> <span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;webgl/logo&#39;</span><span class="p">],</span> <span class="n">width</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="createWebglHtml"><a class="viewcode-back" href="../../ref/plugins.webgl.html#plugins.webgl.createWebglHtml">[docs]</a><span class="k">def</span> <span class="nf">createWebglHtml</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">scripts</span><span class="o">=</span><span class="p">[],</span> <span class="n">bgcolor</span><span class="o">=</span><span class="s1">&#39;white&#39;</span><span class="p">,</span> <span class="n">body</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+                    <span class="n">description</span><span class="o">=</span><span class="s1">&#39;WebGL model&#39;</span><span class="p">,</span> <span class="n">keywords</span><span class="o">=</span><span class="s2">&quot;pyFormex, WebGL&quot;</span><span class="p">,</span>
+                    <span class="n">author</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;pyFormex WebGL model&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create a html file for a WebGL model.</span>
+
+<span class="sd">    Returns the absolute pathname to the created HTML file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;&lt;html&gt;</span>
+<span class="s2">&lt;head&gt;</span>
+<span class="s2">&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot;&gt;</span>
+<span class="s2">&lt;meta name=&quot;generator&quot; content=&quot;</span><span class="si">%s</span><span class="s2">&quot;&gt;</span>
+<span class="s2">&quot;&quot;&quot;</span> <span class="o">%</span> <span class="n">pf</span><span class="o">.</span><span class="n">fullVersion</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">description</span><span class="p">:</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;&lt;meta name=&quot;description&quot; content=&quot;</span><span class="si">%s</span><span class="s1">&quot;&gt;</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">description</span>
+    <span class="k">if</span> <span class="n">keywords</span><span class="p">:</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;&lt;meta name=&quot;keywords&quot; content=&quot;</span><span class="si">%s</span><span class="s1">&quot;&gt;</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">keywords</span>
+    <span class="k">if</span> <span class="n">author</span><span class="p">:</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;&lt;meta name=&quot;author&quot; content=&quot;</span><span class="si">%s</span><span class="s1">&quot;&gt;</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">author</span>
+    <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;&lt;title&gt;</span><span class="si">%s</span><span class="s2">&lt;/title&gt;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">title</span>
+    <span class="k">if</span> <span class="n">header</span><span class="p">:</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="n">header</span>
+
+    <span class="k">for</span> <span class="n">scr</span> <span class="ow">in</span> <span class="n">scripts</span><span class="p">:</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;&lt;script type=&quot;text/javascript&quot; src=&quot;</span><span class="si">%s</span><span class="s1">&quot;&gt;&lt;/script&gt;</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">scr</span>
+
+    <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">&lt;/head&gt;</span>
+<span class="s2">&lt;body bgcolor=&#39;</span><span class="si">%s</span><span class="s2">&#39;&gt;</span>
+<span class="si">%s</span><span class="s2"></span>
+<span class="s2">&lt;/body&gt;</span>
+<span class="s2">&lt;/html&gt;</span>
+<span class="s2">&quot;&quot;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">colors</span><span class="o">.</span><span class="n">WEBcolor</span><span class="p">(</span><span class="n">bgcolor</span><span class="p">),</span> <span class="n">body</span><span class="p">)</span>
+
+    <span class="n">htmlfile</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">htmlfile</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">htmlfile</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="surface2webgl"><a class="viewcode-back" href="../../ref/plugins.webgl.html#plugins.webgl.surface2webgl">[docs]</a><span class="k">def</span> <span class="nf">surface2webgl</span><span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">caption</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create a WebGL model of a surface</span>
+
+<span class="sd">    - `S`: TriSurface</span>
+<span class="sd">    - `name`: basename of the output files</span>
+<span class="sd">    - `caption`: text to use as caption</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">W</span> <span class="o">=</span> <span class="n">WebGL</span><span class="p">()</span>
+    <span class="n">W</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">obj</span><span class="o">=</span><span class="n">S</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">S</span><span class="o">.</span><span class="n">dsize</span><span class="p">()</span>
+    <span class="n">W</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="n">s</span><span class="p">])</span>
+    <span class="n">W</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">caption</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="createMultiWebGL"><a class="viewcode-back" href="../../ref/plugins.webgl.html#plugins.webgl.createMultiWebGL">[docs]</a><span class="k">def</span> <span class="nf">createMultiWebGL</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Creates a multimodel WebGL from single WebGL models&quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">pyformex.gui.draw</span> <span class="kn">import</span> <span class="n">askFilename</span><span class="p">,</span> <span class="n">askNewFilename</span><span class="p">,</span> <span class="n">ack</span><span class="p">,</span> <span class="n">showHtml</span>
+    <span class="n">models</span> <span class="o">=</span> <span class="n">askFilename</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;html&#39;</span><span class="p">,</span> <span class="s1">&#39;js&#39;</span><span class="p">],</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;multi&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">models</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="n">combined</span> <span class="o">=</span> <span class="n">askNewFilename</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;html&#39;</span><span class="p">,</span> <span class="s1">&#39;js&#39;</span><span class="p">],</span> <span class="n">caption</span><span class="o">=</span><span class="s2">&quot;Enter name of the combined model&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">combined</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="k">with</span> <span class="n">combined</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s1">&#39;.js&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fout</span><span class="p">:</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;// Script generated by </span><span class="si">%s</span><span class="s2"></span>
+<span class="s2">    var the_renderer;</span>
+<span class="s2">    var the_menu;</span>
+<span class="s2">    window.onload = function() {</span>
+<span class="s2">    show</span><span class="si">%s</span><span class="s2">()</span>
+<span class="s2">    }</span>
+<span class="s2">    &quot;&quot;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pf</span><span class="o">.</span><span class="n">fullVersion</span><span class="p">(),</span> <span class="n">utils</span><span class="o">.</span><span class="n">projectName</span><span class="p">(</span><span class="n">models</span><span class="p">[</span><span class="mi">0</span><span class="p">])),</span> <span class="n">file</span><span class="o">=</span><span class="n">fout</span><span class="p">)</span>
+
+        <span class="n">body</span> <span class="o">=</span> <span class="n">createdBy</span><span class="p">()</span>
+        <span class="n">body</span> <span class="o">+=</span> <span class="s2">&quot;&lt;div style=&#39;position:absolute;top:150px;left:10px;&#39;&gt;&quot;</span>
+        <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">stem</span>
+            <span class="n">body</span> <span class="o">+=</span> <span class="s2">&quot;&lt;button onclick=&#39;show</span><span class="si">%s</span><span class="s2">()&#39;&gt;Show </span><span class="si">%s</span><span class="s2">&lt;/button&gt;&lt;br /&gt;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">fout</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;show</span><span class="si">%s</span><span class="s2"> = function() {&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">fout</span><span class="p">)</span>
+            <span class="k">with</span> <span class="n">model</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s1">&#39;.js&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">s</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+            <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;window.onload = function&quot;</span><span class="p">):</span>
+                    <span class="k">break</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;var r = new X.renderer3D&quot;</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;if (the_menu != null) the_menu.destroy();</span>
+<span class="s2">    if (the_renderer != null) the_renderer.destroy();</span>
+<span class="s2">    the_renderer = new X.renderer3D();</span>
+<span class="s2">    var r = the_renderer;</span>
+<span class="s2">    &quot;&quot;&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">fout</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid WebGL script </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">fn</span><span class="p">)</span>
+
+            <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">fout</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;var gui = new dat.GUI&quot;</span><span class="p">):</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;the_menu = gui;&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">fout</span><span class="p">)</span>
+        <span class="n">fout</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="n">body</span> <span class="o">+=</span> <span class="s2">&quot;&lt;/div&gt;&quot;</span>
+
+    <span class="n">fn</span> <span class="o">=</span> <span class="n">createWebglHtml</span><span class="p">(</span>
+        <span class="n">combined</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s1">&#39;.html&#39;</span><span class="p">),</span>
+        <span class="n">scripts</span><span class="o">=</span><span class="p">[</span>
+            <span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;webgl/script&#39;</span><span class="p">],</span>
+            <span class="n">pf</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;webgl/guiscript&#39;</span><span class="p">],</span>
+            <span class="n">combined</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s1">&#39;.js&#39;</span><span class="p">)</span>
+            <span class="p">],</span>
+        <span class="n">body</span><span class="o">=</span><span class="n">body</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">ack</span><span class="p">(</span><span class="s2">&quot;Show the scene in your browser?&quot;</span><span class="p">):</span>
+        <span class="n">showHtml</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span></div>
+
+<span class="c1"># End</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">plugins.webgl</a></li--> 
+      </ul>
+    </div>
+    <div class="footer">
+    <span class="left">
+        &copy; Copyright 2004-2023, Benedict Verhegghe.
+    </span>
+      Last updated on Mar 27, 2023.
+    <span class="right">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.4.3.
+    </span>
+    </div>
+  </body>
+</html>

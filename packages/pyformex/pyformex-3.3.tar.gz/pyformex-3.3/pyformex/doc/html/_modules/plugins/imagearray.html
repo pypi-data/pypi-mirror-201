@@ -1,0 +1,606 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!--
+##
+##  This file is part of the pyFormex project.
+##  pyFormex is a tool for generating, manipulating and transforming 3D
+##  geometrical models by sequences of mathematical operations.
+##  Home page: http://pyformex.org
+##  Project page:  http://savannah.nongnu.org/projects/pyformex/
+##  Copyright (C) Benedict Verhegghe (benedict.verhegghe@ugent.be)
+##  Distributed under the GNU General Public License version 3 or later.
+##
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see http://www.gnu.org/licenses/.
+##
+-->
+    <title>plugins.imagearray &#8212; pyFormex 3.3 documentation</title>
+
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pyformex.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+<link rel="icon" type="image/png" href="../../_static/pyformex_fav.png" />
+
+  </head><body>
+
+<div class="header">
+  <a href="http://pyformex.org">
+  <img src="../../_static/scallop_dome_small.png" alt="scallop dome" border="0" hspace="20" vspace="12" align="left" />
+  <img src="../../_static/pyformex-logo-2.png" alt="pyformex logo" border="0" hspace="10" vspace="8" align="left" />
+  </a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">plugins.imagearray</a></li--> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<!-- PYFORMEX_SIDEBAR_LOGO -->
+<!-- PYFORMEX_WEBSITE_SIDEBAR_TOP -->
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for plugins.imagearray</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1">##</span>
+<span class="c1">##  SPDX-FileCopyrightText: © 2007-2023 Benedict Verhegghe &lt;bverheg@gmail.com&gt;</span>
+<span class="c1">##  SPDX-License-Identifier: GPL-3.0-or-later</span>
+<span class="c1">##</span>
+<span class="c1">##  This file is part of pyFormex 3.3  (Sun Mar 26 20:16:15 CEST 2023)</span>
+<span class="c1">##  pyFormex is a tool for generating, manipulating and transforming 3D</span>
+<span class="c1">##  geometrical models by sequences of mathematical operations.</span>
+<span class="c1">##  Home page: https://pyformex.org</span>
+<span class="c1">##  Project page: https://savannah.nongnu.org/projects/pyformex/</span>
+<span class="c1">##  Development: https://gitlab.com/bverheg/pyformex</span>
+<span class="c1">##  Distributed under the GNU General Public License version 3 or later.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is free software: you can redistribute it and/or modify</span>
+<span class="c1">##  it under the terms of the GNU General Public License as published by</span>
+<span class="c1">##  the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1">##  (at your option) any later version.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is distributed in the hope that it will be useful,</span>
+<span class="c1">##  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1">##  GNU General Public License for more details.</span>
+<span class="c1">##</span>
+<span class="c1">##  You should have received a copy of the GNU General Public License</span>
+<span class="c1">##  along with this program.  If not, see http://www.gnu.org/licenses/.</span>
+<span class="c1">##</span>
+<span class="sd">&quot;&quot;&quot;Convert bitmap images into numpy arrays.</span>
+
+<span class="sd">This module contains functions to convert bitmap images into numpy</span>
+<span class="sd">arrays and vice versa. There are functions to read image from file</span>
+<span class="sd">into arrays, and to save image arrays to files. There is even a class</span>
+<span class="sd">that reads a full stack of Dicom images into a 3D numpy array.</span>
+
+<span class="sd">Some of this code was based on ideas found on the PyQwt mailing list.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">PIL.Image</span>
+
+<span class="kn">import</span> <span class="nn">pyformex</span> <span class="k">as</span> <span class="nn">pf</span>
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">arraytools</span> <span class="k">as</span> <span class="n">at</span>
+<span class="kn">from</span> <span class="nn">pyformex.gui</span> <span class="kn">import</span> <span class="n">QtGui</span><span class="p">,</span> <span class="n">QImage</span>
+
+<span class="n">QColor</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QColor</span>
+
+<span class="c1">####################################################################</span>
+<span class="c1"># Import/export images using PIL</span>
+
+
+<div class="viewcode-block" id="image2array"><a class="viewcode-back" href="../../ref/plugins.imagearray.html#plugins.imagearray.image2array">[docs]</a><span class="k">def</span> <span class="nf">image2array</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">flip</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read an image file into a numpy array.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename: :term:`path_like`</span>
+<span class="sd">        The name of the file containing the image.</span>
+<span class="sd">    mode: str, optional</span>
+<span class="sd">        If provided, the image will be converted to the specified mode.</span>
+<span class="sd">        The mode is a string defining the color channels to be returned.</span>
+<span class="sd">        Typical values are &#39;1&#39; (black/white), &#39;L&#39; (grayscale),</span>
+<span class="sd">        &#39;LA&#39; (gray with alpha), &#39;RGB&#39; (three colors),</span>
+<span class="sd">        &#39;RGBA&#39; (three colors plus alpha).</span>
+<span class="sd">        Default is to return the image as it is stored.</span>
+<span class="sd">    flip: bool</span>
+<span class="sd">        If True, the vertical axis will be inverted. This is the default,</span>
+<span class="sd">        because image scanlines are stored from top to bottom, while opengl</span>
+<span class="sd">        uses a vertical axis running from bottom to top. Set this to False</span>
+<span class="sd">        when using images as fonts in :class:`FontTexture`, because the</span>
+<span class="sd">        FontTexture engine itself takes account of the top-down image</span>
+<span class="sd">        storage.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; im = image2array(pf.cfg[&#39;datadir&#39;] / &#39;butterfly.png&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; im.shape</span>
+<span class="sd">    (419, 420, 3)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">im</span> <span class="o">=</span> <span class="n">PIL</span><span class="o">.</span><span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">mode</span> <span class="ow">and</span> <span class="n">im</span><span class="o">.</span><span class="n">mode</span> <span class="o">!=</span> <span class="n">mode</span><span class="p">:</span>
+        <span class="n">im</span> <span class="o">=</span> <span class="n">im</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="n">mode</span><span class="p">)</span>
+    <span class="n">im</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">im</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">flip</span><span class="p">:</span>
+        <span class="n">im</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flipud</span><span class="p">(</span><span class="n">im</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">im</span></div>
+
+
+<div class="viewcode-block" id="array2image"><a class="viewcode-back" href="../../ref/plugins.imagearray.html#plugins.imagearray.array2image">[docs]</a><span class="k">def</span> <span class="nf">array2image</span><span class="p">(</span><span class="n">ar</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Save an image stored in a numpy array to file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ar: array</span>
+<span class="sd">        Array holding the pixel data. This is typically an Int8 type</span>
+<span class="sd">        array with shape (height, width, 3) where the last axis holds</span>
+<span class="sd">        the RGB color data.</span>
+<span class="sd">    filename: :term:`path_like`</span>
+<span class="sd">        The name of the file where the image is to be saved.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">im</span> <span class="o">=</span> <span class="n">PIL</span><span class="o">.</span><span class="n">Image</span><span class="o">.</span><span class="n">fromarray</span><span class="p">(</span><span class="n">ar</span><span class="p">)</span>
+    <span class="n">im</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">image2string</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="c1"># defer import for startup efficiency</span>
+    <span class="n">im</span> <span class="o">=</span> <span class="n">PIL</span><span class="o">.</span><span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="n">nx</span><span class="p">,</span> <span class="n">ny</span> <span class="o">=</span> <span class="n">im</span><span class="o">.</span><span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">im</span><span class="o">.</span><span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">im</span><span class="o">.</span><span class="n">tostring</span><span class="p">(</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="s2">&quot;RGBA&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">SystemError</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">im</span><span class="o">.</span><span class="n">tostring</span><span class="p">(</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="s2">&quot;RGBX&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">data</span>
+
+
+<span class="c1">####################################################################</span>
+<span class="c1"># Handle images using QImage</span>
+
+<div class="viewcode-block" id="resizeImage"><a class="viewcode-back" href="../../ref/plugins.imagearray.html#plugins.imagearray.resizeImage">[docs]</a><span class="k">def</span> <span class="nf">resizeImage</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load and optionally resize a QImage.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    image: :term:`qimage_like`</span>
+<span class="sd">        QImage, or data that can be converted to a QImage, e.g. the name of</span>
+<span class="sd">        a raster image file.</span>
+<span class="sd">    w: int, optional</span>
+<span class="sd">        If provided and &gt;0, the image will be resized to this width.</span>
+<span class="sd">    h: int, optional</span>
+<span class="sd">        If provided and &gt;0, the image will be resized to this height.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    QImage</span>
+<span class="sd">        A QImage with the requested size (if provided).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">QImage</span><span class="p">):</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">QImage</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+
+    <span class="n">W</span><span class="p">,</span> <span class="n">H</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">width</span><span class="p">(),</span> <span class="n">image</span><span class="o">.</span><span class="n">height</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">w</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="n">W</span>
+    <span class="k">if</span> <span class="n">h</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">H</span>
+    <span class="k">if</span> <span class="n">w</span> <span class="o">!=</span> <span class="n">W</span> <span class="ow">or</span> <span class="n">h</span> <span class="o">!=</span> <span class="n">H</span><span class="p">:</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">scaled</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">image</span></div>
+
+
+<div class="viewcode-block" id="qimage2numpy"><a class="viewcode-back" href="../../ref/plugins.imagearray.html#plugins.imagearray.qimage2numpy">[docs]</a><span class="k">def</span> <span class="nf">qimage2numpy</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">resize</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">order</span><span class="o">=</span><span class="s1">&#39;RGBA&#39;</span><span class="p">,</span> <span class="n">flip</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">indexed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Transform a QImage to a :class:`numpy.ndarray`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    image: :term:`qimage_like`</span>
+<span class="sd">        A QImage or any data that can be converted to a QImage,</span>
+<span class="sd">        e.g. the name of an image file, in any of the formats supported by Qt.</span>
+<span class="sd">        The image can be a full color image or an indexed type. Only 32bit</span>
+<span class="sd">        and 8bit images are currently supported.</span>
+<span class="sd">    resize: tuple of ints</span>
+<span class="sd">        A tuple of two integers (width,height). Positive value will</span>
+<span class="sd">        force the image to be resized to this value.</span>
+<span class="sd">    order: str</span>
+<span class="sd">        String with a permutation/subset of the characters &#39;RGBA&#39;, defining</span>
+<span class="sd">        the order in which the colors are returned. Default is RGBA, so that</span>
+<span class="sd">        result[...,0] gives the red component. Note however that QImage stores</span>
+<span class="sd">        in ARGB order. You may also specify a subset of the &#39;RGBA&#39; characters,</span>
+<span class="sd">        in which case you will only get some of the color components. An often</span>
+<span class="sd">        used value is &#39;RGB&#39; to get the colors without the alpha value.</span>
+<span class="sd">    flip: bool</span>
+<span class="sd">        If True, the image scanlines are flipped upside down.</span>
+<span class="sd">        This is practical because image files are usually stored in top down</span>
+<span class="sd">        order, while OpenGL uses an upwards positive direction, requiring a</span>
+<span class="sd">        flip to show the image upright.</span>
+<span class="sd">    indexed: bool or None.</span>
+<span class="sd">        If True, the result will be an indexed image where each pixel color</span>
+<span class="sd">        is an index into a color table. Non-indexed image data will be</span>
+<span class="sd">        converted.</span>
+
+<span class="sd">        If False, the result will be a full color array specifying the color</span>
+<span class="sd">        of each pixel. Indexed images will be expanded to a full color array.</span>
+
+<span class="sd">        If None (default), no conversion is done and the resulting data are</span>
+<span class="sd">        dependent on the image format. In all cases both a color and a</span>
+<span class="sd">        colortable will be returned, but the latter will be None for</span>
+<span class="sd">        non-indexed images.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    colors: array</span>
+<span class="sd">        An int8 array with shape (height,width,ncomp), holding</span>
+<span class="sd">        the components of the color of each pixel. Order and number</span>
+<span class="sd">        of components is as specified by the ``order`` argument. The default</span>
+<span class="sd">        is 4 components in order &#39;RGBA&#39;.</span>
+
+<span class="sd">        This value is only returned if the image was not an indexed type</span>
+<span class="sd">        or if ``indexed=False`` was specified, in which case indexed images</span>
+<span class="sd">        will be converted to full color.</span>
+<span class="sd">    colorindex: array</span>
+<span class="sd">        An int array with shape (height,width) holding color indices into</span>
+<span class="sd">        ``colortable``, which stores the actual color values.</span>
+
+<span class="sd">        This value is only returned if the image was an indexed type</span>
+<span class="sd">        or if ``indexed=True`` was specified, in which case nonindexed images</span>
+<span class="sd">        will be converted to using color index and table.</span>
+<span class="sd">    colortable: array or None.</span>
+<span class="sd">        An int8 array with shape (ncolors,ncomp). This array stores all the</span>
+<span class="sd">        colors used in the image, in the order specified by ``order``</span>
+
+<span class="sd">        This value is only returned if ``indexed`` is not False.</span>
+<span class="sd">        Its value will be None if ``indexed`` is None (default) and</span>
+<span class="sd">        the image was not indexed.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This table summarizes the return values for each of the possible values</span>
+<span class="sd">    of the ``indexed`` argument combined with indexed or nonindexed image data:</span>
+
+<span class="sd">    ===============   ======================   ======================</span>
+<span class="sd">    arg               non-indexed image        indexed image</span>
+<span class="sd">    ===============   ======================   ======================</span>
+<span class="sd">    indexed=None      colors, None             colorindex, colortable</span>
+<span class="sd">    indexed=False     colors                   colors</span>
+<span class="sd">    indexed=True      colorindex, colortable   colorindex, colortable</span>
+<span class="sd">    ===============   ======================   ======================</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="n">resizeImage</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="o">*</span><span class="n">resize</span><span class="p">)</span>
+
+    <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;IMAGE FORMAT </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">image</span><span class="o">.</span><span class="n">format</span><span class="p">(),</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">IMAGE</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">indexed</span><span class="p">:</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">convertToFormat</span><span class="p">(</span><span class="n">QImage</span><span class="o">.</span><span class="n">Format_Indexed8</span><span class="p">)</span>
+
+    <span class="n">h</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">height</span><span class="p">(),</span> <span class="n">image</span><span class="o">.</span><span class="n">width</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">image</span><span class="o">.</span><span class="n">format</span><span class="p">()</span> <span class="ow">in</span> <span class="p">(</span><span class="n">QImage</span><span class="o">.</span><span class="n">Format_ARGB32_Premultiplied</span><span class="p">,</span>
+                          <span class="n">QImage</span><span class="o">.</span><span class="n">Format_ARGB32</span><span class="p">,</span>
+                          <span class="n">QImage</span><span class="o">.</span><span class="n">Format_RGB32</span><span class="p">):</span>
+        <span class="n">buf</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">bits</span><span class="p">()</span>
+        <span class="c1"># TODO: is this needed??</span>
+        <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">bindings</span> <span class="o">==</span> <span class="s1">&#39;pyqt5&#39;</span><span class="p">:</span>
+            <span class="n">buf</span> <span class="o">=</span> <span class="n">buf</span><span class="o">.</span><span class="n">asstring</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">byteCount</span><span class="p">())</span>
+        <span class="n">ar</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;ubyte&#39;</span><span class="p">,</span>
+                           <span class="n">count</span><span class="o">=</span><span class="n">image</span><span class="o">.</span><span class="n">byteCount</span><span class="p">())</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;BGRA&#39;</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">order</span><span class="p">]</span>
+        <span class="n">ar</span> <span class="o">=</span> <span class="n">ar</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">idx</span><span class="p">]</span>
+        <span class="n">ct</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">elif</span> <span class="n">image</span><span class="o">.</span><span class="n">format</span><span class="p">()</span> <span class="o">==</span> <span class="n">QImage</span><span class="o">.</span><span class="n">Format_Indexed8</span><span class="p">:</span>
+        <span class="n">ct</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">colorTable</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint32</span><span class="p">)</span>
+        <span class="n">ct</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;BGRA&#39;</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">order</span><span class="p">]</span>
+        <span class="n">ct</span> <span class="o">=</span> <span class="n">ct</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">idx</span><span class="p">]</span>
+        <span class="n">buf</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">bits</span><span class="p">()</span>
+        <span class="c1"># TODO: is this needed??</span>
+        <span class="k">if</span> <span class="n">pf</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">bindings</span> <span class="o">==</span> <span class="s1">&#39;pyqt5&#39;</span><span class="p">:</span>
+            <span class="n">buf</span> <span class="o">=</span> <span class="n">buf</span><span class="o">.</span><span class="n">asstring</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">byteCount</span><span class="p">())</span>
+        <span class="n">ar</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ar</span><span class="o">.</span><span class="n">size</span> <span class="o">%</span> <span class="n">h</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">ar</span> <span class="o">=</span> <span class="n">ar</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">ar</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">w</span><span class="p">:</span>
+                <span class="c1"># The QImage buffer always has a size corresponding</span>
+                <span class="c1"># with a width that is a multiple of 8. Here we strip</span>
+                <span class="c1"># off the padding pixels of the QImage buffer to the</span>
+                <span class="c1"># reported width.</span>
+                <span class="n">ar</span> <span class="o">=</span> <span class="n">ar</span><span class="p">[:,</span> <span class="p">:</span><span class="n">w</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">ar</span><span class="o">.</span><span class="n">size</span> <span class="o">!=</span> <span class="n">w</span><span class="o">*</span><span class="n">h</span><span class="p">:</span>
+            <span class="c1"># This should no longer happen, since we have now adjusted</span>
+            <span class="c1"># the numpy buffer width to the correct image width.</span>
+            <span class="n">pf</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Size of image data (</span><span class="si">{</span><span class="n">ar</span><span class="o">.</span><span class="n">size</span><span class="si">}</span><span class="s2">) does not match &quot;</span>
+                       <span class="sa">f</span><span class="s2">&quot;the reported dimensions: </span><span class="si">{</span><span class="n">w</span><span class="si">}</span><span class="s2"> x </span><span class="si">{</span><span class="n">h</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">w</span><span class="o">*</span><span class="n">h</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;qimage2numpy only supports 32bit and 8bit images. &quot;</span>
+                         <span class="sa">f</span><span class="s2">&quot;Your qimage format is </span><span class="si">{</span><span class="n">image</span><span class="o">.</span><span class="n">format</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Put upright as expected</span>
+    <span class="k">if</span> <span class="n">flip</span><span class="p">:</span>
+        <span class="n">ar</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flipud</span><span class="p">(</span><span class="n">ar</span><span class="p">)</span>
+
+    <span class="c1"># Convert indexed to nonindexed if requested</span>
+    <span class="k">if</span> <span class="n">indexed</span> <span class="ow">is</span> <span class="kc">False</span> <span class="ow">and</span> <span class="n">ct</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ar</span> <span class="o">=</span> <span class="n">ct</span><span class="p">[</span><span class="n">ar</span><span class="p">]</span>
+        <span class="n">ct</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1"># Return only full colors if requested</span>
+    <span class="k">if</span> <span class="n">indexed</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ar</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ar</span><span class="p">,</span> <span class="n">ct</span></div>
+
+
+<span class="c1"># TODO: make flip=True the default ?</span>
+<div class="viewcode-block" id="numpy2qimage"><a class="viewcode-back" href="../../ref/plugins.imagearray.html#plugins.imagearray.numpy2qimage">[docs]</a><span class="k">def</span> <span class="nf">numpy2qimage</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">flip</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert a 2D or 3D integer numpy array into a QImage</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    array: 2D or 3D int array</span>
+<span class="sd">        If the input array is 2D, the array is converted into a gray image.</span>
+<span class="sd">        If the input array is 3D, the last axis should have length 3 or 4</span>
+<span class="sd">        and represents the color channels in order RGB or RGBA.</span>
+<span class="sd">    flip: bool</span>
+<span class="sd">        If True, the image scanlines are flipped upside down.</span>
+<span class="sd">        This is practical because image files are usually stored in top down</span>
+<span class="sd">        order, while OpenGL uses an upwards positive direction, requiring a</span>
+<span class="sd">        flip to show the image upright.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This is equivalent to calling :func:`gray2qimage` for a 2D array</span>
+<span class="sd">    and :func:`rgb2qimage` for a 3D array.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">flip</span><span class="p">:</span>
+        <span class="n">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flipud</span><span class="p">(</span><span class="n">array</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">array</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">gray2qimage</span><span class="p">(</span><span class="n">array</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">np</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">array</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">rgb2qimage</span><span class="p">(</span><span class="n">array</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;can only convert 2D or 3D arrays&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="gray2qimage"><a class="viewcode-back" href="../../ref/plugins.imagearray.html#plugins.imagearray.gray2qimage">[docs]</a><span class="k">def</span> <span class="nf">gray2qimage</span><span class="p">(</span><span class="n">gray</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert a 2D numpy array to gray QImage.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    gray: uint8 array (height,width)</span>
+<span class="sd">        Array with the grey values of an image with size (height,width).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    QImage</span>
+<span class="sd">        A QImage with the corresponding gray image. The image format</span>
+<span class="sd">        will be indexed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">gray</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;gray2QImage can only convert 2D arrays&quot;</span><span class="p">)</span>
+
+    <span class="n">gray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">require</span><span class="p">(</span><span class="n">gray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">)</span>
+    <span class="n">h</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="n">gray</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">QImage</span><span class="p">(</span><span class="n">gray</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">QImage</span><span class="o">.</span><span class="n">Format_Indexed8</span><span class="p">)</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">gray</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">256</span><span class="p">):</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">setColor</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">QColor</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">rgb</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="rgb2qimage"><a class="viewcode-back" href="../../ref/plugins.imagearray.html#plugins.imagearray.rgb2qimage">[docs]</a><span class="k">def</span> <span class="nf">rgb2qimage</span><span class="p">(</span><span class="n">rgb</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert a 3D numpy array into a 32-bit QImage.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    rgb: int array (height,width,ncomp)</span>
+<span class="sd">        Int array with the pixel values of the image. The data can have</span>
+<span class="sd">        3 (RGB) or 4 (RGBA) components.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    QImage</span>
+<span class="sd">        A QImage with size (height,width) in the format</span>
+<span class="sd">        RGB32 (3 components) or ARGB32 (4 components).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rgb</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;rgb2QImage expects the first (or last) dimension &quot;</span>
+            <span class="s2">&quot;to contain exactly three (R,G,B) channels&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">rgb</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;rgb2QImage can only convert 3D arrays&quot;</span><span class="p">)</span>
+
+    <span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">channels</span> <span class="o">=</span> <span class="n">rgb</span><span class="o">.</span><span class="n">shape</span>
+
+    <span class="c1"># Qt expects 32bit BGRA data for color images:</span>
+    <span class="n">bgra</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">)</span>
+    <span class="n">bgra</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">rgb</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+    <span class="n">bgra</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">rgb</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="n">bgra</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">rgb</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">channels</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+        <span class="n">bgra</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">rgb</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+        <span class="n">fmt</span> <span class="o">=</span> <span class="n">QImage</span><span class="o">.</span><span class="n">Format_ARGB32</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">fmt</span> <span class="o">=</span> <span class="n">QImage</span><span class="o">.</span><span class="n">Format_RGB32</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">QImage</span><span class="p">(</span><span class="n">bgra</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">fmt</span><span class="p">)</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">bgra</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="qimage2glcolor"><a class="viewcode-back" href="../../ref/plugins.imagearray.html#plugins.imagearray.qimage2glcolor">[docs]</a><span class="k">def</span> <span class="nf">qimage2glcolor</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">resize</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">order</span><span class="o">=</span><span class="s1">&#39;RGB&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert a bitmap image to corresponding OpenGL colors.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    image: :term:`qimage_like`</span>
+<span class="sd">        A QImage or any data that can be converted to a QImage,</span>
+<span class="sd">        e.g. the name of an image file, in any of the formats supported by Qt.</span>
+<span class="sd">        The image can be a full color image or an indexed type. Only 32bit</span>
+<span class="sd">        and 8bit images are currently supported.</span>
+<span class="sd">    resize: tuple of ints</span>
+<span class="sd">        A tuple of two integers (width,height). Positive value will</span>
+<span class="sd">        force the image to be resized to this value.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float array (w,h,3)</span>
+<span class="sd">        Array of float values in the range 0.0 to 1.0,</span>
+<span class="sd">        containing the OpenGL colors corresponding to the image RGB colors.</span>
+<span class="sd">        By default the image is flipped upside-down because the vertical</span>
+<span class="sd">        OpenGL axis points upwards, while bitmap images are stored downwards.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">qimage2numpy</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">resize</span><span class="o">=</span><span class="n">resize</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="n">order</span><span class="p">,</span> <span class="n">flip</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">indexed</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">order</span><span class="p">))</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">c</span> <span class="o">/</span> <span class="mf">255.</span>
+    <span class="k">return</span> <span class="n">c</span><span class="p">,</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="removeAlpha"><a class="viewcode-back" href="../../ref/plugins.imagearray.html#plugins.imagearray.removeAlpha">[docs]</a><span class="k">def</span> <span class="nf">removeAlpha</span><span class="p">(</span><span class="n">qim</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Remove the alpha component from a QImage.</span>
+
+<span class="sd">    Directly saving a QImage grabbed from the OpenGL buffers always</span>
+<span class="sd">    results in an image with transparency.</span>
+<span class="sd">    See https://savannah.nongnu.org/bugs/?36995 .</span>
+
+<span class="sd">    This function will remove the alpha component from the QImage, so</span>
+<span class="sd">    that it can be saved with opaque objects.</span>
+
+<span class="sd">    Note: we did not find a way to do this directly on the QImage,</span>
+<span class="sd">    so we go through a conversion to a numpy array and back.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ar</span><span class="p">,</span> <span class="n">cm</span> <span class="o">=</span> <span class="n">qimage2numpy</span><span class="p">(</span><span class="n">qim</span><span class="p">,</span> <span class="n">flip</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">rgb2qimage</span><span class="p">(</span><span class="n">ar</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="saveGreyImage"><a class="viewcode-back" href="../../ref/plugins.imagearray.html#plugins.imagearray.saveGreyImage">[docs]</a><span class="k">def</span> <span class="nf">saveGreyImage</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">flip</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Save a 2D int array as a grey image.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    a: int array</span>
+<span class="sd">        Int array (height,width) with values in the range 0..255. These are</span>
+<span class="sd">        the grey values of the pixels.</span>
+<span class="sd">    f: str</span>
+<span class="sd">        Name of the file to write the image to.</span>
+<span class="sd">    flip: bool</span>
+<span class="sd">        If True (default), the vertical axis is flipped, so that images are</span>
+<span class="sd">        stored starting at the top. If your data already have the vertical axis</span>
+<span class="sd">        downwards, use flip=False.</span>
+
+<span class="sd">    Note</span>
+<span class="sd">    ----</span>
+<span class="sd">    This stores the image as an RGB image with equal values for all</span>
+<span class="sd">    three color components.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">checkArray</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">ndim</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;u&#39;</span><span class="p">,</span> <span class="n">allow</span><span class="o">=</span><span class="s1">&#39;i&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flipud</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dstack</span><span class="p">([</span><span class="n">c</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">c</span><span class="p">])</span>
+    <span class="n">im</span> <span class="o">=</span> <span class="n">numpy2qimage</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+    <span class="n">im</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">f</span><span class="p">)</span></div>
+
+
+<span class="k">if</span> <span class="n">utils</span><span class="o">.</span><span class="n">Module</span><span class="o">.</span><span class="n">has</span><span class="p">(</span><span class="s1">&#39;pydicom&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">pf</span><span class="o">.</span><span class="n">sphinx</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">.dicomstack</span> <span class="kn">import</span> <span class="n">DicomStack</span><span class="p">,</span> <span class="n">dicom2numpy</span>   <span class="c1"># noqa: F401</span>
+
+<span class="c1"># End</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">plugins.imagearray</a></li--> 
+      </ul>
+    </div>
+    <div class="footer">
+    <span class="left">
+        &copy; Copyright 2004-2023, Benedict Verhegghe.
+    </span>
+      Last updated on Mar 27, 2023.
+    <span class="right">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.4.3.
+    </span>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,1051 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!--
+##
+##  This file is part of the pyFormex project.
+##  pyFormex is a tool for generating, manipulating and transforming 3D
+##  geometrical models by sequences of mathematical operations.
+##  Home page: http://pyformex.org
+##  Project page:  http://savannah.nongnu.org/projects/pyformex/
+##  Copyright (C) Benedict Verhegghe (benedict.verhegghe@ugent.be)
+##  Distributed under the GNU General Public License version 3 or later.
+##
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see http://www.gnu.org/licenses/.
+##
+-->
+    <title>filewrite &#8212; pyFormex 3.3 documentation</title>
+
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pyformex.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+<link rel="icon" type="image/png" href="../_static/pyformex_fav.png" />
+
+  </head><body>
+
+<div class="header">
+  <a href="http://pyformex.org">
+  <img src="../_static/scallop_dome_small.png" alt="scallop dome" border="0" hspace="20" vspace="12" align="left" />
+  <img src="../_static/pyformex-logo-2.png" alt="pyformex logo" border="0" hspace="10" vspace="8" align="left" />
+  </a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">filewrite</a></li--> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<!-- PYFORMEX_SIDEBAR_LOGO -->
+<!-- PYFORMEX_WEBSITE_SIDEBAR_TOP -->
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for filewrite</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1">##</span>
+<span class="c1">##  SPDX-FileCopyrightText: © 2007-2023 Benedict Verhegghe &lt;bverheg@gmail.com&gt;</span>
+<span class="c1">##  SPDX-License-Identifier: GPL-3.0-or-later</span>
+<span class="c1">##</span>
+<span class="c1">##  This file is part of pyFormex 3.3  (Sun Mar 26 20:16:15 CEST 2023)</span>
+<span class="c1">##  pyFormex is a tool for generating, manipulating and transforming 3D</span>
+<span class="c1">##  geometrical models by sequences of mathematical operations.</span>
+<span class="c1">##  Home page: https://pyformex.org</span>
+<span class="c1">##  Project page: https://savannah.nongnu.org/projects/pyformex/</span>
+<span class="c1">##  Development: https://gitlab.com/bverheg/pyformex</span>
+<span class="c1">##  Distributed under the GNU General Public License version 3 or later.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is free software: you can redistribute it and/or modify</span>
+<span class="c1">##  it under the terms of the GNU General Public License as published by</span>
+<span class="c1">##  the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1">##  (at your option) any later version.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is distributed in the hope that it will be useful,</span>
+<span class="c1">##  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1">##  GNU General Public License for more details.</span>
+<span class="c1">##</span>
+<span class="c1">##  You should have received a copy of the GNU General Public License</span>
+<span class="c1">##  along with this program.  If not, see http://www.gnu.org/licenses/.</span>
+<span class="c1">##</span>
+
+<span class="sd">&quot;&quot;&quot;Write geometry to file in a whole number of formats.</span>
+
+<span class="sd">This module defines both the basic routines to write geometrical data</span>
+<span class="sd">to a file and the specialized exporters to write files in a number of</span>
+<span class="sd">well known standardized formats.</span>
+
+<span class="sd">Most of the exporters support transparent compression of the output files</span>
+<span class="sd">by just specifying a file name that ends in &#39;.gz&#39; or &#39;.bz2&#39;.</span>
+
+<span class="sd">The basic routines are very versatile as well as optimized and allow to</span>
+<span class="sd">easily create new exporters for other formats.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">import</span> <span class="nn">pyformex</span> <span class="k">as</span> <span class="nn">pf</span>
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">arraytools</span> <span class="k">as</span> <span class="n">at</span>
+<span class="kn">from</span> <span class="nn">pyformex.path</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">pyformex.varray</span> <span class="kn">import</span> <span class="n">Varray</span>
+<span class="kn">from</span> <span class="nn">pyformex.coords</span> <span class="kn">import</span> <span class="n">Coords</span>
+<span class="kn">from</span> <span class="nn">pyformex.formex</span> <span class="kn">import</span> <span class="n">Formex</span>
+<span class="kn">from</span> <span class="nn">pyformex.plugins.neu_exp</span> <span class="kn">import</span> <span class="n">writeNEU</span>
+<span class="kn">from</span> <span class="nn">pyformex.pzffile</span> <span class="kn">import</span> <span class="n">savePZF</span> <span class="k">as</span> <span class="n">writePZF</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;writePZF&#39;</span><span class="p">,</span> <span class="s1">&#39;writePGF&#39;</span><span class="p">,</span> <span class="s1">&#39;writeOFF&#39;</span><span class="p">,</span> <span class="s1">&#39;writeOBJ&#39;</span><span class="p">,</span> <span class="s1">&#39;writePLY&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;writeGTS&#39;</span><span class="p">,</span> <span class="s1">&#39;writeSTL&#39;</span><span class="p">,</span> <span class="s1">&#39;writeNEU&#39;</span><span class="p">,</span> <span class="s1">&#39;writeData&#39;</span><span class="p">,</span> <span class="s1">&#39;writeIData&#39;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="writePGF"><a class="viewcode-back" href="../ref/filewrite.html#filewrite.writePGF">[docs]</a><span class="k">def</span> <span class="nf">writePGF</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">objects</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">shortlines</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+             <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Save geometric objects to a pyFormex Geometry File.</span>
+
+<span class="sd">    A pyFormex Geometry File can store multiple geometrical objects in a</span>
+<span class="sd">    native format that can be efficiently read back into pyFormex.</span>
+<span class="sd">    The format is portable over different pyFormex versions and</span>
+<span class="sd">    even to other software.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename: :term:`path_like`</span>
+<span class="sd">        The name of the file to be written. Usually this has a suffix &#39;.pgf&#39;.</span>
+<span class="sd">        If a &#39;.gz&#39; or &#39;.bz2&#39; is added, the file will be compressed with gzip</span>
+<span class="sd">        or bzip2, respectively.</span>
+<span class="sd">    objects: object | list | dict</span>
+<span class="sd">        One or more objects to be saved on the file.</span>
+<span class="sd">        If it is a dictionary, the keys are saved in the file as the names</span>
+<span class="sd">        of the objects.</span>
+<span class="sd">        Objects that can not be exported to a pyFormex Geometry File are</span>
+<span class="sd">        silently ignored.</span>
+<span class="sd">    mode: &#39;w&#39; | &#39;a&#39;</span>
+<span class="sd">        The mode in which to open the file. The default &#39;w&#39; will overwrite</span>
+<span class="sd">        an existing file. Use &#39;a&#39; to append to an existing file.</span>
+<span class="sd">    sep: str</span>
+<span class="sd">        The string used to separate data. If set to an empty string, the</span>
+<span class="sd">        data will be written in binary format and the resulting file</span>
+<span class="sd">        will be smaller, but less portable.</span>
+<span class="sd">    **kargs:</span>
+<span class="sd">        Extra keyword arguments are passed to</span>
+<span class="sd">        :meth:`~geomfile.GeometryFile.write`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    int:</span>
+<span class="sd">        The number of objects that were written to the file.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from pyformex.mesh import Mesh</span>
+<span class="sd">    &gt;&gt;&gt; f = Path(&#39;test_filewrite.pgf&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; M = Mesh(eltype=&#39;quad4&#39;).convert(&#39;tri3-u&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; writePGF(f, M)</span>
+<span class="sd">    1</span>
+<span class="sd">    &gt;&gt;&gt; print(f.read_text())</span>
+<span class="sd">    # pyFormex Geometry File (http://pyformex.org) version=&#39;2.1&#39;; sep=&#39; &#39;</span>
+<span class="sd">    # objtype=&#39;Mesh&#39;; ncoords=4; nelems=2; nplex=3; props=False; normals=False;\</span>
+<span class="sd">    color=None; sep=&#39; &#39;; name=&#39;test_filewrite-0&#39;; eltype=&#39;tri3&#39;</span>
+<span class="sd">    0.0 0.0 0.0 1.0 0.0 0.0 1.0 1.0 0.0 0.0 1.0 0.0</span>
+<span class="sd">    0 1 2 2 3 0</span>
+<span class="sd">    &lt;BLANKLINE&gt;</span>
+<span class="sd">    &gt;&gt;&gt; f.remove()</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">geomfile</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;WriteGeomFile filename</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">; sep=&#39;</span><span class="si">{</span><span class="n">sep</span><span class="si">}</span><span class="s2">&#39;; &quot;</span>
+             <span class="sa">f</span><span class="s2">&quot;shortlines=</span><span class="si">{</span><span class="n">shortlines</span><span class="si">}</span><span class="s2">; kargs=</span><span class="si">{</span><span class="n">kargs</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pf</span><span class="o">.</span><span class="n">DEBUG</span><span class="o">.</span><span class="n">PGF</span><span class="p">)</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Write PGF file </span><span class="si">{</span><span class="n">filename</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">geomfile</span><span class="o">.</span><span class="n">GeometryFile</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="n">sep</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">)</span>
+    <span class="c1"># TODO: this option could goto into GeometryFile</span>
+    <span class="k">if</span> <span class="n">shortlines</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">fmt</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;i&#39;</span><span class="p">:</span> <span class="s1">&#39;</span><span class="si">%i</span><span class="s1"> &#39;</span><span class="p">,</span> <span class="s1">&#39;f&#39;</span><span class="p">:</span> <span class="s1">&#39;</span><span class="si">%f</span><span class="s1"> &#39;</span><span class="p">}</span>
+    <span class="n">nobj</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">objects</span><span class="p">)</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">nobj</span></div>
+
+
+<span class="k">def</span> <span class="nf">_check_coords_faces</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">faces</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Check coords, faces arguments for some write... functions&quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">pyformex.mesh</span> <span class="kn">import</span> <span class="n">Mesh</span>
+    <span class="kn">from</span> <span class="nn">pyformex.polygons</span> <span class="kn">import</span> <span class="n">Polygons</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="p">(</span><span class="n">Mesh</span><span class="p">,</span> <span class="n">Polygons</span><span class="p">)):</span>
+        <span class="n">coords</span><span class="p">,</span> <span class="n">faces</span> <span class="o">=</span> <span class="n">coords</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="n">coords</span><span class="o">.</span><span class="n">elems</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">Coords</span><span class="p">):</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="n">Coords</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span>
+    <span class="n">ncoords</span> <span class="o">=</span> <span class="n">coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">faces</span><span class="p">,</span> <span class="n">Varray</span><span class="p">):</span>
+        <span class="n">nfaces</span> <span class="o">=</span> <span class="n">faces</span><span class="o">.</span><span class="n">nrows</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">faces</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="n">faces</span><span class="o">.</span><span class="n">ndim</span><span class="o">==</span><span class="mi">2</span><span class="p">:</span>
+        <span class="n">nfaces</span> <span class="o">=</span> <span class="n">faces</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">faces</span> <span class="o">=</span> <span class="p">[</span><span class="n">faces</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">faces</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">faces</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">at</span><span class="o">.</span><span class="n">Int</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">faces</span><span class="p">]</span>
+        <span class="n">nfaces</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">faces</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid faces&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">coords</span><span class="p">,</span> <span class="n">faces</span><span class="p">,</span> <span class="n">ncoords</span><span class="p">,</span> <span class="n">nfaces</span>
+
+
+<div class="viewcode-block" id="writeOFF"><a class="viewcode-back" href="../ref/filewrite.html#filewrite.writeOFF">[docs]</a><span class="k">def</span> <span class="nf">writeOFF</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">faces</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+             <span class="n">comment</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">signature</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Write polygons to a file in OFF format.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fn: :term:`path_like`</span>
+<span class="sd">        The output file name, commonly having a suffix &#39;.off&#39;.</span>
+<span class="sd">        If the suffix ends on &#39;.gz&#39; or &#39;.bz2&#39;, the file will transparently</span>
+<span class="sd">        be compressed during writing.</span>
+<span class="sd">    coords: :term:`coords_like` | :class:`~mesh.Mesh` | :class:`~polygons.Polygons`</span>
+<span class="sd">        A float array (ncoords, 3) with the coordinates of all vertices.</span>
+<span class="sd">        As a convenience, a Mesh or Polygons object may be provided instead.</span>
+<span class="sd">        In that case the coords will be taken from that object and the faces</span>
+<span class="sd">        argument will be set to the object&#39;s elems attribute.</span>
+<span class="sd">    faces: :class:`~varray.Varray` | ndarray | list of ndarray</span>
+<span class="sd">        Specifies the connectivity of the faces to be stored in the OFF file.</span>
+<span class="sd">        It is either a Varray like in a :class:`Polygons` object, or a 2D</span>
+<span class="sd">        int array or a list of arrays, holding one or more connectivity</span>
+<span class="sd">        tables of plexitude &gt;= 3.</span>
+<span class="sd">        This argument is required if coords is a :term:`coords_like` and is</span>
+<span class="sd">        ignored if coords is a Mesh or Polygons.</span>
+<span class="sd">    name: str, optional</span>
+<span class="sd">        The name of the object to be stored in the file.</span>
+<span class="sd">    comment: str, optional</span>
+<span class="sd">        An extra comment to be stored in the file.</span>
+<span class="sd">    signature: bool</span>
+<span class="sd">        If True (default), a comment is inserted with the creator name and</span>
+<span class="sd">        version and the creation date. This can be switch off for cases</span>
+<span class="sd">        where the file has to be further processed by software that does not</span>
+<span class="sd">        understand comments in .off files.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    See https://en.wikipedia.org/wiki/OFF_(file_format).</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from pyformex.polygons import Polygons</span>
+<span class="sd">    &gt;&gt;&gt; from pyformex.fileread import readOFF</span>
+<span class="sd">    &gt;&gt;&gt; f = Path(&#39;test_filewrite.off&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; P = Polygons(Coords(&#39;011233&#39;), [[0,1,4,5], [4,1,2], [2,3,4]])</span>
+<span class="sd">    &gt;&gt;&gt; writeOFF(f, P.coords, P.elems, name=&#39;test&#39;, comment=&#39;This is a test&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; print(f.read_text())</span>
+<span class="sd">    OFF</span>
+<span class="sd">    # OFF file written by pyFormex ...</span>
+<span class="sd">    # This is a test</span>
+<span class="sd">    # name=test</span>
+<span class="sd">    6 3 0</span>
+<span class="sd">    0.0 0.0 0.0</span>
+<span class="sd">    1.0 0.0 0.0</span>
+<span class="sd">    2.0 0.0 0.0</span>
+<span class="sd">    2.0 1.0 0.0</span>
+<span class="sd">    1.0 1.0 0.0</span>
+<span class="sd">    0.0 1.0 0.0</span>
+<span class="sd">    4 0 1 4 5</span>
+<span class="sd">    3 4 1 2</span>
+<span class="sd">    3 2 3 4</span>
+<span class="sd">    &gt;&gt;&gt; P = readOFF(f)</span>
+<span class="sd">    &gt;&gt;&gt; print(P)</span>
+<span class="sd">    Polygons: nnodes: 6, nelems: 3, nplex: min 3, max 4, eltype: polygon</span>
+<span class="sd">      BBox: [0. 0. 0.], [2. 1. 0.]</span>
+<span class="sd">      Size: [2. 1. 0.]</span>
+<span class="sd">    &gt;&gt;&gt; print(P.coords)</span>
+<span class="sd">    [[0. 0. 0.]</span>
+<span class="sd">     [1. 0. 0.]</span>
+<span class="sd">     [2. 0. 0.]</span>
+<span class="sd">     [2. 1. 0.]</span>
+<span class="sd">     [1. 1. 0.]</span>
+<span class="sd">     [0. 1. 0.]]</span>
+<span class="sd">    &gt;&gt;&gt; print(P.elems)</span>
+<span class="sd">    Varray (3, (3, 4))</span>
+<span class="sd">      [0 1 4 5]</span>
+<span class="sd">      [4 1 2]</span>
+<span class="sd">      [2 3 4]</span>
+<span class="sd">    &gt;&gt;&gt; f.remove()</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">coords</span><span class="p">,</span> <span class="n">faces</span><span class="p">,</span> <span class="n">ncoords</span><span class="p">,</span> <span class="n">nfaces</span> <span class="o">=</span> <span class="n">_check_coords_faces</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">faces</span><span class="p">)</span>
+    <span class="n">nedges</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># This is currently not used</span>
+    <span class="n">fn</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Write OFF file </span><span class="si">{</span><span class="n">fn</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+    <span class="k">with</span> <span class="n">utils</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fil</span><span class="p">:</span>
+        <span class="n">writeText</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="s2">&quot;OFF</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">signature</span><span class="p">:</span>
+            <span class="n">writeText</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;# OFF file written by </span><span class="si">{</span><span class="n">pf</span><span class="o">.</span><span class="n">Version</span><span class="p">()</span><span class="si">}</span><span class="s2"> on </span><span class="si">{</span><span class="n">now</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">comment</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">writeText</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;# </span><span class="si">{</span><span class="n">comment</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">writeText</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;# name=</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">writeText</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ncoords</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">nfaces</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">nedges</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Writing </span><span class="si">{</span><span class="n">ncoords</span><span class="si">}</span><span class="s2"> vertices&quot;</span><span class="p">)</span>
+        <span class="n">writeData</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Writing </span><span class="si">{</span><span class="n">nfaces</span><span class="si">}</span><span class="s2"> faces&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">faces</span><span class="p">,</span> <span class="n">Varray</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">faces</span><span class="p">:</span>
+                <span class="n">elemdata</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([[</span><span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)],</span> <span class="n">row</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">at</span><span class="o">.</span><span class="n">Int</span><span class="p">)</span>
+                <span class="n">writeData</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="n">elemdata</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%i</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">fplex</span> <span class="ow">in</span> <span class="n">faces</span><span class="p">:</span>
+                <span class="n">elemdata</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">fplex</span><span class="p">,</span> <span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span>
+                                  <span class="n">constant_values</span><span class="o">=</span><span class="n">fplex</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">writeData</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="n">elemdata</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%i</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;File size: </span><span class="si">{</span><span class="n">fn</span><span class="o">.</span><span class="n">size</span><span class="si">}</span><span class="s2"> bytes&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="writeOBJ"><a class="viewcode-back" href="../ref/filewrite.html#filewrite.writeOBJ">[docs]</a><span class="k">def</span> <span class="nf">writeOBJ</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">faces</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">edges</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+             <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">comment</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Write polygons to a file in OBJ format.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fn: :term:`path_like`</span>
+<span class="sd">        The output file name, commonly having a suffix &#39;.obj&#39;.</span>
+<span class="sd">        If the suffix ends on &#39;.gz&#39; or &#39;.bz2&#39;, the file will transparently</span>
+<span class="sd">        be compressed during writing.</span>
+<span class="sd">    coords: :term:`coords_like` | :class:`~mesh.Mesh` | :class:`~polygons.Polygons`</span>
+<span class="sd">        A float array (ncoords, 3) with the coordinates of all vertices.</span>
+<span class="sd">        As a convenience, a Mesh or Polygons object may be provided instead.</span>
+<span class="sd">        In that case the coords will be taken from that object and the faces</span>
+<span class="sd">        argument will be set to the object&#39;s elems attribute.</span>
+<span class="sd">    faces: :class:`~varray.Varray` | ndarray | list of ndarray</span>
+<span class="sd">        Specifies the connectivity of the faces to be stored in the OFF file.</span>
+<span class="sd">        It is either a Varray like in a :class:`Polygons` object, or a 2D</span>
+<span class="sd">        int array or a list of arrays, holding one or more connectivity</span>
+<span class="sd">        tables of plexitude &gt;= 3.</span>
+<span class="sd">        This argument is required if coords is a :term:`coords_like` and is</span>
+<span class="sd">        ignored if coords is a Mesh or Polygons.</span>
+<span class="sd">    edges: :class:`~connectivity.Connectivity` like, optional</span>
+<span class="sd">        A connectivity table with plexitude 2, specifying the edges to be</span>
+<span class="sd">        stored in the OBJ file.</span>
+<span class="sd">    points: :class:`~connectivity.Connectivity` like, optional</span>
+<span class="sd">        A connectivity table with plexitude 1 specifying the points to be</span>
+<span class="sd">        stored in the OBJ file.</span>
+<span class="sd">    name: str, optional</span>
+<span class="sd">        The name of the object to be stored in the file.</span>
+<span class="sd">    comment: str, optional</span>
+<span class="sd">        An extra comment to be stored in the file.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    See https://en.wikipedia.org/wiki/OBJ_(file_format).</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from pyformex.polygons import Polygons</span>
+<span class="sd">    &gt;&gt;&gt; from pyformex.fileread import readOBJ</span>
+<span class="sd">    &gt;&gt;&gt; f = Path(&#39;test_filewrite.obj&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; P = Polygons(Coords(&#39;011233&#39;), [[0,1,4,5], [4,1,2], [2,3,4]])</span>
+<span class="sd">    &gt;&gt;&gt; writeOBJ(f, P.coords, P.elems, name=&#39;test&#39;, comment=&#39;This is a test&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; print(f.read_text())</span>
+<span class="sd">    # OBJ file written by pyFormex ...</span>
+<span class="sd">    # This is a test</span>
+<span class="sd">    o test</span>
+<span class="sd">    v 0.0 0.0 0.0</span>
+<span class="sd">    v 1.0 0.0 0.0</span>
+<span class="sd">    v 2.0 0.0 0.0</span>
+<span class="sd">    v 2.0 1.0 0.0</span>
+<span class="sd">    v 1.0 1.0 0.0</span>
+<span class="sd">    v 0.0 1.0 0.0</span>
+<span class="sd">    f 1 2 5 6</span>
+<span class="sd">    f 5 2 3</span>
+<span class="sd">    f 3 4 5</span>
+<span class="sd">    # End</span>
+<span class="sd">    &gt;&gt;&gt; P = readOBJ(f)</span>
+<span class="sd">    &gt;&gt;&gt; print(P)</span>
+<span class="sd">    Polygons: nnodes: 6, nelems: 3, nplex: min 3, max 4, eltype: polygon</span>
+<span class="sd">      BBox: [0. 0. 0.], [2. 1. 0.]</span>
+<span class="sd">      Size: [2. 1. 0.]</span>
+<span class="sd">    &gt;&gt;&gt; print(P.coords)</span>
+<span class="sd">    [[0. 0. 0.]</span>
+<span class="sd">     [1. 0. 0.]</span>
+<span class="sd">     [2. 0. 0.]</span>
+<span class="sd">     [2. 1. 0.]</span>
+<span class="sd">     [1. 1. 0.]</span>
+<span class="sd">     [0. 1. 0.]]</span>
+<span class="sd">    &gt;&gt;&gt; print(P.elems)</span>
+<span class="sd">    Varray (3, (3, 4))</span>
+<span class="sd">      [0 1 4 5]</span>
+<span class="sd">      [4 1 2]</span>
+<span class="sd">      [2 3 4]</span>
+<span class="sd">    &gt;&gt;&gt; f.remove()</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_format_</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="nf">_format</span><span class="p">(</span><span class="n">nplex</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the output format for a give plexitude&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">fmt</span> <span class="o">=</span> <span class="n">_format_</span><span class="p">[</span><span class="n">nplex</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="c1"># element code: p(oint), l(ine) or f(ace)</span>
+            <span class="n">code</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="s1">&#39;l&#39;</span><span class="p">}</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">nplex</span><span class="p">,</span> <span class="s1">&#39;f&#39;</span><span class="p">)</span>
+            <span class="n">fmt</span> <span class="o">=</span> <span class="n">_format_</span><span class="p">[</span><span class="n">nplex</span><span class="p">]</span> <span class="o">=</span> <span class="n">code</span> <span class="o">+</span> <span class="p">(</span><span class="s1">&#39; </span><span class="si">%s</span><span class="s1">&#39;</span><span class="o">*</span><span class="n">nplex</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="k">return</span> <span class="n">fmt</span>
+
+    <span class="n">coords</span><span class="p">,</span> <span class="n">faces</span><span class="p">,</span> <span class="n">ncoords</span><span class="p">,</span> <span class="n">nfaces</span> <span class="o">=</span> <span class="n">_check_coords_faces</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">faces</span><span class="p">)</span>
+    <span class="n">fn</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Write OBJ file </span><span class="si">{</span><span class="n">fn</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+    <span class="k">with</span> <span class="n">utils</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fil</span><span class="p">:</span>
+        <span class="n">fil</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;# OBJ file written by </span><span class="si">{</span><span class="n">pf</span><span class="o">.</span><span class="n">Version</span><span class="p">()</span><span class="si">}</span><span class="s2"> on </span><span class="si">{</span><span class="n">now</span><span class="si">}</span><span class="s2">&quot;</span><span class="o">+</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">comment</span><span class="p">:</span>
+            <span class="n">fil</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;# </span><span class="si">{</span><span class="n">comment</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fil</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;o </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Writing </span><span class="si">{</span><span class="n">ncoords</span><span class="si">}</span><span class="s2"> vertices&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">coords</span><span class="p">:</span>
+            <span class="n">fil</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;v </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Writing </span><span class="si">{</span><span class="n">nfaces</span><span class="si">}</span><span class="s2"> faces&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">faces</span><span class="p">,</span> <span class="n">Varray</span><span class="p">):</span>
+            <span class="n">faces</span> <span class="o">=</span> <span class="p">[</span><span class="n">faces</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">fplex</span> <span class="ow">in</span> <span class="n">faces</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">fplex</span><span class="p">:</span>
+                <span class="n">fil</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">_format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">e</span><span class="p">))</span> <span class="o">%</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">e</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>  <span class="c1"># OBJ format starts at 1</span>
+        <span class="n">fil</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;# End</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;File size: </span><span class="si">{</span><span class="n">fn</span><span class="o">.</span><span class="n">size</span><span class="si">}</span><span class="s2"> bytes&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="writePLY"><a class="viewcode-back" href="../ref/filewrite.html#filewrite.writePLY">[docs]</a><span class="k">def</span> <span class="nf">writePLY</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">faces</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">edges</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+             <span class="n">vcolor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fcolor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ecolor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+             <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">comment</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">binary</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Write polygons to a file in PLY format.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fn: :term:`path_like`</span>
+<span class="sd">        The output file name, commonly having a suffix &#39;.ply&#39;.</span>
+<span class="sd">        If the suffix ends on &#39;.gz&#39; or &#39;.bz2&#39;, the file will transparently</span>
+<span class="sd">        be compressed during writing.</span>
+<span class="sd">    coords: :term:`coords_like` | :class:`~mesh.Mesh` | :class:`~polygons.Polygons`</span>
+<span class="sd">        A float array (ncoords, 3) with the coordinates of all vertices.</span>
+<span class="sd">        As a convenience, a Mesh or Polygons object may be provided instead.</span>
+<span class="sd">        In that case the coords will be taken from that object and the faces</span>
+<span class="sd">        argument will be set to the object&#39;s elems attribute.</span>
+<span class="sd">    faces: :class:`~varray.Varray` | ndarray | list of ndarray</span>
+<span class="sd">        Specifies the connectivity of the faces to be stored in the OFF file.</span>
+<span class="sd">        It is either a Varray like in a :class:`Polygons` object, or a 2D</span>
+<span class="sd">        int array or a list of arrays, holding one or more connectivity</span>
+<span class="sd">        tables of plexitude &gt;= 3.</span>
+<span class="sd">        This argument is required if coords is a :term:`coords_like` and is</span>
+<span class="sd">        ignored if coords is a Mesh or Polygons.</span>
+<span class="sd">    edges: :class:`~connectivity.Connectivity` like, optional</span>
+<span class="sd">        A connectivity table with plexitude 2, specifying the edges to be</span>
+<span class="sd">        stored in the PLY file.</span>
+<span class="sd">    name: str, optional</span>
+<span class="sd">        The name of the object to be stored in the file.</span>
+<span class="sd">    comment: str, optional</span>
+<span class="sd">        An extra comment to be stored in the file.</span>
+<span class="sd">    binary: bool</span>
+<span class="sd">        If True, a binary file is written. The default is ascii.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    For details on the PLY format,</span>
+<span class="sd">    see `&lt;https://en.wikipedia.org/wiki/PLY_(file_format)&gt;`_.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from pyformex.polygons import Polygons</span>
+<span class="sd">    &gt;&gt;&gt; from pyformex.fileread import readPLY</span>
+<span class="sd">    &gt;&gt;&gt; f = Path(&#39;test_filewrite.ply&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; P = Polygons(Coords(&#39;011233&#39;), [[0,1,4,5], [4,1,2], [2,3,4]])</span>
+<span class="sd">    &gt;&gt;&gt; writePLY(f, P.coords, P.elems, name=&#39;test&#39;, comment=&#39;This is a test&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; print(f.read_text())</span>
+<span class="sd">    ply</span>
+<span class="sd">    format ascii 1.0</span>
+<span class="sd">    comment PLY file written by pyFormex ...</span>
+<span class="sd">    comment This is a test</span>
+<span class="sd">    comment name=test</span>
+<span class="sd">    element vertex 6</span>
+<span class="sd">    property float x</span>
+<span class="sd">    property float y</span>
+<span class="sd">    property float z</span>
+<span class="sd">    element face 3</span>
+<span class="sd">    property list int int vertex_indices</span>
+<span class="sd">    end_header</span>
+<span class="sd">    0.0 0.0 0.0</span>
+<span class="sd">    1.0 0.0 0.0</span>
+<span class="sd">    2.0 0.0 0.0</span>
+<span class="sd">    2.0 1.0 0.0</span>
+<span class="sd">    1.0 1.0 0.0</span>
+<span class="sd">    0.0 1.0 0.0</span>
+<span class="sd">    4 0 1 4 5</span>
+<span class="sd">    3 4 1 2</span>
+<span class="sd">    3 2 3 4</span>
+<span class="sd">    &gt;&gt;&gt; P = readPLY(f)</span>
+<span class="sd">    &gt;&gt;&gt; print(P)</span>
+<span class="sd">    Polygons: nnodes: 6, nelems: 3, nplex: min 3, max 4, eltype: polygon</span>
+<span class="sd">      BBox: [0. 0. 0.], [2. 1. 0.]</span>
+<span class="sd">      Size: [2. 1. 0.]</span>
+<span class="sd">    &gt;&gt;&gt; print(P.coords)</span>
+<span class="sd">    [[0. 0. 0.]</span>
+<span class="sd">     [1. 0. 0.]</span>
+<span class="sd">     [2. 0. 0.]</span>
+<span class="sd">     [2. 1. 0.]</span>
+<span class="sd">     [1. 1. 0.]</span>
+<span class="sd">     [0. 1. 0.]]</span>
+<span class="sd">    &gt;&gt;&gt; print(P.elems)</span>
+<span class="sd">    Varray (3, (3, 4))</span>
+<span class="sd">      [0 1 4 5]</span>
+<span class="sd">      [4 1 2]</span>
+<span class="sd">      [2 3 4]</span>
+<span class="sd">    &gt;&gt;&gt; writePLY(f, P, comment=&#39;This is a test&#39;, binary=True)</span>
+<span class="sd">    &gt;&gt;&gt; P = readPLY(f)</span>
+<span class="sd">    &gt;&gt;&gt; print(P)</span>
+<span class="sd">    Polygons: nnodes: 6, nelems: 3, nplex: min 3, max 4, eltype: polygon</span>
+<span class="sd">      BBox: [0. 0. 0.], [2. 1. 0.]</span>
+<span class="sd">      Size: [2. 1. 0.]</span>
+<span class="sd">    &gt;&gt;&gt; f.remove()</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">int_color</span><span class="p">(</span><span class="n">color</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="mi">255</span><span class="o">*</span><span class="n">vcolor</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">at</span><span class="o">.</span><span class="n">Int</span><span class="p">)</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">)</span>
+
+    <span class="n">coords</span><span class="p">,</span> <span class="n">faces</span><span class="p">,</span> <span class="n">ncoords</span><span class="p">,</span> <span class="n">nfaces</span> <span class="o">=</span> <span class="n">_check_coords_faces</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">faces</span><span class="p">)</span>
+    <span class="n">fn</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Write PLY file </span><span class="si">{</span><span class="n">fn</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">binary</span><span class="p">:</span>
+        <span class="n">fmt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;binary_</span><span class="si">{</span><span class="n">sys</span><span class="o">.</span><span class="n">byteorder</span><span class="si">}</span><span class="s2">_endian 1.0&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">fmt</span> <span class="o">=</span> <span class="s2">&quot;ascii 1.0&quot;</span>
+    <span class="n">header</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ply&quot;</span><span class="p">,</span>
+              <span class="sa">f</span><span class="s2">&quot;format </span><span class="si">{</span><span class="n">fmt</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+              <span class="sa">f</span><span class="s2">&quot;comment PLY file written by </span><span class="si">{</span><span class="n">pf</span><span class="o">.</span><span class="n">Version</span><span class="p">()</span><span class="si">}</span><span class="s2"> on </span><span class="si">{</span><span class="n">now</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">comment</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">header</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;comment </span><span class="si">{</span><span class="n">comment</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">header</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;comment name=</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">cprop_type</span> <span class="o">=</span> <span class="s1">&#39;uchar&#39;</span>
+    <span class="n">color_type</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;property </span><span class="si">{</span><span class="n">cprop_type</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">color</span><span class="si">}</span><span class="s2">&quot;</span>
+                  <span class="k">for</span> <span class="n">color</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="s1">&#39;green&#39;</span><span class="p">,</span> <span class="s1">&#39;blue&#39;</span><span class="p">]]</span>
+    <span class="c1"># vertices</span>
+    <span class="n">header</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;element vertex </span><span class="si">{</span><span class="n">ncoords</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                   <span class="s2">&quot;property float x&quot;</span><span class="p">,</span>
+                   <span class="s2">&quot;property float y&quot;</span><span class="p">,</span>
+                   <span class="s2">&quot;property float z&quot;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">vcolor</span><span class="p">:</span>
+        <span class="n">header</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">color_type</span><span class="p">)</span>
+        <span class="n">vcolor</span> <span class="o">=</span> <span class="n">int_color</span><span class="p">(</span><span class="n">vcolor</span><span class="p">)</span>
+    <span class="c1"># faces</span>
+    <span class="n">header</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;element face </span><span class="si">{</span><span class="n">nfaces</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                   <span class="s2">&quot;property list int int vertex_indices&quot;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">fcolor</span><span class="p">:</span>
+        <span class="n">header</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">color_type</span><span class="p">)</span>
+        <span class="n">fcolor</span> <span class="o">=</span> <span class="n">int_color</span><span class="p">(</span><span class="n">fcolor</span><span class="p">)</span>
+    <span class="c1"># edges</span>
+    <span class="k">if</span> <span class="n">edges</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">nedges</span> <span class="o">=</span> <span class="n">edges</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">header</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;element edge </span><span class="si">{</span><span class="n">nedges</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">header</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;property int vertex</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)])</span>
+        <span class="k">if</span> <span class="n">ecolor</span><span class="p">:</span>
+            <span class="n">header</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">color_type</span><span class="p">)</span>
+            <span class="n">ecolor</span> <span class="o">=</span> <span class="n">int_color</span><span class="p">(</span><span class="n">ecolor</span><span class="p">)</span>
+    <span class="c1"># finalize header</span>
+    <span class="n">header</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;end_header</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">header</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">utils</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fil</span><span class="p">:</span>
+        <span class="n">fil</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">header</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Writing </span><span class="si">{</span><span class="n">ncoords</span><span class="si">}</span><span class="s2"> vertices&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">binary</span><span class="p">:</span>
+            <span class="n">fil</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">coords</span><span class="o">.</span><span class="n">tobytes</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">writeData</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Writing </span><span class="si">{</span><span class="n">nfaces</span><span class="si">}</span><span class="s2"> faces&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">faces</span><span class="p">,</span> <span class="n">Varray</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">faces</span><span class="p">:</span>
+                <span class="n">elemdata</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([[</span><span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)],</span> <span class="n">row</span><span class="p">])</span>
+                <span class="n">elemdata</span> <span class="o">=</span> <span class="n">elemdata</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">binary</span><span class="p">:</span>
+                    <span class="n">fil</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">elemdata</span><span class="o">.</span><span class="n">tobytes</span><span class="p">())</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">writeData</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="n">elemdata</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%i</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">fplex</span> <span class="ow">in</span> <span class="n">faces</span><span class="p">:</span>
+                <span class="c1"># print(fplex.dtype) !! sometimes it&#39;s int64!!</span>
+                <span class="c1"># which is a disaster for the binary file</span>
+                <span class="n">elemdata</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">fplex</span><span class="p">,</span> <span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span>
+                                  <span class="n">constant_values</span><span class="o">=</span><span class="n">fplex</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">elemdata</span> <span class="o">=</span> <span class="n">elemdata</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">binary</span><span class="p">:</span>
+                    <span class="n">fil</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">elemdata</span><span class="o">.</span><span class="n">tobytes</span><span class="p">())</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">writeData</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="n">elemdata</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%i</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;File size: </span><span class="si">{</span><span class="n">fn</span><span class="o">.</span><span class="n">size</span><span class="si">}</span><span class="s2"> bytes&quot;</span><span class="p">)</span></div>
+
+
+<span class="c1"># Output of surface file formats</span>
+
+<div class="viewcode-block" id="writeGTS"><a class="viewcode-back" href="../ref/filewrite.html#filewrite.writeGTS">[docs]</a><span class="k">def</span> <span class="nf">writeGTS</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">surf</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Write a TriSurface to a file in GTS format.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fn: :term:`path_like`</span>
+<span class="sd">        The output file name, commonly having a suffix &#39;.gts&#39;.</span>
+<span class="sd">        If the suffix ends on &#39;.gz&#39; or &#39;.bz2&#39;, the file will transparently</span>
+<span class="sd">        be compressed during writing.</span>
+<span class="sd">    surf: TriSurface</span>
+<span class="sd">        The TriSurface to write to the file.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from pyformex.mesh import Mesh</span>
+<span class="sd">    &gt;&gt;&gt; f = Path(&#39;test_filewrite.gts&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; M = Mesh(eltype=&#39;quad4&#39;).convert(&#39;tri3-u&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; writeGTS(f, M.toSurface())</span>
+<span class="sd">    &gt;&gt;&gt; print(f.read_text())</span>
+<span class="sd">    4 5 2</span>
+<span class="sd">    0.000000 0.000000 0.000000</span>
+<span class="sd">    1.000000 0.000000 0.000000</span>
+<span class="sd">    1.000000 1.000000 0.000000</span>
+<span class="sd">    0.000000 1.000000 0.000000</span>
+<span class="sd">    1 2</span>
+<span class="sd">    3 1</span>
+<span class="sd">    4 1</span>
+<span class="sd">    2 3</span>
+<span class="sd">    3 4</span>
+<span class="sd">    1 4 2</span>
+<span class="sd">    5 3 2</span>
+<span class="sd">    #GTS file written by pyFormex ...</span>
+<span class="sd">    &lt;BLANKLINE&gt;</span>
+<span class="sd">    &gt;&gt;&gt; f.remove()</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fn</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
+    <span class="kn">from</span> <span class="nn">pyformex.trisurface</span> <span class="kn">import</span> <span class="n">TriSurface</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">surf</span><span class="p">,</span> <span class="n">TriSurface</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expected TriSurface as second argument&#39;&quot;</span><span class="p">)</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Write GTS file </span><span class="si">{</span><span class="n">fn</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">coords</span> <span class="o">=</span> <span class="n">surf</span><span class="o">.</span><span class="n">coords</span>
+    <span class="n">edges</span> <span class="o">=</span> <span class="n">surf</span><span class="o">.</span><span class="n">edges</span>
+    <span class="n">faces</span> <span class="o">=</span> <span class="n">surf</span><span class="o">.</span><span class="n">elem_edges</span>
+    <span class="k">with</span> <span class="n">utils</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fil</span><span class="p">:</span>
+        <span class="n">writeText</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">edges</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> &quot;</span>
+                       <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">faces</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">writeData</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%f</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+        <span class="n">writeData</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="n">edges</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%i</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+        <span class="n">writeData</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="n">faces</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%i</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+        <span class="n">writeText</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;#GTS file written by </span><span class="si">{</span><span class="n">pf</span><span class="o">.</span><span class="n">Version</span><span class="p">()</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;File size: </span><span class="si">{</span><span class="n">fn</span><span class="o">.</span><span class="n">size</span><span class="si">}</span><span class="s2"> bytes&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="writeSTL"><a class="viewcode-back" href="../ref/filewrite.html#filewrite.writeSTL">[docs]</a><span class="k">def</span> <span class="nf">writeSTL</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">binary</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Write a collection of triangles to an STL file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fn: :term:`path_like`</span>
+<span class="sd">        The output file name, commonly having a suffix &#39;.stl&#39; or</span>
+<span class="sd">        &#39;.stla&#39; (for ascii output) or &#39;.stlb&#39; (for binary output).</span>
+<span class="sd">        If the suffix ends on &#39;.gz&#39; or &#39;.bz2&#39;, the file will transparently</span>
+<span class="sd">        be compressed during writing.</span>
+<span class="sd">    x: Coords | Formex</span>
+<span class="sd">        A Coords or Formex with shape (ntriangles,3,3) holding the coordinates of</span>
+<span class="sd">        the vertices of the triangles to write to the file.</span>
+<span class="sd">    n: Coords, optional</span>
+<span class="sd">        A Coords with shape (ntriangles,3) holding the normal vectors to the</span>
+<span class="sd">        triangles. If not specified, they will be calculated.</span>
+<span class="sd">    binary: bool</span>
+<span class="sd">        If True, the output file format  will be a binary STL.</span>
+<span class="sd">        The default is an ascii STL.</span>
+<span class="sd">    color: array</span>
+<span class="sd">        An int of float array with the color to be added to the header of</span>
+<span class="sd">        a binary STL (in Magics format).</span>
+<span class="sd">        If float, values are in the range 0..1.</span>
+<span class="sd">        If int, values are in the range 0..255. Either 3 (RGB) or 4 (RGBA)</span>
+<span class="sd">        components should be given. If only 3, an alpha value will be added:</span>
+<span class="sd">        pf.canvas.transparency if float, or 128 in int type was used.</span>
+<span class="sd">        Float values are converted to int using :func:`colors.RGBAcolors`.</span>
+<span class="sd">        Note that color can only be used with a binary STL format, and</span>
+<span class="sd">        is not recognized by all STL processing software.</span>
+
+<span class="sd">    Warning</span>
+<span class="sd">    -------</span>
+<span class="sd">    The STL format stores a loose collection of triangles and does</span>
+<span class="sd">    not include connectivity information between the triangles.</span>
+<span class="sd">    Therefore the use of this format for intermediate storage is</span>
+<span class="sd">    **strongly discouraged**, as many processing algorithms will need</span>
+<span class="sd">    to build the connectivity information over and again, which may</span>
+<span class="sd">    lead to different results depending on round-off errors.</span>
+<span class="sd">    The STL format should only be used as a **final export** to</span>
+<span class="sd">    e.g. visualisation methods or machining processes.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from pyformex.mesh import Mesh</span>
+<span class="sd">    &gt;&gt;&gt; f = Path(&#39;test_filewrite.stl&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; M = Mesh(eltype=&#39;quad4&#39;).convert(&#39;tri3-u&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; writeSTL(f, M.toFormex())</span>
+<span class="sd">    &gt;&gt;&gt; print(f.read_text())</span>
+<span class="sd">    solid  Created by pyFormex ...</span>
+<span class="sd">      facet normal 0.0 0.0 1.0</span>
+<span class="sd">        outer loop</span>
+<span class="sd">          vertex 0.0 0.0 0.0</span>
+<span class="sd">          vertex 1.0 0.0 0.0</span>
+<span class="sd">          vertex 1.0 1.0 0.0</span>
+<span class="sd">        endloop</span>
+<span class="sd">      endfacet</span>
+<span class="sd">      facet normal 0.0 0.0 1.0</span>
+<span class="sd">        outer loop</span>
+<span class="sd">          vertex 1.0 1.0 0.0</span>
+<span class="sd">          vertex 0.0 1.0 0.0</span>
+<span class="sd">          vertex 0.0 0.0 0.0</span>
+<span class="sd">        endloop</span>
+<span class="sd">      endfacet</span>
+<span class="sd">    endsolid</span>
+<span class="sd">    &lt;BLANKLINE&gt;</span>
+<span class="sd">    &gt;&gt;&gt; f.remove()</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fn</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Formex</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">coords</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">==</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Expected an (ntri,3,3) array, got </span><span class="si">{</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">stltype</span> <span class="o">=</span> <span class="s1">&#39;binary&#39;</span> <span class="k">if</span> <span class="n">binary</span> <span class="k">else</span> <span class="s1">&#39;ascii&#39;</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Write </span><span class="si">{</span><span class="n">stltype</span><span class="si">}</span><span class="s2"> STL file </span><span class="si">{</span><span class="n">fn</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">geomtools</span>
+        <span class="n">a</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">geomtools</span><span class="o">.</span><span class="n">areaNormals</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">ndegen</span> <span class="o">=</span> <span class="n">geomtools</span><span class="o">.</span><span class="n">degenerate</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">ndegen</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">pf</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;The model contains </span><span class="si">{</span><span class="n">ndegen</span><span class="si">}</span><span class="s2"> degenerate triangles&quot;</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">([</span><span class="n">n</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">x</span><span class="p">])</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">checkArray</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;f&#39;</span><span class="p">)</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Writing </span><span class="si">{</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> triangles&quot;</span><span class="p">)</span>
+    <span class="n">mode</span> <span class="o">=</span> <span class="s1">&#39;wb&#39;</span> <span class="k">if</span> <span class="n">binary</span> <span class="k">else</span> <span class="s1">&#39;w&#39;</span>
+    <span class="k">with</span> <span class="n">utils</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span> <span class="k">as</span> <span class="n">fil</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">binary</span><span class="p">:</span>
+            <span class="n">write_stl_bin</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">color</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">write_stl_asc</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+    <span class="n">pf</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;File size: </span><span class="si">{</span><span class="n">fn</span><span class="o">.</span><span class="n">size</span><span class="si">}</span><span class="s2"> bytes&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="write_stl_bin"><a class="viewcode-back" href="../ref/filewrite.html#filewrite.write_stl_bin">[docs]</a><span class="k">def</span> <span class="nf">write_stl_bin</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Write a binary stl.</span>
+
+<span class="sd">    Note</span>
+<span class="sd">    ----</span>
+<span class="sd">    This is a low level routine for use in writeSTL. It is not intended</span>
+<span class="sd">    to be used directly.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fil: :term:`file_like`</span>
+<span class="sd">        The file to write the data to. It can be any object supporting</span>
+<span class="sd">        the write(bytes) method, like a file opened in binary write mode.</span>
+<span class="sd">    x: (ntri,4,3) float array</span>
+<span class="sd">        Array with 1 normal and 3 vertices and 1 normal per triangle.</span>
+<span class="sd">    color: (4,) int array, optional</span>
+<span class="sd">        Four color components in the range 0..255: red, green, blue and alpha.</span>
+<span class="sd">        If specified, these will be stored in the header and **may** be</span>
+<span class="sd">        recognized by some other software.</span>
+
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from pyformex.mesh import Mesh</span>
+<span class="sd">    &gt;&gt;&gt; from pyformex.fileread import readSTL</span>
+<span class="sd">    &gt;&gt;&gt; f = Path(&#39;test_filewrite.stl&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; M = Mesh(eltype=&#39;quad4&#39;).convert(&#39;tri3-u&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; writeSTL(f, M.toFormex().coords, binary=True, color=[255,0,0,128])</span>
+<span class="sd">    &gt;&gt;&gt; x, n, c = readSTL(f)</span>
+<span class="sd">    &gt;&gt;&gt; print(x)</span>
+<span class="sd">    [[[0.  0.  0.]</span>
+<span class="sd">      [1.  0.  0.]</span>
+<span class="sd">      [1.  1.  0.]]</span>
+<span class="sd">    &lt;BLANKLINE&gt;</span>
+<span class="sd">     [[1.  1.  0.]</span>
+<span class="sd">      [0.  1.  0.]</span>
+<span class="sd">      [0.  0.  0.]]]</span>
+<span class="sd">    &gt;&gt;&gt; print(n)</span>
+<span class="sd">    [[0.  0.  1.]</span>
+<span class="sd">     [0.  0.  1.]]</span>
+<span class="sd">    &gt;&gt;&gt; print(c)</span>
+<span class="sd">    (1.0, 0.0, 0.0)</span>
+<span class="sd">    &gt;&gt;&gt; f.remove()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">color</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">pyformex.colors</span> <span class="kn">import</span> <span class="n">RGBAcolor</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="n">RGBAcolor</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
+    <span class="n">ver</span> <span class="o">=</span> <span class="n">pf</span><span class="o">.</span><span class="n">fullVersion</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;latin1&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ver</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">50</span><span class="p">:</span>
+        <span class="n">ver</span> <span class="o">=</span> <span class="n">ver</span><span class="p">[:</span><span class="mi">50</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">color</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot; COLOR=</span><span class="si">%c%c%c%c</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
+        <span class="n">pf</span><span class="o">.</span><span class="n">verbose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Adding </span><span class="si">{</span><span class="n">color</span><span class="si">}</span><span class="s2"> to the header&quot;</span><span class="p">)</span>
+
+    <span class="n">head</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;</span><span class="si">%-50s</span><span class="s2"> </span><span class="si">%-29s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ver</span><span class="p">,</span> <span class="n">color</span><span class="p">)</span>
+    <span class="n">fil</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">head</span><span class="p">)</span>
+    <span class="n">ntri</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ntri</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span><span class="o">.</span><span class="n">tofile</span><span class="p">(</span><span class="n">fil</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ntri</span><span class="p">):</span>
+        <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">tofile</span><span class="p">(</span><span class="n">fil</span><span class="p">)</span>
+        <span class="n">fil</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x00\x00</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="write_stl_asc"><a class="viewcode-back" href="../ref/filewrite.html#filewrite.write_stl_asc">[docs]</a><span class="k">def</span> <span class="nf">write_stl_asc</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Write a collection of triangles to an ascii .stl file.</span>
+
+<span class="sd">    Note</span>
+<span class="sd">    ----</span>
+<span class="sd">    This is a low level routine for use in writeSTL. It is not intended</span>
+<span class="sd">    to be used directly.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fil: :term:`file_like`</span>
+<span class="sd">        The file to write the data to. It can be any object supporting</span>
+<span class="sd">        the write(bytes) method, like a file opened in binary write mode.</span>
+<span class="sd">    x: (ntri,4,3) float array</span>
+<span class="sd">        Array with 1 normal and 3 vertices and 1 normal per triangle.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fil</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;solid  Created by </span><span class="si">{</span><span class="n">pf</span><span class="o">.</span><span class="n">fullVersion</span><span class="p">()</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">x</span><span class="p">:</span>
+        <span class="n">fil</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;  facet normal </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">e</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="n">fil</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;    outer loop</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">e</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+            <span class="n">fil</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;      vertex </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">p</span><span class="p">))</span>
+        <span class="n">fil</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;    endloop</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">fil</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;  endfacet</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">fil</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;endsolid</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="writeData"><a class="viewcode-back" href="../ref/filewrite.html#filewrite.writeData">[docs]</a><span class="k">def</span> <span class="nf">writeData</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Write an array of numerical data to an open file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fil: :term:`file_like`</span>
+<span class="sd">        The file to write the data to. It can be any object supporting</span>
+<span class="sd">        the write(bytes) method, like a file opened in binary write mode.</span>
+<span class="sd">    data: :term:`array_like`</span>
+<span class="sd">        A numerical array of int or float type. For output, the array</span>
+<span class="sd">        will be reshaped to a 2D array, keeping the length of the last axis.</span>
+<span class="sd">    fmt: str, optional</span>
+<span class="sd">        A format string compatible with the array data type.</span>
+<span class="sd">        If not provided, the data are written as a single block</span>
+<span class="sd">        using :func:`numpy.tofile`.</span>
+<span class="sd">        If provided, the format string should contain a valid format</span>
+<span class="sd">        converter for a single data item. It may also contain the necessary</span>
+<span class="sd">        spacing or separator.</span>
+<span class="sd">        Examples are &#39;%5i &#39; for int data and &#39;%f,&#39; or &#39;%10.3e&#39;</span>
+<span class="sd">        for float data.</span>
+<span class="sd">    sep: str, optional</span>
+<span class="sd">        A string to be used as separator between single items.</span>
+<span class="sd">        Only used if fmt is provided and the file is written in ascii mode.</span>
+<span class="sd">    end: str, optional</span>
+<span class="sd">        A string to be written at the end of the data block (if no `fmt`)</span>
+<span class="sd">        or at the end of each row (with `fmt`). The default value is a newline</span>
+<span class="sd">        character.</span>
+<span class="sd">        Only used if fmt is provided and the file is written in ascii mode.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; i = np.eye(3)</span>
+<span class="sd">    &gt;&gt;&gt; f = Path(&#39;test_filewrite.out&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; with f.open(&#39;wb&#39;) as fil:</span>
+<span class="sd">    ...     writeData(fil,i,sep=&#39; &#39;)</span>
+<span class="sd">    &gt;&gt;&gt; f.size</span>
+<span class="sd">    35</span>
+<span class="sd">    &gt;&gt;&gt; print(f.read_text())</span>
+<span class="sd">    1.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 1.0</span>
+<span class="sd">    &gt;&gt;&gt; with f.open(&#39;wb&#39;) as fil:</span>
+<span class="sd">    ...     writeData(fil,i,fmt=&#39;%.4f&#39;,sep=&#39; &#39;)</span>
+<span class="sd">    &gt;&gt;&gt; f.size</span>
+<span class="sd">    63</span>
+<span class="sd">    &gt;&gt;&gt; print(f.read_text())</span>
+<span class="sd">    1.0000 0.0000 0.0000</span>
+<span class="sd">    0.0000 1.0000 0.0000</span>
+<span class="sd">    0.0000 0.0000 1.0000</span>
+<span class="sd">    &gt;&gt;&gt; i = np.arange(24).reshape(2,3,4)</span>
+<span class="sd">    &gt;&gt;&gt; with f.open(&#39;wb&#39;) as fil:</span>
+<span class="sd">    ...     writeData(fil,i,fmt=&#39;%.4f&#39;,sep=&#39; &#39;)</span>
+<span class="sd">    &gt;&gt;&gt; print(f.read_text())</span>
+<span class="sd">    0.0000 1.0000 2.0000 3.0000</span>
+<span class="sd">    4.0000 5.0000 6.0000 7.0000</span>
+<span class="sd">    8.0000 9.0000 10.0000 11.0000</span>
+<span class="sd">    12.0000 13.0000 14.0000 15.0000</span>
+<span class="sd">    16.0000 17.0000 18.0000 19.0000</span>
+<span class="sd">    20.0000 21.0000 22.0000 23.0000</span>
+<span class="sd">    &gt;&gt;&gt; f.remove()</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">fmt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">tofile</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="n">sep</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ncols</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="p">)</span>
+        <span class="n">template</span> <span class="o">=</span> <span class="n">sep</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">fmt</span><span class="p">]</span> <span class="o">*</span> <span class="n">ncols</span><span class="p">)</span> <span class="o">+</span> <span class="n">end</span>
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">val</span><span class="p">:</span>
+            <span class="n">writeText</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="n">template</span> <span class="o">%</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">v</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="writeIData"><a class="viewcode-back" href="../ref/filewrite.html#filewrite.writeIData">[docs]</a><span class="k">def</span> <span class="nf">writeIData</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">fmt</span><span class="p">,</span> <span class="n">ind</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Write an indexed array of numerical data to an open file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fil: :term:`file_like`</span>
+<span class="sd">        The file to write the data to. It can be any object supporting</span>
+<span class="sd">        the write(bytes) method, like a file opened in binary write mode.</span>
+<span class="sd">    data: :term:`array_like`</span>
+<span class="sd">        A numerical array of int or float type. For output, the array</span>
+<span class="sd">        will be reshaped to a 2D array, keeping the length of the last axis.</span>
+<span class="sd">    fmt: str</span>
+<span class="sd">        A format string compatible with the array data type.</span>
+<span class="sd">        The format string should contain a valid format converter for a</span>
+<span class="sd">        a single data item. It may also contain the necessary spacing or</span>
+<span class="sd">        separator. Examples are &#39;%5i &#39; for int data and &#39;%f,&#39; or &#39;%10.3e&#39;</span>
+<span class="sd">        for float data.</span>
+<span class="sd">    ind: int or int :term:`array_like`</span>
+<span class="sd">        The row indices to write with the data. If an array, its length</span>
+<span class="sd">        should be equal to the numbe of rows in the (2D-reshaped) `data`</span>
+<span class="sd">        array. If a single int, it specifies the index for the first row,</span>
+<span class="sd">        and the value will be automatically incremented for the other rows.</span>
+<span class="sd">    sep: str, optional</span>
+<span class="sd">        A string to be used as separator between single items.</span>
+<span class="sd">    end: str, optional</span>
+<span class="sd">        A string to be written at the end of the data block (if no `fmt`)</span>
+<span class="sd">        or at the end of each row (with `fmt`). The default value is a newline</span>
+<span class="sd">        character.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; i = np.eye(3)</span>
+<span class="sd">    &gt;&gt;&gt; f = Path(&#39;test_filewrite.out&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; with f.open(&#39;wb&#39;) as fil:</span>
+<span class="sd">    ...     writeIData(fil,i,fmt=&#39;%.4f&#39;,sep=&#39; &#39;)</span>
+<span class="sd">    &gt;&gt;&gt; f.size</span>
+<span class="sd">    72</span>
+<span class="sd">    &gt;&gt;&gt; print(f.read_text())</span>
+<span class="sd">    1  1.0000 0.0000 0.0000</span>
+<span class="sd">    2  0.0000 1.0000 0.0000</span>
+<span class="sd">    3  0.0000 0.0000 1.0000</span>
+<span class="sd">    &gt;&gt;&gt; f.remove()</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ncols</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">val</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="p">)</span>
+    <span class="n">nrows</span> <span class="o">=</span> <span class="n">val</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">at</span><span class="o">.</span><span class="n">isInt</span><span class="p">(</span><span class="n">ind</span><span class="p">):</span>
+        <span class="n">ind</span> <span class="o">=</span> <span class="n">ind</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nrows</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ind</span> <span class="o">=</span> <span class="n">ind</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ind</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">nrows</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Index should have same length as data&quot;</span><span class="p">)</span>
+    <span class="n">template</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">  &quot;</span> <span class="o">+</span> <span class="n">sep</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">fmt</span><span class="p">]</span> <span class="o">*</span> <span class="n">ncols</span><span class="p">)</span> <span class="o">+</span> <span class="n">end</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">ind</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="n">writeText</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="n">template</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="o">*</span><span class="n">v</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="writeText"><a class="viewcode-back" href="../ref/filewrite.html#filewrite.writeText">[docs]</a><span class="k">def</span> <span class="nf">writeText</span><span class="p">(</span><span class="n">fil</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Write text to a file opened in text or binary mode</span>
+
+<span class="sd">    text can be either str or bytes. If not matching the open mode,</span>
+<span class="sd">    text is encoded to/decoded from utf-8</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="s1">&#39;b&#39;</span> <span class="ow">in</span> <span class="n">fil</span><span class="o">.</span><span class="n">mode</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="n">text</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="n">text</span>
+    <span class="n">fil</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">out</span><span class="p">)</span></div>
+
+
+<span class="c1"># End</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">filewrite</a></li--> 
+      </ul>
+    </div>
+    <div class="footer">
+    <span class="left">
+        &copy; Copyright 2004-2023, Benedict Verhegghe.
+    </span>
+      Last updated on Mar 27, 2023.
+    <span class="right">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.4.3.
+    </span>
+    </div>
+  </body>
+</html>

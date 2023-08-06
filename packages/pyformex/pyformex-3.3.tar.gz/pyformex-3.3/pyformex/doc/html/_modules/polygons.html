@@ -1,0 +1,1397 @@
+
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><!--
+##
+##  This file is part of the pyFormex project.
+##  pyFormex is a tool for generating, manipulating and transforming 3D
+##  geometrical models by sequences of mathematical operations.
+##  Home page: http://pyformex.org
+##  Project page:  http://savannah.nongnu.org/projects/pyformex/
+##  Copyright (C) Benedict Verhegghe (benedict.verhegghe@ugent.be)
+##  Distributed under the GNU General Public License version 3 or later.
+##
+##
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see http://www.gnu.org/licenses/.
+##
+-->
+    <title>polygons &#8212; pyFormex 3.3 documentation</title>
+
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pyformex.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+<link rel="icon" type="image/png" href="../_static/pyformex_fav.png" />
+
+  </head><body>
+
+<div class="header">
+  <a href="http://pyformex.org">
+  <img src="../_static/scallop_dome_small.png" alt="scallop dome" border="0" hspace="20" vspace="12" align="left" />
+  <img src="../_static/pyformex-logo-2.png" alt="pyformex logo" border="0" hspace="10" vspace="8" align="left" />
+  </a>
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">polygons</a></li--> 
+      </ul>
+    </div>
+
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<!-- PYFORMEX_SIDEBAR_LOGO -->
+<!-- PYFORMEX_WEBSITE_SIDEBAR_TOP -->
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for polygons</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1">##</span>
+<span class="c1">##  SPDX-FileCopyrightText: © 2007-2023 Benedict Verhegghe &lt;bverheg@gmail.com&gt;</span>
+<span class="c1">##  SPDX-License-Identifier: GPL-3.0-or-later</span>
+<span class="c1">##</span>
+<span class="c1">##  This file is part of pyFormex 3.3  (Sun Mar 26 20:16:15 CEST 2023)</span>
+<span class="c1">##  pyFormex is a tool for generating, manipulating and transforming 3D</span>
+<span class="c1">##  geometrical models by sequences of mathematical operations.</span>
+<span class="c1">##  Home page: https://pyformex.org</span>
+<span class="c1">##  Project page: https://savannah.nongnu.org/projects/pyformex/</span>
+<span class="c1">##  Development: https://gitlab.com/bverheg/pyformex</span>
+<span class="c1">##  Distributed under the GNU General Public License version 3 or later.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is free software: you can redistribute it and/or modify</span>
+<span class="c1">##  it under the terms of the GNU General Public License as published by</span>
+<span class="c1">##  the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1">##  (at your option) any later version.</span>
+<span class="c1">##</span>
+<span class="c1">##  This program is distributed in the hope that it will be useful,</span>
+<span class="c1">##  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1">##  GNU General Public License for more details.</span>
+<span class="c1">##</span>
+<span class="c1">##  You should have received a copy of the GNU General Public License</span>
+<span class="c1">##  along with this program.  If not, see http://www.gnu.org/licenses/.</span>
+<span class="c1">##</span>
+
+<span class="sd">&quot;&quot;&quot;Polygon meshes.</span>
+
+<span class="sd">This module defines the Polygons class, which can be used to describe</span>
+<span class="sd">discrete geometrical models consisting of polygons.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">arraytools</span> <span class="k">as</span> <span class="n">at</span>
+<span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">geomtools</span> <span class="k">as</span> <span class="n">gt</span>
+<span class="kn">from</span> <span class="nn">pyformex.coords</span> <span class="kn">import</span> <span class="n">Coords</span>
+<span class="kn">from</span> <span class="nn">pyformex.mesh</span> <span class="kn">import</span> <span class="n">Mesh</span>
+<span class="kn">from</span> <span class="nn">pyformex.varray</span> <span class="kn">import</span> <span class="n">Varray</span>
+<span class="kn">from</span> <span class="nn">pyformex.geometry</span> <span class="kn">import</span> <span class="n">Geometry</span>
+<span class="kn">from</span> <span class="nn">pyformex.elements</span> <span class="kn">import</span> <span class="n">Elems</span><span class="p">,</span> <span class="n">ElementType</span>
+
+<span class="c1"># These are here for the read/write functions</span>
+<span class="c1"># from pyformex.path import Path</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Polygons&#39;</span><span class="p">,</span> <span class="s1">&#39;nodalVSum&#39;</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">table_func</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_memory</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">compute_tables</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_memory</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">wrapper</span>
+
+<span class="c1">##############################################################</span>
+
+<div class="viewcode-block" id="Polygons"><a class="viewcode-back" href="../ref/polygons.html#polygons.Polygons">[docs]</a><span class="nd">@utils</span><span class="o">.</span><span class="n">pzf_register</span>
+<span class="k">class</span> <span class="nc">Polygons</span><span class="p">(</span><span class="n">Geometry</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Polygons is a discrete geometrical model consisting of polygons.</span>
+
+<span class="sd">    The Polygons class is implemented in a similar manner as the</span>
+<span class="sd">    :class:`Mesh` and :class`TriSurface` classes: the coordinates of</span>
+<span class="sd">    all the vertices are collected in a single :class:`Coords` array,</span>
+<span class="sd">    and the &#39;elements&#39; (polygons) are defined using indices into that</span>
+<span class="sd">    array. While the :class:`Mesh` and :class`TriSurface` classes store</span>
+<span class="sd">    the elements in an :class:`Elems` array (requiring a fixed plexitude</span>
+<span class="sd">    for all elements), the Polygons class uses a :class:`Varray` so that</span>
+<span class="sd">    the polygons can have a variable number of vertices.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    coords: :term:`coords_like`</span>
+<span class="sd">        A 2-dim :class:`~coords.Coords` (or data to initalize it) with the</span>
+<span class="sd">        coordinates of all the vertices used to define the polygons.</span>
+<span class="sd">    elems: :class:`~varray.Varray`</span>
+<span class="sd">        A :class:`~varray.Varray` (or data to initalize it) with the indices</span>
+<span class="sd">        of the vertices that define each of the polygons. All values in elems</span>
+<span class="sd">        should be in the range 0 &lt;= value &lt; len(coords).</span>
+<span class="sd">    prop: int :term:`array_like`, optional</span>
+<span class="sd">        1-dim int array with non-negative element property numbers.</span>
+<span class="sd">        If provided, :meth:`setProp` will be called to assign the</span>
+<span class="sd">        specified properties.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    A Polygons with a triangle and a square.</span>
+
+<span class="sd">    &gt;&gt;&gt; P = Polygons(Coords(&#39;0123&#39;), [[0,1,2], [0,1,2,3]])</span>
+<span class="sd">    &gt;&gt;&gt; print(P.report())</span>
+<span class="sd">    Polygons: nnodes: 4, nelems: 2, nplex: min 3, max 4, eltype: polygon</span>
+<span class="sd">      BBox: [0. 0. 0.], [1. 1. 0.]</span>
+<span class="sd">      Size: [1. 1. 0.]</span>
+<span class="sd">      Coords: [[0. 0. 0.]</span>
+<span class="sd">               [1. 0. 0.]</span>
+<span class="sd">               [1. 1. 0.]</span>
+<span class="sd">               [0. 1. 0.]]</span>
+<span class="sd">      Elems: Varray (2, (3, 4))</span>
+<span class="sd">               [0 1 2]</span>
+<span class="sd">               [0 1 2 3]</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">elems</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">prop</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize a new Mesh.&quot;&quot;&quot;</span>
+        <span class="n">Geometry</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">coords</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">elems</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">coords</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">elems</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># Create an empty Polygons object</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">coords</span> <span class="o">=</span> <span class="n">Coords</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">elems</span> <span class="o">=</span> <span class="n">Varray</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">prop</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">return</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Both coords and elems need to be specified&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">Coords</span><span class="p">):</span>
+            <span class="n">coords</span> <span class="o">=</span> <span class="n">Coords</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">coords</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Expected 2D coordinate array, got </span><span class="si">{</span><span class="n">coords</span><span class="o">.</span><span class="n">ndim</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">elems</span><span class="p">,</span> <span class="n">Varray</span><span class="p">):</span>
+            <span class="n">elems</span> <span class="o">=</span> <span class="n">Varray</span><span class="p">(</span><span class="n">elems</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">elems</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="p">(</span>
+                <span class="n">elems</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="n">coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">or</span> <span class="n">elems</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Invalid connectivity data: &quot;</span>
+                <span class="s2">&quot;some node number(s) not in coords array &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;(min=</span><span class="si">{</span><span class="n">elems</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="si">}</span><span class="s2">, max=</span><span class="si">{</span><span class="n">elems</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="si">}</span><span class="s2">, &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;ncoords=</span><span class="si">{</span><span class="n">coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">coords</span> <span class="o">=</span> <span class="n">coords</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elems</span> <span class="o">=</span> <span class="n">elems</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setProp</span><span class="p">(</span><span class="n">prop</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">check</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_memory</span> <span class="o">=</span> <span class="p">{}</span>
+
+
+<div class="viewcode-block" id="Polygons.check"><a class="viewcode-back" href="../ref/polygons.html#polygons.Polygons.check">[docs]</a>    <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check that all polygons have at least length 3&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elems</span><span class="o">.</span><span class="n">lengths</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Invalid Polygons: Some elements have less than 3 vertices&quot;</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_set_coords</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coords</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Replace the current coords with new ones.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        coords: Coords</span>
+<span class="sd">             A Coords with same shape as self.coords.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Mesh</span>
+<span class="sd">           A Mesh (or subclass) instance with same connectivity, eltype</span>
+<span class="sd">           and properties as the current, but with possible changes in the</span>
+<span class="sd">           coordinates of the nodes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">Coords</span><span class="p">)</span> <span class="ow">and</span> <span class="n">coords</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+            <span class="n">M</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">elems</span><span class="p">,</span> <span class="n">prop</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">prop</span><span class="p">)</span>
+            <span class="n">M</span><span class="o">.</span><span class="n">attrib</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">M</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Invalid reinitialization of </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="si">}</span><span class="s2"> coords&quot;</span><span class="p">)</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">eltype</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the element type of the Polygons.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            Always &#39;polygon&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s1">&#39;polygon&#39;</span>
+
+
+<div class="viewcode-block" id="Polygons.elName"><a class="viewcode-back" href="../ref/polygons.html#polygons.Polygons.elName">[docs]</a>    <span class="k">def</span> <span class="nf">elName</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># TODO: deprecate this in favor of self.eltype.name?</span>
+        <span class="sd">&quot;&quot;&quot;Return the element name of the Polygons.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            Always &#39;polygon&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s1">&#39;polygon&#39;</span></div>
+
+
+    <span class="c1"># @property</span>
+<div class="viewcode-block" id="Polygons.level"><a class="viewcode-back" href="../ref/polygons.html#polygons.Polygons.level">[docs]</a>    <span class="k">def</span> <span class="nf">level</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the level of dimensionality of the polygons.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            Always 2.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="mi">2</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the shape of the :attr:`elems` Varray.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">elems</span><span class="o">.</span><span class="n">shape</span>
+
+    <span class="c1"># @property</span>
+<div class="viewcode-block" id="Polygons.nelems"><a class="viewcode-back" href="../ref/polygons.html#polygons.Polygons.nelems">[docs]</a>    <span class="k">def</span> <span class="nf">nelems</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the number of polygons.</span>
+
+<span class="sd">        This is the number of &#39;rows&#39; in the :attr:`elems` Varray.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">elems</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+    <span class="c1"># @property</span>
+<div class="viewcode-block" id="Polygons.nplex"><a class="viewcode-back" href="../ref/polygons.html#polygons.Polygons.nplex">[docs]</a>    <span class="k">def</span> <span class="nf">nplex</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the plexitude of the polygon elements.</span>
+
+<span class="sd">        Always returns None, as there is no fixed plexitude of the</span>
+<span class="sd">        polygons.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">plex</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the plexitude of each of the elements&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">elems</span><span class="o">.</span><span class="n">lengths</span>
+
+    <span class="c1"># @property</span>
+<div class="viewcode-block" id="Polygons.ncoords"><a class="viewcode-back" href="../ref/polygons.html#polygons.Polygons.ncoords">[docs]</a>    <span class="k">def</span> <span class="nf">ncoords</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the number of points used to define the polygons.</span>
+
+<span class="sd">        This is the first dimension of the :attr:`coords` array.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        This may be different from the total number of vertices in all</span>
+<span class="sd">        the polygons, as polygons may share some vertices.</span>
+
+<span class="sd">        See also</span>
+<span class="sd">        size: The total number of vertices in all the polygons.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the total number of polygon vertices.</span>
+
+<span class="sd">        This is the total number of entries in the :attr:`elems` Varray.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">elems</span><span class="o">.</span><span class="n">size</span>
+
+
+<div class="viewcode-block" id="Polygons.info"><a class="viewcode-back" href="../ref/polygons.html#polygons.Polygons.info">[docs]</a>    <span class="k">def</span> <span class="nf">info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return short info about the Mesh.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            A string with info about the shape of the</span>
+<span class="sd">            :attr:`~mesh.Mesh.coords` and :attr:`elems` attributes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;coords&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;; elems&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elems</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Polygons.report"><a class="viewcode-back" href="../ref/polygons.html#polygons.Polygons.report">[docs]</a>    <span class="k">def</span> <span class="nf">report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">full</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="c1"># TODO: We need an option here to let numpy print the full tables.</span>
+        <span class="sd">&quot;&quot;&quot;Create a report on the Mesh shape and size.</span>
+
+<span class="sd">        The report always contains the number of nodes, number of elements,</span>
+<span class="sd">        plexitude, dimensionality, element type, bbox and size.</span>
+<span class="sd">        If full==True(default), it also contains the nodal coordinate</span>
+<span class="sd">        list and element connectivity table. Because the latter can be rather</span>
+<span class="sd">        bulky, they can be switched off.</span>
+
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">        NumPy normally limits the printed output. You will have to change</span>
+<span class="sd">        numpy settings to actually print the full arrays.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">bb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bbox</span><span class="p">()</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">: &quot;</span>
+             <span class="sa">f</span><span class="s2">&quot;nnodes: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ncoords</span><span class="p">()</span><span class="si">}</span><span class="s2">, nelems: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">nelems</span><span class="p">()</span><span class="si">}</span><span class="s2">, &quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nelems</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;nplex: min </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">plex</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="si">}</span><span class="s2">, max </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">plex</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="si">}</span><span class="s2">, &quot;</span>
+                  <span class="sa">f</span><span class="s2">&quot;eltype: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">elName</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+                  <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">  BBox: </span><span class="si">{</span><span class="n">bb</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">bb</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+                  <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">  Size: </span><span class="si">{</span><span class="n">bb</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">bb</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="c1"># if self.level() == 2:</span>
+        <span class="c1">#     s += f&quot;\n  Area: {self.area()}&quot;</span>
+
+        <span class="k">if</span> <span class="n">full</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="n">at</span><span class="o">.</span><span class="n">stringar</span><span class="p">(</span><span class="s2">&quot;  Coords: &quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">)</span> <span class="o">+</span> \
+                 <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="n">at</span><span class="o">.</span><span class="n">stringar</span><span class="p">(</span><span class="s2">&quot;  Elems: &quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">elems</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">s</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Format a Mesh in a string.</span>
+
+<span class="sd">        This creates a detailed string representation of a Mesh,</span>
+<span class="sd">        containing the report() and the lists of nodes and elements.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Polygons.shallowCopy"><a class="viewcode-back" href="../ref/polygons.html#polygons.Polygons.shallowCopy">[docs]</a>    <span class="k">def</span> <span class="nf">shallowCopy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prop</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a shallow copy.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        prop: int :term:`array_like`, optional</span>
+<span class="sd">            1-dim int array with non-negative element property numbers.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Polygons</span>
+<span class="sd">            A shallow copy of the Mesh, using the same data arrays</span>
+<span class="sd">            for ``coords`` and ``elems``. If ``prop`` was provided,</span>
+<span class="sd">            the new Mesh can have other property numbers.</span>
+<span class="sd">            This is a convenient method to use the same Mesh</span>
+<span class="sd">            with different property attributes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">prop</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">prop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prop</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">elems</span><span class="p">,</span> <span class="n">prop</span><span class="o">=</span><span class="n">prop</span><span class="p">)</span></div>
+
+
+    <span class="c1"># NB: It does not make sense putting compact=True here as default,</span>
+    <span class="c1"># since _select is normally used via select, which has compact=False</span>
+    <span class="k">def</span> <span class="nf">_select</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">selected</span><span class="p">,</span> <span class="n">compact</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a Mesh only holding the selected elements.</span>
+
+<span class="sd">        This is the low level select method. The normal user interface</span>
+<span class="sd">        is via the :meth:`select` method.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">selected</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">checkArray1D</span><span class="p">(</span><span class="n">selected</span><span class="p">)</span>
+        <span class="n">M</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">elems</span><span class="p">[</span><span class="n">selected</span><span class="p">])</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">prop</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">M</span><span class="o">.</span><span class="n">setProp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prop</span><span class="p">[</span><span class="n">selected</span><span class="p">])</span>
+        <span class="c1"># if compact:</span>
+        <span class="c1">#     M = M.compact()</span>
+        <span class="k">return</span> <span class="n">M</span>
+
+
+    <span class="c1">##########################################</span>
+    <span class="c1">## Allow drawing ##</span>
+
+    <span class="k">def</span> <span class="nf">actor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nelems</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="kn">from</span> <span class="nn">pyformex.opengl.drawable</span> <span class="kn">import</span> <span class="n">Actor</span>
+        <span class="k">return</span> <span class="n">Actor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Polygons.triangleSelector"><a class="viewcode-back" href="../ref/polygons.html#polygons.Polygons.triangleSelector">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="nd">@utils</span><span class="o">.</span><span class="n">memoize</span>
+    <span class="k">def</span> <span class="nf">triangleSelector</span><span class="p">(</span><span class="n">clas</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a selector to get triangle fan elements from polygons.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; Polygons.triangleSelector(5)</span>
+<span class="sd">        array([[0, 1, 2],</span>
+<span class="sd">               [0, 2, 3],</span>
+<span class="sd">               [0, 3, 4]])</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">i0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">at</span><span class="o">.</span><span class="n">Int</span><span class="p">)</span>
+        <span class="n">i1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">at</span><span class="o">.</span><span class="n">Int</span><span class="p">)</span>
+        <span class="n">i2</span> <span class="o">=</span> <span class="n">i1</span><span class="o">+</span><span class="mi">1</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">([</span><span class="n">i0</span><span class="p">,</span> <span class="n">i1</span><span class="p">,</span> <span class="n">i2</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="Polygons.edgeSelector"><a class="viewcode-back" href="../ref/polygons.html#polygons.Polygons.edgeSelector">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="nd">@utils</span><span class="o">.</span><span class="n">memoize</span>
+    <span class="k">def</span> <span class="nf">edgeSelector</span><span class="p">(</span><span class="n">clas</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a selector to get edge elements from polygons.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; Polygons.edgeSelector(5)</span>
+<span class="sd">        array([[0, 1],</span>
+<span class="sd">               [1, 2],</span>
+<span class="sd">               [2, 3],</span>
+<span class="sd">               [3, 4],</span>
+<span class="sd">               [4, 0]])</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">i0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+        <span class="n">i1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">i0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">([</span><span class="n">i0</span><span class="p">,</span> <span class="n">i1</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="Polygons.triangles"><a class="viewcode-back" href="../ref/polygons.html#polygons.Polygons.triangles">[docs]</a>    <span class="k">def</span> <span class="nf">triangles</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="s1">&#39;fan&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return an Elems with the triangles of the polygons</span>
+
+<span class="sd">        layout = &#39;fan&#39; | &#39;strip&#39; | &#39;edglen&#39;</span>
+
+<span class="sd">        TODO: only &#39;fan&#39; is implemented!</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sels</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">triangleSelector</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elems</span><span class="o">.</span><span class="n">lengths</span><span class="p">]</span>
+        <span class="n">elems</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">row_stack</span><span class="p">([</span><span class="n">e</span><span class="p">[</span><span class="n">s</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elems</span><span class="p">,</span> <span class="n">sels</span><span class="p">)])</span>
+        <span class="k">return</span> <span class="n">Elems</span><span class="p">(</span><span class="n">elems</span><span class="p">,</span> <span class="n">eltype</span><span class="o">=</span><span class="s1">&#39;tri3&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Polygons.edges"><a class="viewcode-back" href="../ref/polygons.html#polygons.Polygons.edges">[docs]</a>    <span class="k">def</span> <span class="nf">edges</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="s1">&#39;fan&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return an Elems with the edges of the polygons</span>
+
+<span class="sd">        layout = &#39;fan&#39; | &#39;strip&#39; | &#39;edglen&#39;</span>
+
+<span class="sd">        TODO: only &#39;fan&#39; is implemented!</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sels</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">edgeSelector</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elems</span><span class="o">.</span><span class="n">lengths</span><span class="p">]</span>
+        <span class="n">elems</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">row_stack</span><span class="p">([</span><span class="n">e</span><span class="p">[</span><span class="n">s</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elems</span><span class="p">,</span> <span class="n">sels</span><span class="p">)])</span>
+        <span class="k">return</span> <span class="n">Elems</span><span class="p">(</span><span class="n">elems</span><span class="p">,</span> <span class="n">eltype</span><span class="o">=</span><span class="s1">&#39;line2&#39;</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">compute_tables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">faces</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elems</span>
+        <span class="n">edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">row_stack</span><span class="p">([</span>
+            <span class="n">faces</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">j</span><span class="p">][</span><span class="n">Polygons</span><span class="o">.</span><span class="n">edgeSelector</span><span class="p">(</span><span class="n">j</span><span class="o">-</span><span class="n">i</span><span class="p">)]</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">faces</span><span class="o">.</span><span class="n">rowlimits</span><span class="p">()])</span>
+        <span class="n">uniq</span><span class="p">,</span> <span class="n">uniqid</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">uniqueRowsIndex</span><span class="p">(</span><span class="n">edges</span><span class="p">,</span> <span class="n">permutations</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_memory</span><span class="p">[</span><span class="s1">&#39;f_v&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">faces</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_memory</span><span class="p">[</span><span class="s1">&#39;f_e&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Varray</span><span class="p">(</span><span class="n">uniqid</span><span class="p">,</span> <span class="n">ind</span><span class="o">=</span><span class="n">faces</span><span class="o">.</span><span class="n">ind</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_memory</span><span class="p">[</span><span class="s1">&#39;e_v&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Varray</span><span class="p">(</span><span class="n">edges</span><span class="p">[</span><span class="n">uniq</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_memory</span><span class="p">[</span><span class="s1">&#39;e_f&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_memory</span><span class="p">[</span><span class="s1">&#39;f_e&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">inverse</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_memory</span><span class="p">[</span><span class="s1">&#39;v_f&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_memory</span><span class="p">[</span><span class="s1">&#39;f_v&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">inverse</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_memory</span><span class="p">[</span><span class="s1">&#39;v_e&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_memory</span><span class="p">[</span><span class="s1">&#39;e_v&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">inverse</span><span class="p">()</span>
+
+    <span class="n">f_v</span> <span class="o">=</span> <span class="n">table_func</span><span class="p">(</span><span class="s1">&#39;f_v&#39;</span><span class="p">)</span>
+    <span class="n">f_e</span> <span class="o">=</span> <span class="n">table_func</span><span class="p">(</span><span class="s1">&#39;f_e&#39;</span><span class="p">)</span>
+    <span class="n">e_v</span> <span class="o">=</span> <span class="n">table_func</span><span class="p">(</span><span class="s1">&#39;e_v&#39;</span><span class="p">)</span>
+    <span class="n">e_f</span> <span class="o">=</span> <span class="n">table_func</span><span class="p">(</span><span class="s1">&#39;e_f&#39;</span><span class="p">)</span>
+    <span class="n">v_f</span> <span class="o">=</span> <span class="n">table_func</span><span class="p">(</span><span class="s1">&#39;v_f&#39;</span><span class="p">)</span>
+    <span class="n">v_e</span> <span class="o">=</span> <span class="n">table_func</span><span class="p">(</span><span class="s1">&#39;v_e&#39;</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">isManifold</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">e_f</span><span class="o">.</span><span class="n">maxwidth</span> <span class="o">==</span> <span class="mi">2</span>
+
+    <span class="k">def</span> <span class="nf">isClosedManifold</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">e_f</span><span class="o">.</span><span class="n">maxwidth</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">e_f</span><span class="o">.</span><span class="n">minwidth</span> <span class="o">==</span> <span class="mi">2</span>
+
+    <span class="k">def</span> <span class="nf">isOrientable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">e_f</span><span class="o">.</span><span class="n">maxwidth</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">e_f</span><span class="o">.</span><span class="n">minwidth</span> <span class="o">==</span> <span class="mi">2</span>
+
+<div class="viewcode-block" id="Polygons.print_tables"><a class="viewcode-back" href="../ref/polygons.html#polygons.Polygons.print_tables">[docs]</a>    <span class="k">def</span> <span class="nf">print_tables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Print all the tables&quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Connection tables&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;f_v (faces to vertices) = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">f_v</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;f_e (faces to edges) = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">f_e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;e_v (edges to vertices) = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">e_v</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;e_f (edges to faces) = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">e_f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;v_f (vertices to faces) = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">v_f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;v_e (vertices to edges) = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">v_e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">vertices</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return all vertices of all polygons.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Coords</span>
+<span class="sd">            The coordinates of all vertices of all polygons, in the order</span>
+<span class="sd">            of the :attr:`elems` data.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; P = Polygons(Coords(&#39;0123&#39;), [[0,1,2], [0,1,2,3]])</span>
+<span class="sd">        &gt;&gt;&gt; P.vertices</span>
+<span class="sd">        Coords([[0., 0., 0.],</span>
+<span class="sd">                [1., 0., 0.],</span>
+<span class="sd">                [1., 1., 0.],</span>
+<span class="sd">                [0., 0., 0.],</span>
+<span class="sd">                [1., 0., 0.],</span>
+<span class="sd">                [1., 1., 0.],</span>
+<span class="sd">                [0., 1., 0.]])</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elems</span><span class="o">.</span><span class="n">data</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="Polygons.vectors"><a class="viewcode-back" href="../ref/polygons.html#polygons.Polygons.vectors">[docs]</a>    <span class="k">def</span> <span class="nf">vectors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return vectors along all edges of all polygons.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Coords</span>
+<span class="sd">            The vectors along all the edges of all polygons, in the order</span>
+<span class="sd">            of the :attr:`elems` data. The vectors point from each vertex to</span>
+<span class="sd">            the next vertex in the polygon.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; P = Polygons(Coords(&#39;0123&#39;), [[0,1,2], [0,1,2,3]])</span>
+<span class="sd">        &gt;&gt;&gt; P.vectors()</span>
+<span class="sd">        Coords([[ 1.,  0.,  0.],</span>
+<span class="sd">                [ 0.,  1.,  0.],</span>
+<span class="sd">                [-1., -1.,  0.],</span>
+<span class="sd">                [ 1.,  0.,  0.],</span>
+<span class="sd">                [ 0.,  1.,  0.],</span>
+<span class="sd">                [-1.,  0.,  0.],</span>
+<span class="sd">                [ 0., -1.,  0.]])</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ni</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elems</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="n">ni</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="n">ni</span><span class="o">.</span><span class="n">data</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="Polygons.vectorPairs"><a class="viewcode-back" href="../ref/polygons.html#polygons.Polygons.vectorPairs">[docs]</a>    <span class="nd">@utils</span><span class="o">.</span><span class="n">memoize</span>
+    <span class="k">def</span> <span class="nf">vectorPairs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Compute vector pairs along the edges at each vertex of the polygons.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        vec1: float array (nel, nplex, 3)</span>
+<span class="sd">            The vectors from each vertex to the previous vertex in the polygon.</span>
+<span class="sd">        vec2: float array (nel, nplex, 3)</span>
+<span class="sd">            The vectors from each vertex to the next vertex in the polygon.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; P = Polygons(Coords(&#39;0123&#39;), [[0,1,2], [0,1,2,3]])</span>
+<span class="sd">        &gt;&gt;&gt; v1, v2 = P.vectorPairs()</span>
+<span class="sd">        &gt;&gt;&gt; print(v1)</span>
+<span class="sd">        [[-1. -1.  0.]</span>
+<span class="sd">         [ 1.  0.  0.]</span>
+<span class="sd">         [ 0.  1.  0.]</span>
+<span class="sd">         [ 0. -1.  0.]</span>
+<span class="sd">         [ 1.  0.  0.]</span>
+<span class="sd">         [ 0.  1.  0.]</span>
+<span class="sd">         [-1.  0.  0.]]</span>
+<span class="sd">        &gt;&gt;&gt; print(v2)</span>
+<span class="sd">        [[ 1.  0.  0.]</span>
+<span class="sd">         [ 0.  1.  0.]</span>
+<span class="sd">         [-1. -1.  0.]</span>
+<span class="sd">         [ 1.  0.  0.]</span>
+<span class="sd">         [ 0.  1.  0.]</span>
+<span class="sd">         [-1.  0.  0.]</span>
+<span class="sd">         [ 0. -1.  0.]]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># This is an alternate implementation</span>
+        <span class="c1"># ni = Varray(np.arange(self.elems.size), self.elems.ind)</span>
+        <span class="c1"># nj = ni.roll(1).data</span>
+        <span class="c1"># v2 = self.vectors()</span>
+        <span class="c1"># v1 = v2[ni.roll(1).data]</span>
+        <span class="n">ni</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elems</span>
+        <span class="n">v1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="n">ni</span><span class="o">.</span><span class="n">data</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="n">ni</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">]</span>
+        <span class="n">v2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="n">ni</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="n">ni</span><span class="o">.</span><span class="n">data</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="nd">@utils</span><span class="o">.</span><span class="n">memoize</span>
+    <span class="k">def</span> <span class="nf">vnormals</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return normals at vertices of polygons.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        normals: float array (self.size,3)</span>
+<span class="sd">            The unit normals on the two edges ending at each vertex.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; P = Polygons(Coords(&#39;0123&#39;), [[0,1,2], [0,1,2,3]])</span>
+<span class="sd">        &gt;&gt;&gt; n = P.vnormals</span>
+<span class="sd">        &gt;&gt;&gt; print(n.round(2)+0.)</span>
+<span class="sd">        [[0. 0. 1.]</span>
+<span class="sd">         [0. 0. 1.]</span>
+<span class="sd">         [0. 0. 1.]</span>
+<span class="sd">         [0. 0. 1.]</span>
+<span class="sd">         [0. 0. 1.]</span>
+<span class="sd">         [0. 0. 1.]</span>
+<span class="sd">         [0. 0. 1.]]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">v1</span><span class="p">,</span> <span class="n">v2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vectorPairs</span><span class="p">()</span>
+        <span class="n">vnormals</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">vectorPairNormals</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">)</span>
+        <span class="c1"># check for nans (colinear vector pairs)</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">vnormals</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># replace nans with mean for polygon</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elems</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">w</span><span class="p">)[:,</span> <span class="mi">0</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">r</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+                <span class="n">vnormals</span><span class="p">[</span><span class="n">r</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span>
+                    <span class="n">vnormals</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elems</span><span class="o">.</span><span class="n">rowslice</span><span class="p">(</span><span class="n">p</span><span class="p">)],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">vnormals</span>
+
+
+    <span class="nd">@property</span>
+    <span class="nd">@utils</span><span class="o">.</span><span class="n">memoize</span>
+    <span class="k">def</span> <span class="nf">angles</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Compute internal angles at vertices of polygons.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        angles: float array (nel, nplex)</span>
+<span class="sd">            The internal angles made by the two polygon edges at the vertex.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; P = Polygons(Coords(&#39;0123&#39;), [[0,1,2], [0,1,2,3]])</span>
+<span class="sd">        &gt;&gt;&gt; a = P.angles</span>
+<span class="sd">        &gt;&gt;&gt; print(a)</span>
+<span class="sd">        [45. 90. 45. 90. 90. 90. 90.]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">v1</span><span class="p">,</span> <span class="n">v2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vectorPairs</span><span class="p">()</span>
+        <span class="k">return</span> <span class="mf">180.</span> <span class="o">-</span> <span class="n">at</span><span class="o">.</span><span class="n">vectorPairAngle</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">)</span>
+
+
+    <span class="nd">@property</span>
+    <span class="nd">@utils</span><span class="o">.</span><span class="n">memoize</span>
+    <span class="k">def</span> <span class="nf">fnormals</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Compute mean face normals of polygons.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        fnormals: float array (self.nelems, 3)</span>
+<span class="sd">            For each polygon, the mean of the normals at all its vertices.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; P = Polygons(Coords(&#39;0123&#39;), [[0,1,2], [0,1,2,3], [2,1,0]])</span>
+<span class="sd">        &gt;&gt;&gt; f = P.fnormals</span>
+<span class="sd">        &gt;&gt;&gt; print(f)</span>
+<span class="sd">        [[ 0.  0.  1.]</span>
+<span class="sd">         [ 0.  0.  1.]</span>
+<span class="sd">         [ 0.  0. -1.]]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vnormals</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">nelems</span><span class="p">(),</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">at</span><span class="o">.</span><span class="n">Float</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nelems</span><span class="p">()):</span>
+            <span class="n">f</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">n</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elems</span><span class="o">.</span><span class="n">rowslice</span><span class="p">(</span><span class="n">i</span><span class="p">)]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">f</span>
+
+
+<div class="viewcode-block" id="Polygons.avg_normals"><a class="viewcode-back" href="../ref/polygons.html#polygons.Polygons.avg_normals">[docs]</a>    <span class="k">def</span> <span class="nf">avg_normals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="s1">&#39;angle&#39;</span><span class="p">,</span> <span class="n">full</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">treshold</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Compute averaged normals at the nodes of a Polygons.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        coords: float :term:`array_like` (ncoords, 3)</span>
+<span class="sd">            Array with the coordinates of the nodes</span>
+<span class="sd">        elems: int :term:`array_like` (nelems, nplex, 3)</span>
+<span class="sd">            Definitions of the polygons in terms of the nodes. All polygons</span>
+<span class="sd">            should have the same plexitude.</span>
+<span class="sd">        weights: float :term:`array_like` | &#39;angle&#39; | None</span>
+<span class="sd">            Weights to apply to the polygon normals at a node during averaging.</span>
+<span class="sd">            The default &#39;angle&#39; will weigh the contribution of the polygons</span>
+<span class="sd">            by the angle their edges make at the node. Custom values should be</span>
+<span class="sd">            an array with shape (nelems, nplex). Specifying None will result</span>
+<span class="sd">            in giving the same weight to all normals.</span>
+<span class="sd">        full: bool, optional</span>
+<span class="sd">            If False (default), unique averaged normals at the nodes</span>
+<span class="sd">            are returned.</span>
+<span class="sd">            If True, the averaged normals are returned for each vertex</span>
+<span class="sd">            of each polygon. This is mainly intended for rendering purposes.</span>
+<span class="sd">        treshold: float, optional</span>
+<span class="sd">            Only used with ``full=True``. If provided, element vertex normals</span>
+<span class="sd">            making an angle with the averaged normal having a cosinus smaller</span>
+<span class="sd">            than treshold, will be returned as the original normal.</span>
+<span class="sd">            This allows the rendering of feature edges.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        normals: float array</span>
+<span class="sd">            (ncoords, 3)</span>
+<span class="sd">            The unit normals at the nodes, obtained by (weighted) averaging</span>
+<span class="sd">            the normals on the polygons attached to that node. The default</span>
+<span class="sd">            ``full=False`` returns an array with shape (ncoords, 3). With</span>
+<span class="sd">            ``full=True``, an array with shape (nelems, nplex, 3) is</span>
+<span class="sd">            returned.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        This example is the surface of a unit cube.</span>
+<span class="sd">        Notice that the average normals come out nicely symmetric, even without</span>
+<span class="sd">        weights, because all polygons have the same angles at the nodes.</span>
+
+<span class="sd">        &gt;&gt;&gt; from pyformex.simple import Cube</span>
+<span class="sd">        &gt;&gt;&gt; M = Cube()</span>
+<span class="sd">        &gt;&gt;&gt; P = Polygons(M.coords, M.elems)</span>
+<span class="sd">        &gt;&gt;&gt; print(P.avg_normals())</span>
+<span class="sd">        [[-0.5774 -0.5774 -0.5774]</span>
+<span class="sd">         [ 0.5774 -0.5774 -0.5774]</span>
+<span class="sd">         [ 0.5774  0.5774 -0.5774]</span>
+<span class="sd">         [-0.5774  0.5774 -0.5774]</span>
+<span class="sd">         [-0.5774 -0.5774  0.5774]</span>
+<span class="sd">         [ 0.5774 -0.5774  0.5774]</span>
+<span class="sd">         [ 0.5774  0.5774  0.5774]</span>
+<span class="sd">         [-0.5774  0.5774  0.5774]]</span>
+<span class="sd">        &gt;&gt;&gt; print(P.avg_normals(weights=None))</span>
+<span class="sd">        [[-0.5774 -0.5774 -0.5774]</span>
+<span class="sd">         [ 0.5774 -0.5774 -0.5774]</span>
+<span class="sd">         [ 0.5774  0.5774 -0.5774]</span>
+<span class="sd">         [-0.5774  0.5774 -0.5774]</span>
+<span class="sd">         [-0.5774 -0.5774  0.5774]</span>
+<span class="sd">         [ 0.5774 -0.5774  0.5774]</span>
+<span class="sd">         [ 0.5774  0.5774  0.5774]</span>
+<span class="sd">         [-0.5774  0.5774  0.5774]]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">normals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vnormals</span>
+        <span class="k">if</span> <span class="n">weights</span> <span class="o">==</span> <span class="s1">&#39;angle&#39;</span><span class="p">:</span>
+            <span class="n">weights</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">angles</span>
+        <span class="k">if</span> <span class="n">weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">normals</span> <span class="o">*=</span> <span class="n">weights</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+        <span class="n">normals</span><span class="p">,</span> <span class="n">cnt</span> <span class="o">=</span> <span class="n">nodalVSum</span><span class="p">(</span><span class="n">normals</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">elems</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="c1"># No need to take average, since we are going to normalize anyway</span>
+        <span class="n">normals</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">normals</span><span class="p">)</span>
+        <span class="c1"># if not atnodes:</span>
+        <span class="c1">#     normals = normals[elems]</span>
+        <span class="c1">#     if treshold is not None:</span>
+        <span class="c1">#         fnormals = at.normalize(fnormals.reshape(-1,3))</span>
+        <span class="c1">#         normals = normals.reshape(-1,3)</span>
+        <span class="c1">#         cosa = at.vectorPairCosAngle(normals, fnormals)</span>
+        <span class="c1">#         w = np.where(cosa&lt;treshold)[0]</span>
+        <span class="c1">#         normals[w, :] = fnormals[w, :]</span>
+        <span class="c1">#         normals = normals.reshape(elems.shape[0], 3, 3)</span>
+        <span class="k">return</span> <span class="n">normals</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="nd">@utils</span><span class="o">.</span><span class="n">memoize</span>
+    <span class="k">def</span> <span class="nf">anormals</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">avg_normals</span><span class="p">()</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">fanormals</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">anormals</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elems</span><span class="o">.</span><span class="n">data</span><span class="p">]</span>
+
+
+    <span class="k">def</span> <span class="nf">centroids</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Coords</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="n">r</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elems</span><span class="p">])</span>
+
+
+    <span class="c1">##############################################</span>
+    <span class="c1">##  add, merge, fuse, compact</span>
+
+
+    <span class="k">def</span> <span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the sum of two Polygons.</span>
+
+<span class="sd">        The sum of the Meshes is simply the concatenation thereof.</span>
+<span class="sd">        It allows us to write simple expressions as M1+M2 to concatenate</span>
+<span class="sd">        the Meshes M1 and M2. Both meshes should be of the same plexitude</span>
+<span class="sd">        and have the same eltype.</span>
+<span class="sd">        The result will be of the same class as self (either a Mesh or a</span>
+<span class="sd">        subclass thereof).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">])</span>
+
+
+<div class="viewcode-block" id="Polygons.concatenate"><a class="viewcode-back" href="../ref/polygons.html#polygons.Polygons.concatenate">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">concatenate</span><span class="p">(</span><span class="n">clas</span><span class="p">,</span> <span class="n">polys</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Concatenate a list of Polygons.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        polys: list of Polygons</span>
+<span class="sd">            A list of Polygons instance to be concatenated to a single one.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        The concatenation itself does not fuse the vertices that happen to be</span>
+<span class="sd">        (nearly) conincident. You may want to call the :meth:`fuse` method.</span>
+
+<span class="sd">        If any of the Polygons has property numbers, the resulting Polygons</span>
+<span class="sd">        will inherit the properties. In that case, any elements from</span>
+<span class="sd">        Polygons without properties will be assigned property 0.</span>
+<span class="sd">        If all input objects are without properties, so will be the result.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; M0 = Mesh(eltype=&#39;quad4&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; P0 = Polygons(M0.coords, M0.elems)</span>
+<span class="sd">        &gt;&gt;&gt; P1 = Polygons(M0.coords.trl(0, 1.), [[0,1,2],[0,2,3]])</span>
+<span class="sd">        &gt;&gt;&gt; P = Polygons.concatenate([P0,P1])</span>
+<span class="sd">        &gt;&gt;&gt; print(P.coords)</span>
+<span class="sd">        [[0. 0. 0.]</span>
+<span class="sd">        [1. 0. 0.]</span>
+<span class="sd">        [1. 1. 0.]</span>
+<span class="sd">        [0. 1. 0.]</span>
+<span class="sd">        [1. 0. 0.]</span>
+<span class="sd">        [2. 0. 0.]</span>
+<span class="sd">        [2. 1. 0.]</span>
+<span class="sd">        [1. 1. 0.]]</span>
+<span class="sd">        &gt;&gt;&gt; print(P.elems)</span>
+<span class="sd">        Varray (3, (3, 4))</span>
+<span class="sd">          [0 1 2 3]</span>
+<span class="sd">          [4 5 6]</span>
+<span class="sd">          [4 6 7]</span>
+<span class="sd">        &gt;&gt;&gt; P = P.fuse()</span>
+<span class="sd">        &gt;&gt;&gt; print(P.coords)</span>
+<span class="sd">        [[0. 0. 0.]</span>
+<span class="sd">         [0. 1. 0.]</span>
+<span class="sd">         [1. 0. 0.]</span>
+<span class="sd">         [1. 1. 0.]</span>
+<span class="sd">         [2. 0. 0.]</span>
+<span class="sd">         [2. 1. 0.]]</span>
+<span class="sd">        &gt;&gt;&gt; print(P.elems)</span>
+<span class="sd">        Varray (3, (3, 4))</span>
+<span class="sd">          [0 2 3 1]</span>
+<span class="sd">          [2 4 5]</span>
+<span class="sd">          [2 5 3]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="n">Coords</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">p</span><span class="o">.</span><span class="n">coords</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">polys</span><span class="p">])</span>
+        <span class="n">offset</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">cumsum0</span><span class="p">([</span><span class="n">p</span><span class="o">.</span><span class="n">coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">polys</span><span class="p">])</span>
+        <span class="n">ndata</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">cumsum0</span><span class="p">([</span><span class="n">p</span><span class="o">.</span><span class="n">elems</span><span class="o">.</span><span class="n">size</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">polys</span><span class="p">])</span>
+        <span class="n">elems</span> <span class="o">=</span> <span class="n">Varray</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">p</span><span class="o">.</span><span class="n">elems</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">polys</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">polys</span><span class="p">)):</span>
+            <span class="n">elems</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">ndata</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span><span class="n">ndata</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]]</span> <span class="o">+=</span> <span class="n">offset</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">all</span><span class="p">([</span><span class="n">p</span><span class="o">.</span><span class="n">prop</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">polys</span><span class="p">]):</span>
+            <span class="c1"># There are no props</span>
+            <span class="n">prop</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Keep the available props</span>
+            <span class="n">prop</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">p</span><span class="o">.</span><span class="n">prop</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">prop</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span>
+                                   <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">nelems</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">at</span><span class="o">.</span><span class="n">Int</span><span class="p">)</span>
+                                   <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">polys</span><span class="p">])</span>
+        <span class="n">P</span> <span class="o">=</span> <span class="n">clas</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">elems</span><span class="p">,</span> <span class="n">prop</span><span class="o">=</span><span class="n">prop</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">P</span></div>
+
+
+<div class="viewcode-block" id="Polygons.fuse"><a class="viewcode-back" href="../ref/polygons.html#polygons.Polygons.fuse">[docs]</a>    <span class="k">def</span> <span class="nf">fuse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Fuse the nodes of a Polygons.</span>
+
+<span class="sd">        Nodes that are within the tolerance limits of each other</span>
+<span class="sd">        are merged into a single node.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        nodes: int :term:`array_like`, optional</span>
+<span class="sd">            A list of node numbers. If provided, only these nodes will be</span>
+<span class="sd">            involved in the fuse operation.</span>
+<span class="sd">        **kargs:</span>
+<span class="sd">            Extra arguments for tuning the fuse operation are passed to the</span>
+<span class="sd">            :meth:`coords.Coords:fuse` method.</span>
+
+<span class="sd">        Examples: see :meth:`concatenate`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">nodes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">coords</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="o">.</span><span class="n">fuse</span><span class="p">(</span><span class="o">**</span><span class="n">kargs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">keep</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">complement</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ncoords</span><span class="p">())</span>
+            <span class="n">coords</span><span class="p">,</span> <span class="n">fusindex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="n">nodes</span><span class="p">]</span><span class="o">.</span><span class="n">fuse</span><span class="p">(</span><span class="o">**</span><span class="n">kargs</span><span class="p">)</span>
+            <span class="n">coords</span> <span class="o">=</span> <span class="n">Coords</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="n">keep</span><span class="p">],</span> <span class="n">coords</span><span class="p">])</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ncoords</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">at</span><span class="o">.</span><span class="n">Int</span><span class="p">)</span>
+            <span class="n">index</span><span class="p">[</span><span class="n">keep</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">keep</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">at</span><span class="o">.</span><span class="n">Int</span><span class="p">)</span>
+            <span class="n">index</span><span class="p">[</span><span class="n">nodes</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">keep</span><span class="p">)</span> <span class="o">+</span> <span class="n">fusindex</span>
+        <span class="n">elems</span> <span class="o">=</span> <span class="n">Varray</span><span class="p">(</span><span class="n">index</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elems</span><span class="o">.</span><span class="n">data</span><span class="p">],</span> <span class="n">ind</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">elems</span><span class="o">.</span><span class="n">ind</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">elems</span><span class="p">,</span> <span class="n">prop</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">prop</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Polygons.compact"><a class="viewcode-back" href="../ref/polygons.html#polygons.Polygons.compact">[docs]</a>    <span class="k">def</span> <span class="nf">compact</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Remove unconnected nodes and renumber the Polygons.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Polygons</span>
+<span class="sd">            The input object, where any unconnected nodes have been removed</span>
+<span class="sd">            and the nodes are renumbered to a compacter scheme.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        This changes the object in-place.</span>
+
+<span class="sd">        If the node-numbering has been changed, the object will have</span>
+<span class="sd">        an attribute &#39;oldnumbers&#39; which is an int array giving the</span>
+<span class="sd">        old node number for in the position of the new node number.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; x = Coords([[i] for i in np.arange(5)])</span>
+<span class="sd">        &gt;&gt;&gt; P = Polygons(x, [[0,1,2],[2,3,1,0]])</span>
+<span class="sd">        &gt;&gt;&gt; print(P.coords)</span>
+<span class="sd">        [[0. 0. 0.]</span>
+<span class="sd">         [1. 0. 0.]</span>
+<span class="sd">         [2. 0. 0.]</span>
+<span class="sd">         [3. 0. 0.]</span>
+<span class="sd">         [4. 0. 0.]]</span>
+<span class="sd">        &gt;&gt;&gt; P1 = P.compact()</span>
+<span class="sd">        &gt;&gt;&gt; print(P1.coords)</span>
+<span class="sd">        [[0. 0. 0.]</span>
+<span class="sd">         [1. 0. 0.]</span>
+<span class="sd">         [2. 0. 0.]</span>
+<span class="sd">         [3. 0. 0.]]</span>
+<span class="sd">        &gt;&gt;&gt; print(P1.elems)</span>
+<span class="sd">        Varray (2, (3, 4))</span>
+<span class="sd">          [0 1 2]</span>
+<span class="sd">          [2 3 1 0]</span>
+<span class="sd">        &gt;&gt;&gt; P1 is P</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; print(P.oldnumbers)</span>
+<span class="sd">        None</span>
+<span class="sd">        &gt;&gt;&gt; P = Polygons(x, [[4,1,2],[2,3,1,4]])</span>
+<span class="sd">        &gt;&gt;&gt; P.compact()</span>
+<span class="sd">        &lt;pyformex.polygons.Polygons object at ...&gt;</span>
+<span class="sd">        &gt;&gt;&gt; print(P.coords)</span>
+<span class="sd">        [[1. 0. 0.]</span>
+<span class="sd">         [2. 0. 0.]</span>
+<span class="sd">         [3. 0. 0.]</span>
+<span class="sd">         [4. 0. 0.]]</span>
+<span class="sd">        &gt;&gt;&gt; print(P.elems)</span>
+<span class="sd">        Varray (2, (3, 4))</span>
+<span class="sd">          [3 0 1]</span>
+<span class="sd">          [1 2 0 3]</span>
+<span class="sd">        &gt;&gt;&gt; print(P.oldnumbers)</span>
+<span class="sd">        [1 2 3 4]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">old</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elems</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">nmax</span> <span class="o">=</span> <span class="n">old</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">old</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">nmax</span> <span class="o">==</span> <span class="n">old</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+            <span class="c1"># We have compact elems.</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">nmax</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">[:</span><span class="n">nmax</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">oldnumbers</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Renumber the nodes</span>
+            <span class="n">new</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">inverseUniqueIndex</span><span class="p">(</span><span class="n">old</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">elems</span> <span class="o">=</span> <span class="n">Varray</span><span class="p">(</span><span class="n">new</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elems</span><span class="o">.</span><span class="n">data</span><span class="p">],</span> <span class="n">ind</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">elems</span><span class="o">.</span><span class="n">ind</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="n">old</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">oldnumbers</span> <span class="o">=</span> <span class="n">old</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_reduce</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mplex</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Reduce the Polygons to a specified maximum plexitude.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        This is a low level function. Users shoudl invoke it through</span>
+<span class="sd">        :meth:`reduce` or :meth:`split`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">           A dictionary where the keys are plexitudes and the values are</span>
+<span class="sd">           the faces having that plexitude.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        reduce: reduce the maximum plexitude of the polygons</span>
+<span class="sd">        split: split the Polygons into Mesh objects.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO: inherit the props</span>
+        <span class="k">def</span> <span class="nf">split_max</span><span class="p">():</span>
+            <span class="sd">&quot;&quot;&quot;Split the polygons with highest plexitude&quot;&quot;&quot;</span>
+            <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">gt</span><span class="o">.</span><span class="n">split_polygon</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="n">elems</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">elems</span><span class="p">))):</span>
+                <span class="n">nplex</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">nplex</span> <span class="ow">in</span> <span class="n">elems</span><span class="p">:</span>
+                    <span class="n">elems</span><span class="p">[</span><span class="n">nplex</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">elems</span><span class="p">[</span><span class="n">nplex</span><span class="p">],</span> <span class="n">e</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">elems</span><span class="p">[</span><span class="n">nplex</span><span class="p">]</span> <span class="o">=</span> <span class="n">e</span>
+
+        <span class="n">elems</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elems</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">elems</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">elems</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">mplex</span><span class="p">:</span>
+            <span class="n">elems</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">e</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">elems</span><span class="p">)</span>
+            <span class="k">while</span> <span class="nb">max</span><span class="p">(</span><span class="n">elems</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">mplex</span><span class="p">:</span>
+                <span class="n">split_max</span><span class="p">()</span>
+            <span class="n">elems</span> <span class="o">=</span> <span class="p">[</span><span class="n">elems</span><span class="p">[</span><span class="n">nplex</span><span class="p">]</span> <span class="k">for</span> <span class="n">nplex</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">elems</span><span class="o">.</span><span class="n">keys</span><span class="p">())]</span>
+        <span class="k">return</span> <span class="n">elems</span>
+
+
+<div class="viewcode-block" id="Polygons.reduce"><a class="viewcode-back" href="../ref/polygons.html#polygons.Polygons.reduce">[docs]</a>    <span class="k">def</span> <span class="nf">reduce</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mplex</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Reduce the Polygons to a specified maximum plexitude.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        mplex: int</span>
+<span class="sd">            The maximal plexitude of the output polygons. Thus, with mplex=3</span>
+<span class="sd">            only triangles will results; mplex=4 will yield triangles and quads.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Polygons</span>
+<span class="sd">            A Polygons where all of the polygons with more than mplex vertices</span>
+<span class="sd">            have been split into smaller ones.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        Splitting a polygon is done along the shortest diagonal.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        split: split (and optionally reduce) the Polygons into Mesh objects.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; x = Coords([[i] for i in np.arange(5)])</span>
+<span class="sd">        &gt;&gt;&gt; P = Polygons(x, [[0,1,2],[0,1,2,3],[0,1,2,3,4]])</span>
+<span class="sd">        &gt;&gt;&gt; print(P.reduce(4).elems)</span>
+<span class="sd">        Varray (4, (3, 4))</span>
+<span class="sd">          [0 1 2]</span>
+<span class="sd">          [0 1 2]</span>
+<span class="sd">          [0 1 2 3]</span>
+<span class="sd">          [2 3 4 0]</span>
+<span class="sd">        &gt;&gt;&gt; print(P.reduce(3).elems)</span>
+<span class="sd">        Varray (6, (3, 3))</span>
+<span class="sd">          [0 1 2]</span>
+<span class="sd">          [0 1 2]</span>
+<span class="sd">          [0 1 2]</span>
+<span class="sd">          [2 3 4]</span>
+<span class="sd">          [2 3 0]</span>
+<span class="sd">          [4 0 2]</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">elems</span><span class="o">.</span><span class="n">maxwidth</span> <span class="o">&lt;=</span> <span class="n">mplex</span><span class="p">:</span>
+            <span class="c1"># nothing to be done</span>
+            <span class="k">return</span> <span class="bp">self</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Polygons</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="n">Varray</span><span class="o">.</span><span class="n">fromArrays</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_reduce</span><span class="p">(</span><span class="n">mplex</span><span class="p">)))</span></div>
+
+
+<div class="viewcode-block" id="Polygons.split"><a class="viewcode-back" href="../ref/polygons.html#polygons.Polygons.split">[docs]</a>    <span class="k">def</span> <span class="nf">split</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mplex</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Split the Polygons into Meshes of fixed plexitude</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        mplex: int, optional</span>
+<span class="sd">            The maximal plexitude of the resulting Meshes. Thus, with mplex=3</span>
+<span class="sd">            only triangles will results; mplex=4 will yield triangles and quads.</span>
+<span class="sd">            If needed, polygons will be split up to be smaller that the</span>
+<span class="sd">            maximum plexitude. If not provided, the original plexitudes</span>
+<span class="sd">            are kept.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of Mesh</span>
+<span class="sd">            A list of Mesh objects with plexitude &gt;= 3.</span>
+<span class="sd">            The eltype of the Mesh objects is Tri3, Quad4 or Poly# for</span>
+<span class="sd">            plexitudes &gt; 4. All the Mesh objects use the same coords object.</span>
+<span class="sd">            The list is sorted in order of increasing plexitude.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        While reducing and splitting the Polygons can also be achieved with</span>
+<span class="sd">        ``self.reduce(mplex).split()``, using the mplex argument here is</span>
+<span class="sd">        slightly faster.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        reduce: reduce the maximum plexitude of the polygons</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">mplex</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">mplex</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elems</span><span class="o">.</span><span class="n">maxwidth</span><span class="p">:</span>
+            <span class="c1"># no need to reduce polygons</span>
+            <span class="n">elems</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elems</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">elems</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reduce</span><span class="p">(</span><span class="n">mplex</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">Mesh</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">eltype</span><span class="o">=</span><span class="n">ElementType</span><span class="o">.</span><span class="n">polygon</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+                <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">elems</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="Polygons.toSurface"><a class="viewcode-back" href="../ref/polygons.html#polygons.Polygons.toSurface">[docs]</a>    <span class="k">def</span> <span class="nf">toSurface</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;reduce&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Convert the Polygons to a TriSurface</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        method: str</span>
+<span class="sd">            The method to use to convert polygons into triangles. One of:</span>
+
+<span class="sd">            - &#39;reduce&#39;: use the :meth:`reduce` method, splitting the polygons</span>
+<span class="sd">              along the shortest diagonals. This is the default.</span>
+<span class="sd">            - &#39;fan&#39;: split the polygons into a fan of triangles with apex</span>
+<span class="sd">              at the first point. This corresponds to hoe the polygons are</span>
+<span class="sd">              rendered.</span>
+<span class="sd">            - &#39;prune&#39;: simply removes all non-triangle polygons.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        Currently, the &#39;reduce&#39; method does not retain the &#39;prop&#39; values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">pyformex.trisurface</span> <span class="kn">import</span> <span class="n">TriSurface</span>
+        <span class="n">prop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prop</span>
+        <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;fan&#39;</span><span class="p">:</span>
+            <span class="n">elems</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">triangles</span><span class="p">(</span><span class="s1">&#39;fan&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">prop</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">prop</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">prop</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">elems</span><span class="o">.</span><span class="n">lengths</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;prune&#39;</span><span class="p">:</span>
+            <span class="n">elems</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elems</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">ok</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plex</span> <span class="o">==</span> <span class="mi">3</span>
+            <span class="k">if</span> <span class="n">prop</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">prop</span> <span class="o">=</span> <span class="n">prop</span><span class="p">[</span><span class="n">ok</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">elems</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">elems</span>
+        <span class="k">return</span> <span class="n">TriSurface</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="n">elems</span><span class="p">,</span> <span class="n">prop</span><span class="o">=</span><span class="n">prop</span><span class="p">)</span></div>
+
+
+    <span class="c1">###################</span>
+    <span class="c1">## PZF interface ##</span>
+
+<div class="viewcode-block" id="Polygons.pzf_dict"><a class="viewcode-back" href="../ref/polygons.html#polygons.Polygons.pzf_dict">[docs]</a>    <span class="k">def</span> <span class="nf">pzf_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">kargs</span> <span class="o">=</span> <span class="n">Geometry</span><span class="o">.</span><span class="n">pzf_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">kargs</span><span class="p">[</span><span class="s1">&#39;elems&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elems</span><span class="o">.</span><span class="n">data</span>
+        <span class="n">kargs</span><span class="p">[</span><span class="s1">&#39;ind&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elems</span><span class="o">.</span><span class="n">ind</span>
+        <span class="k">return</span> <span class="n">kargs</span></div>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">pzf_load</span><span class="p">(</span><span class="n">clas</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">elems</span><span class="p">,</span> <span class="n">ind</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">clas</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">Varray</span><span class="p">(</span><span class="n">elems</span><span class="p">,</span> <span class="n">ind</span><span class="p">),</span> <span class="o">**</span><span class="n">kargs</span><span class="p">)</span></div>
+
+
+<span class="c1">########## IO functions ###########</span>
+
+
+<span class="k">def</span> <span class="nf">_install_writePOLYGONS</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Install a method to write to PGF file&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">writePolygons</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">F</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Write a Polygons.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        F: :class:`Polygons`</span>
+<span class="sd">            The object to be written.</span>
+<span class="sd">        name: str</span>
+<span class="sd">            See :meth:`writeGeometry`</span>
+<span class="sd">        sep: str</span>
+<span class="sd">            See :meth:`writeGeometry`</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        This writes a header line with these attributes and arguments:</span>
+<span class="sd">        objtype, ncoords, nelems, size, props(True/False),</span>
+<span class="sd">        eltype, normals(True/False), color, sep, name.</span>
+<span class="sd">        This is followed by the array data for: coords, elems.data,</span>
+<span class="sd">        elems.ind, prop, normals, color</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">objtype</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">Polygons</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Invalid object type </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">F</span><span class="p">)</span><span class="si">}</span><span class="s2">, expected Polygons&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">sep</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">sep</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sep</span>
+        <span class="n">hasprop</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">prop</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="n">hasnorm</span> <span class="o">=</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="s1">&#39;normals&#39;</span><span class="p">)</span> <span class="ow">and</span> \
+            <span class="nb">isinstance</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">normals</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> \
+            <span class="n">F</span><span class="o">.</span><span class="n">normals</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">colormap</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">Fc</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">Fc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">Fc</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">color</span> <span class="o">=</span> <span class="n">Fc</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">Fc</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">checkArray</span><span class="p">(</span><span class="n">Fc</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;f&#39;</span><span class="p">)</span>
+                    <span class="n">colormap</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="n">colorshape</span> <span class="o">=</span> <span class="n">Fc</span><span class="o">.</span><span class="n">shape</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                    <span class="n">Fc</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">checkArray</span><span class="p">(</span><span class="n">Fc</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;i&#39;</span><span class="p">)</span>
+                    <span class="n">colormap</span> <span class="o">=</span> <span class="s1">&#39;default&#39;</span>
+                    <span class="n">colorshape</span> <span class="o">=</span> <span class="n">Fc</span><span class="o">.</span><span class="n">shape</span> <span class="o">+</span> <span class="p">(</span><span class="mi">3</span><span class="p">,)</span>
+                <span class="k">if</span> <span class="n">colorshape</span> <span class="o">==</span> <span class="p">(</span><span class="mi">3</span><span class="p">,):</span>
+                    <span class="n">color</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">Fc</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">colorshape</span> <span class="o">==</span> <span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">nelems</span><span class="p">(),</span> <span class="mi">3</span><span class="p">):</span>
+                    <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;element&#39;</span>
+                <span class="k">elif</span> <span class="n">colorshape</span> <span class="o">==</span> <span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
+                    <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;vertex&#39;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Incorrect color shape: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">colorshape</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">head</span> <span class="o">=</span> <span class="p">(</span>    <span class="c1"># parentheses to allow string continuation</span>
+            <span class="sa">f</span><span class="s2">&quot;# objtype=&#39;</span><span class="si">{</span><span class="n">objtype</span><span class="si">}</span><span class="s2">&#39;; &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;ncoords=</span><span class="si">{</span><span class="n">F</span><span class="o">.</span><span class="n">ncoords</span><span class="p">()</span><span class="si">}</span><span class="s2">; nelems=</span><span class="si">{</span><span class="n">F</span><span class="o">.</span><span class="n">nelems</span><span class="p">()</span><span class="si">}</span><span class="s2">; size=</span><span class="si">{</span><span class="n">F</span><span class="o">.</span><span class="n">size</span><span class="si">}</span><span class="s2">; &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;props=</span><span class="si">{</span><span class="n">hasprop</span><span class="si">}</span><span class="s2">; normals=</span><span class="si">{</span><span class="n">hasnorm</span><span class="si">}</span><span class="s2">;  &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;color=</span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="n">color</span><span class="p">)</span><span class="si">}</span><span class="s2">; sep=&#39;</span><span class="si">{</span><span class="n">sep</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">name</span><span class="p">:</span>
+            <span class="n">head</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;; name=&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+        <span class="k">if</span> <span class="n">F</span><span class="o">.</span><span class="n">elName</span><span class="p">():</span>
+            <span class="n">head</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;; eltype=&#39;</span><span class="si">{</span><span class="n">F</span><span class="o">.</span><span class="n">elName</span><span class="p">()</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+        <span class="k">if</span> <span class="n">colormap</span><span class="p">:</span>
+            <span class="n">head</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;; colormap=&#39;</span><span class="si">{</span><span class="n">colormap</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">writeline</span><span class="p">(</span><span class="n">head</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">writeData</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="n">sep</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">writeData</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">elems</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">sep</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">writeData</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">elems</span><span class="o">.</span><span class="n">ind</span><span class="p">,</span> <span class="n">sep</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">hasprop</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">writeData</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">prop</span><span class="p">,</span> <span class="n">sep</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">hasnorm</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">writeData</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">normals</span><span class="p">,</span> <span class="n">sep</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">color</span> <span class="o">==</span> <span class="s1">&#39;element&#39;</span> <span class="ow">or</span> <span class="n">color</span> <span class="o">==</span> <span class="s1">&#39;vertex&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">writeData</span><span class="p">(</span><span class="n">Fc</span><span class="p">,</span> <span class="n">sep</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">F</span><span class="o">.</span><span class="n">fields</span><span class="p">:</span>
+            <span class="n">fld</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="n">field</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">writeline</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;# field=&#39;</span><span class="si">{</span><span class="n">fld</span><span class="o">.</span><span class="n">fldname</span><span class="si">}</span><span class="s2">&#39;; fldtype=&#39;</span><span class="si">{</span><span class="n">fld</span><span class="o">.</span><span class="n">fldtype</span><span class="si">}</span><span class="s2">&#39;; &quot;</span>
+                           <span class="sa">f</span><span class="s2">&quot;shape=</span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="n">fld</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="si">}</span><span class="s2">; sep=&#39;</span><span class="si">{</span><span class="n">sep</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">writeData</span><span class="p">(</span><span class="n">fld</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">sep</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">readPolygons</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ncoords</span><span class="p">,</span> <span class="n">nelems</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">props</span><span class="p">,</span> <span class="n">sep</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read a Polygons from a pyFormex geometry file.</span>
+
+<span class="sd">        The following arrays are read from the file:</span>
+<span class="sd">        - a coordinate array with `ncoords` points,</span>
+<span class="sd">        - a Varray data array of length `size`</span>
+<span class="sd">        - a Varray ind array with `nelems+1` elements</span>
+<span class="sd">        - if present, a property number array for `nelems` elements.</span>
+
+<span class="sd">        Returns the Mesh constructed from these data, or a subclass if</span>
+<span class="sd">        an objtype is specified.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ndim</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">readArray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fil</span><span class="p">,</span> <span class="n">at</span><span class="o">.</span><span class="n">Float</span><span class="p">,</span> <span class="p">(</span><span class="n">ncoords</span><span class="p">,</span> <span class="n">ndim</span><span class="p">),</span> <span class="n">sep</span><span class="o">=</span><span class="n">sep</span><span class="p">)</span>
+        <span class="n">e</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">readArray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fil</span><span class="p">,</span> <span class="n">at</span><span class="o">.</span><span class="n">Int</span><span class="p">,</span> <span class="p">(</span><span class="n">size</span><span class="p">,),</span> <span class="n">sep</span><span class="o">=</span><span class="n">sep</span><span class="p">)</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">readArray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fil</span><span class="p">,</span> <span class="n">at</span><span class="o">.</span><span class="n">Int</span><span class="p">,</span> <span class="p">(</span><span class="n">nelems</span><span class="o">+</span><span class="mi">1</span><span class="p">,),</span> <span class="n">sep</span><span class="o">=</span><span class="n">sep</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">props</span><span class="p">:</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">at</span><span class="o">.</span><span class="n">readArray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fil</span><span class="p">,</span> <span class="n">at</span><span class="o">.</span><span class="n">Int</span><span class="p">,</span> <span class="p">(</span><span class="n">nelems</span><span class="p">,),</span> <span class="n">sep</span><span class="o">=</span><span class="n">sep</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">M</span> <span class="o">=</span> <span class="n">Polygons</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Varray</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">ind</span><span class="o">=</span><span class="n">i</span><span class="p">),</span> <span class="n">prop</span><span class="o">=</span><span class="n">p</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">M</span>
+    <span class="kn">from</span> <span class="nn">pyformex</span> <span class="kn">import</span> <span class="n">geomfile</span>
+    <span class="n">geomfile</span><span class="o">.</span><span class="n">GeometryFile</span><span class="o">.</span><span class="n">writePolygons</span> <span class="o">=</span> <span class="n">writePolygons</span>
+    <span class="n">geomfile</span><span class="o">.</span><span class="n">GeometryFile</span><span class="o">.</span><span class="n">readPolygons</span> <span class="o">=</span> <span class="n">readPolygons</span>
+
+
+<span class="n">_install_writePOLYGONS</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="nodalVSum"><a class="viewcode-back" href="../ref/polygons.html#polygons.nodalVSum">[docs]</a><span class="k">def</span> <span class="nf">nodalVSum</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">elems</span><span class="p">,</span> <span class="n">nnod</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Compute the nodal sum of values defined at polygon vertices.</span>
+
+<span class="sd">    This is like :func:`arraytools.nodalSum`, but where elems is defined</span>
+<span class="sd">    as a Varray and val contains the value in order of that Varray.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    val: float array (nsize, nval)</span>
+<span class="sd">        Defines nval values at elems.nsize vertices.</span>
+<span class="sd">    elems: Varray</span>
+<span class="sd">        The node indices of nelems polygons.</span>
+<span class="sd">    nnod: int</span>
+<span class="sd">        The number of nodes. This should be higher than the maximum</span>
+<span class="sd">        value in elems. If not specified, it will be set to the highest</span>
+<span class="sd">        value in elems + 1.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    sum: float ndarray (nnod, nval)</span>
+<span class="sd">        The sum of all the values at the same node.</span>
+<span class="sd">    cnt: int ndarray (nnod)</span>
+<span class="sd">        The number of values summed at each node.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">nmax</span> <span class="o">=</span> <span class="n">elems</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">nnod</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">nnod</span> <span class="o">=</span> <span class="n">nmax</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="k">if</span> <span class="n">nnod</span> <span class="o">&lt;=</span> <span class="n">nmax</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;nnod should at least be </span><span class="si">{</span><span class="n">nmax</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># create return arrays</span>
+    <span class="n">nval</span> <span class="o">=</span> <span class="n">val</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="nb">sum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nnod</span><span class="p">,</span> <span class="n">nval</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="n">cnt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nnod</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">elems</span><span class="o">.</span><span class="n">nrows</span><span class="p">):</span>
+        <span class="n">ind</span> <span class="o">=</span> <span class="n">elems</span><span class="o">.</span><span class="n">rowslice</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+        <span class="n">nodes</span> <span class="o">=</span> <span class="n">elems</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span>
+        <span class="nb">sum</span><span class="p">[</span><span class="n">nodes</span><span class="p">]</span> <span class="o">+=</span> <span class="n">val</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span>
+        <span class="n">cnt</span><span class="p">[</span><span class="n">nodes</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">return</span> <span class="nb">sum</span><span class="p">,</span> <span class="n">cnt</span></div>
+
+<span class="c1"># End</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pyFormex 3.3 documentation</a> &gt;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &gt;</li>
+        <!--li class="nav-item nav-item-this"><a href="">polygons</a></li--> 
+      </ul>
+    </div>
+    <div class="footer">
+    <span class="left">
+        &copy; Copyright 2004-2023, Benedict Verhegghe.
+    </span>
+      Last updated on Mar 27, 2023.
+    <span class="right">
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 3.4.3.
+    </span>
+    </div>
+  </body>
+</html>
