@@ -1,0 +1,32 @@
+include:
+  - /gitlab-ci-pipeline.yml
+
+variables:
+  TUXPKG: python3 -m tuxpkg
+  TUXPKG_PROJECT: tuxpkg
+
+doc:
+  stage: deploy
+  artifacts:
+    paths:
+      - public
+  before_script:
+    - apt install -y python3-pip
+    - python3 -m pip install mkdocs-material
+  script:
+    - make doc
+  
+
+pages:
+  stage: deploy
+  needs:
+    - test
+    - doc
+    - repository
+  only:
+    - tags
+  script:
+    - cp -r dist/repo public/packages
+  artifacts:
+    paths:
+      - public
