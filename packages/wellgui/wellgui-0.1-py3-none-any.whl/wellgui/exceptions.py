@@ -1,0 +1,2 @@
+class InvalidCurveException(Exception):
+    pass
