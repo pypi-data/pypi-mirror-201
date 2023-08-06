@@ -1,0 +1,175 @@
+Metadata-Version: 2.1
+Name: afex-audit-trail
+Version: 0.1.1
+Summary: A Django app to create server logs and users' notification.
+Home-page: UNKNOWN
+Author: AFEX NIGERIA
+Author-email: it@afexnigeria.com
+License: MIT
+Description: # AFEX Audit Trail
+        
+        ## Installation
+        
+        ### Install Dependencies
+        
+        - **Python 3.8**
+        - **Django 4.0**
+        
+        Install the package with pip and all the required libraries would be installed
+        
+        ```bash
+        pip install afex-audit-trail
+        ```
+        
+        ## Setting up...
+        
+        Add '**audit-trails**' to your installed apps:
+        
+        ```bash
+        INSTALLED_APPS = [
+          ...
+          'audit_trails',
+          ....
+        ]
+        ```
+        
+        Run 'python manage.py migrate' to add the schema
+        
+        ```bash
+        python manage.py migrate
+        ```
+        
+        ## Generating Logs
+        
+        To generate log for every request and response on the server, add the 'ActivityLoggingMiddleware' 
+        to your MIDDLEWARE list.
+        
+        ```bash
+        MIDDLEWARE = [
+          ....
+          'audit_trails.middleware.ActivityLoggingMiddleware',
+        ]
+        ```
+        
+        The log can be stored in either database or file, file being the default storage. Set the LOG_STORAGE variable
+        in your settings.py file if you wish to use database for storage. 
+        
+        ```bash
+        LOG_STORAGE = 'database'
+        ```
+        
+        Log file can be found in activity.log in the project directory
+        
+        
+        ## Generating Notifications
+        
+        Notifications are generated manually by calling the appropriate method in your views or anywhere you'd like to 
+        generate notifications.
+        
+        Notification has 4 levels namely; ```info, success, warning, error```. Each of the has a method for creating 
+        notification with their respective level.
+        
+        To generate notification anywhere in your code, import notify from signals and call the method that matches your 
+        notification level with the right attribute.
+        
+        The right syntax is:
+        
+        ```snippet
+        from audit_trails.signals import notify
+        
+        notify.success(actor, recipients, action, action_object_type, action_object_id)
+        ```
+        
+        ### Add notification urls to your conf
+        For webview projects, include ```audit_trails.urls``` and ```audit_trails.api.urls``` for api, in your  urlconf:
+        
+        ```angular2html
+        urlpatterns = [
+            ...
+            path('notifications/', include('audit_trails.api.urls')),
+            ...
+        ]
+        ```
+        
+        ### Responses (View)
+        
+        #### For api, '/notifications' returns a javascript object similar to the sample below:
+        ```json
+        {
+            "responseCode": 100,
+            "data": [
+                {
+                    "id": 1,
+                    "level": "success",
+                    "description": "You modified John Doe's profile",
+                    "timestamp": "2023-04-03T17:03:01.957252+01:00",
+                    "timesince": "15 minutes",
+                    "is_read": false
+                },
+                {
+                    "id": 5,
+                    "level": "success",
+                    "description": "John created Mary Doe's profile",
+                    "timestamp": "2023-03-03T10:05:18.361405+01:00",
+                    "timesince": "1 month",
+                    "is_read": false
+                }
+            ],
+            "message": "Notification list retrieved successfully"
+        }
+        ```
+        
+        ### For webview, '/notifications' returns a html page with list of notifications
+        
+        
+        
+        ### Arguments:
+        #### Required
+        - **actor**: A required object of a user instance
+        - **recipients**: A set of users to whom the notifications are sent
+        - **action**: A short description (preferably one or two word)
+        - **action_object_type**: Specifies the object type on whom the action was performed and it could be of nay type
+        - **action_object_id**: An integer of the action object id. together with the ```action_object_type```.
+            The actual object is gotten.
+        
+        #### Others
+        - **action_target_object_type**: Specifies the object type **to** which the action was performed and it could be of nay type
+        - **action_target_object_id**: An integer of the action object id. together with the ```action_target_object_type```.
+        - **detail**: An optional string field for more information about the notification. 
+        
+        ### Extra Information
+        
+        Other notification level methods are: ```notify.info(), notify.warning(), notify.error()```, with the same 
+        arguments as ```notify.success()```
+        
+        
+        #### Queryset Methods
+        Queryset methods were added to make querying and manipulations easier. Some of the methods are :
+        ```unread(), read(), mark_all_as_read(), mark_all_as_unread()```
+        
+        e.g ```user.notifications.mark_all_as_read()``` would mark all notification as read for a particular user.
+        
+        
+        #### Model Methods and Properties
+        - timesince: Property returning the difference between the current date and the date the notification was created.
+        - description: Property returning string sentence of the actor, action and object of the notification
+        - mark_as_read(): toggles the ```is_read``` field of a notification object to ```True```
+        - mark_as_unread(): toggles the ```is_read``` field of a notification object to ```False``
+        
+        
+        
+Platform: UNKNOWN
+Classifier: Framework :: Django
+Classifier: Framework :: Django :: 4.0
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Topic :: Internet :: WWW/HTTP
+Classifier: Topic :: Internet :: WWW/HTTP :: Dynamic Content
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
