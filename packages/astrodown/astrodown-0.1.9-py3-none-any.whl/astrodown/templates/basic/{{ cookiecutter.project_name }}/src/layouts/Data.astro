@@ -1,0 +1,77 @@
+---
+import type { CollectionEntry } from "astro:content";
+import BaseLayout from "./BaseLayout.astro";
+import DataPreview from "@components/data/DataPreview";
+import csv from "csvtojson";
+import Alert from "@components/shared/Alert.astro";
+import SidebarLayout from "./SidebarLayout.astro";
+import type { GraphinData } from "@astrodown/graph";
+import Badge from "@components/shared/Badge.astro";
+import type { DataPreviewConfig } from "src/types";
+
+export interface Props {
+  entry: CollectionEntry<"data">;
+  graphData?: GraphinData;
+}
+
+const { entry, graphData } = Astro.props;
+const { Content } = await entry.render();
+
+const parser = csv({
+  noheader: false,
+  delimiter: "auto",
+  trim: true,
+});
+
+let dataParseError = null;
+const config: DataPreviewConfig = {
+  data: [],
+  headers: [],
+  nrow: 0,
+  ncol: 0,
+  title: entry.data.title,
+  description: entry.data.description,
+};
+if (entry.data.previewURL) {
+  try {
+    const res = await fetch(entry.data.previewURL);
+    const text = await res.text();
+    const completeData = await parser.fromString(text);
+    const data = completeData.slice(0, 100);
+    config.data = data;
+    config.headers = Object.keys(data[0]);
+    config.nrow = data.length;
+    config.ncol = config.headers.length;
+  } catch (err: unknown) {
+    dataParseError = `Failed to process data at ${entry.data.previewURL}. Data Preview only supports a static csv, tsv, or json file.`;
+  }
+}
+---
+
+<BaseLayout graphData={graphData}>
+  <div class="max-w-5xl mx-auto p-4 m-4e">
+    <SidebarLayout>
+      <div slot="sidebar">
+        <h2>{entry.data.title}</h2>
+        {
+          entry.data.previewURL &&
+            (dataParseError ? (
+              <Alert>{dataParseError}</Alert>
+            ) : (
+              <DataPreview config={config} client:only="load" />
+            ))
+        }
+        {
+          entry.data.exports.length > 0 && (
+            <a href={`/playground/${entry.slug}`} class="flex mt-2">
+              <Badge class="bg-blue-200 text-blue-800">Playground</Badge>
+            </a>
+          )
+        }
+      </div>
+      <div slot="main">
+        <Content />
+      </div>
+    </SidebarLayout>
+  </div>
+</BaseLayout>
