@@ -1,0 +1,24 @@
+"""Stub package to simplify upgrading after renaming :mod:`pandas_selector` to :mod:`pandas_paddles`."""
+from warnings import warn
+
+__version__ = "1.3.3"
+__all__ = ["DF", "S", "C"]
+
+warn("""\
+The package pandas_selector is deprecated in favor of pandas_paddles. Please replace pandas_selector by pandas_paddles in your dependencies and update your code by replacing
+    from pandas_selector import ...
+with
+    from pandas_paddles import ...
+""",
+     FutureWarning,
+     stacklevel=2,
+)
+
+from pandas_paddles import DF, S, C, __version__ as pp_version
+
+if __version__ != pp_version:
+    warn(
+        f"Version mismatch between pandas_selector ({__version__}) and"
+        f" pandas_paddles ({pp_version}): The versions should be the same!",
+        stacklevel=2,
+    )
