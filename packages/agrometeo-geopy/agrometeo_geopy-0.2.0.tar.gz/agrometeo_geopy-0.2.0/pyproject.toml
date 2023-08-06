@@ -1,0 +1,88 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agrometeo_geopy"
+version = "0.2.0"
+description = "Pythonic interface to access Agrometeo data."
+authors = [{ name = "Martí Bosch", email = "marti.bosch@protonmail.com" }]
+readme = "README.md"
+license = { text = "GPL-3.0-only" }
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+requires-python = ">=3.8"
+dependencies = [
+    "geopandas>=0.8.0",
+    "matplotlib",
+    "requests",
+]
+
+[project.urls]
+Repository = "https://github.com/martibosch/agrometeo-geopy"
+
+[project.optional-dependencies]
+ox = ["osmnx"]
+cx = ["contextily"]
+test = ["black", "coverage[toml]", "pytest", "pytest-cov", "ruff"]
+dev = ["build", "bump2version", "pre-commit", "pip", "toml", "tox", "twine"]
+doc = ["myst-parser", "nbsphinx", "sphinx"]
+
+[tool.setuptools.packages.find]
+include = ["agrometeo"]
+exclude = ["docs"]
+
+[tool.black]
+line-length = 88
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[tool.ruff]
+line-length = 88
+
+[tool.ruff.isort]
+known-first-party = ["agrometeo"]
+
+[tool.ruff.per-file-ignores]
+"agrometeo/__init__.py" = ["F403"]
+
+[tool.nbqa.addopts]
+ruff = [
+    "--ignore=D,I"
+]
+
+[tool.coverage.run]
+source = ["agrometeo"]
+
+[report]
+exclude_lines = [
+    "if self.debug:",
+    "pragma: no cover",
+    "raise NotImplementedError",
+    "except ModuleNotFoundError",
+    "except ImportError",
+]
+ignore_errors = true
+omit = ["tests/*", "docs/conf.py"]
