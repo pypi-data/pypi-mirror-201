@@ -1,0 +1,6 @@
+from logging import Logger
+from pathlib import Path
+from typing import Optional, Union
+
+def prepare_log(log_path: Optional[Union[str, Path]] = ..., create_log_directory: bool = ..., log_format: str = ..., logging_level: int = ..., logger_name: Optional[str] = ..., console_mode: bool = ...) -> Logger: ...
+def logging_config(log_path: Optional[Union[str, Path]] = ..., create_log_directory: bool = ..., log_format: str = ..., logging_level: Optional[int] = ..., logger_name: Optional[str] = ..., console_mode: bool = ..., logging_level_env_var_name: str = ...): ...
