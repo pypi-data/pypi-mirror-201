@@ -1,0 +1,46 @@
+
+pss_keywords = {
+"abstract", "action", "comp", "activity", "array", "as", "assert",
+"bind", "bins", "bit", "body", "bool", "break",
+"buffer", "chandle", "class", "compile", "component", "const",
+"constraint", "continue", "covergroup", "coverpoint", "cross", "declaration",
+"default", "disable", "do", "dynamic", "else", "enum",
+"exec", "export", "extend", "false", "file", "forall",
+"foreach", "function", "has", "header", "if", "iff",
+"ignore_bins", "illegal_bins", "import", "in", "init", "init_down",
+"init_up", "inout", "input", "instance", "int", "join_branch",
+"join_first", "join_none", "join_select", "list", "lock", "map",
+"match", "null", "output", "override", "package", "parallel",
+"pool", "post_solve", "pre_solve", "private", "protected", "public",
+"pure", "rand", "ref", "repeat", "replicate", "resource", "instance_id"
+"return", "run_end", "run_start", "schedule", "select", "sequence",
+"set", "share", "solve", "state", "static", "stream",
+"string", "struct", "super", "symbol", "target", "this", "true",
+"type", "typedef", "unique", "void", "while", "with",
+
+# Built-in types from the core library
+"executor_pkg", "executor_trait_s", "empty_executor_trait_s",
+"executor_base_c", "executor_c", "trait",
+"executor_group_c", "add_executor", "executor_claim_s",
+"executor", 
+"addr_reg_pkg", "addr_space_base_c", "addr_trait_s",
+"empty_addr_trait_s", "addr_handle_t", "contiguous_addr_space_c",
+"add_region", "add_nonallocatable_region", "byte_addressable",
+"transparent_addr_space_c", "addr_space_region_base_s", "addr_region_s",
+"transparent_addr_region_s", "addr", "addr_claim_base_s",
+"size", "permanent", "addr_claim_s", "alignment", "transparent_addr_claim_s",
+"packed_s", "endianness_e", "LITTLE_ENDIAN", "BIG_ENDIAN",
+"sizeof_s", "nbytes", "nbits",
+"nullhandle", "sized_addr_handle_s", "hndl",
+"make_handle_from_claim", "make_handle_from_handle", "addr_value", 
+"read8", "read16", "read32", "read64",
+"write8", "write16", "write32", "write64",
+"read_bytes", "write_bytes",
+"read_struct", "write_struct",
+"reg_c", "READWRITE", "READONLY", "WRITEONLY",
+"read", "write", "read_val", "write_val",
+"reg_group_c", "get_offset_of_instance", "get_offset_of_instance_array",
+"get_offset_of_path", "st_handle",
+
+"pss_top"
+}
