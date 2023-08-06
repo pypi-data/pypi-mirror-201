@@ -1,0 +1,95 @@
+---
+"on":
+  push:
+    paths-ignore:
+      - "**.md"
+      - docs/*
+  pull_request:
+    paths-ignore:
+      - "**.md"
+      - docs/*
+  workflow_dispatch:
+
+env:
+  PYTHONUTF8: "1"
+  python-version: 3.x
+  cache: pip
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        runs-on:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
+    runs-on: ${{ matrix.runs-on }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.python-version }}
+          cache: ${{ env.cache }}
+      # macOS's default bash is too old
+      - name: Install dependencies for macOS
+        if: runner.os == 'macOS'
+        run: |
+          brew update
+          brew install bash
+      - name: Install dependencies
+        run: |
+          pip install -e '.[dev]'
+      - name: Test
+        run: |
+          pytest --cov .
+      - uses: codecov/codecov-action@v3
+  build:
+    needs: test
+    strategy:
+      fail-fast: false
+      matrix:
+        runs-on:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
+    runs-on: ${{ matrix.runs-on }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.python-version }}
+          cache: ${{ env.cache }}
+      - name: Install dependencies
+        run: |
+          pip install build
+      - name: Build
+        run: |
+          python -m build
+      - uses: actions/upload-artifact@v3
+        if: ${{ ! startsWith(github.ref, 'refs/tags/') }}
+        with:
+          path: |
+            dist
+            build/resources
+      - name: Get changelog
+        if: startsWith(github.ref, 'refs/tags/')
+        run: >
+          mkdir -p build;
+          perl -0777 -ne'/## .*?\n\n(.*?)\n\n\n/s; print $1' CHANGELOG.md >
+          build/CHANGELOG.md
+      - uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          body_path: build/CHANGELOG.md
+          files: |
+            dist
+            build/resources
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        if: startsWith(github.ref, 'refs/tags/') && runner.os == 'Linux'
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
