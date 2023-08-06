@@ -1,0 +1,201 @@
+Metadata-Version: 2.1
+Name: bq-tools-dirupload
+Version: 0.8.11.8
+Summary: Upload/Download files to bisque/ViQi in parallel
+Author: ViQi Inc
+Author-email: info@viqi.org
+Project-URL: homepage, https://www.viqi.org
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.10
+Requires-Python: >=3.8
+Description-Content-Type: text/x-rst
+Requires-Dist: bisque-api (<0.6,>=0.5.10.14)
+Requires-Dist: viqi-api
+Requires-Dist: bisque-metadoc
+Requires-Dist: configparser
+Requires-Dist: lxml
+Requires-Dist: regex (>=2020.11.13)
+Requires-Dist: watchdog
+Provides-Extra: exif
+Requires-Dist: exif ; extra == 'exif'
+
+
+Tools
+=====
+
+bq-dirupload : upload local files to remote system
+
+bq-dirfetch  : download remote files to local system
+
+Configuration
+-------------
+
+   Create a file config file containing you login info at ``~/.bisque/config``
+
+.. code-block::
+
+       [default]
+       host=https://data.viqi.org/
+       user=demo
+       password=<demopass>
+
+bq-dirupload
+============
+
+
+#. Upload directories and files to a ViQi/BisQue server
+
+.. code-block::
+
+   usage: Upload files to bisque [-h] [-c CONFIG] [--profile PROFILE] [-n]
+                                 [-d [DEBUG]] [--debug-file DEBUG_FILE] [-q]
+                                 [-a CREDENTIALS] [--bisque-host BISQUE_HOST]
+                                 [--alias ALIAS] [--tag TAG]
+                                 [--path-tags PATH_TAGS] [--re-tags RE_TAGS]
+                                 [--re-only] [--mustmap] [--include INCLUDE]
+                                 [--exclude EXCLUDE] [--dataset DATASET]
+                                 [--threads THREADS] [-s] [--tagmap TAGMAP]
+                                 [--fixedtags FIXEDTAGS]
+                                 [directories [directories ...]]
+
+   positional arguments:
+     directories           director(ies) to upload
+
+   optional arguments:
+     -h, --help            show this help message and exit
+     -c CONFIG, --config CONFIG
+                           bisque config
+     --profile PROFILE     Profile to use in bisque config
+     -n, --dry-run         report actions w/o changes
+     -d [DEBUG], --debug [DEBUG]
+                           set debug level: debug,info,warn,error
+     --debug-file DEBUG_FILE
+                           output filename for debug messages
+     -q, --quiet           print actions
+     -a CREDENTIALS, --credentials CREDENTIALS
+                           A bisque login.. admin
+     --bisque-host BISQUE_HOST
+                           Default bisque server to connect to
+     --alias ALIAS         Use admin credentials to login as alias
+     --tag TAG             Add name:value pair, can be templated with other
+                           values mycode:$site$season
+     --path-tags PATH_TAGS
+                           tag names for a parsible path i.e.
+                           /project/date/subject/
+     --re-tags RE_TAGS     re expressions for tags i.e.
+                           (?P<location>\w+)--(?P<date>[\d-]+)
+     --re-only             Accept files only if match re-tags
+     --mustmap             Contextual tag must have a value in a tagmap
+     --include INCLUDE     shell expression for files to include. Can be repeated
+     --exclude EXCLUDE     shell expression for files to exclude. Can be repeated
+     --dataset DATASET     create dataset and add files to it
+     --threads THREADS     set number of uploader threads
+     -s, --skip-loaded     Skip upload if there is file with the same name
+                           already present on the server
+     --tagmap TAGMAP       Supply a map tag/value -> tag/value found in tag path
+                           and re decoder. [context_key:]carp=carpenteria or
+                           [context_key:]@tagmap.csv
+     --fixedtags FIXEDTAGS
+                           key:tag=value or key:@fileoftags fixed tags to add to
+                           resource: First column is key: including filename or
+                           image_path
+
+Examples
+--------
+
+
+#. 
+   Simple decoding of path/filename into metadata tags
+
+    ``bq-dirupload --skip --include *.JPG --tag activity:bear  --re-tags "(?P<location>\w+)_(?P<camera>\w+)__(?P<date>[\d-]+)__(?P<time>[\d-]+).*" ~/Desktop/pics/bears/``
+
+
+#. Complex mapping of path/filename metadata into tag
+
+.. code-block::
+
+   `bq-dirupload -n  --threads 1 --re-tags "(?P<photo_site_code>\w+)_(?P<target_assemblage>\D+)(?P<plot>\d+)_(?P<season>\D+)(?P<year>\d+).+\.JPG" --dataset upload --tagmap target_assemblage:@speciesmap.csv --tagmap photo_site_code:@locationmap.csv --tagmap season:fa=fall --tagmap year:15=2015 --fixedtags photo_site_code:@photo_code_reference_2019_0912.csv`
+
+
+ Magic decoder ring:
+
+.. code-block::
+
+       -n : dry run to see action without doing them
+       --threads 1: one thread for debugging
+       --retags :   use filename to create tags: photo_site_code, target_assemblage, season and year.
+       --dataset : create a dataset "upload"
+       --tagmap target_assemblage:@speciesmap.csv: use value ins speciesmap.csv to rename tag/values for target_assemblage
+       --tagmap photo_site_code:@locationmap: Use location map to rename tag/value from photo_site_code
+       --tagmap season:fa=fall : rename season 'fa' to 'fall'
+       --tagmap year:15=2015 : remame year from '15' to 2015
+       --fixedtags photo_site_code:@photo_code_reference_2019_0912.csv  :  use photo_site_code to read a set of fixed tags to be applied to the resource
+
+      A map is consists of [context_tag:]oldval=newval or [context_tag:]@map.csv where csv is a two column table of old value, new value
+
+   Other interesting Arguments
+
+       --debug-file somefile :  write actions to somefile
+       --path-tags   map components of the file path  to metadata tags i.e. project/site/season   would map ghostcrabs/manua/winter/somefile.jpg
+                     would get { project:ghostcrabs, site:manua, season:winter} as tags on somefile.jpg
+
+bq-dirfetch
+===========
+
+Downoad files to the local fileystsem
+
+.. code-block::
+
+   usage: Fetch files from bisque [-h] [-c CONFIG] [--profile PROFILE] [-n]
+                                  [-d [DEBUG]] [--debug-file DEBUG_FILE] [-q]
+                                  [-a CREDENTIALS] [--bisque-host BISQUE_HOST]
+                                  [--alias ALIAS] [--threads THREADS]
+                                  [--meta {false,xml,tablecsv,json}]
+                                  [--view VIEW]
+                                  [datasets [datasets ...]]
+
+   positional arguments:
+     datasets              datasets to download
+
+   optional arguments:
+     -h, --help            show this help message and exit
+     -c CONFIG, --config CONFIG
+                           bisque config
+     --profile PROFILE     Profile to use in bisque config
+     -n, --dry-run         report actions w/o changes
+     -d [DEBUG], --debug [DEBUG]
+                           set debug level: debug,info,warn,error
+     --debug-file DEBUG_FILE
+                           output filename for debug messages
+     -q, --quiet           print actions
+     -a CREDENTIALS, --credentials CREDENTIALS
+                           A bisque login.. admin
+     --bisque-host BISQUE_HOST
+                           Default bisque server to connect to
+     --alias ALIAS         Use admin credentials to login as alias
+     --threads THREADS     set number of uploader threads
+     --meta {false,xml,tablecsv,json}
+                           fetch metadata of resources: xml, tablecsv or false
+     --view VIEW           Metadata view i.e. deep,clean or view=TAG1,TAG2
+
+   bq-dirfetch -n  --threads 1 dataset_uri
+
+Examples
+--------
+
+.. code-block::
+
+        $ bq-dirfetch  https://data.viqi.org/data_service/00-aGLFAaVudK2SesxZbFgtSA
+        $ ls My\ data
+
+        30PKCVampNFp1Exte_DSP.tif   30PKCVampNFp6Exte_DSP.tif 30PKCVampNFz5Live5-21-2004_2-21-06_PM.tif  'My Data.tablecsv'
+        30PKCVampNFp3Exte_DSP.tif   30PKCVampNFz1Live5-21-2004_1-36-13_PM.tif   D4P1.TIF
+        $ cat My\ data/My\ Data.tablecsv
+        name,filename,tag1,tag1.subtag1,upload_datetime
+        D4P1.TIF,D4P1.TIF,,,2021-04-06 11:45:25.939292
+        30PKCVampNFp1Exte_DSP.tif,30PKCVampNFp1Exte_DSP.tif,,,2021-04-06 11:47:12.354264
+        30PKCVampNFp3Exte_DSP.tif,30PKCVampNFp3Exte_DSP.tif,,,2021-04-06 11:53:07.626649
+        30PKCVampNFp6Exte_DSP.tif,30PKCVampNFp6Exte_DSP.tif,val1,subval1,2021-04-06 11:54:38.046633
+        30PKCVampNFz1Live5-21-2004_1-36-13_PM.tif,30PKCVampNFz1Live5-21-2004_1-36-13_PM.tif,,,2021-04-06 12:07:28.216727
+        30PKCVampNFz5Live5-21-2004_2-21-06_PM.tif,30PKCVampNFz5Live5-21-2004_2-21-06_PM.tif,,,2021-04-06 12:12:12.523292
