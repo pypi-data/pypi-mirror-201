@@ -1,0 +1,150 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+# Check https://flit.readthedocs.io/en/latest/pyproject_toml.html for all available sections
+name = "ansys-mapdl-core"
+version = "0.64.1"
+description = "A Python wrapper for Ansys MAPDL."
+readme = "README.rst"
+requires-python = ">=3.7"
+license = {file = "LICENSE"}
+authors = [
+    {name = "Ansys, Inc.", email = "pyansys.maintainers@ansys.com"},
+]
+maintainers = [
+    {name = "PyAnsys developers", email = "pyansys.maintainers@ansys.com"},
+]
+dependencies = [
+    "ansys-api-mapdl==0.5.1",  # supports at least 2020R2 - 2022R1
+    "ansys-corba; python_version < '3.9'",
+    "ansys-mapdl-reader>=0.51.7",
+    "ansys-platform-instancemanagement~=1.0",
+    "appdirs>=1.4.0",
+    "grpcio>=1.30.0",  # tested up to grpcio==1.35
+    "importlib-metadata>=4.0",
+    "matplotlib>=3.0.0",  # for colormaps for pyvista
+    "numpy>=1.14.0",
+    "pexpect>=4.8.0 ; platform_system=='Linux'",
+    "protobuf>=3.12.2",  # minimum required based on latest ansys-grpc-mapdl
+    "pyiges>=0.1.4",
+    "pyansys-tools-versioning>=0.3.3",
+    "pyvista>=0.33.0",
+    "scipy>=1.3.0",  # for sparse (consider optional?)
+    "tqdm>=4.45.0",
+    "click>=8.1.3", # for CLI interface
+    "psutil>=5.9.4",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX",
+    "Operating System :: MacOS",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+
+[project.optional-dependencies]
+tests = [
+    "ansys-dpf-core==0.8.0",
+    "autopep8==2.0.2",
+    "matplotlib==3.7.1",
+    "scipy==1.10.1",
+    "pandas==2.0.0",
+    "pytest==7.2.2",
+    "pytest-cov==4.0.0",
+    "pyvista==0.38.5",
+    "pyansys-tools-report==0.5.0",
+    "vtk==9.2.6",
+    "pytest-rerunfailures==11.1.2",
+]
+doc = [
+    "sphinx==5.3.0",
+    "ansys-dpf-core==0.8.0",
+    "ansys-mapdl-reader==0.52.11",
+    "ansys-sphinx-theme==0.9.6",
+    "grpcio==1.51.1",
+    "imageio-ffmpeg==0.4.8",
+    "imageio==2.27.0",
+    "jupyter_sphinx==0.4.0",
+    "jupyterlab>=3.2.8",
+    "matplotlib==3.7.1",
+    "numpydoc==1.5.0",
+    "pandas==2.0.0",
+    "plotly==5.14.0",
+    "pypandoc==1.11",
+    "pytest-sphinx==0.5.0",
+    "pythreejs==2.4.2",
+    "pyvista==0.38.5",
+    "sphinx-autobuild==2021.3.14",
+    "sphinx-autodoc-typehints==1.22",
+    "sphinx-copybutton==0.5.1",
+    
+    "sphinx-gallery==0.12.2",
+    "sphinx-notfound-page==0.8.3",
+    "sphinxcontrib-websupport==1.2.4",
+    "sphinxemoji==0.2.0",
+    "vtk==9.2.6",
+]
+
+[tool.flit.module]
+name = "ansys.mapdl.core"
+
+[project.urls]
+Source = "https://github.com/pyansys/pymapdl"
+
+[project.scripts]
+pymapdl_convert_script = "ansys.mapdl.core.convert:cli"
+
+[tool.pytest.ini_options]
+junit_family = "legacy"
+filterwarnings = [
+    "ignore::FutureWarning",
+    "ignore::PendingDeprecationWarning",
+    "ignore::DeprecationWarning",
+    # bogus numpy ABI warning (see numpy/#432)
+    "ignore:.*numpy.dtype size changed.*:RuntimeWarning",
+    "ignore:.*numpy.ufunc size changed.*:RuntimeWarning",
+    "ignore::UserWarning",
+]
+markers = [
+    "skip_grpc: skip tests using grpc",
+    "corba: skip tests using the CORBA interface",
+    "gui: skip tests that launch the GUI interface",
+]
+testpaths = "tests"
+
+[tool.isort]
+profile = "black"
+force_sort_within_sections = true
+default_section = "THIRDPARTY"
+skip_glob = ["__init__.py"]
+src_paths = ["doc", "src", "tests"]
+
+
+[tool.coverage.run]
+source = ["ansys/pymapdl"]
+omit = [
+    # omit commands
+    "ansys/mapdl/core/_commands/*",
+
+    # ignore legacy interfaces
+    "ansys/mapdl/core/mapdl_console.py",
+    "ansys/mapdl/core/mapdl_corba.py",
+    "ansys/mapdl/core/jupyter.py",
+]
+
+[tool.coverage.report]
+show_missing = true
+
+[tool.codespell]
+skip = '*.pyc,*.txt,*.gif,*.png,*.jpg,*.js,*.html,*.doctree,*.ttf,*.woff,*.woff2,*.eot,*.mp4,*.inv,*.pickle,*.ipynb,flycheck*,./.git/*,./.hypothesis/*,*.yml,./doc/build/*,./doc/images/*,./dist/*,*~,.hypothesis*,./doc/source/examples/*,*cover,*.dat,*.mac,build,./docker/mapdl/v*,./factory/*,./ansys/mapdl/core/mapdl_functions.py,PKG-INFO,*.mypy_cache/*,./docker/mapdl/*,./_unused/*'
+ignore-words = "doc/styles/Vocab/ANSYS/accept.txt"
+quiet-level = 3
