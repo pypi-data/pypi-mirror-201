@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }}</title></head>
+<style>
+    body {
+        margin: auto;
+        max-width: 800px;
+        font-size: 17px;
+        line-height: 26px;
+    }
+
+    pre {
+        margin: 10px;
+        padding: 20px;
+        background-color: rgba(222, 222, 222, 0.33);
+        border-radius: 6px;
+    }
+
+    code {
+        font-family: "Courier New", Courier, monospace;
+    }
+
+    form {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        padding: 10px;
+    }
+
+    label, input, button {
+        margin: 6px;
+        padding: 4px;
+    }
+
+</style>
+<body>
+<form method="POST">
+    <label for="username">username:</label>
+    <input type="text" id="username" name="username" value="{{ username }}">
+    <label for="password">password:</label>
+    <input type="password" id="password" name="password" value="{{ password }}">
+    <button>Submit</button>
+</form>
+{% if usejson %}
+    <pre><code id="resp"></code></pre>
+    <script>
+        document.addEventListener('submit', function (event) {
+            event.preventDefault();
+            let d = {};
+            (new FormData(event.target)).forEach(function (v, k) {
+                d[k] = v;
+            });
+            window.fetch(window.location, {
+                method: 'POST',
+                body: JSON.stringify(d),
+                headers: {'Content-type': 'application/json; charset=UTF-8'}
+            }).then(function (resp) {
+                resp.json().then(function (data) {
+                    document.getElementById('resp').innerText = JSON.stringify(data, null, 4);
+                });
+            })
+        });
+    </script>
+{% endif %}
+</body>
+</html>
