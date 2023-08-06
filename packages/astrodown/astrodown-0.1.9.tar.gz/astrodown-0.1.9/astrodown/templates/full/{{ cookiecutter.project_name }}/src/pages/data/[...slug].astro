@@ -1,0 +1,24 @@
+---
+import { getCollection, CollectionEntry } from "astro:content";
+import Data from "../../layouts/Data.astro";
+import { getGraphData } from "@lib/graph";
+
+export const prerender = true;
+
+export const getStaticPaths = async () => {
+    const analysis = await getCollection("data");
+    return analysis.map((entry) => ({
+        params: { slug: entry.slug },
+        props: { entry },
+    }));
+};
+
+interface Props {
+    entry: CollectionEntry<"data">;
+}
+
+const { entry } = Astro.props;
+const graphData = await getGraphData(entry);
+---
+
+<Data entry={entry} graphData={graphData} />

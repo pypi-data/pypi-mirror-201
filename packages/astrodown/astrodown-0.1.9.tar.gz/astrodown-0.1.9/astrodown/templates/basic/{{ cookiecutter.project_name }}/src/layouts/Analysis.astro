@@ -1,0 +1,82 @@
+---
+import type { CollectionEntry } from "astro:content";
+import BaseLayout from "./BaseLayout.astro";
+import SidebarLayout from "./SidebarLayout.astro";
+import Badge from "@components/shared/Badge.astro";
+import { objectToBase64j, showArray } from "@lib/utils";
+import Metadata from "@components/analysis/Metadata.astro";
+import type { GraphinData } from "@astrodown/graph";
+import { getCodeFromBody } from "@lib/playground";
+
+export interface Props {
+  entry: CollectionEntry<"analysis">;
+  graphData?: GraphinData;
+}
+
+const { entry, graphData } = Astro.props;
+
+const code = await getCodeFromBody(entry.body);
+const codeEncoded = objectToBase64(code);
+
+const { Content, headings } = await entry.render();
+const metadataEntries = [
+  {
+    name: "Author",
+    value: showArray(entry.data.author),
+  },
+  {
+    name: "Published",
+    value: entry.data.date?.toLocaleDateString(),
+  },
+  {
+    name: "Tags",
+    value: entry.data.tags.length > 0 ? "" : showArray(entry.data.tags),
+  },
+  {
+    name: "ID",
+    value: entry.data.id,
+  },
+].filter((entry) => Boolean(entry.value)) as { name: string; value: string }[];
+---
+
+<BaseLayout graphData={graphData}>
+  <div class="flex flex-col gap-2 mb-4 max-w-3xl mx-auto">
+    <div
+      class="flex flex-col justify-center items-center mb-2 rounded-md px-16"
+    >
+      <h2 class="font-bold text-3xl mb-3 font-serif">
+        {entry.data.title}
+      </h2>
+      {
+        entry.data.description && (
+          <p class=" tracking-tighter ">{entry.data.description}</p>
+        )
+      }
+    </div>
+    <Metadata items={metadataEntries} />
+  </div>
+
+  <SidebarLayout>
+    <div slot="sidebar">
+      <h2 class="text-2xl font-bold mb-2 tracking-tighter">
+        Table of Contents
+      </h2>
+      <ul class="mb-5">
+        {
+          headings.map((heading) => (
+            <li class="text-lg p-2 rounded-lg hover:bg-slate-200 transition duration-200">
+              <a href={`#${heading.slug}`}>{heading.text}</a>
+            </li>
+          ))
+        }
+      </ul>
+      <a href={`https://tridata.qiushiyan.dev/?code=${codeEncoded}`}>
+        <Badge class="bg-blue-200 text-blue-800">Playground</Badge>
+      </a>
+    </div>
+    <div slot="main">
+      <Content />
+    </div>
+  </SidebarLayout>
+  <!-- <PyscriptPlayground exports={entry.data.exports} client:only="react" /> -->
+</BaseLayout>

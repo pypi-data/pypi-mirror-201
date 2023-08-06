@@ -1,0 +1,29 @@
+# All available hooks: https://pre-commit.com/hooks.html
+# R specific hooks: https://github.com/lorenzwalthert/precommit
+repos:
+  - repo: https://github.com/lorenzwalthert/precommit
+    rev: v0.3.2.9007
+    hooks:
+      - id: style-files
+        args: [--style_pkg=styler, --style_fun=tidyverse_style]
+  - repo: https://github.com/psf/black
+    rev: 23.1.0
+    hooks:
+      - id: black
+      - id: black-jupyter
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: check-added-large-files
+        args: ["--maxkb=4000"]
+  - repo: local
+    hooks:
+      - id: forbid-to-commit
+        name: Don't commit common artifacts
+        entry: Cannot commit artifactors .Rhistory, .RData, .Rds, .rds, .pyc, __pycache__, use "git rm --cached <file>" to remove them
+        language: fail
+        files: '\.(Rhistory|RData|Rds|rds|pyc)$|__pycache__/'
+        # `exclude: <regex>` to allow committing specific files
+
+ci:
+  autoupdate_schedule: monthly
