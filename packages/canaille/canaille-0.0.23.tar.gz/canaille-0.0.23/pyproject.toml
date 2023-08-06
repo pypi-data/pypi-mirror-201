@@ -1,0 +1,148 @@
+[build-system]
+requires = ["poetry>=1.0.0"]
+build-backend = "poetry.masonry.api"
+
+[tool]
+[tool.poetry]
+name = "Canaille"
+version = "0.0.23"
+description = "Minimalistic identity provider"
+license = "MIT"
+keywords = ["oidc", "oauth", "oauth2", "openid", "identity"]
+classifiers = [
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "License :: OSI Approved :: MIT License",
+    "Environment :: Web Environment",
+    "Programming Language :: Python",
+    "Operating System :: OS Independent",
+    "Topic :: System :: Systems Administration :: Authentication/Directory",
+    "Topic :: System :: Systems Administration :: Authentication/Directory :: LDAP",
+
+]
+authors = ["Yaal team <contact@yaal.coop>"]
+maintainers = [
+    "Éloi Rivard <eloi@yaal.coop>",
+]
+homepage = "https://canaille.yaal.coop"
+documentation = "https://canaille.readthedocs.io/en/latest/"
+repository = "https://gitlab.com/yaal/canaille"
+readme = "README.md"
+include = ["canaille/translations/*/LC_MESSAGES/*.mo"]
+
+[tool.poetry.dependencies]
+python = ">=3.7, <4"
+authlib = ">1,<2"
+click = "<9"
+email_validator = "<2"
+flask = "<3"
+flask-babel = "^3.0.0"
+flask-themer = "<2"
+flask-wtf = "<2"
+pycountry = "^22.3.5"
+python-ldap = "<4"
+toml = "<1"
+wtforms = "<4"
+
+"sentry-sdk" = {version = "<2", optional=true, extras=["flask"]}
+
+[tool.poetry.group.doc]
+optional = true
+
+[tool.poetry.group.doc.dependencies]
+"sphinx" = "*"
+"sphinx-rtd-theme" = "*"
+"sphinx-issues" = "*"
+
+[tool.poetry.group.dev.dependencies]
+coverage = {version = "*", extras=["toml"]}
+faker = "*"
+flask-webtest = "*"
+freezegun = "*"
+mock = "*"
+pdbpp = "*"
+pre-commit = "*"
+pyquery = "*"
+pytest = "*"
+pytest-coverage = "*"
+pytest-httpserver = "*"
+slapd = "*"
+smtpdfix = "*"
+
+[tool.poetry.group.demo]
+optional = true
+
+[tool.poetry.group.demo.dependencies]
+faker = "*"
+honcho = "*"
+slapd = "*"
+requests = "*"
+
+[tool.poetry.extras]
+sentry = ["sentry-sdk"]
+
+[tool.poetry.scripts]
+canaille = "canaille.commands:cli"
+
+[options.packages.find]
+exclude = [
+    "tests",
+    "tests.*",
+    "doc",
+    "doc.*",
+]
+
+[tool.poetry.build]
+generate-setup-file = false
+script = "build.py"
+
+[tool.coverage.run]
+source = [
+    "canaille",
+    "tests",
+]
+omit = [".tox/*"]
+branch = true
+
+[tool.tox]
+legacy_tox_ini = """
+[tox]
+isolated_build = true
+skipsdist = true
+envlist =
+    style
+    py37
+    py38
+    py39
+    py310
+    py311
+    doc
+    coverage
+
+[testenv]
+allowlist_externals = poetry
+commands =
+    poetry install
+    poetry run pytest --showlocals --full-trace {posargs}
+
+[testenv:style]
+commands =
+    poetry install
+    poetry run pre-commit run --all-files
+
+[testenv:doc]
+commands =
+    poetry install --only doc
+    poetry run sphinx-build doc build/sphinx/html
+
+[testenv:coverage]
+commands =
+    poetry install
+    poetry run pytest --cov --cov-fail-under=100 --cov-report term:skip-covered {posargs}
+    poetry run coverage html
+"""
