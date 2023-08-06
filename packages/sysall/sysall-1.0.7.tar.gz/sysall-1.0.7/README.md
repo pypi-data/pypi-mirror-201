@@ -1,0 +1,111 @@
+# SysAll
+
+[![sysall Downloads](https://img.shields.io/pypi/dm/sysall)](https://pypi.org/project/sysall/)
+[![sysall Version](https://img.shields.io/pypi/v/sysall)](https://pypi.org/project/sysall/)
+[![sysall Python Version](https://img.shields.io/pypi/pyversions/sysall)](https://pypi.org/project/sysall/)
+
+SysAll is a tool that allows you to retrieve information about the environment, 
+such as the name of the operating system, processor, RAM, IP address, MAC address of the machine.
+
+It gathers the functionalities of several libraries such as 
+wmi, psutil, platform, getmac, socket in one to facilitate the use/manipulation of environment data
+for Python programmers.
+
+## Installs
+----
+
+~~~python
+pip install sysall
+~~~
+
+## Support
+
+If you want to contact me for questions, bugs, or problems or other : lixnew2@gmail.com
+
+## Getting started
+
+### Python version
+
+Sysall was written for python 3.
+
+### Functions
+
+Returns operating system name, version, release.
+~~~python
+get_os()
+# You can use the arguments of the function to return or not certain elements. By default they are all on True.
+# If you put them all on False, the function will return 'None'.
+args = name : bool = True, version : bool = True, release : bool = True
+~~~
+
+
+Returns device name
+~~~python
+get_device_name()
+~~~
+
+
+Returns the name of the account currently connected to the operating system.
+~~~python
+get_hostname()
+~~~
+
+
+Returns appdata hostname and path
+~~~python
+get_appdata()
+# You can use the arguments of the function to return or not certain elements. By default they are all on True.
+# If you put them all on False, the function will return 'None'.
+args = hostname : bool = True, appdata_path : bool = True
+~~~
+
+
+Returns the memory size : Mo
+~~~python
+get_memory()
+~~~
+
+
+Return the processor brand (Intel, AMD), frequency and cores.
+~~~python
+get_cpu_info()
+# You can use the arguments of the function to return or not certain elements. By default they are all on True.
+# If you put them all on False, the function will return 'None'.
+args = brand: bool = True , cpu_frequency: bool = True, cores: bool = True
+~~~
+
+
+Returns the type of the graphics card
+~~~python
+get_gpu_info()
+# You can use the arguments of the function to return or not certain elements. By default they are all on True.
+# If you put them all on False, the function will return 'None'.
+args = name: bool = True, ram: bool = True, driver_version: bool = True
+~~~
+
+
+Returns the IPv4 address
+~~~python
+get_IPv4()
+~~~
+
+
+Returns the MAC address
+~~~python
+get_MAC()
+~~~
+
+
+Return the public address
+~~~python
+get_public_ip()
+~~~
+
+
+Return the informations of the disk : total free, used
+~~~python
+get_disk_infos()
+# You can use the arguments of the function to return or not certain elements. By default they are all on True.
+# If you put them all on False, the function will return 'None'.
+args = path: str = 'C', total : bool = True, free: bool = True, used: bool = True
+~~~
