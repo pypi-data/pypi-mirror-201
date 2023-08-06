@@ -1,0 +1,17 @@
+Aloha! Welcome to my pySports_Arbitrage project, created by yours truly, Phil Rongo
+
+This package can work as a standalone data manipulation/machine learning library, or can extend the functionality of your
+"TheOddsApi" subscription.
+
+These are packaged modules to accomplish:
+
+* Epic database infrastructure for sports arbitrage opportunities
+  * Built specifically for postgresql databases
+* Common data manipulation and visualization on your collected data [coming soon]
+* Create ML models based on your data [coming soon]
+
+docs soon...
+
+Feel free to message me with ideas/comments
+
+Phil
