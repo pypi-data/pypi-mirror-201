@@ -1,0 +1,1 @@
+from .NextionEasy import nextion_easy
