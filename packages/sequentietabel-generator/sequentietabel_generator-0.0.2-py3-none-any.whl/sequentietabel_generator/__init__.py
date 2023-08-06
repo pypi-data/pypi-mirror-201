@@ -1,0 +1,1 @@
+from .sequentietabel_generator import generate_table
