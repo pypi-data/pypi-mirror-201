@@ -1,0 +1,294 @@
+# The following section represent the sar_demo system populated
+# on top of a standalone Sardana/demo1 server in a clean
+# Tango DB (no naming collisions).
+
+tango_host: tangodb:10000
+
+pools:
+  demo1:
+    instruments:
+      /slit:
+        class: NXcollimator
+      /mirror:
+        class: NXmirror
+      /monitor:
+        class: NXmonitor
+
+    controllers:
+      motctrl01:
+        type: Motor
+        python_module: DummyMotorController.py
+        python_class: DummyMotorController
+        elements:
+          mot01:
+            axis: 1
+            instrument: /slit
+          mot02:
+            axis: 2
+            instrument: /slit
+          mot03:
+            axis: 3
+            instrument: /mirror
+          mot04:
+            axis: 4
+            instrument: /mirror
+      slitctrl01:
+        type: PseudoMotor
+        python_module: Slit.py
+        python_class: Slit
+        physical_roles:
+          sl2t: mot01
+          sl2b: mot02
+        elements:
+          gap01:
+            axis: 1
+            instrument: /slit
+          offset01:
+            axis: 2
+            instrument: /slit            
+      ctctrl01:
+        type: CTExpChannel
+        python_module: DummyCounterTimerController.py
+        python_class: DummyCounterTimerController
+        attributes:
+          Synchronizer: tg01
+        elements:
+          ct01:
+            axis: 1
+          ct02:
+            axis: 2
+            instrument: /monitor
+          ct03:
+            axis: 3
+          ct04:
+            axis: 4
+      zerodctrl01:
+        type: ZeroDExpChannel
+        python_module: DummyZeroDController.py
+        python_class: DummyZeroDController
+        elements:
+          zerod01:
+            axis: 1
+          zerod02:
+            axis: 2
+          zerod03:
+            axis: 3
+          zerod04:
+            axis: 4
+      onedctrl01:
+        type: OneDExpChannel
+        python_module: DummyOneDController.py
+        python_class: DummyOneDController
+        elements:
+          oned01:
+            axis: 1
+      twodctrl01:
+        type: TwoDExpChannel
+        python_module: DummyTwoDController.py
+        python_class: DummyTwoDController
+        elements:
+          twod01:
+            axis: 1
+      ioveri0ctrl01:
+        type: PseudoCounter
+        python_module: IoverI0.py
+        python_class: IoverI0
+        physical_roles:
+          I: ct01
+          I0: ct02
+        elements:
+          ioveri001:
+            axis: 1            
+      tgctrl01:
+        type: TriggerGate
+        python_module: DummyTriggerGateController.py
+        python_class: DummyTriggerGateController
+        elements:
+          tg01:            
+            axis: 1
+      iorctrl01:
+        type: IORegister
+        python_module: DummyIORController.py
+        python_class: DummyIORController
+        elements:
+          ior01:
+            axis: 1
+          ior02:
+            axis: 2
+
+    measurement_groups:
+      mntgrp01:
+        channels:
+          - ct01
+          - ct02
+          - ct03
+          - ct04
+
+macro_servers:
+  demo1:    
+    doors:
+      Door_demo1_1:
+
+# This comments section contains advanced configuration cases
+# not covered by the sar_demo system.
+#
+# ---
+# attribute properties example: 
+#
+# elements:
+#   mot01:
+#     attributes:
+#       Acceleration:
+#         value: 4.56
+#         label: foo
+#         format: %6.2f
+#         unit: s
+#         polling_period: 3    
+#         abs_change: 1
+#         rel_change: 0.1
+#         archive_abs_change: 1
+#         archive_rel_change: 0.1
+#         min_value: 0
+#         max_value: 5
+#         min_alarm: 1
+#         max_alarm: 4
+#
+# ---
+# attribute properties abs_change (the same applies to: rel_change,
+# archive_abs_change and archive_rel_change)
+# with different increasing and decreasing values example: 
+#
+# elements:
+#   mot01:
+#     attributes:
+#       Position:  
+#         abs_change:
+#         - -1
+#         - 2
+#
+# ---
+# controller properties example:
+#
+# motctrl01:
+#   properties:
+#     Prop1: "foo"
+#     Prop2: 123
+#
+# ---
+# custom pool paths:
+#
+# pools:
+#   demo1:
+#     pool_path:
+#       - /tmp/poolcontrollers
+#     python_path:
+#       - /tmp/pythonpath
+#
+# ---
+# custom macroserver paths:
+#
+# macro_servers:
+#   demo1:
+#     tango_host: tangodb:10000
+#     macro_path:
+#       - /tmp/macros
+#     recorder_path:
+#       - /tmp/recorders
+#     python_path:
+#       - /tmp/pythonpath
+#
+# ---
+# custom device names:
+#
+# pools:
+#   demo1:
+#     # instead of Pool/demo1/1
+#     tango_device: foo/bar/baz
+#     controllers:
+#       motctrl01:
+#         # instead of controller/dummymotorcontroller/motctrl01
+#         tango_device: qux/fred/thud
+#
+# ---
+# custom alias:
+#
+# pools:
+#   demo1:
+#     # instead of Pool_demo1_1
+#     tango_alias: foo
+#     controllers:
+#       motctrl01:
+#         # instead of motctrl01
+#         # will create `sardana_name` device property with `motctrl01` value
+#         tango_alias: bar
+#
+# ---
+# custom server instance name: not possible
+#
+# ---
+# separate Pool and MacroServer server architecture:
+#
+# pools:
+#   demo1:
+#     tango_server: Pool
+#
+# macro_servers:
+#   demo1:
+#     tango_server: MacroServer
+#
+# ---
+# additional pools
+#
+# macro_servers:
+#   demo1:
+#     # fills PoolNames property with `Pool_foo_1`
+#     # or the overridden tango_alias value
+#     pools:
+#       - foo
+#
+# ---
+# channel configuration in measurement group
+# 
+# measurement_groups:
+#   mntgrp01:
+#     channels:
+#       - ct01
+#       - ct02
+#       - ct03
+#       - ct04:
+#           enabled: False
+#
+# ---
+# Drift correction on pseudo motor level
+# 
+# slitctrl01:
+#   type: PseudoMotor
+#   elements:
+#     gap01:
+#       axis: 1
+#       drift_correction: true
+
+
+# This comments section contains ideas for future enhancements
+# of the format.
+#
+# ---
+# environment configuration and variables:
+#
+# macro_servers:
+#   demo1:
+#     environment:
+#       path: /tmp/macroserver.properties
+#       variables:
+#         ActiveMntGrp: mntgrp01
+#
+# ---
+# default to dummy controllers:
+#
+# controllers:
+#   motctrl01:
+#     type: Motor
+#     elements:
+#       mot01:
+#         axis: 1
+
