@@ -1,0 +1,4 @@
+
+
+def macdResult():
+    print('macd')
