@@ -1,0 +1,26 @@
+version: "3.8"
+
+services:
+  gama_ui:
+    image: ghcr.io/greenroom-robotics/gama_ui_whiskey_bravo:${GAMA_VERSION:-latest}
+    build:
+      context: ./projects/gama_ui
+      args:
+        VITE_GAMA_VARIANT: whiskey_bravo
+    environment:
+      VITE_GAMA_VARIANT: whiskey_bravo
+
+  gama_vessel:
+    image: ghcr.io/greenroom-robotics/gama_vessel_whiskey_bravo:${GAMA_VERSION:-latest}
+    build:
+      context: ./projects/gama_vessel
+      args:
+        - PACKAGE_NAME=whiskey_bravo_bringup
+    environment:
+      - LOG_STALE_MINUTES=43800 # in minutes
+    command: ./scripts/launch.sh whiskey_bravo_bringup vessel.launch.py ${GAMA_VESSEL_COMMAND_ARGS:-}
+
+  gama_greenstream:
+    devices:
+      - /dev/video0
+      - /dev/video2
