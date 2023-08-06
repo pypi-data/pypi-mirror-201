@@ -1,0 +1,132 @@
+#!/usr/bin/env python3
+# This file is placed in the Public Domain.
+
+
+'operator bot'
+
+
+import os
+import readline
+import sys
+import termios
+import time
+import traceback
+
+
+sys.path.insert(0, os.getcwd())
+
+
+from operbot.handler import Client, Command, Event, Handler, Listens
+from operbot.handler import command, parse, scan
+from operbot.objects import update
+from operbot.persist import Persist
+from operbot.threads import launch
+
+
+from operbot.modules import cmd, irc, log, rss, tdo
+from modules.utility import wait
+
+
+Persist.workdir = os.path.expanduser('~/.operbot')
+
+
+scan(cmd)
+scan(irc)
+scan(log)
+scan(rss)
+scan(tdo)
+
+
+class CLI(Client):
+
+    def announce(self, txt):
+        pass
+
+    def raw(self, txt):
+        print(txt)
+        sys.stdout.flush()
+
+
+class Console(CLI):
+
+    def handle(self, evt):
+        CLI.handle(self, evt)
+
+    def poll(self):
+        return self.event(input("> "))
+
+
+def daemon():
+    pid = os.fork()
+    if pid != 0:
+        os._exit(0)
+    os.setsid()
+    os.umask(0)
+    sis = open('/dev/null', 'r')
+    os.dup2(sis.fileno(), sys.stdin.fileno())
+    sos = open('/dev/null', 'a+')
+    ses = open('/dev/null', 'a+')
+    os.dup2(sos.fileno(), sys.stdout.fileno())
+    os.dup2(ses.fileno(), sys.stderr.fileno())
+
+
+def waiter():
+    got = []
+    for ex in Handler.errors:
+        traceback.print_exception(type(ex), ex, ex.__traceback__)
+        got.append(ex)
+    for exc in got:
+        Handler.errors.remove(exc)
+    got = []
+    for ex in Command.errors:
+        traceback.print_exception(type(ex), ex, ex.__traceback__)
+        got.append(ex)
+    for exc in got:
+        Command.errors.remove(exc)
+
+
+def wrap(func):
+    fds = sys.stdin.fileno()
+    gotterm = True
+    try:
+        old = termios.tcgetattr(fds)
+    except termios.error:
+        gotterm = False
+    try:
+        func()
+    except (EOFError, KeyboardInterrupt):
+        print('')
+    finally:
+        if gotterm:
+            termios.tcsetattr(fds, termios.TCSADRAIN, old)
+        waiter()
+      
+
+def main():
+    dowait = False
+    cfg = parse(' '.join(sys.argv[1:]))
+    if cfg.txt:
+        cli = CLI()
+        command(cli, cfg.otxt)
+    elif 'd' in cfg.opts:
+        daemon()
+        dowait = True
+    elif 'c' in cfg.opts:
+        date = time.ctime(time.time()).replace('  ', ' ')
+        print(f'OPERBOT started {date}')
+        csl = Console()
+        launch(csl.loop)
+        dowait = True
+    if dowait:
+        if os.path.exists("modules"):
+            from modules.scanner import importer, scandir
+            scandir("modules", importer, all=True)
+        irc.start()
+        rss.start()
+        while 1:
+            time.sleep(1.0)
+            waiter()
+
+
+wrap(main)
+waiter()
