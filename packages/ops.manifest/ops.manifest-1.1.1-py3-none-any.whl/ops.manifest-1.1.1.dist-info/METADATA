@@ -1,0 +1,528 @@
+Metadata-Version: 2.1
+Name: ops.manifest
+Version: 1.1.1
+Summary: "Kubernetes manifests for Operators"
+Home-page: https://github.com/canonical/ops-lib-manifest
+Author: Adam Dyess
+Author-email: adam.dyess@canonical.com
+License: Apache
+Keywords: juju,charming,kubernetes,operators,manifests,yaml
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: backports.cached-property
+Requires-Dist: ops
+Requires-Dist: lightkube
+
+# ops-lib-manifests
+
+## Rationale for this library
+Most kubernetes projects deploy with manifest files which promote suggested deployment
+parameters, but those manifests aren't consistent about which options are requirements
+and which options are variable. In some cases the project's distribution uses different
+means of indicating a need for replacement.
+
+For example, the following reference from [vsphere-cloud-controller-manager](https://github.com/kubernetes/cloud-provider-vsphere/blob/master/releases/v1.23/vsphere-cloud-controller-manager.yaml#L11-L24)
+gives the consumer of this yaml an indication there should be usernames and passwords set
+in the Secret object.
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: vsphere-cloud-secret
+  labels:
+    vsphere-cpi-infra: secret
+    component: cloud-controller-manager
+  namespace: kube-system
+  # NOTE: this is just an example configuration, update with real values based on your environment
+stringData:
+  10.0.0.1.username: "<ENTER_YOUR_VCENTER_USERNAME>"
+  10.0.0.1.password: "<ENTER_YOUR_VCENTER_PASSWORD>"
+  1.2.3.4.username: "<ENTER_YOUR_VCENTER_USERNAME>"
+  1.2.3.4.password: "<ENTER_YOUR_VCENTER_PASSWORD>"
+```
+
+Automation tools like a juju charm will need to read these yaml manifest files, manipulate
+its content, and deploy those manifests when any of the **configurable** data is changed.
+
+
+## Supporting Multiple Releases
+Likewise, the projects which release reference manifest files, will also release versions
+of manifests. It's possible for a charm to load all the supported manifest files into a 
+folder structure such the charm supports multiple releases. This library supports this 
+requirements by having the charm store upstream manifest files unchanged in a folder 
+structure like this:
+
+```
+<base_path>
+├── version                  - a file containing the default version
+├── manifests                - a folder containing all the releases
+│   ├── v1.1.10              - a folder matching a configurable version
+│   │   ├── manifest-1.yaml  - any file with a `.yaml` file type
+│   │   └── manifest-2.yaml
+│   ├── v1.1.11
+│   │   ├── manifest-1.yaml
+│   │   └── manifest-2.yaml
+│   │   └── manifest-3.yaml
+```
+
+Key file-heirarchy requirements
+-------------------------------
+|  |  |
+| --- | --- |
+| **$base_path** | A single charm can support multiple manifest releases
+| **version**    | A text file indicating to the library which manifest version is the default when the 'release' config is unspecified |
+| **manifests**  | A folder containing the individual release manifest folders |
+| **$release**   | A folder containing the yaml files of the specific release |
+
+## Sample Usage
+
+Once your charm includes the above manifest file hierarchy, your charm will need to define the
+mutations the library should make to the manifests. 
+
+```python
+from ops.manifests import Collector, Manifests, ManifestLabel, ConfigRegistry
+
+class ExampleApp(Manifests):
+    def __init__(self, charm, charm_config):
+        manipulations = [
+            ManifestLabel(self),
+            ConfigRegistry(self),
+            UpdateSecret(self),
+        ]
+        super().__init__("example", charm.model, "upstream/example", manipulations)
+        self.charm_config = charm_config
+
+    @property
+    def config(self) -> Dict:
+        """Returns config mapped from charm config and joined relations."""
+        config = dict(**self.charm_config)
+
+        for key, value in dict(**config).items():
+            if value == "" or value is None:
+                del config[key]  # blank out keys not currently set to something
+
+        config["release"] = config.pop("example-release", None)
+        return config
+
+
+class ExampleCharm(CharmBase):
+    def __init__(self, *args):
+        super().__init__(*args)
+
+        # collection of ManifestImpls
+        self.collector = Collector(ExampleApp(self, self.config))
+
+        # Register actions callbacks
+        self.framework.observe(self.on.list_versions_action, self._list_versions)
+        
+        # Register update status callbacks
+        self.framework.observe(self.on.update_status, self._update_status)
+    
+    def _list_versions(self, event):
+        self.collector.list_versions(event)
+
+    def _update_status(self, _):
+        unready = self.collector.unready
+        if unready:
+            self.unit.status = WaitingStatus(", ".join(unready))
+        else:
+            self.unit.status = ActiveStatus("Ready")
+            self.unit.set_workload_version(self.collector.short_version)
+            self.app.status = ActiveStatus(self.collector.long_version)
+        
+```
+
+## Manifests
+
+This class provides the following functions:
+1) Integration with lightkube to create/read/update/delete resources into the cluster
+2) Provides a means to select a manifest release
+3) Loads manifest files from a known file hierarchy specific to a release
+4) Manipulates resource objects of a specific release
+5) Provides comparisons between the installed resources and expected resources
+6) Provides user listing of available releases
+
+### Creating a Manifest Impl
+It's expected that the developer create a `Manifest` impl -- a derived class -- that implements
+one property -- `config`.  This property provides some basic requirements to the
+Manifest parent class and gives context for each custom `Manipulation` to act on 
+relation or config data.
+
+```python
+    @property
+    def config(self) -> Dict:
+        """Returns config mapped from charm config and joined relations."""
+```
+
+#### Expected `config` key mappings
+* `release` 
+    * optional `str` which identifies which release of the manifest to choose.
+    * defaults to `None` which will select the `default_release` if available.
+    * if `default_release` isn't found, the latest release is chosen.
+* `image-registry`
+    * optional `str` which will be used by the `ConfigRegistry` manipulation
+    * defaults to `None` which uses the resources built-in registry location
+    * if specified, will replace the text up to the first `/` with its contents
+
+
+### Cluster CRUD methods
+* `status()` 
+    * queries all in cluster resources associated with the current release which
+      has a `.status.conditions` attribute.
+* `installed_resources()`
+    * queries all in cluster resources associated with the current release which 
+      is installed.
+* `labelled_resources()`
+    * queries all in cluster resources associated with the charm and manifest in general
+      which is installed.
+    * this can be compared with the `resources` property to look for extra resources 
+      installed which are no longer necessary.
+* `apply_manifests()`
+    * applies all resources from the current release into the cluster.
+    * resources are force applied, overwriting existing resources.
+* `apply_resources(*resources)` and `apply_resource(...)`
+    * applies itemized resources into the cluster.
+    * resources are force applied, overwriting existing resources.
+* `delete_manifests(...)`
+    * will delete all current release resources from the cluster
+    * see `delete_resources` for keyword arguments
+* `delete_resources(...)`
+    * delete a specified set of resources from the cluster with options to 
+      seamlessly handle certain failures.
+* `delete_resource(...)`
+    * alias to `delete_resources` for when reading clarity demands only deleting
+      one resource.
+
+## Collector
+
+This class provides a native collection for operating collectively on
+the manifests within a single charm.  It provides methods for responding to 
+* action list-versions
+* action scrub-resources
+* action list-resources
+* action apply-missing-resources
+* querying the collective versions (short and long types)
+* listing which resources have a non-active status
+
+To integrate into an [ops charm](https://juju.is/docs/sdk/ops), for each 
+released application the charm manages, create a new `Manifests` impl, 
+and add an instance of it to a `Collector`.
+
+```python
+class AlternateApp(Manifests):
+    def __init__(self, charm, charm_config):
+        super().__init__("alternate", charm.model, "upstream/example")
+        self.charm_config = charm_config
+
+
+    @property
+    def config(self) -> Dict:
+        """Returns config mapped from charm config and joined relations."""
+        config = dict(**self.charm_config)
+
+        for key, value in dict(**config).items():
+            if value == "" or value is None:
+                del config[key]  # blank out keys not currently set to something
+
+        config["release"] = config.pop("alternate-release", None)
+        return config
+
+
+class ExampleCharm(CharmBase):
+    def __init__(self, *args):
+        ...
+        # collection of ManifestImpls
+        self.collector = Collector(
+            ExampleApp(self, self.config), 
+            AlternateApp(self, self.config),
+        )
+```
+
+
+## Manipulations
+
+### Patching a manifest resource
+Some resources already exist within the manifest, and just need to be updated.
+
+#### Built in Patchers
+* `ManifestLabel` 
+  * adds to each resource's `metadata.labels` the following:
+     1) `juju.io/application: manifests.app_name`
+     2) `juju.io/manifest: manifests.name`
+     3) `juju.io/manifest-version: <manifests.name>-<version>`
+
+* `ConfigRegistry`
+  * updates the image registry of every `Pod`, `DaemonSet`, `Deployment`, and
+    `StatefulSet` from the `image-registry` config item in the config
+    properties `Dict`.
+  * If the charm doesn't wish to alter the config, ensure nothing exists
+    in the `image-registry`.
+
+* `update_toleration` 
+  * not officially a patcher, but can be used by a custom Patcher
+    to adjust tolerations on `Pod`, `DaemonSet`, `Deployment`, and `StatefulSet`
+    resources.
+
+### Adding a manifest resource
+Some resources do not exist in the release manifest and must be added. The `Addition` manipulations are added
+before the rest of the `Patch` manipulations are applied.
+
+#### Built in Adders
+* `CreateNamespace` - Creates a namespace resource using either the manifest's default namespace or 
+                      an argument passed in to the constructor of this class. 
+
+### Subtracting a manifest resource
+Some manifest resources are not needed and must be removed. The `Subtraction` manipulations are added
+before the rest of the `Patch` manipulations are applied.
+
+#### Built in Subtractors
+* `SubtractEq` - Subtracts a manifest resource equal to the resource passed in as an argument. Resources are considered 
+                 equal if they have the same kind, name, and namespace.
+
+### Custom Manipulations
+Of course the built-ins will not be enough, so your charm may extend its own manipulations by defining
+new objects which inherit from either `Patch` or `Addition`.
+.. _`changelog`:
+
+=========
+Changelog
+=========
+
+Versions follow `Semantic Versioning <https://semver.org/>`_ (``<major>.<minor>.<patch>``).
+
+Backward incompatible (breaking) changes will only be introduced in major versions
+
+
+ops-lib-manifest 1.0.0 (2022-12-14)
+=========================
+
+Issues Resolved
+* [LP#1999427](https://launchpad.net/bugs/1999427)
+    - handles non-api errors from the client which are represented
+      as an http error response without json content.
+
+Breaking Changes
+----------------
+
+* no longer are `lightkube.core.exceptions.ApiError`s raised on the following methods:
+   * Manifest.status
+   * Manifest.installed_resources
+   * Manifest.apply_manifest
+   * Manifest.delete_manifest
+   * Manifest.apply_resources
+   * Manifest.delete_resources
+
+    instead a more generic exception `ManifestClientError` is raised.
+
+
+                                 Apache License
+                           Version 2.0, January 2004
+                        http://www.apache.org/licenses/
+
+   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+
+   1. Definitions.
+
+      "License" shall mean the terms and conditions for use, reproduction,
+      and distribution as defined by Sections 1 through 9 of this document.
+
+      "Licensor" shall mean the copyright owner or entity authorized by
+      the copyright owner that is granting the License.
+
+      "Legal Entity" shall mean the union of the acting entity and all
+      other entities that control, are controlled by, or are under common
+      control with that entity. For the purposes of this definition,
+      "control" means (i) the power, direct or indirect, to cause the
+      direction or management of such entity, whether by contract or
+      otherwise, or (ii) ownership of fifty percent (50%) or more of the
+      outstanding shares, or (iii) beneficial ownership of such entity.
+
+      "You" (or "Your") shall mean an individual or Legal Entity
+      exercising permissions granted by this License.
+
+      "Source" form shall mean the preferred form for making modifications,
+      including but not limited to software source code, documentation
+      source, and configuration files.
+
+      "Object" form shall mean any form resulting from mechanical
+      transformation or translation of a Source form, including but
+      not limited to compiled object code, generated documentation,
+      and conversions to other media types.
+
+      "Work" shall mean the work of authorship, whether in Source or
+      Object form, made available under the License, as indicated by a
+      copyright notice that is included in or attached to the work
+      (an example is provided in the Appendix below).
+
+      "Derivative Works" shall mean any work, whether in Source or Object
+      form, that is based on (or derived from) the Work and for which the
+      editorial revisions, annotations, elaborations, or other modifications
+      represent, as a whole, an original work of authorship. For the purposes
+      of this License, Derivative Works shall not include works that remain
+      separable from, or merely link (or bind by name) to the interfaces of,
+      the Work and Derivative Works thereof.
+
+      "Contribution" shall mean any work of authorship, including
+      the original version of the Work and any modifications or additions
+      to that Work or Derivative Works thereof, that is intentionally
+      submitted to Licensor for inclusion in the Work by the copyright owner
+      or by an individual or Legal Entity authorized to submit on behalf of
+      the copyright owner. For the purposes of this definition, "submitted"
+      means any form of electronic, verbal, or written communication sent
+      to the Licensor or its representatives, including but not limited to
+      communication on electronic mailing lists, source code control systems,
+      and issue tracking systems that are managed by, or on behalf of, the
+      Licensor for the purpose of discussing and improving the Work, but
+      excluding communication that is conspicuously marked or otherwise
+      designated in writing by the copyright owner as "Not a Contribution."
+
+      "Contributor" shall mean Licensor and any individual or Legal Entity
+      on behalf of whom a Contribution has been received by Licensor and
+      subsequently incorporated within the Work.
+
+   2. Grant of Copyright License. Subject to the terms and conditions of
+      this License, each Contributor hereby grants to You a perpetual,
+      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+      copyright license to reproduce, prepare Derivative Works of,
+      publicly display, publicly perform, sublicense, and distribute the
+      Work and such Derivative Works in Source or Object form.
+
+   3. Grant of Patent License. Subject to the terms and conditions of
+      this License, each Contributor hereby grants to You a perpetual,
+      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+      (except as stated in this section) patent license to make, have made,
+      use, offer to sell, sell, import, and otherwise transfer the Work,
+      where such license applies only to those patent claims licensable
+      by such Contributor that are necessarily infringed by their
+      Contribution(s) alone or by combination of their Contribution(s)
+      with the Work to which such Contribution(s) was submitted. If You
+      institute patent litigation against any entity (including a
+      cross-claim or counterclaim in a lawsuit) alleging that the Work
+      or a Contribution incorporated within the Work constitutes direct
+      or contributory patent infringement, then any patent licenses
+      granted to You under this License for that Work shall terminate
+      as of the date such litigation is filed.
+
+   4. Redistribution. You may reproduce and distribute copies of the
+      Work or Derivative Works thereof in any medium, with or without
+      modifications, and in Source or Object form, provided that You
+      meet the following conditions:
+
+      (a) You must give any other recipients of the Work or
+          Derivative Works a copy of this License; and
+
+      (b) You must cause any modified files to carry prominent notices
+          stating that You changed the files; and
+
+      (c) You must retain, in the Source form of any Derivative Works
+          that You distribute, all copyright, patent, trademark, and
+          attribution notices from the Source form of the Work,
+          excluding those notices that do not pertain to any part of
+          the Derivative Works; and
+
+      (d) If the Work includes a "NOTICE" text file as part of its
+          distribution, then any Derivative Works that You distribute must
+          include a readable copy of the attribution notices contained
+          within such NOTICE file, excluding those notices that do not
+          pertain to any part of the Derivative Works, in at least one
+          of the following places: within a NOTICE text file distributed
+          as part of the Derivative Works; within the Source form or
+          documentation, if provided along with the Derivative Works; or,
+          within a display generated by the Derivative Works, if and
+          wherever such third-party notices normally appear. The contents
+          of the NOTICE file are for informational purposes only and
+          do not modify the License. You may add Your own attribution
+          notices within Derivative Works that You distribute, alongside
+          or as an addendum to the NOTICE text from the Work, provided
+          that such additional attribution notices cannot be construed
+          as modifying the License.
+
+      You may add Your own copyright statement to Your modifications and
+      may provide additional or different license terms and conditions
+      for use, reproduction, or distribution of Your modifications, or
+      for any such Derivative Works as a whole, provided Your use,
+      reproduction, and distribution of the Work otherwise complies with
+      the conditions stated in this License.
+
+   5. Submission of Contributions. Unless You explicitly state otherwise,
+      any Contribution intentionally submitted for inclusion in the Work
+      by You to the Licensor shall be under the terms and conditions of
+      this License, without any additional terms or conditions.
+      Notwithstanding the above, nothing herein shall supersede or modify
+      the terms of any separate license agreement you may have executed
+      with Licensor regarding such Contributions.
+
+   6. Trademarks. This License does not grant permission to use the trade
+      names, trademarks, service marks, or product names of the Licensor,
+      except as required for reasonable and customary use in describing the
+      origin of the Work and reproducing the content of the NOTICE file.
+
+   7. Disclaimer of Warranty. Unless required by applicable law or
+      agreed to in writing, Licensor provides the Work (and each
+      Contributor provides its Contributions) on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+      implied, including, without limitation, any warranties or conditions
+      of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
+      PARTICULAR PURPOSE. You are solely responsible for determining the
+      appropriateness of using or redistributing the Work and assume any
+      risks associated with Your exercise of permissions under this License.
+
+   8. Limitation of Liability. In no event and under no legal theory,
+      whether in tort (including negligence), contract, or otherwise,
+      unless required by applicable law (such as deliberate and grossly
+      negligent acts) or agreed to in writing, shall any Contributor be
+      liable to You for damages, including any direct, indirect, special,
+      incidental, or consequential damages of any character arising as a
+      result of this License or out of the use or inability to use the
+      Work (including but not limited to damages for loss of goodwill,
+      work stoppage, computer failure or malfunction, or any and all
+      other commercial damages or losses), even if such Contributor
+      has been advised of the possibility of such damages.
+
+   9. Accepting Warranty or Additional Liability. While redistributing
+      the Work or Derivative Works thereof, You may choose to offer,
+      and charge a fee for, acceptance of support, warranty, indemnity,
+      or other liability obligations and/or rights consistent with this
+      License. However, in accepting such obligations, You may act only
+      on Your own behalf and on Your sole responsibility, not on behalf
+      of any other Contributor, and only if You agree to indemnify,
+      defend, and hold each Contributor harmless for any liability
+      incurred by, or claims asserted against, such Contributor by reason
+      of your accepting any such warranty or additional liability.
+
+   END OF TERMS AND CONDITIONS
+
+   APPENDIX: How to apply the Apache License to your work.
+
+      To apply the Apache License to your work, attach the following
+      boilerplate notice, with the fields enclosed by brackets "[]"
+      replaced with your own identifying information. (Don't include
+      the brackets!)  The text should be enclosed in the appropriate
+      comment syntax for the file format. We also recommend that a
+      file or class name and description of purpose be included on the
+      same "printed page" as the copyright notice for easier
+      identification within third-party archives.
+
+   Copyright [yyyy] [name of copyright owner]
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
