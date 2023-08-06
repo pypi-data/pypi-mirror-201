@@ -1,0 +1,47 @@
+#!/usr/bin/env python3
+
+from argparse import ArgumentParser
+import runpy
+import sys
+import os
+
+COMMAND_PREFIX = 'limepress-'
+
+commands = {}
+
+# builtin commands
+def list_commands():
+    for key, value in commands.items():
+        print(f'{key} ({value})')
+
+
+commands['list-commands'] = list_commands
+
+# find shell commands
+for directory in os.environ.get('PATH', '').strip().split(':')[::-1]:
+    for command in os.listdir(directory):
+        if not command.startswith(COMMAND_PREFIX):
+            continue
+
+        command_name = command[len(COMMAND_PREFIX):]
+        command_path = os.path.join(directory, command)
+
+        commands[command_name] = command_path
+
+# parse command line
+parser = ArgumentParser(prog='limepress')
+
+parser.add_argument('command', choices=list(commands.keys()))
+
+args = parser.parse_args(sys.argv[1:2])
+
+# run command
+# buildin commands
+if callable(commands[args.command]):
+    commands[args.command]()
+
+# shell commands
+else:
+    sys.argv = [sys.argv[0]] + sys.argv[2:]
+
+    runpy.run_path(commands[args.command])
