@@ -1,0 +1,120 @@
+Metadata-Version: 2.1
+Name: dbt-fal
+Version: 1.4.6
+Summary: Simplest way to run dbt python models.
+Home-page: https://github.com/fal-ai/fal/blob/-/projects/adapter
+Keywords: dbt,pandas,fal,runtime
+Author: Features & Labels
+Author-email: hello@fal.ai
+Requires-Python: >=3.7.2,<3.12
+Classifier: Development Status :: 4 - Beta
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Provides-Extra: athena
+Provides-Extra: bigquery
+Provides-Extra: duckdb
+Provides-Extra: postgres
+Provides-Extra: redshift
+Provides-Extra: snowflake
+Provides-Extra: teleport
+Provides-Extra: trino
+Requires-Dist: backports.functools_lru_cache (>=1.6.4,<2.0.0)
+Requires-Dist: dbt-core (>=1.4.0,<1.5)
+Requires-Dist: dill (>=0.3.5.1)
+Requires-Dist: fal-serverless (>=0.6.24,<0.7.0)
+Requires-Dist: google-cloud-bigquery[pandas] (>=3.5.0,<3.6.0); extra == "bigquery"
+Requires-Dist: importlib-metadata (>=6.0.0,<7.0.0)
+Requires-Dist: packaging (<22)
+Requires-Dist: pandas (>=1.3.4,<2.0.0)
+Requires-Dist: posthog (>=1.4.5,<2.0.0)
+Requires-Dist: s3fs (>=2022.8.2); extra == "teleport"
+Requires-Dist: snowflake-connector-python[pandas] (>=2.8.0,<2.8.2); extra == "snowflake"
+Requires-Dist: sqlalchemy (>=1.4.41,<2.0.0)
+Requires-Dist: sqlalchemy-redshift (>=0.8.9,<0.9.0); extra == "redshift"
+Requires-Dist: trino[sqlalchemy] (>=0.321.0,<0.322.0); extra == "trino"
+Project-URL: Repository, https://github.com/fal-ai/fal
+Description-Content-Type: text/markdown
+
+<!-- <base href="https://github.com/fal-ai/fal/blob/-/projects/adapter/" target="_blank" /> -->
+
+# Welcome to dbt-fal 👋
+
+dbt-fal adapter is the ✨easiest✨ way to run your [dbt Python models](https://docs.getdbt.com/docs/building-a-dbt-project/building-models/python-models).
+
+Starting with dbt v1.3, you can now build your dbt models in Python. This leads to some cool use cases that was once difficult to build with SQL alone. Some examples are:
+
+- Using Python stats libraries to calculate stats
+- Building forecasts
+- Building other predictive models such as classification and clustering
+
+This is fantastic! BUT, there is still one issue though! The developer experience with Snowflake and Bigquery is not great, and there is no Python support for Redshift and Postgres.
+
+dbt-fal provides the best environment to run your Python models that works with all other data warehouses! With dbt-fal, you can:
+
+- Build and test your models locally
+- Isolate each model to run in its own environment with its own dependencies
+- [Coming Soon] Run your Python models in the ☁️ cloud ☁️ with elasticly scaling Python environments.
+- [Coming Soon] Even add GPUs to your models for some heavier workloads such as training ML models.
+
+## Getting Started
+
+### 1. Install dbt-fal
+`pip install dbt-fal[bigquery, snowflake]` *Add your current warehouse here*
+
+### 2. Update your `profiles.yml` and add the fal adapter
+
+```yaml
+jaffle_shop:
+  target: dev_with_fal
+  outputs:
+    dev_with_fal:
+      type: fal
+      db_profile: dev_bigquery # This points to your main adapter
+    dev_bigquery:
+      type: bigquery
+      ...
+```
+
+Don't forget to point to your main adapter with the `db_profile` attribute. This is how the fal adapter knows how to connect to your data warehouse.
+
+### 3. `dbt run`!
+That is it! It is really that simple 😊
+
+### 4. [🚨 Cool Feature Alert 🚨] Environment management with dbt-fal
+If you want some help with environment management (vs sticking to the default env that the dbt process runs in), you can create a fal_project.yml in the same folder as your dbt project and have “named environments”:
+
+In your dbt project folder:
+```bash
+$ touch fal_project.yml
+
+# Paste the config below
+environments:
+  - name: ml
+    type: venv
+    requirements:
+      - prophet
+```
+
+and then in your dbt model:
+
+```bash
+$ vi models/orders_forecast.py
+
+def model(dbt, fal):
+    dbt.config(fal_environment="ml") # Add this line
+
+    df: pd.DataFrame = dbt.ref("orders_daily")
+```
+
+The `dbt.config(fal_environment=“ml”)` will give you an isolated clean env to run things in, so you dont pollute your package space.
+
+### 5. [Coming Soon™️] Move your compute to the Cloud!
+Let us know if you are interested in this. We are looking for beta users.
+
+# Have feedback or need help?
+
+- Join us in [fal on Discord](https://discord.com/invite/Fyc9PwrccF)
+- Join the [dbt Community](http://community.getdbt.com/) and go into our [#tools-fal channel](https://getdbt.slack.com/archives/C02V8QW3Q4Q)
+

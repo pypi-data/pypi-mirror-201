@@ -1,0 +1,65 @@
+[tool.poetry]
+name = "dbt-fal"
+version = "1.4.6"
+description = "Simplest way to run dbt python models."
+readme = "README.md"
+homepage = "https://github.com/fal-ai/fal/blob/-/projects/adapter"
+repository = "https://github.com/fal-ai/fal"
+authors = [ "Features & Labels <hello@fal.ai>" ]
+packages = [
+    { include = "dbt", from = "src" }
+]
+
+keywords = [ "dbt", "pandas", "fal", "runtime" ]
+classifiers = [
+    "Development Status :: 4 - Beta"
+]
+
+[tool.poetry.dependencies]
+python = ">=3.7.2, <3.12"
+dbt-core = ">=1.4.0, <1.5"
+posthog = "^1.4.5"
+pandas = "^1.3.4"
+"backports.functools_lru_cache" = "^1.6.4"
+sqlalchemy = "^1.4.41"
+
+# Adapters
+
+## snowflake
+snowflake-connector-python = { version = ">=2.8.0, <2.8.2", extras = ["pandas"], optional = true }
+
+## bigquery
+### version defined by dbt-bigquery, installs pyarrow<8
+google-cloud-bigquery = { version = "~3.5.0", extras = ["pandas"], optional = true }
+
+## redshift
+sqlalchemy-redshift = { version = "^0.8.9", optional = true }
+
+## trino
+trino = { version = "~0.321.0", extras = ["sqlalchemy"], optional = true }
+
+# teleport
+s3fs = { version = ">=2022.8.2", optional = true }
+
+# fal cloud
+dill = ">=0.3.5.1"
+packaging = "<22"
+fal-serverless = "^0.6.24"
+importlib-metadata = "^6.0.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+
+[tool.poetry.extras]
+postgres = []
+snowflake = ["snowflake-connector-python"]
+bigquery = ["google-cloud-bigquery"]
+redshift = ["sqlalchemy-redshift"]
+duckdb = []
+athena = []
+trino = ["trino"]
+teleport = ["s3fs"]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
