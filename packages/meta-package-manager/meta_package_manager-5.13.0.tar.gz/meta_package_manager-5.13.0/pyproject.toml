@@ -1,0 +1,177 @@
+[tool.poetry]
+# Docs: https://python-poetry.org/docs/pyproject/
+name = "meta-package-manager"
+version = "5.13.0"
+description = "🎁 wraps all package managers with a unifying CLI"
+license = 'GPL-2.0-or-later'
+authors = ["Kevin Deldycke <kevin@deldycke.com>"]
+readme = "readme.md"
+homepage = 'https://github.com/kdeldycke/meta-package-manager'
+repository = 'https://github.com/kdeldycke/meta-package-manager'
+documentation = 'https://kdeldycke.github.io/meta-package-manager'
+keywords = [
+    'CLI',
+    'apm',
+    'apt',
+    'apt-mint',
+    'atom',
+    'brew',
+    'cargo',
+    'cask',
+    'choco',
+    'chocotaley',
+    'composer',
+    'dnf',
+    'emerge',
+    'flatpak',
+    'gem',
+    'homebrew',
+    'mac app store',
+    'macos',
+    'mas',
+    'node',
+    'npm',
+    'opkg',
+    'package',
+    'package url',
+    'pacaur',
+    'pacman',
+    'paru',
+    'php composer',
+    'pip',
+    'pipx',
+    'plugin',
+    'portage',
+    'purl',
+    'ruby',
+    'rust',
+    'scoop',
+    'snap',
+    'steamcmd',
+    'visual studio code',
+    'vscode',
+    'xbar',
+    'swiftbar',
+    'yarn',
+    'yay',
+    'yum',
+    'zypper',
+]
+classifiers = [
+    # See: https://pypi.org/pypi?%3Aaction=list_classifiers
+    'Development Status :: 5 - Production/Stable',
+    'Environment :: Console',
+    'Environment :: MacOS X',
+    'Environment :: Plugins',
+    'Intended Audience :: Developers',
+    'Intended Audience :: Information Technology',
+    'Intended Audience :: System Administrators',
+    'Operating System :: MacOS :: MacOS X',
+    'Operating System :: Microsoft :: Windows',
+    'Operating System :: POSIX :: Linux',
+    'Programming Language :: Python :: Implementation :: CPython',
+    'Topic :: Software Development :: Libraries :: Python Modules',
+    'Topic :: System :: Archiving :: Packaging',
+    'Topic :: System :: Installation/Setup',
+    'Topic :: System :: Software Distribution',
+    'Topic :: Utilities',
+    'Typing :: Typed',
+]
+
+[tool.poetry.urls]
+"Funding" = "https://github.com/sponsors/kdeldycke"
+"Issues" = "https://github.com/kdeldycke/meta-package-manager/issues"
+"Changelog" = "https://kdeldycke.github.io/meta-package-manager/changelog.html"
+
+[tool.poetry.dependencies]
+# List of python versions and their support status:
+# https://en.wikipedia.org/wiki/History_of_Python#Support
+python = "^3.7"
+boltons = "^23.0.0"
+click = "^8.1.2"
+click-extra = "^3.10.0"
+packageurl-python = "^0.11.1"
+tabulate = { extras = ["widechars"], version = "^0.9.0" }
+tomli = { version = "^2.0.1", python = "< 3.11" }
+tomli_w = "^1.0.0"
+typing-extensions = { version = "^4.3.0", python = "< 3.10" }
+xmltodict = "^0.13.0"
+
+[tool.poetry.group.dev.dependencies]
+bump2version = "^1.0.1"
+coverage = { extras = ["toml"], version = "^7.2" }
+furo = "^2023.03.27"
+mypy = "^1.1"
+myst-parser = "^1.0.0"
+pytest = "^7.2.2"
+# More pytest plugins at: https://docs.pytest.org/en/latest/reference/plugin_list.html
+pytest-cov = "^4.0.0"
+pytest-randomly = "^3.12.0"
+pytest-xdist = { extras = ["psutil"], version = "^3.2.1" }
+pyyaml = "^6.0"
+sphinx = "^5.3.0"
+sphinx-autodoc-typehints = "^1.21.7"
+sphinx-click = "^4.4.0"
+sphinx-copybutton = "^0.5.1"
+sphinx-design = "^0.3.0"
+sphinx-issues = "^3.0.1"
+sphinxcontrib-mermaid = "^0.8"
+sphinxext-opengraph = "^0.7.5"
+types-PyYAML = "^6.0.12"
+types-tabulate = "^0.9.0"
+types-xmltodict = "^0.13.0"
+
+[tool.poetry.scripts]
+mpm = 'meta_package_manager.__main__:main'
+
+[tool.mypy]
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_return_any = true
+warn_unreachable = true
+pretty = true
+
+[[tool.mypy.overrides]]
+ignore_missing_imports = true
+module = ["boltons.*", "packageurl.*"]
+
+[tool.pytest.ini_options]
+# https://docs.pytest.org/en/latest/customize.html#pyproject-toml
+# XXX The ``testpaths`` parameter has no effect since pytest is only looking for a ``conftest.py`` right next to this
+# ``pyproject.toml`` file. This issue is tracked upstream at: https://github.com/pytest-dev/pytest/issues/10665
+# In the meantime, we have to rely on the ``addopts`` parameter to hard-code the test path and have our custom options
+# recognized.
+testpaths = ["meta_package_manager/tests/"]
+# --maxschedchunk=1 : Limit size of the chunks of consecutive tests that xdist submits to workers.
+#   Setting it to 1 will effectively mean "round-robin distribution".
+#   Source: https://github.com/pytest-dev/pytest-xdist/issues/855#issuecomment-1344986156
+# --cov-config=pyproject.toml : is specified at CLI level instead of letting coverage find it because of this bug:
+#   https://github.com/nedbat/coveragepy/issues/512#issuecomment-399707938
+#   https://github.com/pytest-dev/pytest-cov/issues/168#issuecomment-327533847
+#   https://github.com/pytest-dev/pytest-cov/issues/243
+# --run-non-destructive : is not required as this is the default behavior. We still add it to the command line to make sure
+#   pytest is properly recognizing it and loads our customization from ``./meta_package_manager/tests/conftest.py``
+#   (see issue https://github.com/pytest-dev/pytest/issues/10665 and explanation above for the details). Else we
+#   run the risk of having all tests run by default, including the destructive ones.
+addopts = "--numprocesses=auto --dist=loadgroup --maxschedchunk=1 --durations=10 --cov-report=term --cov-report=xml --cov-config=pyproject.toml --cov=. --run-non-destructive"
+# Make sure tests that are expected to fail do not resurect and start working all of a sudden.
+xfail_strict = true
+
+# https://coverage.readthedocs.io/en/latest/config.html
+[tool.coverage.run]
+branch = true
+[tool.coverage.report]
+precision = 2
+
+[tool.check-wheel-contents]
+ignore = [
+    # W002: Wheel contains duplicate files:
+    #   meta_package_manager/managers/__init__.py
+    #   meta_package_manager/tests/__init__.py
+    "W002",
+]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
