@@ -1,0 +1,113 @@
+[build-system]
+requires = [
+  "setuptools >= 63.0.0", # required by pyproject+setuptools_scm integration
+  "setuptools_scm[toml] >= 7.0.5", # required for "no-local-version" scheme
+
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+# https://peps.python.org/pep-0621/#readme
+requires-python = ">=3.8"
+dynamic = ["version", "dependencies", "optional-dependencies"]
+name = "mk"
+description = "mk"
+readme = "docs/README.md"
+authors = [{ "name" = "Sorin Sbarnea", "email" = "sorin.sbarnea@gmail.com" }]
+license = { text = "MIT" }
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Information Technology",
+  "Intended Audience :: System Administrators",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: MacOS",
+  "Operating System :: POSIX",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python",
+  "Topic :: Software Development :: Quality Assurance",
+  "Topic :: Software Development :: Testing",
+  "Topic :: Utilities",
+]
+keywords = ["mk"]
+
+[project.urls]
+homepage = "https://github.com/pycontribs/mk"
+# documentation = "https://mk.readthedocs.io/"
+repository = "https://github.com/pycontribs/mk"
+changelog = "https://github.com/pycontribs/mk/releases"
+
+[project.scripts]
+mk = "mk.__main__:cli"
+
+[project.entry-points."mk_tools"]
+ansible = "mk.tools.ansible:AnsibleTool"
+cmake = "mk.tools.cmake:CMakeTool"
+git = "mk.tools.git:GitTool"
+make = "mk.tools.make:MakeTool"
+node = "mk.tools.node:NodeTool"
+pypackage = "mk.tools.py_package:PyPackageTool"
+pytest = "mk.tools.pytest:PyTestTool"
+pre-commit = "mk.tools.pre_commit:PreCommitTool"
+shell = "mk.tools.shell:ShellTool"
+taskfile = "mk.tools.taskfile:TaskfileTool"
+tox = "mk.tools.tox:ToxTool"
+
+[tool.black]
+
+[tool.coverage.run]
+source = ["src"]
+# Do not use branch until bug is fixes:
+# https://github.com/nedbat/coveragepy/issues/605
+# branch = true
+parallel = true
+concurrency = ["multiprocessing", "thread"]
+
+# Keep this default because xml/report do not know to use load it from config file:
+# data_file = ".coverage"
+[tool.coverage.paths]
+source = ["src", ".tox/*/site-packages"]
+
+[tool.coverage.report]
+exclude_lines = ["pragma: no cover", "if TYPE_CHECKING:"]
+skip_covered = true
+skip_empty = true
+# During development we might remove code (files) with coverage data, and we dont want to fail:
+ignore_errors = true
+show_missing = true
+
+[tool.isort]
+profile = "black"
+
+[tool.pylint."MESSAGES CONTROL"]
+# increase from default is 50 which is too aggressive
+max-statements = 60
+disable = [
+  # Disabled on purpose (explain in comment)
+  "line-too-long", # black managed
+  "wrong-import-position", # isort managed
+  # TODO(ssbarnea): remove temporary skips adding during initial adoption:
+  "dangerous-default-value",
+  "invalid-name",
+  "missing-class-docstring",
+  "missing-function-docstring",
+  "missing-module-docstring",
+  "no-value-for-parameter",
+  "not-an-iterable",
+  "too-few-public-methods",
+]
+
+[tool.setuptools.dynamic]
+optional-dependencies.test = { file = [".config/requirements-test.txt"] }
+optional-dependencies.docs = { file = [".config/requirements-docs.txt"] }
+dependencies = { file = [".config/requirements.in"] }
+
+[tool.setuptools_scm]
+local_scheme = "no-local-version"
+write_to = "src/mk/_version.py"
