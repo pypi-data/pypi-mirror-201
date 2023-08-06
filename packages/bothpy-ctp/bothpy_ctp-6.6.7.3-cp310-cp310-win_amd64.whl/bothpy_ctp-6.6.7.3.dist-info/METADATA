@@ -1,0 +1,84 @@
+Metadata-Version: 2.1
+Name: bothpy-ctp
+Version: 6.6.7.3
+Summary: CTP gateway for bothpy quant trading framework.
+License: MIT
+Keywords: quant,quantitative,investment,trading,algotrading,ctp
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Operating System :: Microsoft :: Windows
+Classifier: Operating System :: POSIX :: Linux
+Classifier: Operating System :: MacOS
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Topic :: Office/Business :: Financial :: Investment
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Natural Language :: Chinese (Simplified)
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: importlib-metadata
+
+## 说明
+
+基于CTP期货版的6.6.7接口封装开发，接口中自带的是【穿透式实盘环境】的dll文件。
+由 vnpy_ctp 修改而来
+
+## 打包
+
+```
+python setup.py bdist_wheel
+```
+
+需要进行C++编译，因此在执行上述命令之前请确保已经安装了【Visual Studio（Windows）】、【GCC（Linux）】、【XCode（Mac）】编译器。
+
+## 发布
+
+先安装一下 twine：
+
+```
+python -m pip install twine
+twine upload dist/*
+```
+没有账户去注册一个  https://pypi.org/
+
+## 安装
+
+直接使用pip命令：
+
+```
+pip install bothpy_ctp
+```
+
+## 使用
+
+以脚本方式启动（script/run.py）：
+
+```
+from bothpy.event import EventEngine
+from bothpy.trader.engine import MainEngine
+from bothpy.trader.ui import MainWindow, create_qapp
+
+from bothpy_ctp import CtpGateway
+
+
+def main():
+    """主入口函数"""
+    qapp = create_qapp()
+
+    event_engine = EventEngine()
+    main_engine = MainEngine(event_engine)
+    main_engine.add_gateway(CtpGateway)
+  
+    main_window = MainWindow(main_engine, event_engine)
+    main_window.showMaximized()
+
+    qapp.exec()
+
+
+if __name__ == "__main__":
+    main()
+```
