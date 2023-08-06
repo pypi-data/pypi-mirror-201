@@ -1,0 +1,20 @@
+---
+import { getCollection } from "astro:content";
+import Analysis from "../../layouts/Analysis.astro";
+import { colorConfig, getGraphData } from "@lib/graph";
+
+export const prerender = true;
+
+export const getStaticPaths = async () => {
+    const analysis = await getCollection("analysis");
+    return analysis.map((entry) => ({
+        params: { slug: entry.slug },
+        props: { entry },
+    }));
+};
+
+const { entry } = Astro.props;
+const graphData = await getGraphData(entry);
+---
+
+<Analysis entry={entry} graphData={graphData} />

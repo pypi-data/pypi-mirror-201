@@ -1,0 +1,46 @@
+---
+import Badge from "@components/shared/Badge.astro";
+import BaseLayout from "@layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+const analysis = await getCollection("analysis");
+analysis.sort((a, b) => {
+  return b.data.date.getDate() - a.data.date.getDate();
+});
+---
+
+<BaseLayout>
+  <div class="analysis-list flex flex-col max-w-4xl mx-auto gap-2">
+    {
+      analysis.map((entry) => (
+        <>
+          <article class="mb-6 transition border-b border-blue-600">
+            <div class="flex items-center justify-between">
+              <h3 class="font-serif mb-2 text-xl font-semibold leading-tight sm:text-2xl font-heading">
+                <a
+                  href={`/analysis/${entry.slug}`}
+                  class="hover:text-primary dark:hover:text-blue-700  transition ease-in duration-200"
+                >
+                  {entry.data.title}
+                </a>
+              </h3>
+
+              <div class="text-sm tracking-tighter">
+                {entry.data.date.toLocaleDateString()}
+              </div>
+            </div>
+            <p class="text-zinc-800">
+              {entry.data.description || entry.body.slice(0, 100)}
+            </p>
+            <div class="flex items-center justify-between my-2">
+              <div class="tags">
+                {entry.data.tags.map((tag) => (
+                  <Badge class="bg-indigo-100 text-indigo-800">{tag}</Badge>
+                ))}
+              </div>
+            </div>
+          </article>
+        </>
+      ))
+    }
+  </div>
+</BaseLayout>
