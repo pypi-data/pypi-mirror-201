@@ -1,0 +1,103 @@
+[build-system]
+requires = [
+    'flit_core >=2,<4',
+    'setuptools_scm',
+    'pytoml',
+    'wheel',
+    'importlib_metadata>=0.7; python_version < "3.8"'
+]
+build-backend = 'flit_core.buildapi'
+
+[project]
+name = 'scirpy'
+authors = [
+    {name = "Gregor Sturm", email="gregor.sturm@i-med.ac.at"},
+    {name= "Tamas Szabo"},
+]
+readme = {file = "README.rst", content-type="text/x-rst"}
+classifiers = [
+    'License :: OSI Approved :: BSD License',
+    'Development Status :: 4 - Beta',
+    'Intended Audience :: Developers',
+    'Intended Audience :: Science/Research',
+    'Programming Language :: Python :: 3',
+    'Programming Language :: R'
+]
+requires-python = '>= 3.8'
+dependencies = [
+    'anndata>=0.7.6',
+    'scanpy>=1.6.0',
+    'pandas>=1.5,<2',
+    'numpy>=1.17.0',
+    'scipy',
+    # parasail 1.2.1 fails to be installd on MacOS
+    'parasail != 1.2.1',
+    'scikit-learn',
+    'python-levenshtein',
+    # 0.10.0 and 0.10.1 have the bug described in https://github.com/igraph/python-igraph/issues/570
+    'python-igraph != 0.10.0,!=0.10.1',
+    'networkx>=2.5',
+    'squarify',
+    'airr>=1.2',
+    'tqdm>=4.44.1', # required for process_map
+    'adjustText>=0.7',
+    'numba>=0.41.0',
+    # for getting the version
+    'setuptools_scm',
+    'pytoml',
+    'importlib_metadata>=0.7; python_version < "3.8"',
+    'pycairo>=1.20; sys_platform == "win32"',
+]
+dynamic = ["version", "description"]
+
+[project.optional-dependencies]
+rpack = [
+    'rectangle-packer',
+]
+test = [
+    'pytest',
+    'black',
+    'pre-commit',
+]
+dandelion = [
+    'sc-dandelion>=0.2.3',
+]
+diversity = [
+    'scikit-bio>=0.5.7'
+]
+doc = [
+    'sphinx>=4.2,<4.3',
+    'sphinx-rtd-theme>=0.3.1',
+    'scanpydoc[typehints]>=0.7.4',
+    'typing_extensions; python_version < "3.8"',  # for `Literal`,
+    'sphinxcontrib-bibtex>=1.0.0',
+    # for tutorial
+    'leidenalg',
+    'nbsphinx>=0.6.0',
+    'jupytext',
+    'pycairo',
+    'jupyter_client',
+    'ipykernel',
+    'sc-dandelion',
+]
+
+[project.urls]
+Documentation = 'https://scverse.org/scirpy/'
+Home-page = 'https://scverse.org/scirpy/'
+Source = "https://github.com/scverse/scirpy"
+
+
+[tool.pytest.ini_options]
+markers = [
+    "conda: marks a subset of tests to be ran on the Bioconda CI.",
+    "extra: marks tests that require extra dependencies."
+]
+minversion = 6.0
+testpaths = 'scirpy/tests'
+norecursedirs = [ '.*', 'build', 'dist', '*.egg', 'data', '__pycache__']
+
+[tool.setuptools_scm]
+git_describe_command = "git describe --dirty --tags --long --match v*.*.*"
+
+[tool.black]
+target-version = ['py37']
