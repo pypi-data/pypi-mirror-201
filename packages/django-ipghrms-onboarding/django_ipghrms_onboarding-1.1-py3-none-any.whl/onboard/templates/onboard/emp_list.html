@@ -1,0 +1,77 @@
+{% extends "main/layout.html" %}
+{% load humanize %}
+{% block content %}
+<div class="breadcrumb-holder">
+	<div class="container-fluid">
+		<ul class="breadcrumb">
+			<li class="breadcrumb-item active">{{ legend|upper }}</li>
+		</ul>
+	</div>
+</div>
+<div class="container-fluid"><br/>
+	<div class="row">
+		<div class="col-sm-12">
+			<div class="card  shadow-lg rounded">
+				<div class="card-header border-primary">
+					<center>
+						<h2>{{ legend|upper }}</h2>
+					</center>
+				</div>
+				<div class="card-body  border-primary">
+					<table class="table table-sm table-striped table-bordered" id="example" width="100%" cellspacing="0">
+						<thead>
+							<tr align="center">
+								<th>Nu.</th>
+								<th class="text-left">Naran</th>
+								<th>Sexu</th>
+								<th>Status Funsionario</th>
+								<th>Status Onboarding</th>
+								<th>#</th>
+							</tr>
+						</thead>
+						<tbody>
+						{% for obj in objects %}
+							<tr align="center">
+								<td>{{ forloop.counter }}</td>
+								<td class="text-left"><a href="{% url 'emp-detail' obj.0.hashed %}" title="Detalha">{{ obj.0 }}</a></td>
+								<td>{{ obj.0.sex }}</td>
+								<td>{% if obj.0.is_new == True %} <span class="badge badge-success">Foun</span> {% else %} <span class="badge badge-danger">Tuan</span> {% endif %}</td>
+								<td>
+									{% if obj.1.is_finish %}
+									  <span class="badge badge-success">TERMINA</span>
+									{% else %}
+									  <span class="badge badge-secondary">SEIDAUK TERMINA</span>
+									{% endif %}
+								</td>
+								<td>
+									{% if group == 'hr' or group == 'de' or group == 'deputy' %}
+									  
+									
+										{% if obj.2 == True %}
+											<a class="btn btn-sm btn-info" href="{% url 'onboard-list' obj.1.hashed %}" title="Details">Details <i class="fa fa-eye"></i></a>
+										{% else %}
+											{% if group == 'hr' %}
+												<a class="btn btn-sm btn-info" href="{% url 'onboard-emp-add' obj.0.hashed %}" title="Assign">Add <i class="fa fa-plus"></i></a>
+											{% else %}
+												<span class="badge bg-danger text-white rounded">Seidauk Kria <i class="fa fa-warning"></i> </span>
+											{% endif %}
+										{% endif %}
+									{% endif %}
+								</td>
+							</tr>
+						{% endfor %}
+						</tbody>
+					</table>
+				</div> <!--end card-body-->
+			</div> <!--end card-->
+		</div> <!--end col-->
+	</div> <!--end row-->
+</div>
+{% endblock %}
+{% block scripts %}
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$('#example').DataTable();
+		} );
+	</script>
+{% endblock %}
