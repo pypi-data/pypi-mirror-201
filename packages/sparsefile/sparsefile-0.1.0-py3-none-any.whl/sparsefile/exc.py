@@ -1,0 +1,2 @@
+class SparsifyError(RuntimeError):
+    pass
