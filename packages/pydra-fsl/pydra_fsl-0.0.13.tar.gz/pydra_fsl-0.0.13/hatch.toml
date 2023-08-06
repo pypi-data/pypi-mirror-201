@@ -1,0 +1,32 @@
+[build.targets.wheel]
+only-include = ["pydra/tasks/fsl"]
+
+[envs.default]
+dependencies = [
+  "coverage[toml] <7",
+  "pytest",
+  "pytest-cov",
+]
+[envs.default.scripts]
+cov = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=pydra {args}"
+no-cov = "cov --no-cov {args}"
+
+[[envs.test.matrix]]
+python = ["3.7", "3.8", "3.9", "3.10", "3.11"]
+
+[envs.lint]
+detached = true
+dependencies = [
+  "black",
+  "isort",
+  "tomli",
+]
+[envs.lint.scripts]
+all = [
+  "black --check --diff {args:pydra}",
+  "isort --check --diff {args:pydra}",
+]
+fix = [
+  "black --quiet {args:pydra}",
+  "isort --quiet {args:pydra}",
+]
