@@ -1,0 +1,86 @@
+from goated.client import TradingClient
+from goated.state import Container
+import os
+import json
+
+
+# =======================================================================
+#   Initialize an TradingClient from env variables
+# -----------------------------------------------------------------------
+
+
+client = TradingClient.create_with_api_key(
+    url = "https://api.goated.com",
+    api_key = "YOUR_GOATED_API_KEY",
+    api_secret = "YOUR_GOATED_API_SECRET"
+)
+
+print(client)
+
+# Initialize an empty state container
+# (used to store state and keep relationships between objects)
+state = Container()
+print(state)
+
+
+# =======================================================================
+#   Get balances, positions, orders
+# -----------------------------------------------------------------------
+
+# Get balances response from API
+balances_response = client.get_balances()
+# Add/update it within the state container
+state.update_balances(balances_response)
+
+# Get positions response from API
+positions_response = client.get_positions() # Without any filters
+# Add/update it within the state container
+state.update_positions(positions_response)
+
+# Get orders response from API
+orders_response = client.get_orders() # Without any filters
+# Add/update it within the state container
+state.update_orders(orders_response)
+
+print(state.__dict__)
+
+
+# =======================================================================
+#   Get categories, subcategories, market types, etc
+#     i.e. information that is purely 'listing' rather than dynamic or
+#     requiring computation/calcs/transformations
+# -----------------------------------------------------------------------
+
+# Get all categories
+categories = client.get_categories()  # Without any filters
+
+print('Categories:')
+print(categories)
+
+# Get subcategory record for first category
+category_id = categories[0].get('id')
+subcategories = client.get_subcategories(
+    category_ids=[category_id]
+) if category_id != None else []
+print('Subcategories:')
+print(subcategories)
+
+# Get events in the first subcategory
+subcategory_id = subcategories[0].get('id') if len(subcategories) > 0 else None
+events = client.get_events(
+    subcategory_ids=[subcategory_id]
+) if subcategory_id != None else []
+print('Events:')
+print(events)
+
+
+# Get all markets in the first event
+event_id = events[0].get('id') if len(events) > 0 else None
+markets = client.get_markets(
+    event_id=[event_id]
+) if event_id != None else []
+print('Markets:')
+print(markets)
+
+
+# Load a pool, market, etc into state container
