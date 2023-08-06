@@ -1,0 +1,42 @@
+# The configuration specific for SPLADE_DistilMSE
+id: splade_distilMSE
+title: 'SPLADE_DistilMSE: SPLADEv2 trained with the distillated triplets'
+description: |
+    Training data from: https://github.com/sebastian-hofstaetter/neural-ranking-kd
+
+    From Distillation to Hard Negative Sampling: Making Sparse Neural IR Models
+    More Effective (Thibault Formal, Carlos Lassance, Benjamin Piwowarski,
+    Stéphane Clinchant). 2022. https://arxiv.org/abs/2205.04733
+
+gpu: true
+indexation:
+    requirements: duration=2 days & cpu(mem=2G)
+    training_requirements: duration=4 days & cuda(mem=24G)
+learner:
+    model: splade_max
+    dataset: bert_hard_negative
+    validation_size: 500
+    # validation for each (steps_per_epoch * validation interval) steps
+    steps_per_epoch: 128
+    validation_interval: 8
+    # maybe it is too large for a gpu of 24G
+    splade_batch_size: 96
+    # 150k steps for training
+    max_epochs: 1200
+    num_warmup_steps: 6000
+    early_stop: 0
+    lr: 2.0e-5
+    lambda_q: 0.5
+    lambda_d: 0.4
+    lamdba_warmup_steps: 50000
+    requirements: duration=6 days & cuda(mem=24G)
+evaluation:
+    requirements: duration=6 days & cuda(mem=24G)
+base_retriever:
+    topK: 1000
+tas_balance_retriever:
+    retTopK: 50
+    indexspec: OPQ4_16,IVF65536_HNSW32,PQ4
+    faiss_max_traindocs: 800_000
+full_retriever:
+    batch_size_full_retriever: 200
