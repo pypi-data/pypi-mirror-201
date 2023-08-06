@@ -1,0 +1,3 @@
+from edgeiq.tools import is_jetson as is_jetson, is_jetson_agx_xavier as is_jetson_agx_xavier, is_jetson_nano as is_jetson_nano, is_jetson_xavier_nx as is_jetson_xavier_nx
+
+def load_trt_plugin() -> None: ...
