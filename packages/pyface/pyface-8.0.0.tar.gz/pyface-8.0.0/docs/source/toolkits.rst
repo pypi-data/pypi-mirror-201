@@ -1,0 +1,143 @@
+========
+Toolkits
+========
+
+Pyface is intended to provide a common API on top of distinct GUI backends to
+permit the same code to be run on different systems with different GUI
+toolkits and produce similar results.  Pyface comes with three built-in
+backends in the core library---Qt, WxPython, and a null backend---but provides
+hooks for other projects to contribute toolkits and have them be discoverable.
+
+Toolkit Selection
+=================
+
+Pyface uses Traits' :py:mod:`traits.etsconfig` to determine the current
+toolkit being used.  Applications can control which toolkit to use in two
+ways:
+
+- by setting the environment variable ``ETS_TOOLKIT`` to the name of the
+  desired toolkit.
+- by importing :py:obj:`ETSConfig` and setting its :py:attr:`toolkit`
+  attribute appropriately::
+
+    from tratis.etsconfig.api import ETSConfig
+    ETSConfig.toolkit = 'qt'
+
+  This must be done _before_ any widget imports in your application.
+  Precisely, this must be set before the first call to
+  :py:func:`pyface.base_toolkit.find_toolkit` (which usually happens
+  as a side-effect of importing :py:mod:`pyface.toolkit`).
+
+If for some reason Pyface can't load a deliberately specified toolkit, then it
+will raise an exception.
+
+If the toolkit is not specified, Pyface will try to load the ``qt`` or ``wx``
+toolkits, in that order, and then any other toolkits that it knows about
+other than ``null``.  If all of those fail, then it will try to load the
+``null`` toolkit.
+
+Pyface tries to defer toolkit selection as long as possible until it is
+actually needed because importing a toolkit tends to be slow and have
+significant side-effects. Very occasionally an application or test suite may
+need to ensure that the toolkit has been selected (for example, to enable
+"ui" dispatch from background threads in Traits).  This can be achieved by
+either importing :py:mod:`pyface.toolkit` or, more directly, by calling
+:py:func:`pyface.base_toolkit.find_toolkit`.
+
+Once selected, the toolkit infrastructure is largely transparent to the
+application.
+
+Toolkit Objects
+===============
+
+The selection of the correct backend object is carried out by each toolkit's
+toolkit object.  For all built-in toolkits, this is an instance of the
+:py:class:`pyface.base_toolkit.Toolkit` class, but it is possible that other
+backends may use their own objects.  The toolkit object for the toolkit that
+has been selected can be found as :py:obj:`pyface.toolkit.toolkit_object`.
+
+This is a callable object which expects to be given an identifier for the
+widget in the form of a relative module name and the object name, separated by
+a ``':'``.  This is most often used when creating new widget types for Pyface.
+The API module for the new widget class typically looks something like this::
+
+    from pyface.toolkit import toolkit_object
+    MyWidget = toolkit_object('my_package.my_widget:MyWidget')
+
+The base toolkits use the identifier to select which module to import the
+toolkit object by constructing a full module path from the partial path and
+importing the object.  For example the ``qt`` backend will look for the
+concrete implementation in :py:mod:`pyface.ui.qt.my_package.my_widget`
+while the ``wx`` backend will look for
+:py:mod:`pyface.ui.wx.my_package.my_widget`.
+
+If no matching object is found, the toolkit will return a special
+:py:class:`Undefined` class that will raise :py:exc:`NotImplementedError`
+when instantiated.
+
+The basic toolkit implementation provides two other features which may be of
+use.  It has a trait that gives the name of the toolkit, and it has a list of
+packages that it searches when trying to import a toolkit object.  This
+second trait provides a hook where an application can insert other packages
+into the search path to override the default implementations of a toolkit's
+widgets, if needed.
+
+The "qt4" Toolkit
+-----------------
+
+The "qt4" toolkit is the same as the "qt" toolkit in almost all respects:
+in older versions of Pyface it was the standard name for all the Qt-based
+toolkits whether or not they were actually using Qt4.
+
+However it does trigger some backwards-compatibility code that may be useful
+for legacy applications. In particular it installs import hooks that makes the
+``pyface.ui.qt4.*`` package namespace an alias for ``pyface.ui.qt.*`` modules.
+
+This backwards-compatibility code can also be invoked by setting the
+``ETS_QT4_IMPORTS`` environment variable to any non-empty value, or adding
+an instance of the :py:class:`pyface.ui.ShadowedModuleFinder` module finder
+to :py:attr:`sys.meta_path` list.
+
+..  warning::
+
+    Library code which imports from ``pyface.ui.qt4.*`` should not use this
+    compatibility code.  Instead it should be updated to import from
+    ``pyface.ui.qt.*`` as soon as practical.  Backwards-compatibility can be
+    achieved fairly easily by using :py:attr:`pyface.toolkit.toolkit` to access
+    objects rather than direct imports.
+
+This backwards-compatibility code will be removed in Pyface 9, and applications
+which rely on the particulars of the implementation are encouraged to
+migrate to the newer import locations as soon as practical.
+
+Toolkit Entrypoints
+===================
+
+Pyface uses the standard ``importlib_metadata`` "entry point" system to allow
+other libraries to contribute new toolkit implementations to Pyface.  The
+toolkit selection process discussed above looks for things contributed to the
+``pyface.toolkits`` entry point.  These are specified in the ``setup.py`` of
+the third party library, something like this::
+
+    setup(
+        # ... a bunch of other standard setup.py stuff
+        entry_points = {
+            'pyface.toolkits': [
+                'my_toolkit = my_project.my_toolkit.init:toolkit_object',
+            ]
+        }
+    )
+
+or in a ``pyproject.toml`` something like:
+
+..  code-block:: toml
+
+    [project.entry-points.'pyface.toolkits']
+    my_toolkit = 'my_project.my_toolkit.init:toolkit_object'
+
+The left-hand side is the name of the toolkit, suitable for use with
+:py:obj:`ETSConfig`, and the right-hand side is the location of a toolkit
+object which matches the specification above: a callable object which takes
+identifiers as specified and returns concrete implementations.  The easiest
+way to do this is to follow the examples of the current toolkits and use
+a :py:class:`pyface.base_toolkit.Toolkit` instance, but this is not required.
