@@ -1,0 +1,95 @@
+# Domino backend Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-backend
+  labels:
+    app: {{ .Release.Name }}-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-backend
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-backend
+    spec:
+      containers:
+        - name: {{ .Release.Name }}-backend
+          image: {{ .Values.backend.image }}
+          {{- if .Values.backend.entrypointCommand }}
+          command:
+            {{ toYaml .Values.backend.entrypointCommand | indent 12 }}
+          args:
+            {{ toYaml .Values.backend.entrypointArgs | indent 12 }}
+          {{- end }}
+          ports:
+            - containerPort: 8000
+          imagePullPolicy: IfNotPresent
+          env: 
+            # TODO use load balancer instead of service ip for airflow webserver ?
+            - name: AIRFLOW_WEBSERVER_HOST
+              value: http://{{ .Release.Name }}-airflow-webserver:8080
+            - name: FLOWUI_DEPLOY_MODE
+              value: dev # TODO change to prod
+            - name: DB_HOST
+              value: {{ .Release.Name }}-postgres-service
+            - name: DB_NAME
+              value: {{ .Values.database.name }}
+            - name: DB_USER
+              value: {{ .Values.database.user }}
+            - name: DB_PASSWORD
+              value: {{ .Values.database.password }}
+            - name: DB_PORT
+              value: "5432"
+            - name: "GITHUB_ACCESS_TOKEN_PIECES"
+              valueFrom:
+                secretKeyRef:
+                  key:  github_access_token_pieces
+                  name: {{ .Release.Name }}-secrets
+            - name: "GITHUB_ACCESS_TOKEN_WORKFLOWS"
+              valueFrom:
+                secretKeyRef:
+                  key:  github_access_token_workflows
+                  name: {{ .Release.Name }}-secrets
+            - name: FLOWUI_WORKFLOWS_REPOSITORY
+              value: {{ .Values.backend.workflowsRepository }}
+          {{- if .Values.backend.extraVolumeMounts }}
+          volumeMounts:             
+{{ toYaml .Values.backend.extraVolumeMounts | indent 12 }}
+          {{- end }}
+          # volumeMounts:
+          #   - name: my-pods-persistent-storage
+          #     mountPath: /backend/mnt/
+          resources:
+            limits:
+              memory: 512Mi
+              cpu: "1"
+            requests:
+              memory: 256Mi
+              cpu: "0.2"
+      {{- if .Values.backend.extraVolumes }}
+      volumes:
+{{ toYaml .Values.backend.extraVolumes | indent 8 }}
+      {{- end }}
+      # volumes:
+      #   - name: my-pods-persistent-storage
+      #     persistentVolumeClaim:
+      #       claimName: my-claim
+
+---
+# Domino API Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-backend-service
+spec:
+  type: ClusterIP
+  selector:
+    app: {{ .Release.Name }}-backend
+  ports:
+  - port: 8000
+      #- protocol: "TCP"
+      #targetPort: 8000
+
