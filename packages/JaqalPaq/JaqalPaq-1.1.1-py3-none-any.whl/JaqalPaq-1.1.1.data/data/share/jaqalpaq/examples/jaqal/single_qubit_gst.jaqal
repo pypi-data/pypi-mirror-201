@@ -1,0 +1,89 @@
+from qscout.v1.std usepulses *
+
+register q[1]
+
+macro F0 qubit { }  // Fiducials
+macro F1 qubit { Sx qubit }
+macro F2 qubit { Sy qubit }
+macro F3 qubit { Sx qubit; Sx qubit}
+macro F4 qubit { Sx qubit; Sx qubit; Sx qubit }
+macro F5 qubit { Sy qubit; Sy qubit; Sy qubit }
+
+macro G0 qubit { Sx qubit }  // Germs
+macro G1 qubit { Sy qubit }
+macro G2 qubit { I_Sx qubit }
+macro G3 qubit { Sx qubit; Sy qubit }
+macro G4 qubit { Sx qubit; Sy qubit; I_Sx qubit }
+macro G5 qubit { Sx qubit; I_Sx qubit; Sy qubit }
+macro G6 qubit { Sx qubit; I_Sx qubit; I_Sx qubit }
+macro G7 qubit { Sy qubit; I_Sx qubit; I_Sx qubit }
+macro G8 qubit { Sx qubit; Sx qubit; I_Sx qubit; Sy qubit }
+macro G9 qubit { Sx qubit; Sy qubit; Sy qubit; I_Sx qubit }
+macro G10 qubit { Sx qubit; Sx qubit; Sy qubit; Sx qubit; Sy qubit; Sy qubit }
+
+prepare_all  // Length 1
+F0 q[0]
+measure_all
+
+prepare_all
+F1 q[0]
+measure_all
+
+prepare_all
+F2 q[0]
+measure_all
+
+prepare_all
+F3 q[0]
+measure_all
+
+prepare_all
+F4 q[0]
+measure_all
+
+prepare_all
+F5 q[0]
+measure_all
+
+prepare_all
+F1 q[0]; F1 q[0]
+measure_all
+
+prepare_all
+F1 q[0]; F2 q[0]
+measure_all
+
+prepare_all
+F1 q[0]
+loop 8 { G1 q[0] }
+F1 q[0]
+measure_all
+
+// EXPECTED PROBABILITIES
+// SUBCIRCUIT 0
+// 0 0 1.0
+// 1 1 0.0
+// SUBCIRCUIT 1
+// 0 0 0.5000000000000001
+// 1 1 0.4999999999999999
+// SUBCIRCUIT 2
+// 0 0 0.5000000000000001
+// 1 1 0.4999999999999999
+// SUBCIRCUIT 3
+// 0 0 4.930380657631324e-32
+// 1 1 1.0
+// SUBCIRCUIT 4
+// 0 0 0.4999999999999998
+// 1 1 0.5000000000000002
+// SUBCIRCUIT 5
+// 0 0 0.4999999999999998
+// 1 1 0.5000000000000002
+// SUBCIRCUIT 6
+// 0 0 4.930380657631324e-32
+// 1 1 1.0
+// SUBCIRCUIT 7
+// 0 0 0.5000000000000001
+// 1 1 0.5000000000000001
+// SUBCIRCUIT 8
+// 0 0 1.1146226453765827e-31
+// 1 1 0.9999999999999996
