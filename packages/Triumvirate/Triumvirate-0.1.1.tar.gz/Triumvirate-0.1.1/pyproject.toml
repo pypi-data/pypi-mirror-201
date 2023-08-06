@@ -1,0 +1,115 @@
+[build-system]
+requires = [
+    'setuptools>=61.0.0',
+    'setuptools_scm>=6.4.0',
+    'Cython>=0.25',
+    'extension-helpers',
+    'oldest-supported-numpy',
+]
+build-backend = 'setuptools.build_meta'
+
+[project]
+name = 'Triumvirate'
+authors = [{name = 'Mike S Wang'}, {name = 'Naonori S Sugiyama'}]
+maintainers = [{name = 'Mike S Wang', email = "mikeshengbo.wang@ed.ac.uk"}]
+license = {file = "LICENCE"}
+requires-python = '>=3.8'
+dependencies = [
+    'numpy',
+    'scipy',
+    'astropy>=4.2',
+    'pyyaml>4',
+]
+description = "Three-point clustering measurements in large-scale structure analyses."
+classifiers = [
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS",
+    "Programming Language :: C++",
+    "Programming Language :: Cython",
+    "Programming Language :: Python",
+    "Topic :: Scientific/Engineering :: Astronomy",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Topic :: Scientific/Engineering :: Physics",
+]
+dynamic = [
+  'version',
+  'readme',
+]
+
+[project.optional-dependencies]
+nbk = ['nbodykit']
+
+[project.urls]
+# Home = "https://mikeswang.github.io/Triumvirate"
+Documentation = "https://triumvirate.readthedocs.io/"
+Source = "https://github.com/MikeSWang/Triumvirate"
+Changelog = "https://github.com/MikeSWang/Triumvirate/blob/main/CHANGELOG.md"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.dynamic]
+# version = {attr = 'triumvirate.__version__'}
+readme = {file = "README.rst"}
+
+[tool.setuptools.packages.find]
+where = ['src']
+namespaces = false
+exclude = [
+    'triumvirate.include*',
+    'triumvirate.src*',
+    'triumvirate.resources*',
+]
+
+[tool.setuptools.package-data]
+'triumvirate' = ["*.pxd", "*.pyx"]
+'triumvirate.include' = ["*.hpp"]
+'triumvirate.src' = ["*.cpp"]
+'triumvirate.resources' = ["*.ini", "*.yml"]
+
+[tool.setuptools_scm]
+
+[tool.pytest.ini_options]
+minversion = '6.0'
+addopts = "--full-trace --verbose --capture=no --runslow"
+testpaths = [
+    "tests",
+]
+
+[tool.cibuildwheel]
+build-frontend = 'build'
+skip = [
+    'pp*',
+    '*-win32',
+    '*-manylinux_i686',
+    '*-musllinux*',
+    '*_ppc64le',
+    '*_s390x',
+]
+before-build = [
+    "export PY_BUILD_PARALLEL=-j",
+]
+test-requires = "pytest"
+test-command = "pytest {project}/tests"
+
+# Use images that support `apt` as `yum` hangs in CentOS.
+manylinux-x86_64-image = 'manylinux_2_24'
+manylinux-aarch64-image = 'manylinux_2_24'
+
+[tool.cibuildwheel.linux]
+before-all = [
+    "apt-get update",
+    "apt-get install -y libgsl-dev libfftw3-dev",
+]
+
+[tool.cibuildwheel.macos]
+before-all = [
+    # "brew update",
+    "brew install gsl fftw",
+]
+before-build = [
+    "export PY_CXX_DIR=$(brew --prefix gcc)/bin",
+    "export PY_CXX_BIN=$(ls ${PY_CXX_DIR} | grep '^g++')",
+    "export PY_CXX=${PY_CXX_DIR}/${PY_CXX_BIN}",
+]
