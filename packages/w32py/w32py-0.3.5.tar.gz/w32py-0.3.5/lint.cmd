@@ -1,0 +1,7 @@
+@ECHO OFF
+IF [%1]==[] (SET PACKAGE=w32py) ELSE (SET PACKAGE=%1)
+
+CALL isort %PACKAGE%
+CALL black %PACKAGE%
+CALL mypy %PACKAGE%
+CALL pylint %PACKAGE%
