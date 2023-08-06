@@ -1,0 +1,107 @@
+Metadata-Version: 2.1
+Name: rw-noise
+Version: 0.1.2
+Summary: A library for random walker image segmentation under known noise models
+Home-page: https://zivgitlab.uni-muenster.de/ag-pria/rw-noise-model
+Author: Dominik Drees
+Author-email: dominik.drees@uni-muenster.de
+License: MIT
+Keywords: random-walker image-segmentation noise-model
+Platform: any
+Classifier: Operating System :: OS Independent
+Classifier: Operating System :: POSIX :: Linux
+Classifier: Intended Audience :: Science/Research
+Classifier: Programming Language :: C++
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: License :: OSI Approved :: MIT License
+Description-Content-Type: text/markdown
+License-File: LICENSE
+
+# Random Walker Image Segmentation for Python
+
+This is an implementation of the Random Walker for image segmentation method by Grady [1] with implementations of dynamic, noise modeling-based weight functions [2,3,4].
+
+If you use this code in your research, please cite the following as a reference.
+
+```
+A Bhattacharyya Coefficient-Based Framework for Noise Model-Aware Random Walker Image Segmentation
+Dominik Drees, Florian Eilers, Ang Bian and Xiaoyi Jiang
+CoRR abs/2206.00947 (2022)
+```
+# Installation
+Install from pypi using `pip install rw_noise`.
+
+# Building
+The library itself is implemented in c++ and requires a modern compiler that supports the C++20 standard.
+Further, the following libraries have to be available:
+ * Boost (with python and numpy support)
+ * OpenMP
+ * Python3
+ * Eigen3
+ * Magma, Cuda (optionally, for the GPU solver)
+
+To build the library, invoke `pythom -m build`.
+Then, to install use `pip install <path_to_wheel>` where `<path_to_wheel>` is likely a file in the created `dist` subfolder with extension `.whl`.
+
+# Usage
+The API is very simple and mostly consists of the two functions `weights` and `solve`.
+For weight definition, a method has to be supplied which can be constructed via the following functions:
+ * `fixed` (Grady [1]) 
+ * `global_gaussian_bian` (Bian et al. [2])
+ * `ttest` (Bian et al. [3])
+ * `poisson` (Drees et al. [4]),
+ * `variable_gaussian` (Drees et al. [4]),
+ * `global_gaussian` (Drees et al. [4]),
+
+Of those, only `fixed` and `global_gaussian` are suitable for non-scalar pixel data.
+
+A minimal example program using the library could look like the following:
+```python
+import rw_noise as rw
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Load a two-dimensional single-channel image from a file. (Multi-channel
+# images are also supported, but only for methods "global_gaussian" and
+# "fixed")
+image = np.load('/path/to/some/image/file.npy').astype(np.float32)
+
+# Create a seed map. 0 means unlabeled, i>0 means pixel has class i
+seeds = np.zeros(image.shape, dtype=np.uint32)
+# Mark top left pixel as class 1
+seeds[0,0] = 1
+# Mark bottom right pixel as class 2
+seeds[-1,-1] = 2
+
+# Methods are specified as dictionaries.
+# Choose one of the following and change parameters as needed:
+method = rw.variable_gaussian(filter_extent=2)
+#method = rw.global_gaussian(filter_extent=2)
+#method = rw.poisson(filter_extent=2)
+#method = rw.ttest(filter_extent=2)
+#method = rw.global_gaussian_bian(filter_extent=2)
+#method = rw.fixed(beta=100)
+
+# Calculate weights
+weights_h, weights_v = rw.weights(image, method)
+
+# Solve RW problem using the previously calculated weights and seeds.
+# 'classes' then contains an integer map specifying the final class per pixel
+# 'probabilities' is a list of class probabilies for all specified classes
+classes, probabilities = rw.solve(weights_h, weights_v, seeds)
+plt.imshow(classes)
+plt.show()
+for probs in probabilities:
+    plt.imshow(probs)
+    plt.show()
+```
+
+# References
+
+[1] Leo J. Grady: Random Walks for Image Segmentation. IEEE Trans. Pattern Anal. Mach. Intell. (2006)
+
+[2] Ang Bian and Xiaoyi Jiang: Statistical Modeling Based Adaptive Parameter Setting for Random Walk Segmentation. ACIVS (2016)
+
+[3] Ang Bian and Xiaoyi Jiang: T-Test Based Adaptive Random Walk Segmentation Under Multiplicative Speckle Noise Model. ACCV Workshops (2016)
+
+[4] Dominik Drees, Florian Eilers, Ang Bian and Xiaoyi Jiang: A Bhattacharyya Coefficient-Based Framework for Noise Model-Aware Random Walker Image Segmentation. [CoRR abs/2206.00947](https://arxiv.org/abs/2206.00947) (2022)
