@@ -1,0 +1,43 @@
+**Characterize N Channel MOSFET
+
+.include {{modelFile}}
+.include simParams.net
+
+vds  nDrain 0 dc 0
+vgs  nGate  0 dc 0
+vbs  nBulk  0 dc {{-mosChar_sb}}
+
+mn nDrain nGate 0 nBulk {{modelN}}  L={{length*1e-6}} W={{width*1e-6}}
+
+.options dccap post brief accurate
+
+.control
+save all @mn[id]
++ @mn[vth]
++ @mn[gm]
++ @mn[gmbs]
++ @mn[gds]
++ @mn[cgg]
++ @mn[cgs]
++ @mn[cgd]
++ @mn[cdd]
++ @mn[cbs]
+
+dc vgs 0 {{vgsMax}} {{vgsStep}} vds 0 {{vdsMax}} {{vdsStep}}
+
+let id   = @mn[id]
+let vt   = @mn[vth]
+let gm   = @mn[gm]
+let gmb  = @mn[gmbs]
+let gds  = @mn[gds]
+let cgg  = @mn[cgg]
+let cgs  = -@mn[cgs]
+let cgd  = -@mn[cgd]
+let cgb  = @mn[cgg] - (-@mn[cgs])-(-@mn[cgd])
+let cdd  = @mn[cdd]
+let css  = -@mn[cgs]-@mn[cbs]
+
+write outN.raw id vt gm gmb gds cgg cgs cgd cgb cdd css
+exit
+.endc
+.end
