@@ -1,0 +1,172 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/struct.proto";
+import "google/protobuf/duration.proto";
+
+import "common.proto";
+import "entity_reference.proto";
+import "condition.proto";
+import "oltpannotation.proto";
+
+option java_package = "io.calixa.domain.learning";
+option java_multiple_files = true;
+option optimize_for = SPEED;
+
+package calixa.domain.learning;
+
+message FeatureAttribution {
+  string feature = 1;
+  double attribution = 2;
+}
+
+message ModelMetric {
+  double threshold = 1;
+  double recall = 2;
+  double precision = 3;
+  double false_positive_rate = 4;
+  int64 true_positives = 5;
+  int64 false_positives = 6;
+  int64 true_negatives = 7;
+  int64 false_negatives = 8;
+}
+
+enum OptimizationObjective {
+  OPTIMIZATION_OBJECTIVE_UNSPECIFIED = 0;
+  OPTIMIZATION_OBJECTIVE_RECALL = 1;
+  OPTIMIZATION_OBJECTIVE_PRECISION = 2;
+  OPTIMIZATION_OBJECTIVE_ROC_AUC = 3;
+
+  // TODO(freds): Consider adding other metrics here
+}
+
+message BigFishPredictionTaskConfig {
+  OptimizationObjective optimization_objective = 1;
+  double threshold = 2;
+
+  calixa.domain.condition.ConditionGroup true_positive_labels = 100;
+  calixa.domain.condition.ConditionGroup true_negative_labels = 101;
+}
+
+enum PredictionTaskConfigState {
+  PREDICTION_TASK_CONFIG_STATE_UNSPECIFIED = 0;
+  PREDICTION_TASK_CONFIG_STATE_ENABLED = 1;
+  PREDICTION_TASK_CONFIG_STATE_PAUSED = 2;
+}
+
+message PredictionTaskConfig {
+  option (calixa.oltp.oltp_primary_key) = {field_ids: [1, 2]};
+
+  string organization_id = 1;
+  common.PredictionTask prediction_task = 2;
+
+  PredictionTaskConfigState state = 3 [(calixa.oltp.oltp_field) = {nullable: false}];
+
+  oneof config {
+    BigFishPredictionTaskConfig big_fish = 100 [(calixa.oltp.oltp_field) = {nullable: true}];
+  }
+
+  google.protobuf.Timestamp created_at = 200 [(calixa.oltp.oltp_field) = {nullable: false}];
+  google.protobuf.Timestamp updated_at = 201 [(calixa.oltp.oltp_field) = {nullable: false}];
+  google.protobuf.Timestamp deleted_at = 202 [(calixa.oltp.oltp_field) = {nullable: true}];
+}
+
+message Model {
+  option (calixa.oltp.oltp_primary_key) = {field_ids: [1, 2, 3]};
+
+  string organization_id = 1;
+  common.PredictionTask prediction_task = 2;
+
+  string version = 3 [(calixa.oltp.oltp_field) = {nullable: false}];
+
+  // The BigQuery table the contains the model
+  string table_name = 100 [(calixa.oltp.oltp_field) = {nullable: false}];
+
+  // The ideal threshold to maximize accuracy; this will eventually be computed
+  // by the model pipeline using a heuristic.
+  double ideal_threshold = 101 [(calixa.oltp.oltp_field) = {nullable: false}];
+
+  repeated FeatureAttribution global_feature_attributions = 102 [(calixa.oltp.oltp_field) = {nullable: false}];
+  repeated ModelMetric metrics = 104 [(calixa.oltp.oltp_field) = {nullable: false}];
+
+  google.protobuf.Timestamp created_at = 200 [(calixa.oltp.oltp_field) = {nullable: false}];
+  google.protobuf.Timestamp updated_at = 201 [(calixa.oltp.oltp_field) = {nullable: false}];
+  google.protobuf.Timestamp deleted_at = 202 [(calixa.oltp.oltp_field) = {nullable: true}];
+  google.protobuf.Timestamp expires_at = 203 [(calixa.oltp.oltp_field) = {nullable: false}];
+}
+
+message GetCurrentModelRequest {
+  common.PredictionTask prediction_task = 1;
+}
+
+message GetPredictionTaskConfigRequest {
+  common.PredictionTask prediction_task = 1;
+}
+
+service ModelService {
+  rpc GetCurrentModel(GetCurrentModelRequest) returns (Model);
+  rpc PutModel(Model) returns (Model);
+}
+
+service PredictionTaskConfigService {
+  rpc PutPredictionTaskConfig(PredictionTaskConfig) returns (PredictionTaskConfig);
+  rpc GetPredictionTaskConfig(GetPredictionTaskConfigRequest) returns (PredictionTaskConfig);
+}
+
+message LearningWorkflowNotification {
+  // This tells us for whom the work is done and work is done
+
+  string organization_id = 1;
+  reserved 2; // string prediction_task_id = 2;
+  common.PredictionTask prediction_task = 3;
+
+  string labels_table_name = 10;
+  string feature_vectors_table_name = 11;
+  string model_table_name = 12;
+  string predictions_table_name = 13;
+
+  // Cursor used by receiver to tell where to start reading BQ data from:
+  string cursor = 14;
+
+  // Timestamp used by receiver while publishing md_s1000001 metric observation:
+  google.protobuf.Timestamp results_ready_at = 15;
+  bool shadow_scores = 16;
+}
+
+message Prediction {
+  bool predicted_label = 1;
+  double probability = 2;
+  repeated FeatureAttribution feature_attributions = 3;
+}
+
+message Label {
+
+  option (calixa.oltp.oltp_primary_key) = {field_ids: [1, 2, 3]};
+  string organization_id = 1;
+  common.PredictionTask prediction_task = 2;
+  string canonical_id = 3;
+
+  bool positive = 4 [(calixa.oltp.oltp_field) = {nullable: false}];
+  string created_by = 5;
+
+  google.protobuf.Timestamp created_at = 100 [(calixa.oltp.oltp_field) = {nullable: false}];
+  google.protobuf.Timestamp updated_at = 101 [(calixa.oltp.oltp_field) = {nullable: false}];
+  google.protobuf.Timestamp deleted_at = 102 [(calixa.oltp.oltp_field) = {nullable: true}];
+}
+
+message GetLabelRequest {
+  string canonical_id = 1;
+  common.PredictionTask prediction_task = 2;
+}
+
+message DeleteLabelRequest {
+  string canonical_id = 1;
+  common.PredictionTask prediction_task = 2;
+}
+
+service LabelService {
+  rpc SetLabel(Label) returns (Label) {}
+  rpc GetLabel(GetLabelRequest) returns (Label) {}
+  rpc DeleteLabel(DeleteLabelRequest) returns (google.protobuf.Empty) {}
+}

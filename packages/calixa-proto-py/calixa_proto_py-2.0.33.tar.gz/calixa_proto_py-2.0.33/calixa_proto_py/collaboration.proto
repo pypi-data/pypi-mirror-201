@@ -1,0 +1,110 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+import "common.proto";
+import "collaboration_entity.proto";
+import "entity.proto";
+
+option java_package = "io.calixa.domain.collaboration";
+option java_multiple_files = true;
+option optimize_for = SPEED;
+
+package calixa.domain.collaboration;
+
+message SaveThreadRequest {
+  calixa.domain.entity.Entity thread = 1;
+}
+
+message SaveMessageRequest {
+  calixa.domain.entity.Entity message = 1;
+}
+
+message ThreadReference {
+  string thread_id = 1;
+}
+
+message MessageReference {
+  string message_id = 1;
+}
+
+message NotificationReference {
+  string organization_id = 1;
+  string notification_id = 2;
+}
+
+message OrganizationUserNotificationRequest {
+  string organization_id = 1;
+  string organization_user_id = 2;
+  string thread_id = 3;
+}
+
+message GetThreadRequest {
+  string thread_id = 1;
+  // flag only checked if thread id is set
+  bool include_messages = 2;
+}
+
+message GetAssociatedThreadsRequest {
+  string organization_id = 1;
+  calixa.domain.common.EntityType for_entity_type = 2;
+  string for_canonical_id = 3;
+  int32 page = 4;
+  int32 results_per_page = 5;
+}
+
+message GetAssociatedThreadsResponse {
+  repeated calixa.domain.collaboration.Thread threads = 1;
+  int64 total_items = 2;
+  int32 page = 3;
+  int32 results_per_page = 4;
+}
+
+message GetMessageRequest {
+  string organization_id = 1;
+  string thread_id = 2;
+  string message_id = 3;
+  int32 page = 4;
+  int32 results_per_page = 5;
+}
+
+message GetMessageResponse {
+  repeated calixa.domain.collaboration.Message messages = 1;
+  int64 total_items = 2;
+  int32 page = 3;
+  int32 results_per_page = 4;
+}
+
+message GetOrganizationUserNotificationsRequest {
+  string organization_id = 1;
+  string organization_user_id = 2;
+}
+
+message GetThreadNotificationsRequest {
+  string organization_id = 1;
+  string thread_id = 2;
+}
+
+service NoteService {
+  rpc SaveThread (calixa.domain.collaboration.Thread) returns (calixa.domain.collaboration.Thread) {
+  }
+  rpc GetAssociatedThreads (GetAssociatedThreadsRequest) returns (GetAssociatedThreadsResponse) {
+  }
+  rpc SaveMessage (calixa.domain.collaboration.Message) returns (calixa.domain.collaboration.Message) {
+  }
+  rpc GetThread (GetThreadRequest) returns (Thread) {
+  }
+  rpc GetMessages (GetMessageRequest) returns (GetMessageResponse) {
+  }
+  rpc AddOrganizationUserNotification (OrganizationUserNotificationRequest) returns (OrganizationUserNotification) {
+  }
+  rpc MarkNotificationRead (NotificationReference) returns (google.protobuf.Empty) {
+  }
+  rpc GetOrganizationUserNotifications (GetOrganizationUserNotificationsRequest) returns (stream OrganizationUserNotification) {
+  }
+  rpc GetThreadNotifications (GetThreadNotificationsRequest) returns (stream OrganizationUserNotification) {
+  }
+  rpc DeleteThread (ThreadReference) returns (google.protobuf.Empty);
+  rpc DeleteMessage (MessageReference) returns (google.protobuf.Empty);
+}

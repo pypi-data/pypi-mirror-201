@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "common.proto";
+import "oltpannotation.proto";
+import "organization.proto";
+import "action.proto";
+
+option java_package = "io.calixa.domain.integrationmetadata";
+option java_multiple_files = true;
+option optimize_for = SPEED;
+
+package calixa.domain.integrationmetadata;
+
+message IntegrationMetadata {
+  option (calixa.oltp.oltp_primary_key) = {field_ids: [1, 2]};
+
+  string organization_id = 1 [(calixa.oltp.oltp_field) = {nullable: false}];
+  string integration_metadata_id = 2 [(calixa.oltp.oltp_field) = {nullable: false}];
+
+  string instance_id = 3 [(calixa.oltp.oltp_field) = {nullable: false}];
+  string key = 4 [(calixa.oltp.oltp_field) = {nullable: false}];
+  string value = 5 [(calixa.oltp.oltp_field) = {nullable: false}];
+
+  google.protobuf.Timestamp created_at = 6 [(calixa.oltp.oltp_field) = {nullable: false}];
+  google.protobuf.Timestamp updated_at = 7 [(calixa.oltp.oltp_field) = {nullable: false}];
+  google.protobuf.Timestamp deleted_at = 8 [(calixa.oltp.oltp_field) = {nullable: true}];
+
+  google.protobuf.Timestamp expires_at = 9 [(calixa.oltp.oltp_field) = {nullable: false}];
+  google.protobuf.Timestamp last_refreshed_at = 10 [(calixa.oltp.oltp_field) = {nullable: true}];
+  int32 refresh_period_secs = 11 [(calixa.oltp.oltp_field) = {nullable: false}];
+}
+
+service IntegrationMetadataService {
+  rpc GetIntegrationMetadata (GetIntegrationMetadataRequest) returns (IntegrationMetadata);
+  rpc GetAllIntegrationMetadata (GetIntegrationMetadataRequest) returns (GetIntegrationMetadataResponse);
+  rpc PutIntegrationMetadata (PutIntegrationMetadataRequest) returns (IntegrationMetadata);
+  rpc DeleteIntegrationMetadata(DeleteIntegrationMetadataRequest) returns (google.protobuf.Empty);
+}
+
+message GetIntegrationMetadataRequest {
+  string integration_metadata_id = 1;
+  string instance_id = 2;
+  string key = 3;
+}
+
+message PutIntegrationMetadataRequest {
+  IntegrationMetadata integration_metadata = 1;
+}
+
+message DeleteIntegrationMetadataRequest {
+  string integration_metadata_id = 1;
+}
+
+message GetIntegrationMetadataResponse {
+  repeated IntegrationMetadata data = 1;
+}

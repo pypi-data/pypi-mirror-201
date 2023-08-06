@@ -1,0 +1,85 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "common.proto";
+import "condition.proto";
+
+import "oltpannotation.proto";
+
+option java_package = "io.calixa.domain.externalsync";
+option java_multiple_files = true;
+option optimize_for = SPEED;
+
+package calixa.domain.externalsync;
+
+
+enum ExternalSyncState {
+  EXTERNAL_SYNC_STATE_UNSPECIFIED = 0;
+  EXTERNAL_SYNC_STATE_ENABLED = 1;
+  EXTERNAL_SYNC_STATE_DISABLED = 2;
+}
+
+message SyncMetric {
+  string metric_descriptor_id = 1;
+  calixa.domain.condition.RelativeTimeRange timeframe = 2;
+}
+
+message SyncField {
+  oneof field {
+    string internal_field = 1;
+    SyncMetric sync_metric = 2;
+  }
+  string external_field = 3;
+}
+
+message ExternalSyncDefinition {
+  option (calixa.oltp.oltp_primary_key) = {field_ids: [1, 3]};
+
+  string organization_id = 1;
+  string instance_id = 2;
+  string external_sync_definition_id = 3;
+
+  common.EntityType externally_synced_entity_type = 4;
+
+  // The properties to map from our entity models to external entity (these are mappings of field to field)
+  repeated SyncField mappings = 5 [(calixa.oltp.oltp_field) = {nullable: false}];
+
+  ExternalSyncState state = 6;
+
+  // The most recent time it was synced
+  google.protobuf.Timestamp last_synced_at = 7 [(calixa.oltp.oltp_field) = {nullable: true}];
+
+  // Number of entities to get per page when iterating over existing entities.
+  int32 entities_per_page = 8 [(calixa.oltp.oltp_field) = {nullable: false, default_value: {number_value: 1000}}];
+
+  // Number of records to sync per batch.
+  int32 sync_batch_limit = 9 [(calixa.oltp.oltp_field) = {nullable: false, default_value: {number_value: 1000}}];
+
+  google.protobuf.Timestamp created_at = 31 [(calixa.oltp.oltp_field) = {nullable: false}];
+  google.protobuf.Timestamp updated_at = 32 [(calixa.oltp.oltp_field) = {nullable: false}];
+  google.protobuf.Timestamp deleted_at = 33 [(calixa.oltp.oltp_field) = {nullable: true}];
+}
+
+message DeleteExternalSyncDefinitionRequest {
+  string external_sync_definition_id = 1;
+}
+
+message GetExternalSyncDefinitionsRequest {
+  string instance_id = 1;
+}
+
+message GetExternalSyncDefinitionsResponse {
+  repeated ExternalSyncDefinition sync_definitions = 1;
+}
+
+service ExternalSyncDefinitionService {
+  rpc PutSyncDefinition(ExternalSyncDefinition) returns (ExternalSyncDefinition);
+  rpc GetExternalSyncDefinitions(GetExternalSyncDefinitionsRequest) returns (GetExternalSyncDefinitionsResponse);
+  rpc DeleteExternalSyncDefinition(DeleteExternalSyncDefinitionRequest) returns (google.protobuf.Empty);
+}
+
+message ExternalSyncTaskState {
+  ExternalSyncDefinition sync_definition = 1;
+  bytes cursor = 2;
+}

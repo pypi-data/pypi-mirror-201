@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package calixa.domain.automation.log;
+
+import "google/protobuf/timestamp.proto";
+import "entity.proto";
+import "action.proto";
+import "oltpannotation.proto";
+import "automation.proto";
+
+option java_package = "io.calixa.domain.automation.log";
+option java_multiple_files = true;
+option optimize_for = SPEED;
+
+enum ExecutionStatus {
+  EXECUTION_STATUS_UNSPECIFIED = 0;
+  EXECUTION_STATUS_SUCCESS = 1;
+  EXECUTION_STATUS_ERROR = 2;
+  EXECUTION_STATUS_RATE_LIMITED = 3;
+}
+enum CourierMessageState {
+  COURIER_MESSAGE_STATE_UNSPECIFIED = 0;
+  COURIER_MESSAGE_STATE_ENQUEUED = 1;
+  COURIER_MESSAGE_STATE_SENT = 2;
+  COURIER_MESSAGE_STATE_DELIVERED = 3;
+  COURIER_MESSAGE_STATE_OPENED = 4;
+  COURIER_MESSAGE_STATE_UNROUTABLE = 5;
+  COURIER_MESSAGE_STATE_UNDELIVERABLE = 6;
+}
+message AutomationLog {
+  option (calixa.oltp.oltp_primary_key) = {field_ids: [1, 5]};
+
+  string id = 1 [(calixa.oltp.oltp_field) = {nullable: false}];
+  google.protobuf.Timestamp started_at = 2 [(calixa.oltp.oltp_field) = {nullable: false}];
+  google.protobuf.Timestamp finished_at = 3 [(calixa.oltp.oltp_field) = {nullable: false}];
+  ExecutionStatus status = 4 [(calixa.oltp.oltp_field) = {nullable: false}];
+  string organization_id = 5 [(calixa.oltp.oltp_field) = {nullable: false}];
+  AutomationType type = 6 [(calixa.oltp.oltp_field) = {nullable: false}];
+  string automation_id = 7 [(calixa.oltp.oltp_field) = {nullable: false}];
+  string automation_title = 8 [(calixa.oltp.oltp_field) = {nullable: false}];
+  string event_label = 9 [(calixa.oltp.oltp_field) = {nullable: true}];
+  // This entity has to be an 'Event' that triggered an automation
+  entity.Entity entity = 100 [(calixa.oltp.oltp_field) = {nullable: true}];
+  entity.Entity automation = 101 [(calixa.oltp.oltp_field) = {nullable: false}];
+  action.ThirdPartyActionInvocationResponse raw_response_payload = 102 [(calixa.oltp.oltp_field) = {nullable: true}];
+
+  CourierMessageState message_state = 103 [(calixa.oltp.oltp_field) = {nullable: true}];
+  string error = 1000 [(calixa.oltp.oltp_field) = {nullable: true}];
+  string automation_run_id = 104 [(calixa.oltp.oltp_field) = {nullable: true}];;
+}
