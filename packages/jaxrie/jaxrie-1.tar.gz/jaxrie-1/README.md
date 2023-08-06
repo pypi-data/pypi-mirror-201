@@ -1,0 +1,3 @@
+# jaxrie
+
+Riemannian with JAX
