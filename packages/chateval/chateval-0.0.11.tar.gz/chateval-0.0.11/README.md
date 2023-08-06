@@ -1,0 +1,187 @@
+# Evaluation Framework for Chatbot in Generative AI
+
+## Get Started
+
+```shell
+pip install chateval
+export OPENAI_API_KEY=XXXX.YYYY.ZZZ
+```
+python 3.9+ is required.
+
+
+### Evaluate Single System with GPTScore
+
+```python
+from chateval.metrics import get_metric
+
+dataset = [{"input": "write a movie review of Titanic"}]
+predictions = [
+    'James Cameron\'s 1997 epic romantic disaster film "Titanic" tells the '
+]
+
+metric = get_metric("generic_likert/helpfulness")
+results = metric.compute(dataset, predictions)
+
+print(results)
+
+```
+where results is a `dict` with following keys:
+* `value`: the overall evaluated score (i.e., average) on the dataset
+* `no_score`: the number of samples that cannot be evaluated due to api accessing error or invalid evaluated string
+* `sample_values`: the evaluated score for each sample in the dataset
+* `details`: the detailed evaluation results for each sample in the dataset, including the evaluation prompt, textual judgment. 
+
+Here is one example of the above case:
+
+```json
+{
+'value': 1.0,
+'no_score': 0,
+'sample_values': [1.0], 
+'details': [{'prompt': 'You are evaluating a response that has been submitted for a particular task, using a specific set of standards. Below is the data:\n[BEGIN DATA]\n***\n[Task]: write a movie review of Titanic\n***\n[Submission]: James Cameron\'s 1997 epic romantic disaster film "Titanic" tells the \n***\n[Criterion]: \n1:Not helpful - The generated text is completely irrelevant, unclear, or incomplete. It does not provide any useful information to the user.\n2:Somewhat helpful - The generated text has some relevance to the user\'s question, but it may be unclear or incomplete. It provides only partial information, or the information provided may not be useful for the user\'s needs.\n3:Moderately helpful - The generated text is relevant to the user\'s question, and it provides a clear and complete answer. However, it may lack detail or explanation that would be helpful for the user.\n4:Helpful - The generated text is highly relevant to the user\'s question, and it provides a clear, complete, and detailed answer. It offers additional information or explanations that are useful for the user.\n5:Highly helpful - The generated text is highly relevant to the user\'s question, and it provides a clear, complete, and detailed answer. It offers additional information or explanations that are not only useful but also insightful and valuable to the user.\n***\n[END DATA]\nDoes the submission meet the criterion? First, write out in a step by step manner your reasoning about the criterion to be sure that your conclusion is correct. Avoid simply stating the correct answers at the outset. Then print the choice only from 1, 2, 3, 4, 5 (without quotes or punctuation) on its own line corresponding to the correct answer. At the end, repeat just the selected choice again by itself on a new line.\nReasoning:', 'judgment': '1. The task is to write a movie review of Titanic.\n2. The submission only provides the title and director of the movie, but does not offer any review or analysis of the film.\n3. Therefore, the submission is not helpful and does not meet the criterion.\nChoice: 1\n\n1'}]}
+```
+
+There are also other build-in metrics:
+* `generic_likert/helpfulness`: evaluate the helpfulness of a response with a score from 1 (worst) to 5 (best)
+* `generic_likert/relevance`: evaluate the fluency of a response with a score from 1 (worst) to 5 (best)
+* `generic_likert/coherence`: evaluate the grammar of a response with a score from 1 (worst) to 5 (best)
+
+* `generic_bool/helpfulness`: evaluate the grammar of a response with a score from 1 or 0 (good or bad)
+* `generic_bool/relevance`: evaluate the grammar of a response with a score from 1 or 0 (good or bad)
+* `generic_bool/coherence`: evaluate the grammar of a response with a score from 1 or 0 (good or bad)
+
+
+
+### Compare two Chatbots with GPTScore
+
+
+```python
+from chateval.metrics import get_metric
+
+dataset = [{"input": "write a movie review of Titanic"}]
+predictions_1 = [
+    'James Cameron\'s 1997 epic romantic disaster film "Titanic" tells the '
+]
+
+predictions_2 = [
+    'James Cameron\'s 1997 epic romantic disaster film "Titanic" tells the '
+    "tragic story of two star-crossed lovers, Jack (Leonardo DiCaprio) and "
+    "Rose (Kate Winslet), who fall in love aboard the ill-fated ship that met "
+    "its infamous end in the North Atlantic on April 15, 1912. The film was a "
+    "commercial and critical success, grossing over $2 billion worldwide "
+    "and winning eleven Academy Awards, including Best Picture, Best Director, "
+    'and Best Original Song. One of the most impressive aspects of "Titanic" '
+    "is the film's stunning visual effects and production design. The "
+    "detailed recreation of the Titanic and its sinking is both breathtaking "
+    "and haunting, capturing the grandeur and tragedy of the ship's fate. The "
+    "special effects used to bring the ship to life and simulate the sinking"
+    " are still impressive more than two decades later. Another strong point "
+    "of the film is the performances of the two leads, DiCaprio and Winslet. "
+    "Their chemistry is palpable and their portrayal of two individuals from "
+    "different social classes falling in love against all odds is touching and "
+    "believable. The supporting cast, including Billy Zane and Gloria Stuart, "
+    "also deliver strong performances that add depth to the film's characters"
+    '. At its core, "Titanic" is a poignant love story set against the '
+    "backdrop of a tragic historical event. The film expertly blends elements "
+    "of romance, drama, and action to create an unforgettable cinematic "
+    "experience. Despite its lengthy runtime of over three hours, the film is "
+    "engaging and emotionally gripping throughout, leaving a lasting "
+    'impression on viewers. Overall, "Titanic" is a cinematic masterpiece '
+    "that stands the test of time. Cameron's epic film is a must-see for "
+    "fans of romance, drama, and historical fiction, and remains a benchmark "
+    "for blockbuster filmmaking."
+]
+
+metric = get_metric("generic_pairwise/helpfulness")
+results = metric.compare(dataset, predictions_1, predictions_2)
+
+print(results)
+
+```
+where results is a `dict` with following keys:
+* `value`: the overall evaluated score (i.e., average) on the dataset
+* `no_score`: the number of samples that cannot be evaluated due to api accessing error or invalid evaluated string
+* `sample_values`: the evaluated score for each sample in the dataset
+* `details`: the detailed evaluation results for each sample in the dataset, including the evaluation prompt, textual judgment. 
+
+
+* `generic_pairwise/helpfulness`: if chatbot 1 is more helpful than chatbot 2: 1 represents yes, 0 represents no
+* `generic_pairwise/relevance`: if chatbot 1 is more relevant than chatbot 2: 1 represents yes, 0 represents no
+* `generic_pairwise/coherence`: if chatbot 1 is more coherent than chatbot 2: 1 represents yes, 0 represents no
+
+
+
+
+
+
+### Ranking Multiple Chatbots with GPTScore
+
+
+```python
+from chateval.metrics import get_metric
+
+dataset = [{"input": "write a movie review of Titanic"}]
+
+predictions_list = [...] # a list of list of predictions
+
+metric = get_metric("generic_rank/helpfulness")
+results = metric.rank(dataset, predictions_list)
+
+print(results)
+```
+
+
+
+
+
+
+### Evaluate in terms of `write_email` scenario
+```python
+from chateval import load
+
+scenario = load("../scenarios/write_email")
+predictions = [
+    "My name is [name], and I am currently a student in your [class name].",
+]
+
+print(scenario.evaluate(predictions))
+```
+
+
+
+### Meta Evaluation
+
+```python
+from chateval import load
+
+scenario = load("metaeval_generic_bool")
+metric_model = scenario.get_default_setting_config()["metric_model"]
+result = scenario.evaluate(metric_model, "metric")
+
+print(result)
+```
+
+
+
+
+
+
+## For Developers
+
+```bash
+pip install -e .
+pre-commit install
+```
+
+## Run formating
+```shell
+git init
+git add .
+pre-commit run
+```
+
+## Peform Unittest of a specific file
+```
+export OPENAI_API_KEY=XXXX.YYYY.ZZZ
+python -m unittest integration_tests.gptscore_test
+```
