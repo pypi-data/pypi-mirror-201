@@ -1,0 +1,114 @@
+Array: []?!;
+Integer: \?!;
+Null: (||)?!;
+Slice: <<>>?!;
+String: ""?!;
+Table: {{}}?!;
+Zip: ("" >< "")?!;
+
+
+@ Boolean {
+    => value * {
+        ? value?! :: ""?! {
+            'value: {{"true" -> /, "false" -> \}}<<<-string.to_lower(value)>>;
+        } ,, {
+            'value: / ? value ,, \;
+        }
+    }
+
+    ! * { * "true" ? 'value ,, "false"; }
+    ? * { * 'value; }
+
+    :: other * {
+        * Boolean('value :: other.value);
+    }
+
+    > other * { * Boolean('value > other.value); }
+
+    + other * {
+        out: 'value + other.value;
+        ? out > / {
+            * out;
+        } ,, {
+            * Boolean(out);
+        }
+    }
+
+    - other * {
+        out: 'value - other.value;
+        ? out< {
+            * out;
+        } ,, {
+            * Boolean(out);
+        }
+    }
+
+    ++ other * {
+        * Boolean('value ++ other.value);
+    }
+
+    -- other * {
+        * Boolean('value -- other.value);
+    }
+
+    +++ other * {
+        * Boolean('value +++ other.value);
+    }
+
+    --- other * {
+        * Boolean('value --- other.value);
+    }
+
+    & other * { * Boolean('value & other.value); }
+    ^ other * { * Boolean('value ^ other.value); }
+    | other * { * Boolean('value | other.value); }
+
+    ~ * { * Boolean(\ ? 'value ,, /); }
+}
+
+@ UUID4 {
+    => * {
+        hex: <-string.join(<-random.choices(<-string.HEXDIGITS, /\\\\\));
+        hex<<//\\>>: "4";
+        hex<</\\\\>>: "89ab"??;
+        'hex: hex;
+        'dec: Integer("x:" + hex);
+    }
+
+    ! * {
+        h: 'hex;
+        8: /\\\;
+        12: //\\;
+        16: /\\\\;
+        20: /\/\\;
+        * <-string.join(
+            [h<<..8>>, h<<8..12>>, h<<12..16>>, h<<16..20>>, h<<20..>>],
+            "-"
+        );
+    }
+}
+
+@ Frozen {
+    => val * {
+        t: val?!;
+        ? t ~~ ->? [Array, Table] {
+            "type $0 is already frozen" --- [t]!!!;
+        }
+        ? t :: Array {
+            '#val: val<<>>;
+        } ,, {
+            '#val: {{k -> v ... k, v ->? val >< val$}};
+        }
+        '#t: t;
+    }
+
+    ## * { * <-iter.reduce(<-operator.xor, [//\/\\/\\\/\\\\/\\\\\/] + '#val); }
+    ! * { * "Frozen($0)" --- ""?!('#val); }
+    ->? element * { * element ->? '#val; }
+    ... * { ... i ->? '#val { ** i; } }
+    <<>> index * { * '#val<<index>>; }
+    >< other * { * '#val >< other; }
+    :: other * { * '#val :: other.#val; }
+    ? * { * / ? '#val ,, \; }
+    $ * { * '#val$; }
+}

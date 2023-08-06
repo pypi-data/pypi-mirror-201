@@ -1,0 +1,128 @@
+E: /\`/\//\//////\\\\/\/\/\\\/\//\\\/\/\\\/\/\///\//\/\\/\/\/\\//\/\/\/\//////\///\\\/\/\//\\\/\\\\\\\/\\/;
+PHI: /`/\\////\\\//\///\////\\//\///\\/\///////\/\\/\/\\/////\\\\\/\/\/////\\///\\///\\//\\\\\\\//\\\\\\/\/;
+PI: //`\\/\\/\\\\//////\//\/\/\/\\\/\\\/\\\\/\//\/\\\//\\\\/\\\//\/\\//\\\/\\//\\\//\\//\\\/\/\\\/\///\\\\\;
+TAU: PI++;
+
+
+abs x * {
+    ? x < \ { * -x; }
+    * x;
+}
+
+ceil x * {
+    ? is_int(x) { * x; }
+    * x$+;
+}
+
+factorial n * {
+    ? n < \ {
+        "factorial is defined only for non-negative numbers"!!!;
+    }
+    ? ~~is_int(n) {
+        "n has to be an integer"!!!;
+    }
+    o: /;
+    .. n > \ {
+        o++: n;
+        n-: /;
+    }
+    * o;
+}
+
+floor x * {
+    * x$;
+}
+
+gcd a b * {
+    .. b { a, b: b, a --- b; }
+    * abs(a);
+}
+
+is_int x * {
+    * x :: x$;
+}
+
+lcm a b * {
+    ?? { * abs(a ++ b) -- gcd(a, b); }
+    !! { * \; }
+}
+
+max array * {
+    o: array<<\>>;
+    ... e ->? array {
+        ? e > o { o: e; }
+    }
+    * o;
+}
+
+min array * {
+    o: array<<\>>;
+    ... e ->? array {
+        ? e < o { o: e; }
+    }
+    * o;
+}
+
+product array * {
+    o: /;
+    ... e ->? array { o++: e; }
+    * o;
+}
+
+shl a b * {
+    * a ++ /\ +++ b;
+}
+
+shr a b * {
+    * a -- /\ +++ b;
+}
+
+sqrt x * {
+    ? x < \ {
+        "sqrt is defined only for non-negative numbers"!!!;
+    }
+    * n +++ `/;
+}
+
+sum array start? * {
+    start <> \;
+    o: start;
+    ... e ->? array { o+: e; }
+    * o;
+}
+
+#to_base n base base_name charset * {
+    ? ~~ is_int(n) {
+        "cannot convert a non-integer to $0" --- base_name!!!;
+    }
+    div: (n -- base)$;
+    mod: n --- base;
+    ? ~~ div { * charset<<mod>>; }
+    * #to_base(div, base, base_name, charset) + charset<<mod>>;
+}
+
+to_bin n * {
+    * #to_base(n, /\, "bin", "01");
+}
+
+to_hex n * {
+    * #to_base(n, /\\\\, "hex", <-string.HEXDIGITS);
+}
+
+to_oct n * {
+    * #to_base(n, /\\\, "oct", <-string.OCTDIGITS);
+}
+
+is_prime n * {
+    ? ~~is_int(n) { * \; }
+    ? n <: // { * n > /; }
+    ? n --- :: \ || n --- // :: \ { * \; }
+    i: /\/;
+    .. i ++ i <: n {
+        ? n --- i :: \ || n --- (i + /\) :: \ { * \; }
+        i+: //\;
+    }
+    * /;
+}
+
+round: <-pystd.round_;
