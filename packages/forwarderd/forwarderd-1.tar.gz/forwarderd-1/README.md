@@ -1,0 +1,30 @@
+SSH port forwarder daemon
+
+### Daemon
+Install `forwarderd[daemon]` and run `forwarderd.__main__` any suitable way
+
+Example for Linux, will create systemd service "forwarderd":
+```bash
+mkdir forwarderd
+cd forwarderd
+python3 -m venv .
+source bin/activate
+python3 install forwarderd[daemon]
+python3 -m forwarderd --systemd-install
+systemctl start forwarderd
+```
+
+### Usage
+Install `forwarderd`, then request spawn tunnel such way
+```python
+from forwarderd import spawn_tunnel, SpawnTunnelRequest
+
+spawn_resp = await spawn_tunnel(
+    SpawnTunnelRequest(
+        ssh_addr='localhost:6969',
+        ssh_user='user',
+        ssh_identity_file='/root/.ssh/forward_key',  # must be accessible for daemon
+        remote_addr='localhost:6969',
+    )
+)
+```
