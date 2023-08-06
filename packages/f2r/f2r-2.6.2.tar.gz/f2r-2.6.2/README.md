@@ -1,0 +1,74 @@
+# f2r
+
+Command line tool to create RPMs out of aliBuild output
+
+## Prerequisites
+ - [aliBuild](https://alisw.github.io/alibuild/)
+ - [environment Modules](https://modules.readthedocs.io/en/latest/) 4.3 or higher, RPM is available from [this S3 location](http://s3.cern.ch/swift/v1/system-configuration/RPMS/environment-modules-4.6.1-1.el7.cern.x86_64.rpm)
+ - Optional: To enable S3 support you need to create a config file under `~/.s3cfg`, see [CERN IT instructions](https://clouddocs.web.cern.ch/object_store/s3cmd.html)
+
+## Installation
+
+`python3 -m pip install f2r`
+
+OR
+
+You can use following Ansible role from [system-configration](https://gitlab.cern.ch/AliceO2Group/system-configuration/-/tree/dev/ansible/roles/f2r) that handles also "Prerequisites".
+
+
+## Quickstart
+Build packages using `aliBuild`, eg:
+```bash
+aliBuild build O2Suite --defaults o2-dataflow --always-prefer-system
+```
+Then, run `alienv` as indicated by `aliBuild` in order to create modulefiles:
+```bash
+alienv enter O2Suite/latest-o2-dataflow
+```
+And create RPMs providing same package and version as to `alienv`:
+```bash
+f2r generate --package O2Suite --version latest-o2-dataflow
+```
+Validate created RPMs (this required `sudo`):
+```
+f2r validate
+```
+Create YUM repo:
+```bash
+f2r repo
+```
+
+and sync it to S3:
+```bash
+f2r sync
+```
+
+## CLI options
+Global options:
+```
+  -h, --help            show this help message and exit
+  --dry-run             do a dry run, skipping fpm execution
+  --target-rpm-dir TARGET_RPM_DIR
+                        path to store RPMs in (=/tmp/o2_rpms by default)
+  --release-tag RELEASE_TAG
+                        Release tag, this is mostly to provide correct dir
+                        structure
+  --architecture ARCHITECTURE
+                        OS architecture
+  --log-level LOG_LEVEL
+                        Set log level (DEBUG, INFO, WARN, ERROR)
+```
+
+Generate options:
+```
+--package PACKAGE     package name (as recipe name in aldiist)
+--version VERSION     package version (as in modulefile: X.Y.Z-A)
+--ali-prefix ALI_PREFIX
+                      path to alibuild dir
+--skip-deps           Generate single RPM without dependencies
+```
+
+Sync options:
+```
+--pull      Pulls instead of pushing
+```
