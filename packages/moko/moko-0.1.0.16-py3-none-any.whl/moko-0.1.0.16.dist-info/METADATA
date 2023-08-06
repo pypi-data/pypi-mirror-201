@@ -1,0 +1,83 @@
+Metadata-Version: 2.1
+Name: moko
+Version: 0.1.0.16
+Summary: Modern Korean NLP Package
+Home-page: https://cmks.yonsei.ac.kr/cmks/database.htm?ch=2
+Author: yk.jeong, m.kim
+Author-email: yookyungjeong@gmail.com, munui0822@gmail.com
+License: MIT License
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+Requires-Dist: soyspacing
+Requires-Dist: hanja
+
+<i>moko</i>는 국한문혼용 텍스트에서 한자어를 추출하는 모듈입니다. <br>
+근대한국학연구소 HK+사업단의 한국학 DB구축 연구의 일환으로 제작되었습니다.
+
+<br>
+
+## Installation
+```
+$ pip install moko
+```
+<br>
+
+## Usage
+<b> Noun chunking</b>
+- noun_chunk_dict: dictionary based word extraction
+- noun_chunk_model: noun chunking module with spacing model
+
+Training data: 황성신문 논설기사를 관련 연구자가 띄어쓰기 한 학습데이터 활용
+
+```
+from moko import noun_chunker as nc
+
+text = "泱泱大風이 固由於萬籟齊應이나 其初也엔 起於一蓬之末고 彼文明國之所謂 文明이 固謂其國民全軆之文明이나 其文明開發之原動力은"
+
+dct_lst = nc.noun_chunk_dict(text)
+print(dct_lst)
+
+mdl_lst = nc.noun_chunk_model(text)
+print(mdl_lst)
+```
+
+Parameter
+- char_num: control word length, default is "4"
+- stopword_lst: stopword list, default list contains 654 words ('今日', '今年', '一日'...)
+- usrword_lst: a list of words want to include ('noun_chunk_dict' only)
+
+<br>
+
+<b> Word count </b>
+- word_count: simple word count
+- co_occurence_count: return co-occurrence pair
+
+```
+from moko import term_analyzer as ta
+
+print(ta.word_count(noun_list))
+print(ta.co_occurence_count(noun_list))
+```
+<br>
+
+<b> N-word window extraction around a keyword from <i>noun_list</i></b>
+
+mering window (Case2)
+- Case1: A, B, <b>KEY</b>, C, D
+- Case2: A, B, <b>KEY</b>, C, <b>KEY</b>, <b>KEY</b>, D, E
+
+```
+from moko import term_analyzer as ta
+
+print(ta.extract_window(dct_lst,"文明",2))
+```
+
+<br>
+
+## To be added
+- Named Entity Recognition: 인명, 서명, 저자명, 기관명 
+- Word Embedding: w2v(skip-gram), FastText
++ 띄어쓰기 모델 사용시 지시대명사, 접두어 처리문제
+
+## History
+<b>0.1.0.14 (2023-03-21)</b> - First version of <i>moko</i>
