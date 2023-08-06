@@ -1,0 +1,5 @@
+[![Build Status](https://github.com/bagherilab/arcade-collection/workflows/build/badge.svg)](https://github.com/bagherilab/arcade-collection/actions?query=workflow%3Abuild)
+[![Codecov](https://img.shields.io/codecov/c/gh/bagherilab/arcade-collection?token=OXH1XGZOCI)](https://codecov.io/gh/bagherilab/arcade-collection)
+[![Lint Status](https://github.com/bagherilab/arcade-collection/workflows/lint/badge.svg)](https://github.com/bagherilab/arcade-collection/actions?query=workflow%3Alint)
+[![Documentation](https://github.com/bagherilab/arcade-collection/workflows/documentation/badge.svg)](https://bagherilab.github.io/arcade-collection/)
+[![Code style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
