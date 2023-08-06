@@ -1,0 +1,61 @@
+Metadata-Version: 2.1
+Name: flask-typed
+Version: 0.1.2rc1
+Summary: 
+Author: Mustafa Efendioğlu
+Author-email: mfnd@protonmail.com
+Requires-Python: >=3.10,<4.0
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Requires-Dist: docstring-parser (>=0.15,<0.16)
+Requires-Dist: flask (>=2.2.3,<3.0.0)
+Requires-Dist: openapi-schema-pydantic (>=1.2.4,<2.0.0)
+Requires-Dist: pydantic (>=1.10.5,<2.0.0)
+Description-Content-Type: text/markdown
+
+# flask-typed
+
+A Flask extension for developing HTTP APIs using type annotations. Type annotations are used for the validation of requests and generating API documentation.
+
+## Example
+
+```python
+from flask import Flask
+from pydantic import BaseModel
+
+from flask_typed import TypedResource, TypedAPI
+
+
+class HelloResponse(BaseModel):
+
+    message: str
+    sender: str
+    receiver: str
+
+
+class HelloResource(TypedResource):
+
+    def get(self, sender: str, receiver: str) -> HelloResponse:
+        """
+        Greets someone
+
+        :param sender: Greeter
+        :param receiver: The one being greeted
+        :return: Greetings
+        """
+        return HelloResponse(
+            message=f"Hello to {receiver} from {sender}!",
+            sender=sender,
+            receiver=receiver
+        )
+
+
+app = Flask(__name__)
+api = TypedAPI(app, version="1.0", description="Greetings API")
+
+api.add_resource(HelloResource, "/hello/<sender>")
+
+if __name__ == "__main__":
+    app.run()
+```
