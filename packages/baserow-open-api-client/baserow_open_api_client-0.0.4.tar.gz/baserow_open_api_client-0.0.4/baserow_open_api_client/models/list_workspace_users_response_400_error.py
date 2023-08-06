@@ -1,0 +1,11 @@
+from enum import Enum
+
+
+class ListWorkspaceUsersResponse400Error(str, Enum):
+    ERROR_INVALID_SORT_ATTRIBUTE = "ERROR_INVALID_SORT_ATTRIBUTE"
+    ERROR_INVALID_SORT_DIRECTION = "ERROR_INVALID_SORT_DIRECTION"
+    ERROR_USER_INVALID_GROUP_PERMISSIONS = "ERROR_USER_INVALID_GROUP_PERMISSIONS"
+    ERROR_USER_NOT_IN_GROUP = "ERROR_USER_NOT_IN_GROUP"
+
+    def __str__(self) -> str:
+        return str(self.value)
