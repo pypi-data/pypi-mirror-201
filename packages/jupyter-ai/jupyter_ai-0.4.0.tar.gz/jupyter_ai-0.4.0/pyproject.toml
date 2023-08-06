@@ -1,0 +1,107 @@
+[build-system]
+requires = ["hatchling>=1.4.0", "jupyterlab>=3.4.7,<4.0.0", "hatch-nodejs-version"]
+build-backend = "hatchling.build"
+
+[project]
+name = "jupyter_ai"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.7"
+classifiers = [
+    "Framework :: Jupyter",
+    "Framework :: Jupyter :: JupyterLab",
+    "Framework :: Jupyter :: JupyterLab :: 3",
+    "Framework :: Jupyter :: JupyterLab :: Extensions",
+    "Framework :: Jupyter :: JupyterLab :: Extensions :: Prebuilt",
+    "License :: OSI Approved :: BSD License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+dependencies = [
+    "jupyter_server>=1.6,<3",
+    "pydantic",
+    "openai~=0.26",
+    "aiosqlite~=0.18",
+    "importlib_metadata~=5.2.0",
+    "langchain~=0.0.115"
+]
+
+dynamic = ["version", "description", "authors", "urls", "keywords"]
+
+[project.entry-points."jupyter_ai.model_engine_classes"]
+gpt3 = "jupyter_ai:GPT3ModelEngine"
+
+[project.entry-points."jupyter_ai.default_tasks"]
+core_default_tasks = "jupyter_ai:tasks"
+
+[project.entry-points."jupyter_ai.model_providers"]
+ai21 = "jupyter_ai:AI21Provider"
+anthropic = "jupyter_ai:AnthropicProvider"
+cohere = "jupyter_ai:CohereProvider"
+huggingface_hub = "jupyter_ai:HfHubProvider"
+openai = "jupyter_ai:OpenAIProvider"
+openai-chat = "jupyter_ai:ChatOpenAIProvider"
+sagemaker-endpoint = "jupyter_ai:SmEndpointProvider"
+
+[project.optional-dependencies]
+test = [
+    "jupyter-server[test]>=1.6,<3",
+    "coverage",
+    "pytest",
+    "pytest-asyncio",
+    "pytest-cov",
+    "pytest-tornasync"
+]
+
+all = [
+    "ai21",
+    "anthropic",
+    "cohere",
+    "huggingface_hub",
+    "ipywidgets",
+    "openai",
+    "boto3"
+]
+
+[tool.hatch.version]
+source = "nodejs"
+
+[tool.hatch.metadata.hooks.nodejs]
+fields = ["description", "authors", "urls"]
+
+[tool.hatch.build.targets.sdist]
+artifacts = ["jupyter_ai/labextension"]
+exclude = [".github", "binder"]
+
+[tool.hatch.build.targets.wheel.shared-data]
+"jupyter_ai/labextension" = "share/jupyter/labextensions/@jupyter-ai/core"
+"install.json" = "share/jupyter/labextensions/@jupyter-ai/core/install.json"
+"jupyter-config/server-config" = "etc/jupyter/jupyter_server_config.d"
+"jupyter-config/nb-config" = "etc/jupyter/jupyter_notebook_config.d"
+
+[tool.hatch.build.hooks.version]
+path = "jupyter_ai/_version.py"
+
+[tool.hatch.build.hooks.jupyter-builder]
+dependencies = ["hatch-jupyter-builder>=0.5"]
+build-function = "hatch_jupyter_builder.npm_builder"
+ensured-targets = [
+    "jupyter_ai/labextension/static/style.js",
+    "jupyter_ai/labextension/package.json",
+]
+skip-if-exists = ["jupyter_ai/labextension/static/style.js"]
+
+[tool.hatch.build.hooks.jupyter-builder.build-kwargs]
+build_cmd = "build:prod"
+npm = ["jlpm"]
+
+[tool.hatch.build.hooks.jupyter-builder.editable-build-kwargs]
+build_cmd = "install:extension"
+npm = ["jlpm"]
+source_dir = "src"
+build_dir = "jupyter_ai/labextension"
