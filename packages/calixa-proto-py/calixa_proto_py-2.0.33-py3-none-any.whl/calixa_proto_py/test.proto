@@ -1,0 +1,78 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/field_mask.proto";
+import "oltpannotation.proto";
+
+option java_package = "io.calixa.domain.test";
+option java_multiple_files = true;
+option optimize_for = SPEED;
+
+package calixa.domain.test;
+
+// ONLY CONTAINS PROTOS FOR TESTING. These are not included in
+// the "non-test" build.
+
+message FoobarJustOrganizationId {
+
+  option (calixa.oltp.oltp_primary_key) = {field_ids: [1]};
+
+  string organization_id = 1 [(calixa.oltp.oltp_field) = {nullable: false}];
+
+  int32 some_value = 3 [(calixa.oltp.oltp_field) = {nullable: false}];
+
+  google.protobuf.Timestamp created_at = 10 [(calixa.oltp.oltp_field) = {nullable: false}];
+  google.protobuf.Timestamp updated_at = 11 [(calixa.oltp.oltp_field) = {nullable: false}];
+  google.protobuf.Timestamp deleted_at = 12 [(calixa.oltp.oltp_field) = {nullable: true}];
+}
+
+message Foobar {
+
+  option (calixa.oltp.oltp_primary_key) = {field_ids: [1, 2]};
+
+  string organization_id = 1 [(calixa.oltp.oltp_field) = {nullable: false}];
+
+  // This is the primary key. Just one field.
+  string foobar_id = 2 [(calixa.oltp.oltp_field) = {nullable: false}];
+
+  int32 shoe_size = 3 [(calixa.oltp.oltp_field) = {nullable: false, default_value: {number_value: 9}}];
+  string favorite_color = 4 [(calixa.oltp.oltp_field) = {nullable: false, default_value: {string_value: "green"}}];
+
+  google.protobuf.Timestamp created_at = 10 [(calixa.oltp.oltp_field) = {nullable: false}];
+  google.protobuf.Timestamp updated_at = 11 [(calixa.oltp.oltp_field) = {nullable: false}];
+  google.protobuf.Timestamp deleted_at = 12 [(calixa.oltp.oltp_field) = {nullable: true}];
+}
+
+message FoobarWithCompositeKey {
+
+  option (calixa.oltp.oltp_primary_key) = {field_ids: [1, 2, 3]};
+
+  string organization_id = 1 [(calixa.oltp.oltp_field) = {nullable: false}];
+
+  // This two fields make up the primary field. It is a composite.
+  string key1 = 2 [(calixa.oltp.oltp_field) = {nullable: false}];
+  int32 key2 = 3 [(calixa.oltp.oltp_field) = {nullable: false}];
+
+  int32 some_value = 4 [(calixa.oltp.oltp_field) = {nullable: false}];
+
+  google.protobuf.Timestamp created_at = 10 [(calixa.oltp.oltp_field) = {nullable: false}];
+  google.protobuf.Timestamp updated_at = 11 [(calixa.oltp.oltp_field) = {nullable: false}];
+  google.protobuf.Timestamp deleted_at = 12 [(calixa.oltp.oltp_field) = {nullable: true}];
+}
+
+message FoobarOneOfField {
+  option (calixa.oltp.oltp_primary_key) = {field_ids: [1, 2]};
+
+  string organization_id = 1 [(calixa.oltp.oltp_field) = {nullable: false}];
+  string key1 = 2 [(calixa.oltp.oltp_field) = {nullable: false}];
+
+  oneof value {
+    int32 number = 3 [(calixa.oltp.oltp_field) = {nullable: true}];
+    string text = 4 [(calixa.oltp.oltp_field) = {nullable: true}];
+  }
+
+  google.protobuf.Timestamp created_at = 10 [(calixa.oltp.oltp_field) = {nullable: false}];
+  google.protobuf.Timestamp updated_at = 11 [(calixa.oltp.oltp_field) = {nullable: false}];
+  google.protobuf.Timestamp deleted_at = 12 [(calixa.oltp.oltp_field) = {nullable: true}];
+}

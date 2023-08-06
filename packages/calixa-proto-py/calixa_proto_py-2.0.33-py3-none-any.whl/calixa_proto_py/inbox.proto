@@ -1,0 +1,295 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "common.proto";
+import "entity.proto";
+import "oltpannotation.proto";
+import "condition.proto";
+import "search.proto";
+
+option java_package = "io.calixa.domain.inbox";
+option java_multiple_files = true;
+option optimize_for = SPEED;
+
+package calixa.domain.inbox;
+
+enum InboxItemState {
+  INBOX_ITEM_STATE_UNSPECIFIED = 0;
+  INBOX_ITEM_STATE_OPEN = 1;
+  INBOX_ITEM_STATE_ARCHIVED = 2;
+  INBOX_ITEM_STATE_COMPLETED = 3;
+}
+
+message InboxItem {
+  option (calixa.oltp.oltp_primary_key) = {field_ids: [1, 2]};
+
+  string organization_id = 1;
+  string inbox_item_id = 2;
+  InboxItemState state = 3;
+
+  // a reference to the automation ID that added this item to the inbox
+  string invoked_by_automation_id = 4;
+
+  // The user/account/blah that invoked
+  string invoked_by_canonical_id = 5  [(calixa.oltp.oltp_field) = {nullable: false}];
+  calixa.domain.common.EntityType invoked_by_entity_type = 6  [(calixa.oltp.oltp_field) = {nullable: false}];
+
+  // In v1, it appears we will only have InboxItems for accounts, but to future proof this
+  // feature, we should capture the entity type and canonical id formally:
+  string canonical_id = 7;
+  calixa.domain.common.EntityType entity_type = 8;
+
+  // This is a pointer to the playbook ID that is associate with the inbox item.
+  string playbook_id = 9;
+
+  // The organization user that owns this inbox item (we will index this in postgres).
+  // This is conceptually the same owner that Automations that fire actions would capture
+  // as the "owner" of the account/user.
+  string owner_organization_user_id = 10 [(calixa.oltp.oltp_field) = {nullable: false}];
+
+  google.protobuf.Timestamp created_at = 11 [(calixa.oltp.oltp_field) = {nullable: false}];
+  // The timestamp at which a state change is invoked, for instance.
+  google.protobuf.Timestamp updated_at = 12 [(calixa.oltp.oltp_field) = {nullable: false}];
+}
+
+message SummaryResponseForInbox {
+  calixa.domain.entity.EntityWithRelationships entity_with_relationships = 1;
+  int32 items_count = 2;
+  google.protobuf.Timestamp latest_created_at = 3;
+  string canonical_id = 4;
+}
+
+message InboxSummaryResultSet {
+  string canonical_id = 1;
+  int32 items_count = 2;
+  google.protobuf.Timestamp latest_created_at = 3;
+}
+
+service InboxService {
+  rpc CreateInboxItem(InboxItem) returns (InboxItem);
+  rpc PutInboxItem(InboxItem) returns (InboxItem);
+  rpc GetInboxSummaryByPages(GetInboxSummaryRequest) returns (GetInboxSummaryResponse);
+  rpc GetInboxItemsForEntity(GetInboxItemsRequest) returns (stream GetInboxItemsResponse);
+}
+
+message GetInboxItemsRequest {
+  calixa.domain.common.EntityType entity_type = 1;
+  string canonical_id = 2;
+  // The organization user that owns this inbox item (we will index this in postgres).
+  // This is conceptually the same owner that Automations that fire actions would capture
+  // as the "owner" of the account/user.
+  string owner_id = 3;
+
+  InboxItemState state = 4;
+  int32 page = 5;
+  int32 hits_per_page = 6;
+}
+
+message GetInboxWithTrendSearchRequest {
+  calixa.domain.common.EntityType entity_type = 1;
+  string owner_id = 2;
+  InboxItemState state = 3;
+  string sort_field = 4;
+  string sort_order = 5;
+  int32 page = 6;
+  // number of items to be returned in the page
+  int32 hits_per_page = 7;
+
+  repeated calixa.domain.condition.ConditionOrGroup columns = 8;
+  repeated calixa.domain.search.SearchSortField sort_fields = 9;
+  calixa.domain.condition.RelativeTimeRange timeframe = 10;
+  string organization_id = 11;
+  calixa.domain.condition.ConditionGroup condition = 12;
+}
+
+message GetInboxSummaryRequest {
+  calixa.domain.common.EntityType entity_type = 1;
+  string owner_id = 2;
+  InboxItemState state = 3;
+  string sort_field = 4;
+  string sort_order = 5;
+  int32 page = 6;
+  // number of items to be returned in the page
+  int32 hits_per_page = 7;
+}
+
+message GetInboxSummaryResponse {
+  repeated SummaryResponseForInbox summary_response = 1;
+  // total number of items on all pages
+  int32 total_hits = 2;
+  int32 page = 3;
+  // next available page. -1 indicates no page is available next.
+  int32 next_available_page = 4;
+  // total number of available pages
+  int32 total_pages = 5;
+  int32 hits_per_page = 6;
+}
+
+message GetInboxItemsResponse {
+  string inbox_item_id = 1;
+  InboxItemState state = 2;
+  string playbook_id = 3;
+  //the automation that fired to add this item
+  calixa.domain.entity.EntitySnapshot invoked_by_automation = 4;
+  //user/account that fired the automation
+  calixa.domain.entity.EntitySnapshot invoked_by_entity = 5;
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp updated_at = 7;
+  string canonical_id = 8;
+  string owner_organization_user_id = 9;
+  calixa.domain.common.EntityType entity_type = 10;
+}
+
+// !!!! NOTE:
+// New inbox messages, "old" messages to be replaced after new inbox is launched:
+
+message BoboInboxItemState {
+  bool read = 1;
+  bool starred = 2;
+  bool archived = 3;
+}
+
+enum InboxItemVisibility {
+  INBOX_ITEM_VISIBILITY_UNSPECIFIED = 0;
+  INBOX_ITEM_VISIBILITY_EVERYONE = 1;
+  INBOX_ITEM_VISIBILITY_USER = 2;
+}
+
+message BoboInboxItem {
+  string organization_id = 1;
+  string inbox_item_id = 2;
+  BoboInboxItemState state = 3;
+
+  // a reference to the automation ID that added this item to the inbox
+  string invoked_by_automation_id = 4;
+
+  // The user/account/blah that invoked
+  string invoked_by_canonical_id = 5;
+  calixa.domain.common.EntityType invoked_by_entity_type = 6;
+
+  // In v1, it appears we will only have InboxItems for accounts, but to future proof this
+  // feature, we should capture the entity type and canonical id formally:
+  string canonical_id = 7;
+  calixa.domain.common.EntityType entity_type = 8;
+
+  // This is a pointer to the playbook ID that is associate with the inbox item.
+  string playbook_id = 9;
+
+  // The organization user that owns this inbox item (we will index this in postgres).
+  // This is conceptually the same owner that Automations that fire actions would capture
+  // as the "owner" of the account/user.
+  string owner_organization_user_id = 10;
+
+  google.protobuf.Timestamp created_at = 11;
+
+  InboxItemVisibility visibility = 12;
+  map<string, float> properties = 13;
+}
+
+message SummaryResponseForBoboInbox {
+  calixa.domain.entity.EntityWithRelationships entity_with_relationships = 1;
+  int32 items_count = 2;
+  google.protobuf.Timestamp latest_created_at = 3;
+  string canonical_id = 4;
+  repeated string automation_ids = 5;
+  BoboInboxItemState state = 6;
+}
+
+message BoboInboxSummaryResultSet {
+  string canonical_id = 1;
+  int32 items_count = 2;
+  google.protobuf.Timestamp latest_created_at = 3;
+}
+
+service BoboInboxService {
+  rpc CreateBoboInboxItem(BoboInboxItem) returns (BoboInboxItem);
+  rpc PutBoboInboxItem(BoboInboxItem) returns (BoboInboxItem);
+  rpc GetBoboInboxSummaryByPages(GetBoboInboxSummaryRequest) returns (GetBoboInboxSummaryResponse);
+  rpc GetBoboInboxItemsForEntity(GetBoboInboxItemsRequest) returns (stream GetBoboInboxItemsResponse);
+}
+
+message GetBoboInboxItemsRequest {
+  calixa.domain.common.EntityType entity_type = 1;
+  string canonical_id = 2;
+  // The organization user that owns this inbox item (we will index this in postgres).
+  // This is conceptually the same owner that Automations that fire actions would capture
+  // as the "owner" of the account/user.
+  repeated string owner_ids = 3;
+
+  // FIXME: mmetto: revisit this:
+  BoboInboxItemState state = 4;
+  int32 page = 5;
+  int32 hits_per_page = 6;
+}
+
+message GetBoboInboxWithTrendSearchRequest {
+  calixa.domain.common.EntityType entity_type = 1;
+  repeated string owner_ids = 2;
+  // FIXME: mmetto: revisit this:
+  BoboInboxItemState state = 3;
+  string sort_field = 4;
+  string sort_order = 5;
+  int32 page = 6;
+  // number of items to be returned in the page
+  int32 hits_per_page = 7;
+
+  repeated calixa.domain.condition.ConditionOrGroup columns = 8;
+  repeated calixa.domain.search.SearchSortField sort_fields = 9;
+  calixa.domain.condition.RelativeTimeRange timeframe = 10;
+  string organization_id = 11;
+  calixa.domain.condition.ConditionGroup condition = 12;
+}
+
+message GetBoboInboxSummaryRequest {
+  calixa.domain.common.EntityType entity_type = 1;
+
+  // possible fields in owner_ids:
+  // owner id (how_12345)
+  // null for unassigned
+  // 'me' will be console sugar
+  // 'assigned' will be a keyword that the console will send like '{{assigned}}'
+  repeated string owner_ids = 2;
+  reserved 3; // was: InboxItemState state = 3;
+  string sort_field = 4;
+  string sort_order = 5;
+  int32 page = 6;
+  // number of items to be returned in the page
+  int32 hits_per_page = 7;
+  // item filters by state:
+  bool read = 8;
+  bool starred = 9;
+  bool archived = 10;
+  string playbook_id = 11;
+  string automation_id = 12;
+  repeated calixa.domain.condition.ConditionOrGroup columns = 13;
+  calixa.domain.condition.RelativeTimeRange timeframe = 14;
+}
+
+message GetBoboInboxSummaryResponse {
+  repeated SummaryResponseForBoboInbox summary_response = 1;
+  // total number of items on all pages
+  int32 total_hits = 2;
+  int32 page = 3;
+  // next available page. -1 indicates no page is available next.
+  int32 next_available_page = 4;
+  // total number of available pages
+  int32 total_pages = 5;
+  int32 hits_per_page = 6;
+}
+
+message GetBoboInboxItemsResponse {
+  string inbox_item_id = 1;
+  BoboInboxItemState state = 2;
+  string playbook_id = 3;
+  //the automation that fired to add this item
+  calixa.domain.entity.EntitySnapshot invoked_by_automation = 4;
+  //user/account that fired the automation
+  calixa.domain.entity.EntitySnapshot invoked_by_entity = 5;
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp updated_at = 7;
+  string canonical_id = 8;
+  string owner_organization_user_id = 9;
+  calixa.domain.common.EntityType entity_type = 10;
+  map<string, float> properties = 11;
+}

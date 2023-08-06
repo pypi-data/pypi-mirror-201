@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "common.proto";
+import "google/protobuf/empty.proto";
+
+import "oltpannotation.proto";
+
+option java_package = "io.calixa.domain.properties";
+option java_multiple_files = true;
+option optimize_for = SPEED;
+
+package calixa.domain.properties;
+
+enum ConsolePropertyOverrideStatus {
+  CONSOLE_PROPERTY_OVERRIDE_STATUS_UNSPECIFIED = 0;
+  CONSOLE_PROPERTY_OVERRIDE_STATUS_ENABLED = 1;
+  CONSOLE_PROPERTY_OVERRIDE_STATUS_DISABLED = 2;
+}
+
+message ConsolePropertyOverride {
+  option (calixa.oltp.oltp_primary_key) = {field_ids: [1, 2, 6]};
+
+  string organization_id = 1;
+  string field_id = 2 [(calixa.oltp.oltp_field) = {nullable: false}];
+  string display_name = 3 [(calixa.oltp.oltp_field) = {nullable: true}];
+  string description = 4 [(calixa.oltp.oltp_field) = {nullable: true}];
+  ConsolePropertyOverrideStatus status = 5;
+  calixa.domain.common.EntityType entity_type = 6 [(calixa.oltp.oltp_field) = {nullable: false}];
+  string updated_by_organization_user_id = 7;
+
+  google.protobuf.Timestamp created_at = 8 [(calixa.oltp.oltp_field) = {nullable: false}];
+  google.protobuf.Timestamp updated_at = 9 [(calixa.oltp.oltp_field) = {nullable: false}];
+  google.protobuf.Timestamp deleted_at = 10 [(calixa.oltp.oltp_field) = {nullable: true}];
+}
+
+service PropertyOverrideService {
+  rpc PutConsolePropertyOverride (PutConsolePropertyOverrideRequest) returns (ConsolePropertyOverride);
+  rpc GetConsolePropertyOverride (GetConsolePropertyOverrideRequest) returns (ConsolePropertyOverride);
+  rpc GetAllConsolePropertyOverride (google.protobuf.Empty) returns (ConsolePropertyOverrideList);
+}
+
+message ConsolePropertyOverrideList {
+  repeated ConsolePropertyOverride properties = 1;
+}
+
+message GetConsolePropertyOverrideRequest {
+  string field_id = 1;
+  calixa.domain.common.EntityType entity_type = 2;
+}
+
+message PutConsolePropertyOverrideRequest {
+  ConsolePropertyOverride property = 1;
+}
+
+message PropertySearchResponseValue {
+  string value = 1;
+  int64 count = 2;
+}
+
+message GetPropertySearchRequest {
+  string organization_id = 1;
+  calixa.domain.common.EntityType entity_type = 2;
+  string field = 3; // same field as conditions, eg. account.name, account_user.email
+  string query = 4;
+}
+
+message GetPropertySearchResponse {
+  repeated PropertySearchResponseValue results = 1;
+  int64 processing_time_ms = 2;
+  bool timed_out = 3;
+}
