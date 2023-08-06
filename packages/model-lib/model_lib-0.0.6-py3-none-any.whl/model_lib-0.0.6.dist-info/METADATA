@@ -1,0 +1,93 @@
+Metadata-Version: 2.1
+Name: model-lib
+Version: 0.0.6
+Summary: base models, metadata, and how to dump them to json|yaml
+Author: Espen Albert
+License: MIT
+Classifier: Programming Language :: Python :: 3.10
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: PyYAML (==5.4.1)
+Requires-Dist: pydantic (==1.9.1)
+Requires-Dist: zero-3rdparty (==0.0.6)
+Provides-Extra: json
+Requires-Dist: orjson (>=3.6.5) ; extra == 'json'
+
+# Model-lib - pydantic base models with convenient dump methods
+
+## Model-lib tutorial: What classes to use as base classes, how to serialize them, and add metadata
+- The models: `Event` and `Entity` are subclassing [pydantic.BaseModel](https://pydantic-docs.helpmanual.io/usage/models/)
+- The only specific configuration are:
+    - Automatic registering for dumping
+    - Support different serializers for yaml/json/pretty_json
+    - use_enum_values
+    - +++
+
+```python
+from datetime import datetime
+
+from freezegun import freeze_time
+from pydantic import Field
+
+from model_lib import Entity, Event, dump, parse_model, dump_with_metadata
+
+
+class Birthday(Event):
+    """
+    >>> birthday = Birthday()
+    >>> birthday.date = datetime.utcnow()
+    Traceback (most recent call last):
+    ...
+    TypeError: "Birthday" is immutable and does not support item assignment
+    """
+    date: datetime = Field(default_factory=datetime.utcnow)
+
+
+class Person(Entity):
+    """
+    >>> person = Person(name="espen", age=99)
+    >>> person.age += 1 # mutable
+    >>> person.age
+    100
+    """
+    name: str
+    age: int
+
+
+_pretty_person = """{
+  "age": 99,
+  "name": "espen"
+}"""
+
+
+def test_show_dumping():
+    with freeze_time("2020-01-01"):
+        birthday = Birthday(date=datetime.utcnow())
+        # can dump non-primitives e.g., datetime
+        assert dump(birthday, "json") == '{"date":"2020-01-01T00:00:00"}'
+    person = Person(name="espen", age=99)
+    assert dump(person, "yaml") == "name: espen
+age: 99
+"
+    assert dump(person, "pretty_json") == _pretty_person
+
+
+_metadata_dump = """model:
+  name: espen
+  age: 99
+metadata:
+  model_name: Person
+"""
+
+
+def test_show_parsing(tmp_path):
+    path_json = tmp_path / "example.json"
+    path_json.write_text(_pretty_person)
+    person = Person(name="espen", age=99)
+    assert parse_model(path_json, t=Person) == person
+    assert dump_with_metadata(person, format="yaml") == _metadata_dump
+    path_yaml = tmp_path / "example.yaml"
+    path_yaml.write_text(_metadata_dump)
+    assert parse_model(path_yaml) == person  # metadata is used to find the class
+
+```
