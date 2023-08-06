@@ -1,0 +1,175 @@
+Metadata-Version: 2.1
+Name: profyle
+Version: 0.0.11
+Summary: Profyle, a development tool for analysing and managing python traces
+Home-page: https://github.com/vpcarlos/profyle
+License: MIT
+Keywords: cprofile,devtool,perffeto,profyle,viztracer
+Author: Carlos Valdivia
+Author-email: vpcarlos97@gmail.com
+Maintainer: Carlos Valdivia
+Maintainer-email: vpcarlos97@gmail.com
+Requires-Python: >=3.7,<4.0
+Classifier: Environment :: Web Environment
+Classifier: Framework :: FastAPI
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Information Technology
+Classifier: Intended Audience :: System Administrators
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Topic :: Internet
+Classifier: Topic :: Software Development
+Classifier: Topic :: Software Development :: Debuggers
+Classifier: Topic :: Software Development :: Libraries
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Topic :: Software Development :: Testing
+Classifier: Typing :: Typed
+Requires-Dist: fastapi (>=0.70.0)
+Requires-Dist: jinja2 (>=3.1.2,<4.0.0)
+Requires-Dist: typer[all] (>=0.7.0,<0.8.0)
+Requires-Dist: uvicorn[standard] (>=0.20.0,<0.21.0)
+Requires-Dist: viztracer (>=0.15.6,<0.16.0)
+Project-URL: Repository, https://github.com/vpcarlos/profyle
+Description-Content-Type: text/markdown
+
+# Profyle
+### Development tool for analysing and managing python traces
+
+<a href="https://pypi.org/project/profyle" target="_blank">
+    <img src="https://img.shields.io/pypi/v/profyle" alt="Package version">
+</a>
+<a href="https://pypi.org/project/profyle" target="_blank">
+    <img src="https://img.shields.io/pypi/pyversions/profyle.svg?color=%2334D058" alt="Supported Python versions">
+</a>
+
+## Installation
+
+<div class="termy">
+
+```console
+$ pip install profyle
+
+---> 100%
+```
+
+</div>
+
+## Example
+
+### 1. Implement
+In order to track all your API requests you must implement the <code>ProfileMiddleware</code>
+<details markdown="1">
+<summary>FastAPI</summary>
+
+```Python
+from fastapi import FastAPI
+from profyle.middleware.fastapi import ProfileMiddleware
+
+app = FastAPI()
+app.add_middleware(ProfileMiddleware)
+
+@app.get("/items/{item_id}")
+async def read_item(item_id: int):
+    return {"item_id": item_id}
+```
+</details>
+
+<details markdown="1">
+<summary>Flask</summary>
+Soon..
+</details>
+
+<details markdown="1">
+<summary>Django</summary>
+Soon..
+</details>
+
+### 2. Run
+* Run the web server:
+
+<div class="termy">
+
+```console
+$ profyle start
+
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [28720]
+INFO:     Started server process [28722]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+```
+
+</div>
+
+### 3. List
+* List all requests tracing:
+
+![Alt text](https://github.com/vpcarlos/profyle/blob/main/docs/img/traces.png?raw=true "Traces")
+
+### 4. Analyze
+* Profyle stands on the shoulder of giants: <a href="https://github.com/gaogaotiantian/viztracer" class="external-link" target="_blank">Viztracer</a> and  <a href="https://github.com/google/perfetto" class="external-link" target="_blank">Perfetto</a>
+* Detailed function entry/exit information on timeline with source code
+* Super easy to use, no source code change for most features, no package dependency
+* Supports threading, multiprocessing, subprocess and async
+* Powerful front-end, able to render GB-level trace smoothly
+* Works on Linux/MacOS/Window
+
+![Alt text](https://github.com/vpcarlos/profyle/blob/main/docs/img/trace1.png?raw=true "Trace1")
+
+![Alt text](https://github.com/vpcarlos/profyle/blob/main/docs/img/trace2.png?raw=true "Trace2")
+
+
+
+## CLI Commands
+### start
+* Start the web server and view profile traces
+<div class="termy">
+
+```console
+$ profyle start
+
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [28720]
+INFO:     Started server process [28722]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+```
+
+</div>
+
+### clean
+* Delete all profile traces
+<div class="termy">
+
+```console
+$ profyle clean
+
+10 traces removed 
+```
+
+</div>
+
+### check
+* Check traces DB size
+<div class="termy">
+
+```console
+$ profyle check
+
+DB size: 30MB
+```
+
+</div>
