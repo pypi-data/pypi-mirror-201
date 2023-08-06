@@ -1,0 +1,2 @@
+from bitcode import console
+
