@@ -1,0 +1,1 @@
+from .main import latin_to_cyrillic
