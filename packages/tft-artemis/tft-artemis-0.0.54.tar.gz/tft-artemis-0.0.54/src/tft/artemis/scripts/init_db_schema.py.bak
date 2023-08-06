@@ -1,0 +1,216 @@
+import dataclasses
+import os.path
+import sys
+from typing import Any, Dict, List, cast, Optional, Match
+from typing_extensions import TypedDict
+import re
+
+import click
+import gluetool.log
+import gluetool.utils
+from gluetool.result import Error, Ok, Result
+
+from .. import Failure, get_config, get_db, get_logger, load_validation_schema, validate_data
+from ..db import DB, GuestTag, Pool, PriorityGroup, SSHKey, User, UserRoles, upsert
+from ..drivers import GuestTagsType, run_cli_tool
+
+
+VersionConfigEntryType = TypedDict(
+    'VersionConfigEntryType',
+    {
+        'version': str,
+        'first-revision': str,
+        'last-revision': str
+    }
+)
+
+
+ParsedRevisionType = TypedDict(
+    'ParsedRevisionType',
+    {
+        'from': str,
+        'to': str,
+        'head': str,
+        'current': str,
+        'name': str
+    }
+)
+
+
+REVISION_PATTERN = re.compile(r'^(?P<from>(?:[a-z0-9]+)|(?:<base>)) -> (?P<to>[a-z0-9]+)(?: (?P<head>\(head\)))?(?: (?P<current>\(current\)))?, (?P<name>.+)$', re.M)
+
+
+@dataclasses.dataclass
+class Configuration:
+    logger: Optional[gluetool.log.ContextAdapter] = None
+    versions_filepath: Optional[str] = None
+    versions: List[VersionConfigEntryType] = dataclasses.field(default_factory=list)
+
+
+@dataclasses.dataclass
+class Version:
+    name: str
+    first_revision: str
+    last_revision: str
+    revisions: List[ParsedRevisionType] = dataclasses.field(default_factory=list)
+
+
+def _load_history(
+    logger: gluetool.log.ContextAdapter,
+    version_specs: List[VersionConfigEntryType]
+) -> Result[List[Version], Failure]:
+    r_full_history = run_cli_tool(
+        logger,
+        ['alembic', 'history', '-i']
+    )
+
+    if r_full_history.is_error:
+        return Error(r_full_history.unwrap_error())
+
+    output = r_full_history.unwrap()
+
+    alembic_revisions = [
+        cast(ParsedRevisionType, match.groupdict())
+        for match in REVISION_PATTERN.finditer(output.stdout)
+    ]
+
+    versions: List[Version] = []
+
+    for version_spec in version_specs:
+        first_revision_name = version_spec.get('first-revision')
+        last_revision_name = version_spec.get('last-revision')
+
+        if not first_revision_name or not last_revision_name:
+            continue
+
+        if not alembic_revisions:
+            return Error(Failure(
+                f'{version_spec["version"]}: ends with revision {last_revision_name} but no revisions are left'
+            ))
+
+        last_revision = alembic_revisions[0]
+
+        if last_revision['to'] != last_revision_name:
+            return Error(Failure(
+                f'{version_spec["version"]}: ends with revision {last_revision_name} but {last_revision["to"]} is on top'
+            ))
+
+        version = Version(
+            name=version_spec['version'],
+            first_revision=first_revision_name,
+            last_revision=last_revision_name
+        )
+
+        versions.append(version)
+
+        while alembic_revisions:
+            revision = alembic_revisions.pop(0)
+            version.revisions.append(revision)
+
+            if revision['to'] == first_revision_name:
+                break
+
+        else:
+            return Error(Failure(
+                f'{version_spec["version"]}: starts with revision {first_revision_name} but reached bottom'
+            ))
+
+    if alembic_revisions:
+        return Error(Failure('Some schema revisions left in the stack'))
+
+    return Ok(versions)
+
+
+@click.group()
+@click.pass_context
+@click.option(
+    '--versions',
+    type=str,
+    required=True
+)
+def cmd_root(ctx: Any, versions: str) -> None:
+    ctx.ensure_object(Configuration)
+
+    config = cast(Configuration, ctx.obj)
+
+    config.logger = get_logger()
+    config.versions_filepath = os.path.abspath(os.path.expanduser(versions))
+
+    try:
+        version_specs = cast(
+            List[VersionConfigEntryType],
+            gluetool.utils.load_yaml(config.versions_filepath, logger=config.logger)
+        )
+
+    except Exception as exc:
+        Failure.from_exc('failed to load schema versions', exc).handle(config.logger)
+
+        sys.exit(1)
+
+    config.versions = [
+        version_spec
+        for version_spec in sorted(version_specs, key=lambda x: x['version'], reverse=True)
+    ]
+
+
+def _history_basic(cfg: Configuration) -> None:
+    assert cfg.logger is not None
+
+    for version_spec in cfg.versions:
+        if 'first-revision' in version_spec:
+            cfg.logger.info(f'{version_spec["version"]}: {version_spec["first-revision"]} => {version_spec["last-revision"]}')
+        else:
+            cfg.logger.info(f'{version_spec["version"]}:')
+
+
+def _history_details(cfg: Configuration) -> None:
+    assert cfg.logger is not None
+
+    r_history = _load_history(cfg.logger, cfg.versions)
+
+    if r_history.is_error:
+        r_history.unwrap_error().handle(cfg.logger)
+        sys.exit(1)
+
+    table: List[List[str]] = [
+        ['Version', 'Revision', 'Name', 'Is current?', 'Is head?']
+    ]
+
+    for version in r_history.unwrap():
+        for revision in version.revisions:
+            table.append([
+                version.name,
+                revision['to'],
+                revision['name'],
+                '*' if revision['current'] == '(current)' else '',
+                '*' if revision['head'] == '(head)' else ''
+            ])
+
+    gluetool.log.log_table(
+        cfg.logger.info,
+        'Artemis version history',
+        table,
+        headers='firstrow',
+        tablefmt='psql'
+    )
+
+
+@cmd_root.command(
+    name='history',
+    help='Display history of schema revisions.'
+)
+@click.option(
+    '--show-details/--no-show-details',
+    default=False
+)
+@click.pass_obj
+def cmd_history(cfg: Configuration, show_details: bool) -> None:
+    if show_details:
+        _history_details(cfg)
+
+    else:
+        _history_basic(cfg)
+
+
+if __name__ == '__main__':
+    cmd_root()
