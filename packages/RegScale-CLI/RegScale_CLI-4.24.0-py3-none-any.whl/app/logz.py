@@ -1,0 +1,43 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+""" Rich Logging """
+
+# standard python imports
+import logging
+import os
+import tempfile
+from logging.handlers import TimedRotatingFileHandler
+
+from gql.transport.requests import log as requests_logger
+import click
+from rich.logging import RichHandler
+from rich.traceback import install
+
+import exceptions.license_exception
+
+install(suppress=[click, exceptions])
+
+
+def create_logger():
+    """
+    Create a logger for use in all cases
+    :return: logger object
+    """
+    requests_logger.setLevel("WARNING")  # Suppress GQL default verbose logging
+    loglevel = os.environ.get("LOGLEVEL", "INFO").upper()
+    rich_handler = RichHandler(rich_tracebacks=True, markup=True)
+    file_handler = TimedRotatingFileHandler(
+        filename=f"{tempfile.gettempdir()}{os.sep}RegScale.log",
+        when="D",
+        interval=3,
+        backupCount=10,
+    )
+    logging.basicConfig(
+        level=loglevel,
+        format="%(asctime)s [%(levelname)-5.5s]  %(message)s",
+        datefmt="[%Y/%m/%d %H:%M;%S]",
+        handlers=[rich_handler, file_handler],
+    )
+    logger = logging.getLogger("rich")
+    # logger.propagate = False
+    return logger
