@@ -1,0 +1,149 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""package scinstr-bin
+author  Benoit Dubois
+license GPL v3.0+
+brief   A basic monitoring program.
+details Return various parameter values (T°, pressure...) from compressor
+        with a definable sampling period (minimum = 1 s).
+"""
+
+# Ctrl-c closes the application
+import signal
+signal.signal(signal.SIGINT, signal.SIG_DFL)
+
+import sys
+import logging
+import time
+import argparse
+from PyQt5.QtCore import QCoreApplication
+from scinstr.compressor.cp2800 import Cp2800, HASHCODE
+
+
+DEFAULT_SERIAL_PORT = 0   # Default serial port number
+DEFAULT_BAUDRATE = 9600   # Default port baudrate
+DEFAULT_MONI_PERIOD = 1.0 # Sampling period of monitored data (in s)
+DEFAULT_ADDRESS = '\x10'  # Default device address
+
+
+#==============================================================================
+def parse_cmd_line():
+    """Parses command line.
+    :returns: an object holding attributes (Namespace)
+    """
+    parser = argparse.ArgumentParser(description='CP 2800 Monitoring')
+    parser.add_argument('-p', '--port', dest='port', type=int,
+                        default=DEFAULT_SERIAL_PORT, help='--port=<int>')
+    parser.add_argument('-b', '--baudrate', dest='baudrate', type=int,
+                        default=DEFAULT_BAUDRATE, help='--baudrate=<int>')
+    parser.add_argument('-a', '--address', dest='address', type=str,
+                        default=DEFAULT_ADDRESS, help='--address=<str>')
+    parser.add_argument('-m', '--period', dest='period', type=float,
+                        default=DEFAULT_MONI_PERIOD, help='--period=<float>')
+    return parser.parse_args()
+
+
+#==============================================================================
+def acquisition():
+    """Request continously 'TEMP_TNTH_DEG' ie input water
+    temperature value.
+    """
+    # Create Qt app
+    app = QCoreApplication(sys.argv)
+    # Parse command line
+    args = parse_cmd_line()
+    port = args.port
+    baudrate = args.baudrate
+    address = args.address
+    period = args.period
+    # Instantiate Cp2800 class
+    cp = Cp2800(port=port, baudrate=baudrate, addr=address)
+    # Infinite loop
+    loop = True
+    try:
+        while loop is True:
+            now = time.asctime()
+            retval = cp.ask('TEMP_TNTH_DEG')
+            print str(now) + '\t' + str(retval)
+            time.sleep(period)
+    except KeyboardInterrupt:
+        loop = False
+        logging.info("End of monitoring requested by user")
+    sys.exit(app.exec_())
+
+
+#==============================================================================
+def monitor_cp2800():
+    """Main of monitor-cp2800 file.
+    :returns: None
+    """
+    # Create Qt app
+    app = QCoreApplication(sys.argv)
+    # Parse command line
+    args = parse_cmd_line()
+    port = args.port
+    baudrate = args.baudrate
+    address = args.address
+    period = args.period
+    # Instantiate Cp2800 class
+    cp = Cp2800(port=port, baudrate=baudrate, addr=address)
+    # Header
+    header = '# Time\t'
+    for key in HASHCODE.iterkeys():
+        if key == 'CLR_TEMP_PRES_MMMARKERS' or \
+            key == 'EV_START_COMP_REM' or \
+            key == 'EV_STOP_COMP_REM':
+            continue
+        header += key + '\t'
+    print header
+    # Infinite loop
+    loop = True
+    try:
+        while loop is True:
+            data = time.asctime() + '\t'
+            for key in HASHCODE.iterkeys():
+                if key == 'CLR_TEMP_PRES_MMMARKERS' or \
+                key == 'EV_START_COMP_REM' or \
+                key == 'EV_STOP_COMP_REM':
+                    continue
+                retval = cp.ask(key)
+                print "current key:", key, "\tretval:", retval
+                data += str(retval) + '\t'
+            print data
+            time.sleep(period)
+    except KeyboardInterrupt:
+        loop = False
+        logging.info("End of monitoring requested by user")
+    sys.exit(app.exec_())
+
+
+#==============================================================================
+def configure_logging():
+    """Configures logs.
+    """
+    date_fmt = "%d/%m/%Y %H:%M:%S"
+    log_format = "%(asctime)s %(levelname) -8s %(filename)s " + \
+                 " %(funcName)s (%(lineno)d): %(message)s"
+    logging.basicConfig(level=logging.INFO,
+                        datefmt=date_fmt,
+                        format=log_format,
+                        #filename=DEF_APP_PATH+APP_NAME+".log" ,
+                        filemode='w')
+    console = logging.StreamHandler()
+    # define a Handler which writes INFO messages or higher to the sys.stderr
+    console.setLevel(logging.INFO)
+    # set a format which is simpler for console use
+    formatter = logging.Formatter('%(levelname)s: %(message)s')
+    # tell the handler to use this format
+    console.setFormatter(formatter)
+    # add the handler to the root logger
+    logging.getLogger('').addHandler(console)
+
+
+#==============================================================================
+if __name__ == "__main__":
+    configure_logging()
+    monitor_cp2800()
+    #acquisition()
+
