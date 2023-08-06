@@ -1,0 +1,84 @@
+###############################################################################
+# (c) Copyright 2019 CERN for the benefit of the LHCb Collaboration           #
+#                                                                             #
+# This software is distributed under the terms of the GNU General Public      #
+# Licence version 3 (GPL Version 3), copied verbatim in the file "LICENSE".   #
+#                                                                             #
+# In applying this licence, CERN does not waive the privileges and immunities #
+# granted to it by virtue of its status as an Intergovernmental Organization  #
+# or submit itself to any jurisdiction.                                       #
+###############################################################################
+image: gitlab-registry.cern.ch/ci-tools/ci-worker:cc7
+
+stages:
+  - build
+  - test
+  - deploy
+
+# -----------------------------------------------------------------------------
+
+.setup:
+  image: registry.cern.ch/docker.io/condaforge/mambaforge:latest
+  before_script:
+    - eval "$(python -m conda shell.bash hook)"
+    - conda env create --quiet --file environment.yml
+    - conda activate subcvmfs-env
+    - pip install ".[testing]"
+
+# -----------------------------------------------------------------------------
+
+build:
+  stage: build
+  extends: .setup
+  script:
+    python -m build
+  artifacts:
+    paths:
+      - dist
+
+# -----------------------------------------------------------------------------
+
+pre-commit:
+  stage: test
+  extends: .setup
+  script:
+    - pre-commit run --all-files
+  variables:
+    PRE_COMMIT_HOME: ${CI_PROJECT_DIR}/.cache/pre-commit
+  cache:
+    paths:
+      - ${PRE_COMMIT_HOME}
+
+linting:
+  stage: test
+  extends: .setup
+  script:
+    - pylint -E src/subcvmfs tests/
+
+unit-testing:
+  stage: test
+  extends: .setup
+  script:
+    - pytest -v tests/
+
+test-pypi:
+  stage: test
+  extends: .setup
+  script:
+    - twine check dist/*
+  dependencies:
+    - build
+
+# -----------------------------------------------------------------------------
+
+upload_pypi:
+  stage: deploy
+  extends: .setup
+  script:
+    - twine upload -u __token__ dist/*
+    - echo "Sleeping for 60 seconds to ensure PyPI's CDN has time to update"
+    - sleep 60
+  only:
+    - tags
+  dependencies:
+    - build
