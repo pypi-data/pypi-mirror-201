@@ -1,0 +1,243 @@
+Metadata-Version: 2.1
+Name: image_augs
+Version: 1.1.5
+Summary: Image Augs supports Augmentation for Object Detection , Instance Segmentation and classification tasks.
+Author: Souvik Saha
+Author-email: ssouvik.191@gmail.com
+Keywords: machine_learning,development,data_augmentations
+Classifier: Intended Audience :: Developers
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3.8
+Classifier: License :: OSI Approved :: MIT License
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+
+# Image Augmentations
+
+This is a bounding box level image augmentation tool, it can perform 14 annotations. The important ones are rotation, affine, zooming in and out, noise, and blur. The augmentations were applied to a fraction of the data (40 - 50 percent of the images out of 100 can be augmented).When rotating or zooming in and out, the bounding box coordinates will also change as the image is rotated or zoomed.
+
+### Create a folder first, inside that folder keep your image annotation folder.
+
+### Create a virtual environment
+
+```python
+
+pip install virtualenv
+#name your environment
+python3 -m venv <your env name>
+
+#activate the environment --> for linux user
+source <your env name>/bin/activate
+
+#activate the environment  --> for windows user
+<your env name>/Source/activate.ps1
+
+```
+
+### Installation (for pip installation)
+
+```python
+pip install image_augs
+```
+
+## After installation
+
+**create a .py script inside your created folder**
+
+**This Script is for OBJECT DETECTION**
+
+```python
+#import these modules in your created <scriptname>.py file
+
+
+from object_detection_aug.combined import main
+from object_detection_aug.converter_for_txtToYolo import converter
+
+
+
+annotation_folder = 'test_objectDetection'  # YOUR ANNOTATION FOLDER NAME
+new_aug_saved_folder = 'test_object'        # AUGMENTATION SAVED FOLDER
+resize_image = 640                          # REIZE IMAGE
+test_split = 0.20                           # TEST SPLIT 
+
+
+
+output = converter(annotation_folder,resize_im=resize_image)
+
+# DO YOUR DESIRED AUGMENTATION
+# IF BLUR TRUE AND BLUR_F SET TO 0.7 THEN IT WILL TAKE 50% OF YOUR TRAINNING DATA AND APPLY BLUR ON IT.
+dicc = main(folder=new_aug_saved_folder,
+
+
+    test_split=test_split,
+
+    blurs=True, blur_f=0.7,
+
+    noise=True, noise_f=0.6,
+
+    NB=True, NB_f=0.5,
+
+    hue=True, hue_f=0.5,
+
+    sat=True, sat_f=0.5,
+
+    bright=True, bright_f=0.7,
+
+    contrast=True , contrast_f=0.5,
+
+    rotation=True, rotation_f=0.5,
+
+    zoom=True, zoom_f=0.5,
+
+    affine=True, affine_f=0.5,
+
+    translation=True, translation_f=0.5,
+
+    vertical_flip=True, vertical_f=0.5)
+
+#results will be saved in < your given folder >
+```
+
+**This Script is for INSTANCE SEGMENTATION**
+
+```python
+#import these modules in your created <scriptname>.py file
+from instance_seg.json_reader_poly import PolygonAugmentation
+
+
+################# image height and width combination  ##################
+
+# first combination --> for custom image size
+#  image_height = < custom image size > ; 640
+#  image_width = < custom image size > ; 320
+
+
+# second combination --> keep aspect ratio of the image
+#  image_height = 640
+#  image_width  = 'keep_aspect_ratio_true'
+
+# Third combination --> keeping original image height and width
+#  image_height = < keep_original_image_height >
+#  image_width = < keep_original_image_width >
+
+
+#### yolo ####
+# if yolo True then it will normalize all images and save it as txt , if false augmentations will be saved as json.
+
+
+annotation_folder = '<your annotation folder>'
+new_aug_saved_folder = '<where you want to save your images , just  provide a name>'
+train_split = .90
+image_H = 'keep_original_image_height' #check above for height and width setting
+image_W = 'keep_original_image_width'
+yolo = True 
+
+
+im_aug_helper = PolygonAugmentation(aug_save_folder_name=new_aug_saved_folder,
+                                    yolo=yolo)
+
+im_aug_helper.Image_augmentation(annotation_folder,
+                                 
+                                 train_split=train_split,
+                                 image_height= image_H,
+                                 image_width= image_W,
+
+
+                                 blur=True,  blur_f=0.1,
+
+                                 rotate=False, rotate_f = 0.2, 
+
+                                 noise=False, noise_f=0.8,
+
+                                 perspective=False, perspective_f = 0.8,
+
+                                 affine=False, affine_f=0.8,
+
+                                 brightness=False, brightness_f=0.8,
+                                    
+                                 hue=True, hue_f=0.2,
+
+                                 removesaturation=True, removesaturation_f=0.1,
+
+                                 contrast=False, contrast_f=0.8,
+
+                                 upflip=False, upflip_f=0.8,
+
+                                 shear=False , shear_f=0.8, 
+
+                                 rotate90=False, rotate90_f =0.8,
+
+                                 blur_and_noise=False, blur_and_noise_f=0.8,
+
+                                 image_cutout = False, image_cutout_f=0.8,
+                                    
+                                 mix_aug=False, mix_aug_f=0.8,
+                                    
+                                 temperature_change=False, temperature_change_f=0.8)
+#results will be saved in < your given folder >
+```
+
+**This Script is for IMAGE CLASSIFICATION**
+
+```python
+#import these modules in your created <scriptname>.py file
+from classification.classification_combined import ImageAugmentHelper
+
+
+### PARAMS ###
+source_folder = '<source folder>'
+aug_saved_folder = '<augmentation saved folder>'
+train_split = 0.5
+image_height = 512
+image_width = 512
+
+classification_aug = ImageAugmentHelper(source_folder=source_folder,
+                                        aug_save_folder_name=aug_saved_folder,
+                                        train_split=train_split,
+                                        height=image_height,
+                                        width=image_width)
+
+
+classification_aug.augmentations(
+
+    save_raw_images=True,
+
+    blur=True, blur_f=1.0,
+
+    noise=True,noise_f=1.0,
+
+    horizontalFlip=True, horizontalFlip_f=1.0,
+
+    brightness=True, brightness_f=1.0,
+
+    contrast=True, contrast_f=1.0,
+
+    hue=True, hue_f=1.0,
+
+    saturation=True, saturation_f=1.0,
+
+    zoom=True, zoom_f=1.0,
+
+    perspective=True, perspective_f=1.0,
+
+    translation=True, translation_f=1.0,
+
+    sharpen=True, sharpen_f=1.0,
+    
+    randomShadow=True, randomShadow_f=1.0
+)
+```
+
+Use github to clone [image_augmentations](https://github.com/Souviksaha1998/Image_augmentations) repo.
+
+
+
+
+## Contributing
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+## License
+[MIT](https://choosealicense.com/licenses/mit/)
+
+
