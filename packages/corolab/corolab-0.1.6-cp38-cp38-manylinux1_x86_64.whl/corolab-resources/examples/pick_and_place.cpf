@@ -1,0 +1,392 @@
+{
+  "workspace": {
+    "model": {
+      "robots": {
+        "My Robot": {
+          "kinovaGen3Robot7d": {
+            "ipAddress": "0.0.0.0"
+          },
+          "robotiqGripper2f85": {}
+        }
+      },
+      "items": {
+        "My Desk": {
+          "desk": {}
+        }
+      },
+      "cameras": {
+        "Pick Camera": {
+          "realsenseD435i": {
+            "serialNumber": "000000000001",
+            "frameRateFps": 30,
+            "minDepthM": 0.3,
+            "maxDepthM": 1.0
+          }
+        },
+        "Place Camera": {
+          "realsenseD435i": {
+            "serialNumber": "000000000002",
+            "frameRateFps": 30,
+            "minDepthM": 0.3,
+            "maxDepthM": 1.0
+          }
+        }
+      },
+      "fiducials": {
+        "Origin Marker": {
+          "visualMarker": {
+            "tagId": 299,
+            "markerLengthM": 0.17
+          }
+        }
+      }
+    },
+    "state": {
+      "robots": {
+        "My Robot": {
+          "basePose": {
+            "position": {},
+            "orientation": {
+              "z": -1.5707964
+            }
+          },
+          "jointPositions": {
+            "q": [
+              0.0,
+              0.2619,
+              -3.1415,
+              -2.2689,
+              0.0,
+              0.9599,
+              1.5708
+            ]
+          },
+          "effectorPositions": {
+            "q": [
+              0.8
+            ]
+          }
+        }
+      },
+      "items": {
+        "My Desk": {
+          "basePose": {
+            "position": {},
+            "orientation": {}
+          }
+        }
+      },
+      "cameras": {
+        "Place Camera": {
+          "basePose": {
+            "position": {
+              "x": -0.27939984,
+              "z": 0.7365996
+            },
+            "orientation": {
+              "x": 2.7925267
+            }
+          }
+        },
+        "Pick Camera": {
+          "basePose": {
+            "position": {
+              "x": 0.27939984,
+              "z": 0.7365996
+            },
+            "orientation": {
+              "x": 2.7925267
+            }
+          }
+        }
+      },
+      "fiducials": {
+        "Origin Marker": {
+          "basePose": {
+            "position": {
+              "y": -0.19938989
+            },
+            "orientation": {
+              "z": 3.1415927
+            }
+          }
+        }
+      }
+    }
+  },
+  "behaviors": {
+    "My Pick and Place": {
+      "name": "My Pick and Place",
+      "sequenceRoutine": {
+        "behaviors": [
+          {
+            "name": "Initialize Robot",
+            "initializeController": {
+              "robot": "My Robot"
+            }
+          },
+          {
+            "name": "Initialize Cameras",
+            "initializePerception": {}
+          },
+          {
+            "name": "Move to Midpoint",
+            "gotoJointPositions": {
+              "robot": "My Robot",
+              "positions": {
+                "q": [
+                  0.0,
+                  -0.1396,
+                  -3.1415,
+                  -2.1991,
+                  0.0,
+                  -1.1,
+                  1.5708
+                ]
+              },
+              "velocityLimits": {
+                "q": [
+                  1.3,
+                  1.3,
+                  1.3,
+                  2.6,
+                  2.6,
+                  2.6,
+                  2.6
+                ]
+              },
+              "accelerationLimits": {
+                "q": [
+                  5.0,
+                  5.0,
+                  5.0,
+                  8.0,
+                  8.0,
+                  8.0,
+                  8.0
+                ]
+              }
+            }
+          },
+          {
+            "name": "Open gripper",
+            "openGripper": {
+              "robot": "My Robot"
+            }
+          },
+          {
+            "name": "Repeat",
+            "repeatRoutine": {
+              "behavior": {
+                "name": "My Sequence",
+                "sequenceRoutine": {
+                  "behaviors": [
+                    {
+                      "name": "Start Recording",
+                      "startRecordingData": {
+                        "description": "Pick and Place Routine"
+                      }
+                    },
+                    {
+                      "name": "Generate Grasps",
+                      "generateGraspCandidates": {}
+                    },
+                    {
+                      "name": "Generate Places",
+                      "generatePlaceCandidates": {}
+                    },
+                    {
+                      "name": "Generate Pairs",
+                      "generateGraspPlacePairs": {}
+                    },
+                    {
+                      "name": "Move to Pick",
+                      "gotoJointPositions": {
+                        "robot": "My Robot",
+                        "positions": {
+                          "q": [
+                            -1.5708,
+                            0.3492,
+                            -3.1415,
+                            -2.2689,
+                            0.0,
+                            -0.5236,
+                            1.5708
+                          ]
+                        },
+                        "velocityLimits": {
+                          "q": [
+                            1.3,
+                            1.3,
+                            1.3,
+                            2.6,
+                            2.6,
+                            2.6,
+                            2.6
+                          ]
+                        },
+                        "accelerationLimits": {
+                          "q": [
+                            5.0,
+                            5.0,
+                            5.0,
+                            8.0,
+                            8.0,
+                            8.0,
+                            8.0
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "name": "Close gripper",
+                      "closeGripper": {
+                        "robot": "My Robot"
+                      }
+                    },
+                    {
+                      "name": "Move to Midpoint",
+                      "gotoJointPositions": {
+                        "robot": "My Robot",
+                        "positions": {
+                          "q": [
+                            0.0,
+                            -0.1396,
+                            -3.1415,
+                            -2.1991,
+                            0.0,
+                            -1.1,
+                            1.5708
+                          ]
+                        },
+                        "velocityLimits": {
+                          "q": [
+                            1.3,
+                            1.3,
+                            1.3,
+                            2.6,
+                            2.6,
+                            2.6,
+                            2.6
+                          ]
+                        },
+                        "accelerationLimits": {
+                          "q": [
+                            5.0,
+                            5.0,
+                            5.0,
+                            8.0,
+                            8.0,
+                            8.0,
+                            8.0
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "name": "Move to Place",
+                      "gotoJointPositions": {
+                        "robot": "My Robot",
+                        "positions": {
+                          "q": [
+                            1.5708,
+                            0.3492,
+                            -3.1415,
+                            -2.2689,
+                            0.0,
+                            -0.5236,
+                            1.5708
+                          ]
+                        },
+                        "velocityLimits": {
+                          "q": [
+                            1.3,
+                            1.3,
+                            1.3,
+                            2.6,
+                            2.6,
+                            2.6,
+                            2.6
+                          ]
+                        },
+                        "accelerationLimits": {
+                          "q": [
+                            5.0,
+                            5.0,
+                            5.0,
+                            8.0,
+                            8.0,
+                            8.0,
+                            8.0
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "name": "Open gripper",
+                      "openGripper": {
+                        "robot": "My Robot"
+                      }
+                    },
+                    {
+                      "name": "Move to Midpoint",
+                      "gotoJointPositions": {
+                        "robot": "My Robot",
+                        "positions": {
+                          "q": [
+                            0.0,
+                            -0.1396,
+                            -3.1415,
+                            -2.1991,
+                            0.0,
+                            -1.1,
+                            1.5708
+                          ]
+                        },
+                        "velocityLimits": {
+                          "q": [
+                            1.3,
+                            1.3,
+                            1.3,
+                            2.6,
+                            2.6,
+                            2.6,
+                            2.6
+                          ]
+                        },
+                        "accelerationLimits": {
+                          "q": [
+                            5.0,
+                            5.0,
+                            5.0,
+                            8.0,
+                            8.0,
+                            8.0,
+                            8.0
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "name": "Stop Recording",
+                      "stopRecordingData": {}
+                    }
+                  ]
+                }
+              },
+              "repetitions": 2
+            }
+          },
+          {
+            "name": "Shutdown Cameras",
+            "shutdownPerception": {}
+          },
+          {
+            "name": "Shutdown Robot",
+            "shutdownController": {}
+          }
+        ]
+      }
+    }
+  }
+}
