@@ -1,0 +1,24 @@
+# SPDX-FileCopyrightText: 2023 Maxwell G <gotmax@e.email>
+#
+# SPDX-License-Identifier: GPL-2.0-or-later
+
+---
+image: fedora/rawhide
+packages:
+  - podman
+sources:
+  - https://git.sr.ht/~gotmax23/fedrq
+tasks:
+  - setup-container: |
+      cd fedrq/
+      cat <<- 'EOF' > install.sh
+      python3 -m venv venv
+      ./venv/bin/pip install -U pip
+      ./venv/bin/pip install nox
+      EOF
+      podman run -d -v $(pwd):/pwd:z -w /pwd --name c9ss --init centos:stream9 sleep infinity
+      podman exec c9ss bash -xeu -o pipefail ./install.sh
+  - pytest-py39: |
+      podman exec c9ss ./venv/bin/nox -e test -- -v
+  - typing-py39: |
+      podman exec c9ss ./venv/bin/nox -e typing
