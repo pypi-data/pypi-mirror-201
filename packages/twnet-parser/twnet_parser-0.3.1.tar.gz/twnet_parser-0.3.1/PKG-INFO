@@ -1,0 +1,111 @@
+Metadata-Version: 2.1
+Name: twnet_parser
+Version: 0.3.1
+Summary: A teeworlds network protocol library, designed according to sans I/O (http://sans-io.readthedocs.io/) principles
+Author-email: ChillerDragon <chillerdragon@gmail.com>
+Classifier: Development Status :: 3 - Alpha
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Natural Language :: English
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE.txt
+
+A teeworlds network protocol library, designed according to sans I/O (http://sans-io.readthedocs.io/) principles
+
+# THIS LIBRARY IS IN EARLY DEVELOPMENT
+
+## Do not get bamboozled by the mature looking readme!
+## This project is not in a very usable state yet. It is in very early development!
+## APIs might change and many essential features are missing!
+
+---
+
+## install
+
+```bash
+pip install twnet_parser
+```
+
+## sample usage
+
+```python
+import twnet_parser.packet
+packet = twnet_parser.packet.parse7(b'\x04\x0a\x00\xcf\x2e\xde\x1d\04') # 0.7 close
+
+print(packet) # => <class: 'TwPacket'>: {'version': '0.7', 'header': <class: 'Header'>, 'messages': [<class: 'CtrlMessage'>]}
+print(packet.header) # => <class: 'Header'>: {'flags': <class: 'PacketFlags7, 'size': 0, 'ack': 10, 'token': b'\xcf.\xde\x1d', 'num_chunks': 0}
+print(packet.header.flags) # => <class: 'PacketFlags7'>: {'control': True, 'resend': False, 'compression': False, 'connless': False}
+for msg in packet.messages:
+    print(msg.message_name) # => close
+```
+
+## Features
+
+| Feature                        | Status             |
+| ------------------------------ | ------------------ |
+| Deserialize 0.7 packet headers | :heavy_check_mark: |
+| Deserialize 0.7 chunk headers  | :heavy_check_mark: |
+| Deserialize 0.7 messages       | 70%                |
+| Deserialize 0.7 snapshots      |                    |
+| Serialize 0.7 packet headers   |                    |
+| Serialize 0.7 chunk headers    |                    |
+| Serialize 0.7 messages         | 70%                |
+| Deserialize 0.6 packet headers |                    |
+| Deserialize 0.6 chunk headers  |                    |
+| Deserialize 0.6 messages       |                    |
+| Deserialize 0.6 snapshots      |                    |
+| Serialize 0.6 packet headers   |                    |
+| Serialize 0.6 chunk headers    |                    |
+| Serialize 0.6 messages         |                    |
+
+## Non-Features (also not planned for this library)
+
+| Feature                        | Status  | Where to find it                            |
+| ------------------------------ | ------- | ------------------------------------------- |
+| Networking                     | :x:     | TODO: link if someone implemented it on top |
+| Protocol version detection     | :x:     | TODO: link if someone implemented it on top |
+
+Look elsewhere for these features. Or use this library to implement them on top.
+
+## development setup
+
+```bash
+git clone https://gitlab.com/teeworlds-network/twnet_parser
+cd twnet_parser
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements/dev.txt
+```
+
+## tests and linting
+
+```bash
+# dev dependencies
+pip install -r requirements/dev.txt
+
+# run unit tests
+pytest .
+
+# run style linter
+pylint src/
+
+# run type checker
+mypy src/
+```
+
+## package and release
+
+```bash
+# manual
+pip install -r requirements/dev.txt
+version=0.0.2
+sed -i "s/^version =.*/version = \"$version\"/" pyproject.toml
+python -m build
+git tag -a "v$version" -m "# version $version"
+python -m twine upload dist/*
+
+# or use the interactive convience script
+./scripts/release.sh
+```
