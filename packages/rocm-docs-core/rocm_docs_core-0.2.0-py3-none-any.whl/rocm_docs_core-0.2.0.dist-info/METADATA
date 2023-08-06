@@ -1,0 +1,54 @@
+Metadata-Version: 2.1
+Name: rocm-docs-core
+Version: 0.2.0
+Summary: Core utilities for all ROCm documentation on RTD
+Home-page: https://amd.com
+Author: Lauren Wrubleski
+Author-email: Lauren.Wrubleski@amd.com
+Project-URL: Docs, https://docs.amd.com
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE.txt
+Requires-Dist: GitPython (<3.2,>=3.1.30)
+Requires-Dist: PyGithub (==1.57)
+Requires-Dist: docutils (==0.16)
+Requires-Dist: sphinx (==4.3.1)
+Requires-Dist: breathe (==4.34.0)
+Requires-Dist: sphinx-design (==0.3.0)
+Requires-Dist: sphinx-copybutton (==0.5.1)
+Requires-Dist: sphinx-external-toc (==0.3.1)
+Requires-Dist: sphinx-book-theme (==1.0.0rc2)
+Requires-Dist: myst-nb (==0.17.1)
+Requires-Dist: myst-parser[linkify] (==0.18.1)
+Requires-Dist: sphinx-notfound-page (==0.8.3)
+Requires-Dist: importlib-resources (<5.11,>=5.10.2) ; python_version < "3.9"
+Provides-Extra: api_reference
+Requires-Dist: doxysphinx (<4,>=3.2.1) ; extra == 'api_reference'
+
+# ROCm Documentation Core Utilities
+
+### Purpose
+This repository is comprised of utilities, styling, scripts, and additional HTML content that is common to all ROCm projects' documentation. This greatly aids in maintaining the documentation, as any change to the appearance only needs to be modified in one location.
+
+### Common elements covered
+- Javascript tweaks for tables with long variable names, as Sphinx' default rendering is problematic.
+- HTML for a header and footer for the documentation page.
+- Common Sphinx configuration options for ROCm documentation processes.
+
+### Use
+- Install this repository as a Python package using pip, for example `pip install git+https://github.com/RadeonOpenCompute/rocm-docs-core.git`.
+- From the `rocm_docs` package import the function `setup_rocm_docs` into `conf.py` for the ReadTheDocs project.
+- Call exactly the following, replacing `<PROJECT NAME HERE>` with the name of the project.
+```python
+from rocm_docs import ROCmDocs
+
+docs_core = ROCmDocs(<PROJECT NAME HERE>)
+docs_core.run_doxygen()  # Only if Doxygen is required for this project
+docs_core.setup()
+
+for sphinx_var in ROCmDocs.SPHINX_VARS:
+    globals()[sphinx_var] = getattr(docs_core, sphinx_var)
+```
