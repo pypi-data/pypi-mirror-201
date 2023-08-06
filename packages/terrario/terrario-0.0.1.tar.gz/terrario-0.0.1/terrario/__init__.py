@@ -1,0 +1,1 @@
+from terrario import main
