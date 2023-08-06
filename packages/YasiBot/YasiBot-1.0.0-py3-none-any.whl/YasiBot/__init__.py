@@ -1,0 +1,1 @@
+from YasiBot.rubika import client
