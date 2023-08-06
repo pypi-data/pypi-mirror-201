@@ -1,0 +1,248 @@
+#===============================================================================
+# Copyright 2021 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#===============================================================================
+
+# It defines the following variables:
+#     oneDAL_<component>_FOUND
+#     oneDAL_IMPORTED_TARGETS
+#
+# oneDALConfigVersion.cmake defines oneDAL_VERSION
+
+if(oneDAL_FOUND)
+    return()
+endif()
+
+# Handle arguments:
+# ONEDAL_LINK: static | dynamic. Default is dynamic
+# ONEDAL_USE_DPCPP: yes | no. Default is yes
+# ONEDAL_INTERFACE: yes | no. Default is no
+# ONEDAL_SET_TBB_MANUALLY: yes | no. Default is no
+unset(DAL_LIBS)
+#Backward compatibility section to be removed with next major version
+if(NOT DEFINED ONEDAL_LINK AND DEFINED TARGET_LINK)
+  message(STATUS "TARGET_LINK is deprecated. Please use ONEDAL_LINK instead.")
+  set(ONEDAL_LINK ${TARGET_LINK})
+endif()
+if(NOT DEFINED ONEDAL_USE_DPCPP AND DEFINED USE_DPCPP)
+  message(STATUS "USE_DPCPP is deprecated. Please use ONEDAL_USE_DPCPP instead.")
+  set(ONEDAL_USE_DPCPP ${USE_DPCPP})
+endif()
+if(NOT DEFINED ONEDAL_INTERFACE AND DEFINED USE_NEW_IFACES)
+  message(STATUS "USE_NEW_IFACES is deprecated. Please use ONEDAL_INTERFACE instead.")
+  set(ONEDAL_INTERFACE ${USE_NEW_IFACES})
+endif()
+if(NOT DEFINED ONEDAL_SET_TBB_MANUALLY AND DEFINED SET_TBB_MANUALLY)
+  message(STATUS "SET_TBB_MANUALLY is deprecated. Please use ONEDAL_SET_TBB_MANUALLY instead.")
+  set(ONEDAL_SET_TBB_MANUALLY ${SET_TBB_MANUALLY})
+endif()
+
+if ("${ONEDAL_LINK}" STREQUAL "")
+    set(ONEDAL_LINK "dynamic")
+elseif (NOT "${ONEDAL_LINK}" STREQUAL "static" AND NOT "${ONEDAL_LINK}" STREQUAL "dynamic")
+    message(FATAL_ERROR "ONEDAL_LINK must be 'static' or 'dynamic'")
+endif()
+if ("${ONEDAL_USE_DPCPP}" STREQUAL "")
+    set(ONEDAL_USE_DPCPP "yes")
+elseif (NOT "${ONEDAL_USE_DPCPP}" STREQUAL "yes" AND NOT "${ONEDAL_USE_DPCPP}" STREQUAL "no")
+    message(FATAL_ERROR "ONEDAL_USE_DPCPP must be 'yes' or 'no'")
+endif()
+if ("${ONEDAL_INTERFACE}" STREQUAL "")
+    set(ONEDAL_INTERFACE "no")
+elseif (NOT "${ONEDAL_INTERFACE}" STREQUAL "yes" AND NOT "${ONEDAL_INTERFACE}" STREQUAL "no")
+    message(FATAL_ERROR "ONEDAL_INTERFACE must be 'yes' or 'no'")
+endif()
+if ("${ONEDAL_SET_TBB_MANUALLY}" STREQUAL "")
+    set(ONEDAL_SET_TBB_MANUALLY "no")
+elseif (NOT "${ONEDAL_SET_TBB_MANUALLY}" STREQUAL "yes" AND NOT "${ONEDAL_SET_TBB_MANUALLY}" STREQUAL "no")
+    message(FATAL_ERROR "ONEDAL_SET_TBB_MANUALLY must be 'yes' or 'no'")
+endif()
+if(WIN32 AND CMAKE_BUILD_TYPE MATCHES ".*Debug.*|.*DebInfo.*")
+    set(DAL_DEBUG_SUFFIX "d")
+else()
+    set(DAL_DEBUG_SUFFIX "")
+endif()
+
+message(STATUS "ONEDAL_LINK:      ${ONEDAL_LINK}")
+message(STATUS "ONEDAL_USE_DPCPP:        ${ONEDAL_USE_DPCPP}")
+message(STATUS "ONEDAL_INTERFACE:   ${ONEDAL_INTERFACE}")
+message(STATUS "ONEDAL_SET_TBB_MANUALLY: ${ONEDAL_SET_TBB_MANUALLY}")
+
+if (NOT DAL_LIBRARIES)
+    set(DAL_LIBRARIES "")
+endif()
+set(oneDAL_IMPORTED_TARGETS "")
+
+get_filename_component(_dal_root "${CMAKE_CURRENT_LIST_DIR}" REALPATH)
+get_filename_component(_dal_root "${_dal_root}/../../.." ABSOLUTE)
+
+if (FALSE STREQUAL "TRUE")
+    set(_dal_ver_major_bin )
+    set(_dal_ver_minor_bin )
+elseif (FALSE STREQUAL "FALSE")
+    file(READ ${_dal_root}/include/services/library_version_info.h DAL_VERSION_INFO)
+    string(REGEX REPLACE ".*#define __INTEL_DAAL_MAJOR_BINARY__ ([0-9]+).*" "\\1" _dal_ver_major_bin "${DAL_VERSION_INFO}")
+    string(REGEX REPLACE ".*#define __INTEL_DAAL_MINOR_BINARY__ ([0-9]+).*" "\\1" _dal_ver_minor_bin "${DAL_VERSION_INFO}")
+endif()
+
+if (ONEDAL_USE_DPCPP STREQUAL "yes" AND ONEDAL_INTERFACE STREQUAL "no")
+    list(APPEND DAL_LIBS onedal_sycl${DAL_DEBUG_SUFFIX})
+elseif (ONEDAL_USE_DPCPP STREQUAL "no" AND ONEDAL_INTERFACE STREQUAL "yes")
+    list(APPEND DAL_LIBS onedal${DAL_DEBUG_SUFFIX})
+elseif (ONEDAL_USE_DPCPP STREQUAL "yes" AND ONEDAL_INTERFACE STREQUAL "yes")
+    list(APPEND DAL_LIBS onedal_dpc${DAL_DEBUG_SUFFIX} onedal_sycl${DAL_DEBUG_SUFFIX})
+endif()
+
+list(APPEND DAL_LIBS onedal_core${DAL_DEBUG_SUFFIX})
+
+set(THREADING_TYPE "parallel")
+set(DAL_THREAD_LIBRARY_NAME onedal_thread${DAL_DEBUG_SUFFIX})
+
+if (ONEDAL_SET_TBB_MANUALLY STREQUAL "no")
+    find_package(TBB REQUIRED tbb tbbmalloc)
+    list(APPEND oneDAL_IMPORTED_TARGETS ${TBB_IMPORTED_TARGETS})
+endif()
+
+if(UNIX)
+    if(APPLE)
+        list(APPEND oneDAL_IMPORTED_TARGETS -lc++)
+    else()
+        list(APPEND oneDAL_IMPORTED_TARGETS -lstdc++)
+    endif()
+endif()
+
+if (UNIX OR ONEDAL_LINK STREQUAL "static")
+    list(APPEND DAL_LIBS ${DAL_THREAD_LIBRARY_NAME})
+endif()
+
+if(UNIX)
+    if(NOT APPLE)
+        list(APPEND oneDAL_IMPORTED_TARGETS -lm -lpthread)
+    endif()
+    list(APPEND oneDAL_IMPORTED_TARGETS -ldl)
+endif()
+
+if (ONEDAL_USE_DPCPP STREQUAL "yes")
+    if (UNIX)
+        list(APPEND oneDAL_IMPORTED_TARGETS -lOpenCL)
+    else()
+        set(CMAKE_EXE_LINKER_FLAGS "-fsycl -fsycl-device-code-split=per_kernel ${CMAKE_EXE_LINKER_FLAGS}")
+        list(APPEND oneDAL_IMPORTED_TARGETS OpenCL.lib)
+    endif()
+    set(CMAKE_CXX_FLAGS "-fsycl -fsycl-device-code-split=per_kernel ${CMAKE_CXX_FLAGS}")
+endif()
+
+if (ONEDAL_INTERFACE STREQUAL "yes")
+    if (MSVC)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17")
+    else ()
+        set(CMAKE_CXX_STANDARD 17)
+    endif()
+endif()
+
+if(UNIX)
+    if(APPLE)
+        set(LIB_PREFIX "lib")
+        set(LIB_EXT ".a")
+        set(DLL_EXT ".${_dal_ver_major_bin}.dylib")
+    else()
+        set(LIB_PREFIX "lib")
+        set(LIB_EXT ".a")
+        set(DLL_EXT ".so.${_dal_ver_major_bin}")
+    endif()
+else()
+    set(LIB_PREFIX "")
+    set(LIB_EXT ".lib")
+    set(DLL_EXT "_dll.${_dal_ver_major_bin}.lib")
+endif()
+
+foreach (_dal_component ${DAL_LIBS})
+    set(oneDAL_FIND_REQUIRED_${_dal_component} 1)
+endforeach()
+
+foreach (_dal_component ${DAL_LIBS})
+    if (TARGET oneDAL::${_dal_component})
+        continue()
+    endif()
+
+    set(oneDAL_${_dal_component}_FOUND 0)
+
+    if (${ONEDAL_LINK} STREQUAL "static" OR ${_dal_component} STREQUAL "onedal_sycl")
+        add_library(oneDAL::${_dal_component} STATIC IMPORTED)
+        find_library(
+            _dal_lib
+            NAMES "${LIB_PREFIX}${_dal_component}${LIB_EXT}"
+            PATH_SUFFIXES "lib/intel64"
+            PATHS "${_dal_root}")
+    elseif (${ONEDAL_LINK} STREQUAL "dynamic")
+        add_library(oneDAL::${_dal_component} SHARED IMPORTED)
+        find_library(
+            _dal_lib
+            NAMES "${LIB_PREFIX}${_dal_component}${DLL_EXT}"
+            PATH_SUFFIXES "lib/intel64"
+            PATHS "${_dal_root}")
+    endif()
+
+    get_filename_component(_dal_include_dir "${_dal_root}/include" ABSOLUTE)
+    set_target_properties(oneDAL::${_dal_component} PROPERTIES
+                            INTERFACE_INCLUDE_DIRECTORIES "${_dal_include_dir}")
+    unset(_dal_include_dir)
+
+    if (WIN32 AND ${ONEDAL_LINK} STREQUAL "dynamic" AND NOT ${_dal_component} STREQUAL "onedal_sycl")
+        find_file(${_dal_component}_dll ${_dal_component}.${_dal_ver_major_bin}.dll PATHS "${_dal_root}/redist")
+        set_target_properties(oneDAL::${_dal_component} PROPERTIES
+                              IMPORTED_LOCATION "${${_dal_component}_dll}"
+                              IMPORTED_IMPLIB "${_dal_lib}")
+    else()
+        set_target_properties(oneDAL::${_dal_component} PROPERTIES
+                              IMPORTED_LOCATION "${_dal_lib}")
+    endif()
+
+    if (_dal_lib)
+        list(APPEND DAL_LIBRARIES oneDAL::${_dal_component})
+        set(oneDAL_${_dal_component}_FOUND 1)
+    elseif (oneDAL_FIND_REQUIRED AND oneDAL_FIND_REQUIRED_${_dal_component})
+        message(STATUS "Missed required DAL component: ${_dal_component}")
+        message(STATUS "  ${_dal_lib} must exist.")
+        set(oneDAL_FOUND FALSE)
+    endif()
+
+    unset(_dal_lib CACHE)
+endforeach()
+
+list(APPEND oneDAL_IMPORTED_TARGETS ${DAL_LIBRARIES})
+list(REMOVE_DUPLICATES oneDAL_IMPORTED_TARGETS)
+
+set(oneDAL_ROOT_DIR "${_dal_root}")
+set(oneDAL_INCLUDE_DIRS "${_dal_root}/include")
+if (WIN32 AND ${ONEDAL_LINK} STREQUAL "dynamic")
+    set(oneDAL_DLL_DIR "${_dal_root}/redist")
+endif()
+
+if(oneDAL_FOUND STREQUAL "FALSE")
+    message(
+        FATAL_ERROR
+        "oneDAL was not found in ${oneDAL_ROOT_DIR}! Set/check DALROOT environment variable!"
+    )
+else()
+    message(STATUS "oneDAL_ROOT_DIR:         ${_dal_root}")
+    message(STATUS "oneDAL_INCLUDE_DIRS:     ${_dal_root}/include")
+    if (WIN32 AND ONEDAL_LINK STREQUAL "dynamic")
+        message(STATUS "oneDAL_DLL_DIR:          ${_dal_root}/redist")
+    endif()
+    message(STATUS "oneDAL_IMPORTED_TARGETS: ${oneDAL_IMPORTED_TARGETS}")
+endif()
+
+unset(_dal_lib)
+unset(_dal_root)
