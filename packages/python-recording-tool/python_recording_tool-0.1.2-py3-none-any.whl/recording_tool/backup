@@ -1,0 +1,48 @@
+import cv2
+import usb
+
+import time
+
+import numpy as np
+
+from rich.progress import track
+from rich.console import Console
+import click
+
+console = Console()
+
+
+# Reset camera
+dev = usb.core.find(idVendor=0x2560, idProduct=0xc155)
+dev.reset()
+
+time.sleep(1)
+
+fourcc = cv2.VideoWriter_fourcc(*'GREY')
+cap = cv2.VideoCapture(0)
+
+cap.set(cv2.CAP_PROP_CONVERT_RGB, 0)
+
+width = 1280  # the width of the image
+height = 720  # the height of the image
+
+cap.set(cv2.CAP_PROP_FOURCC, fourcc)
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
+cap.set(cv2.CAP_PROP_FPS, 60)
+
+exposure = cap.get(cv2.CAP_PROP_EXPOSURE)
+print(exposure)
+cap.set(cv2.CAP_PROP_EXPOSURE, 255)
+
+
+try:
+    for i in track(range(0, 62)):
+        ret, frame = cap.read()
+        if ret:
+            y12_data = np.array(frame)
+            
+            # for display in Jupyter
+            cv2.imwrite("image" + str(i) + ".jpg", y12_data)
+finally:
+    cap.release()
