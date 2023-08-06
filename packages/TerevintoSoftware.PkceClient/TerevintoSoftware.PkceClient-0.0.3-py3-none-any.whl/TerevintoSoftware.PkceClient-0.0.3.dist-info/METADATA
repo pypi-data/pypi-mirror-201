@@ -1,0 +1,62 @@
+Metadata-Version: 2.1
+Name: TerevintoSoftware.PkceClient
+Version: 0.0.3
+Summary: A Python package to deal with OAuth PKCE authentication flow to generate JWT tokens from desktop apps.
+Author-email: Camilo Terevinto <software@camiloterevinto.com>
+License: MIT License
+        
+        Copyright (c) 2022 Camilo Terevinto
+        
+        Permission is hereby granted, free of charge, to any person obtaining a copy
+        of this software and associated documentation files (the "Software"), to deal
+        in the Software without restriction, including without limitation the rights
+        to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+        copies of the Software, and to permit persons to whom the Software is
+        furnished to do so, subject to the following conditions:
+        
+        The above copyright notice and this permission notice shall be included in all
+        copies or substantial portions of the Software.
+        
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+        IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+        FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+        AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+        LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+        OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+        SOFTWARE.
+        
+Project-URL: Homepage, https://github.com/CamiloTerevinto/TerevintoSoftware.PythonPkceClient
+Project-URL: Bug Tracker, https://github.com/CamiloTerevinto/TerevintoSoftware.PythonPkceClient/issues
+Keywords: oauth,oidc,pkce
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: requests
+
+# Python PKCE Client
+
+This python package contains a simple client to request tokens using the OAuth 2/OIDC Authorization Code PKCE flow.
+
+## Sample usage
+
+```python
+from terevintosoftware.pkce_client import PkceClient, PkceLoginConfig
+
+config = PkceLoginConfig(
+    authorization_uri="https://localhost:44300/connect/authorize",
+    token_uri="https://localhost:44300/connect/token",
+    scopes=[ "openid", "profile", "api" ],
+    client_id="python-nb",
+    internal_port=8888,
+    add_random_state=True,
+    random_state_length=32,
+    verify_authorization_server_https=False
+)
+
+login_client = PkceClient(config)
+pkce_token = login_client.login()
+headers = { "Authorization": "Bearer " + str(pkce_token.access_token) }
+```
