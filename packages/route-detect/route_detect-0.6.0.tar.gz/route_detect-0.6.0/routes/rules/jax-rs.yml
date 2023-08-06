@@ -1,0 +1,264 @@
+rules:
+  - id: jaxrs-route-authenticated
+    patterns:
+      - pattern-either:
+          - pattern: |
+              @$METHOD
+              @Secured(...)
+              $RETURNTYPE $FUNC(...) { ... }
+          - pattern: |
+              @Secured(...)
+              @$METHOD
+              $RETURNTYPE $FUNC(...) { ... }
+          - pattern: |
+              @$METHOD
+              @javax.annotation.security.DenyAll(...)
+              $RETURNTYPE $FUNC(...) { ... }
+          - pattern: |
+              @javax.annotation.security.DenyAll(...)
+              @$METHOD
+              $RETURNTYPE $FUNC(...) { ... }
+          - pattern: |
+              @$METHOD
+              @org.apache.shiro.authz.annotation.RequiresAuthentication(...)
+              $RETURNTYPE $FUNC(...) { ... }
+          - pattern: |
+              @org.apache.shiro.authz.annotation.RequiresAuthentication(...)
+              @$METHOD
+              $RETURNTYPE $FUNC(...) { ... }
+          - pattern: |
+              @$METHOD
+              @org.apache.shiro.authz.annotation.RequiresUser(...)
+              $RETURNTYPE $FUNC(...) { ... }
+          - pattern: |
+              @org.apache.shiro.authz.annotation.RequiresUser(...)
+              @$METHOD
+              $RETURNTYPE $FUNC(...) { ... }
+          - patterns:
+              - pattern: |
+                  @$METHOD
+                  $RETURNTYPE $FUNC(...) { ... }
+              - pattern-either:
+                  - pattern-inside: |
+                      @Secured(...)
+                      class $CLASS { ... }
+                  - pattern-inside: |
+                      @javax.annotation.security.DenyAll(...)
+                      class $CLASS { ... }
+                  - pattern-inside: |
+                      @org.apache.shiro.authz.annotation.RequiresAuthentication(...)
+                      class $CLASS { ... }
+                  - pattern-inside: |
+                      @org.apache.shiro.authz.annotation.RequiresUser(...)
+                      class $CLASS { ... }
+      - metavariable-pattern:
+          metavariable: $METHOD
+          pattern-either:
+            - pattern: javax.ws.rs.GET
+            - pattern: javax.ws.rs.HEAD
+            - pattern: javax.ws.rs.DELETE
+            - pattern: javax.ws.rs.OPTIONS
+            - pattern: javax.ws.rs.POST
+            - pattern: javax.ws.rs.PUT
+    message: Found authenticated JAX-RS route
+    metadata:
+      references:
+        - https://docs.oracle.com/javaee/7/api/javax/ws/rs/package-summary.html
+        - https://stackoverflow.com/questions/26777083/how-to-implement-rest-token-based-authentication-with-jax-rs-and-jersey
+        - https://shiro.apache.org/jaxrs.html
+        - https://shiro.apache.org/java-annotations-list.html
+      route-detect:
+        fill: yellow
+    languages: [java]
+    severity: INFO
+  - id: jaxrs-route-authorized
+    patterns:
+      - pattern-either:
+          - pattern: |
+              @$METHOD
+              @javax.annotation.security.RolesAllowed($AUTHZ)
+              $RETURNTYPE $FUNC(...) { ... }
+          - pattern: |
+              @javax.annotation.security.RolesAllowed($AUTHZ)
+              @$METHOD
+              $RETURNTYPE $FUNC(...) { ... }
+          - pattern: |
+              @$METHOD
+              @javax.annotation.security.DeclareRoles($AUTHZ)
+              $RETURNTYPE $FUNC(...) { ... }
+          - pattern: |
+              @javax.annotation.security.DeclareRoles($AUTHZ)
+              @$METHOD
+              $RETURNTYPE $FUNC(...) { ... }
+          - pattern: |
+              @$METHOD
+              @org.apache.shiro.authz.annotation.RequiresPermissions($AUTHZ)
+              $RETURNTYPE $FUNC(...) { ... }
+          - pattern: |
+              @org.apache.shiro.authz.annotation.RequiresPermissions($AUTHZ)
+              @$METHOD
+              $RETURNTYPE $FUNC(...) { ... }
+          - pattern: |
+              @$METHOD
+              @org.apache.shiro.authz.annotation.RequiresRoles($AUTHZ)
+              $RETURNTYPE $FUNC(...) { ... }
+          - pattern: |
+              @org.apache.shiro.authz.annotation.RequiresRoles($AUTHZ)
+              @$METHOD
+              $RETURNTYPE $FUNC(...) { ... }
+          - patterns:
+              - pattern: |
+                  @$METHOD
+                  $RETURNTYPE $FUNC(...) { ... }
+              - pattern-either:
+                  - pattern-inside: |
+                      @io.swagger.annotations.Api(..., authorizations = $AUTHZ, ...)
+                      class $CLASS { ... }
+                  - pattern-inside: |
+                      @javax.annotation.security.RolesAllowed($AUTHZ)
+                      class $CLASS { ... }
+                  - pattern-inside: |
+                      @javax.annotation.security.DeclareRoles($AUTHZ)
+                      class $CLASS { ... }
+                  - pattern-inside: |
+                      @org.apache.shiro.authz.annotation.RequiresPermissions($AUTHZ)
+                      class $CLASS { ... }
+                  - pattern-inside: |
+                      @org.apache.shiro.authz.annotation.RequiresRoles($AUTHZ)
+                      class $CLASS { ... }
+      - metavariable-pattern:
+          metavariable: $METHOD
+          pattern-either:
+            - pattern: javax.ws.rs.GET
+            - pattern: javax.ws.rs.HEAD
+            - pattern: javax.ws.rs.DELETE
+            - pattern: javax.ws.rs.OPTIONS
+            - pattern: javax.ws.rs.POST
+            - pattern: javax.ws.rs.PUT
+    message: Found authorized JAX-RS route
+    metadata:
+      references:
+        - https://docs.oracle.com/javaee/7/api/javax/ws/rs/package-summary.html
+        - https://stackoverflow.com/questions/26777083/how-to-implement-rest-token-based-authentication-with-jax-rs-and-jersey
+        - https://shiro.apache.org/jaxrs.html
+        - https://shiro.apache.org/java-annotations-list.html
+      route-detect:
+        fill: green
+    languages: [java]
+    severity: INFO
+  - id: jaxrs-route-unauthenticated
+    patterns:
+      - pattern: |
+          @$METHOD
+          $RETURNTYPE $FUNC(...) { ... }
+      - pattern-not: |
+          @$METHOD
+          @Secured
+          $RETURNTYPE $FUNC(...) { ... }
+      - pattern-not: |
+          @Secured
+          @$METHOD
+          $RETURNTYPE $FUNC(...) { ... }
+      - pattern-not: |
+          @$METHOD
+          @javax.annotation.security.RolesAllowed(...)
+          $RETURNTYPE $FUNC(...) { ... }
+      - pattern-not: |
+          @javax.annotation.security.RolesAllowed(...)
+          @$METHOD
+          $RETURNTYPE $FUNC(...) { ... }
+      - pattern-not: |
+          @$METHOD
+          @javax.annotation.security.DenyAll(...)
+          $RETURNTYPE $FUNC(...) { ... }
+      - pattern-not: |
+          @javax.annotation.security.DenyAll(...)
+          @$METHOD
+          $RETURNTYPE $FUNC(...) { ... }
+      - pattern-not: |
+          @$METHOD
+          @javax.annotation.security.DeclareRoles(...)
+          $RETURNTYPE $FUNC(...) { ... }
+      - pattern-not: |
+          @javax.annotation.security.DeclareRoles(...)
+          @$METHOD
+          $RETURNTYPE $FUNC(...) { ... }
+      - pattern-not: |
+          @$METHOD
+          @org.apache.shiro.authz.annotation.RequiresAuthentication(...)
+          $RETURNTYPE $FUNC(...) { ... }
+      - pattern-not: |
+          @org.apache.shiro.authz.annotation.RequiresAuthentication(...)
+          @$METHOD
+          $RETURNTYPE $FUNC(...) { ... }
+      - pattern-not: |
+          @$METHOD
+          @org.apache.shiro.authz.annotation.RequiresPermissions(...)
+          $RETURNTYPE $FUNC(...) { ... }
+      - pattern-not: |
+          @org.apache.shiro.authz.annotation.RequiresPermissions(...)
+          @$METHOD
+          $RETURNTYPE $FUNC(...) { ... }
+      - pattern-not: |
+          @$METHOD
+          @org.apache.shiro.authz.annotation.RequiresRoles(...)
+          $RETURNTYPE $FUNC(...) { ... }
+      - pattern-not: |
+          @org.apache.shiro.authz.annotation.RequiresRoles(...)
+          @$METHOD
+          $RETURNTYPE $FUNC(...) { ... }
+      - pattern-not: |
+          @$METHOD
+          @org.apache.shiro.authz.annotation.RequiresUser(...)
+          $RETURNTYPE $FUNC(...) { ... }
+      - pattern-not: |
+          @org.apache.shiro.authz.annotation.RequiresUser(...)
+          @$METHOD
+          $RETURNTYPE $FUNC(...) { ... }
+      - pattern-not-inside: |
+          @io.swagger.annotations.Api(..., authorizations = $AUTHZ, ...)
+          class $CLASS { ... }
+      - pattern-not-inside: |
+          @Secured(...)
+          class $CLASS { ... }
+      - pattern-not-inside: |
+          @javax.annotation.security.RolesAllowed(...)
+          class $CLASS { ... }
+      - pattern-not-inside: |
+          @javax.annotation.security.DenyAll(...)
+          class $CLASS { ... }
+      - pattern-not-inside: |
+          @javax.annotation.security.DeclareRoles(...)
+          class $CLASS { ... }
+      - pattern-not-inside: |
+          @org.apache.shiro.authz.annotation.RequiresAuthentication(...)
+          class $CLASS { ... }
+      - pattern-not-inside: |
+          @org.apache.shiro.authz.annotation.RequiresPermissions(...)
+          class $CLASS { ... }
+      - pattern-not-inside: |
+          @org.apache.shiro.authz.annotation.RequiresRoles(...)
+          class $CLASS { ... }
+      - pattern-not-inside: |
+          @org.apache.shiro.authz.annotation.RequiresUser(...)
+          class $CLASS { ... }
+      - metavariable-pattern:
+          metavariable: $METHOD
+          pattern-either:
+            - pattern: javax.ws.rs.GET
+            - pattern: javax.ws.rs.HEAD
+            - pattern: javax.ws.rs.DELETE
+            - pattern: javax.ws.rs.OPTIONS
+            - pattern: javax.ws.rs.POST
+            - pattern: javax.ws.rs.PUT
+    message: Found unauthenticated JAX-RS route
+    metadata:
+      references:
+        - https://docs.oracle.com/javaee/7/api/javax/ws/rs/package-summary.html
+        - https://stackoverflow.com/questions/26777083/how-to-implement-rest-token-based-authentication-with-jax-rs-and-jersey
+        - https://shiro.apache.org/jaxrs.html
+        - https://shiro.apache.org/java-annotations-list.html
+      route-detect:
+        fill: red
+    languages: [java]
+    severity: INFO
