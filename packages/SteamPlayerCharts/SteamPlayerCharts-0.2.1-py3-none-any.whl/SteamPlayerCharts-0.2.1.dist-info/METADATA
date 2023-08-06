@@ -1,0 +1,42 @@
+Metadata-Version: 2.1
+Name: SteamPlayerCharts
+Version: 0.2.1
+Summary: A Python wrapper for SteamCharts
+Author: Serpensin
+Description-Content-Type: text/markdown
+Requires-Dist: aiohttp
+Requires-Dist: beautifulsoup4
+
+# SteamCharts
+
+This module makes it possible to get the player count of a game on Steam using the Steamcharts website. It uses aiohttp, BeautifulSoup and http modules.
+
+
+## Installation
+
+`pip install SteamPlayerCharts`
+
+
+## Example
+```python
+import asyncio
+import SteamPlayerCharts as SteamCharts
+
+async def main():
+	steamgameID = "4000"
+	player_count = await SteamCharts.playercount(steamgameID)
+	print(player_count)
+	try:
+		current_players = player_count['Current Players']
+		day_peak = player_count['Peak Players 24h']
+		all_time_peak = player_count['Peak Players All Time']
+	except:
+		error_code = player_count['error']['code']
+		error_message = player_count['error']['message']
+
+asyncio.run(main())
+```
+
+The playercount function returns a Python dict containing the current player counts, as well as the peak values for the last 24 hours and all time.
+
+If the query fails, an error dict is returned that contains the HTTP error code and message.
