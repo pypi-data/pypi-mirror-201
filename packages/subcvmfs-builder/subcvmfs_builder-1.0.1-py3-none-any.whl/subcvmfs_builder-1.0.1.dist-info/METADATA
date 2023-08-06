@@ -1,0 +1,193 @@
+Metadata-Version: 2.1
+Name: subcvmfs-builder
+Version: 1.0.1
+Summary: Help to generate subsets of CVMFS
+Home-page: https://gitlab.cern.ch/alboyer/subcvmfs-builder
+Author: Alexandre F. Boyer
+License: GPL-3.0-only
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.5
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: License :: OSI Approved :: GNU General Public License v3 (GPLv3)
+Classifier: Operating System :: OS Independent
+Requires-Python: !=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Provides-Extra: testing
+Requires-Dist: pytest (>=4.6) ; extra == 'testing'
+Requires-Dist: pytest-cov ; extra == 'testing'
+Requires-Dist: pylint (>=1.6.5) ; extra == 'testing'
+Requires-Dist: pycodestyle ; extra == 'testing'
+
+# SubCVMFS-builder
+
+![schema](subCVMFS-builder.png)
+
+## Purpose
+
+`SubCVMFS-builder` aims to help scientific communities to build a subset of CVMFS containing the minimal requirements to execute applications of interests and deploy it on a remote computing infrastructure.
+The tool is mainly used on supercomputers having no outbound connectivity.
+
+## Installation
+
+- Before starting, you need to have `singularity`, `CVMFS` and `CVMFS-shrinkwrap` installed on the machine.
+
+```bash
+git clone https://gitlab.cern.ch/alboyer/subcvmfs-builder.git
+cd subcvmfs-builder
+pip install . --user
+```
+
+## Usage
+
+- Get the help:
+
+```bash
+subcvmfs --help
+```
+
+- Trace: run applications in a singularity container and return the list of dependencies related to CVMFS.
+
+  ```bash
+  subcvmfs trace <config> \
+		--apps-dir <required_input_directory>
+		--path-list <output_file>
+		--container <optional_input_string>
+		--number-core <optional_input_int>
+  ```
+
+  *Trace is generally used when one has no idea about the dependencies of the applications to include in the subset of CVMFS*.
+
+  - `apps-dir` should be a directory of applications structured as follows:  `<apps_dir>/<command>/command.sh`.
+  - `container` provides a specific environment to run the applications (generally the one present in the remote computing infrastructure).
+  - `path-list` should contain the result of the command, namely a list of CVMFS dependencies related to the applications to trace.
+  - `number-core` can be used to run multiple applications in parallel.
+
+- Build: with a list of dependencies, build a subset of CVMFS using the `cvmfs-shrinkwrap` tool.
+
+  ```bash
+  subcvmfs build <config> \
+		--path-list <Trace_output> <another_input_list>
+		--subset-path <output_subset_path>
+  ```
+
+  *Build is a required step to build a subset of CVMFS*.
+
+  - `path-list` should be a file - or a list of files - containing the CVMFS dependencies to include in the subset. It can be obtain from Trace or built from scratch.
+  - `subset-path` should the path of the generated subset.
+
+- Test: execute application using a subset of dependencies instead of CVMFS.
+
+  ```bash
+  subcvmfs test <config> \
+		--apps-dir <required_input_directory>
+		--subset-path <required_input_path>
+		--container <optional_input_str>
+		--number-core <optional_input_int>
+  ```
+
+  *Test is generally used before deploying a subset of CVMFS. One may want to make sure the subset is valid against a certain set of applications*.
+
+  - `apps-dir` should be a directory of applications structured as follows:  `<apps_dir>/<command>/command.sh`.
+  - `subset-path` should the path of a subset of CVMFS.
+  - `container` provides a specific environment to run the applications (generally the one present in the remote computing infrastructure).
+  - `number-core` can be used to run multiple applications in parallel.
+
+- Deploy: Deploy the subset of CVMFS - within a container if needed - on the remote computing infrastructure.
+
+  ```bash
+  subcvmfs deploy <config> \
+		--subset-path <required_input_subset_path>
+		--remote-location <required_input_str>
+		--container <optional_input_path>
+		--bootstrap <optional_input_path>
+		--post-command <optional_input_path>
+		--bundle-path <optional_output_path>
+  ```
+
+  *Deploy requires one to have access to the remote computing infrastructure*.
+
+  - `subset-path` should the path of a subset of CVMFS.
+  - `remote-location` the remote computing infrastructure that will host the subset of CVMFS.
+  - `bundle-path` should be used if one wants to merge a subset of CVMFS with a container (not recommended if the subset of CVMFS is updated periodically).
+  - `container` provides a specific environment to run the applications. If provided, it will be merged with the subset of CVMFS. Mandatory if `bundle-path` is present.
+  - `bootstrap` the type of container. Mandatory if `bundle-path` is provided.
+  - `post-command` should represent a command to run before launching the container. Mandatory if `bundle-path` is present.
+
+## Configuration
+
+- Minimal configuration possible:
+
+```json
+{
+	"cvmfs_extensions":
+	{
+		"<repository_name>":
+		{
+			"url": "<repository_url>",
+			"public_key": "<repository_pubkey>",
+		},
+	}
+}
+```
+
+In this case, arguments should be passed through the CLI.
+
+- A concrete example:
+
+```json
+{
+	"cvmfs_extensions":
+	{
+		"lhcb.cern.ch":
+		{
+			"url": "http://cvmfs-stratum-one.cern.ch/cvmfs/lhcb.cern.ch",
+			"public_key": "/cvmfs/cvmfs-config.cern.ch/etc/cvmfs/keys/<key.pub>",
+		},
+		"lhcb-condb.cern.ch":
+		{
+			"url": "http://cvmfs-stratum-one.cern.ch/cvmfs/lhcb-condb.cern.ch",
+			"public_key": "/cvmfs/cvmfs-config.cern.ch/etc/cvmfs/keys/<key.pub>",
+		}
+	},
+	"steps":
+	{
+		"trace":
+		{
+			"apps_dir": "inputs_trace",
+			"path_list": "namelist1.txt"
+		},
+		"build":
+		{
+			"path_list": ["namelist1.txt", "namelist2.txt"],
+		},
+		"test":
+		{
+			"apps_dir": "inputs_test",
+		},
+		"commons":
+		{
+			"subset_path": "/path/to/subcvmfs"
+		}
+	},
+	"tools":
+	{
+		"parrot":
+		{
+			"http_proxy": "DIRECT"
+		},
+		"singularity":
+		{
+			"name": "/cvmfs/cernvm-prod/cvm4"
+		}
+	}
+}
+```
+
+Arguments are entirely provided by the configuration, there is no need to provide them individually to the CLI unless overloading them is necessary.
+A few details here:
+- `/tools/singularity/name` is used as the `container` option in the command.
+- `/steps/commons` gathers parameters that are common to all the steps.
