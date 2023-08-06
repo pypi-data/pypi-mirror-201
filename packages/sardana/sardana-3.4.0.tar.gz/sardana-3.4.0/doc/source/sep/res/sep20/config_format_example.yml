@@ -1,0 +1,260 @@
+---
+# A incomplete and not-totally-realistic example of the proposed file format for
+# sardana configuration.
+# Names are currently a mish-mash and parts are taken from different places, with
+# the intent of covering as many parts as possible. A cleaner example will be made
+# when we have agreed on the format.
+
+# A MAX IV beamline
+name: MicroMAX
+tango_host: b-v-micromax-csdb-0.maxiv.lu.se:10000
+
+pools:
+  # Alternatively, all the "name"s could be keys in dictionary structures instead.
+  # We went with using lists for now, for now because the consensus leaned in that
+  # direction. No really strong arguments though, so it might change.
+  - name: pool_micromax
+    tango_server: Pool/MicroMAX  # refers to a server defined above
+    tango_device: "micromax/pool/01"
+
+    # TODO maybe collect all the actual properties under e.g:
+    # properties:
+    #   PoolPath: ...
+    # Or is this too "tango:y"?
+    pool_path:  # TODO: Is this also used for things other than controllers?
+      - /tmp/user/controllers/  # path for "user" controllers
+      - /home/johfor/kits/external/sardana-icepap/sardana_icepap/ctrl/
+      # ...the rest is built from paths in individual controllers
+    python_path:
+      - "/some/python/stuff/here"  # Guess this is added to the PYTHONPATH?
+
+    # TO be discussed, hot does this interact with customsettings stuff?
+    log_file: "/var/sardana/pool_01/log.txt"  # Not sure we can/should configure
+    log_level: info                           # logging here..?
+    
+    instruments:
+      # Not sure if these belong here or what they are even used for
+      - name: "/slit"
+        python_class: NXCollimator
+      - name: "/mirror"
+        python_class: NXMirror
+        
+    measurement_groups:
+      - name: "aem03_xpress3"
+        # These settings taken from the "Configuration" attribute on MeasurementGroup
+        # Guess that is how to configure them?
+        channels:
+          - name: "true"  # Is this always the name of the source, or can the channel be named freely?
+            enabled: true
+            output: false
+          - name: "tango://tango_host:10000/dsadas/ampli"  # Should be a valid url
+            enabled: true
+            output: false
+
+        controllers:
+          onedctrl02:   # OK this could be a list with "name"s as above but the difference is 
+                        # that this is a reference, not a definition...
+                        # What do you think? How to make it clear?
+            synchronizer: Software    # TODO: in expconf, these settings appear to be
+            synchronization: Trigger  # per channel, not per controller... confusing!
+                                      # Also, can we validate these settings somehow?
+            # These are only for "timerable" controllers
+            timer: oned02  # channel that receives LoadOne of integration time
+            monitor: oned02  # same but monitor count
+
+    controllers:
+      # By including the controllers under the pool we avoid having to
+      # refer back to the parent from each element. On the other hand,
+      # this creates quite a deeply nested structure.
+      
+      # We could also group these by "type", more nesting but also
+      # gives some structure. This would be for human readability
+      # though. I am not sure if we need to specify the controller
+      # type in configuration, it is actually stored in a property,
+      # but it seems sardana doesn't actually need it.
+      #
+      # E.g.:
+      # ...
+      # controllers:
+      #   Motor:
+      #     dummy_motor_ctrl:
+      #     ...
+      #   PseudoMotor:
+      #     ...
+      #
+      
+      # ===== Motor ====      
+      - name: dummy_motor_ctrl
+        python_module: DummyMotorController.py
+        python_class: DummyMotorController
+        type: Motor  # Required in order to validate
+        elements:  # Or "children"? "motors"?
+          # Collecting the elements that use a controller right here
+          # simplifies things, fewer references to keep track of.  Are
+          # there cases where this does not fit? Can elements belong
+          # to more than one controller?
+          - name: dummy_motor01
+            axis: 1
+            attributes:
+              Instrument: "/slit"
+
+      - name: icepap_ctrl_o
+        tango_device: b312a-a101237cab01/ctl/ipap-01
+        python_module: "IcePAPCtrl.py"
+        type: Motor        
+        # TODO figure out exactly how this works. I think I prefer if
+        # we give the whole path here, and let the tool figure out the
+        # PoolPath property. Not sure if this will always make sense
+        # though.
+        python_class: IcepapController  # explicitly putting "python_" here to
+                                        # make it clear what we mean by "class"...
+        properties:  # This is what sardana calls them internally, so it's not
+                     # really Tango specific
+          Host: "b312a-a101237-cab01-ctl-ipap-01"
+          Port: 5000
+          ConnectionInInit: False
+          Timeout: 3
+        description: "Blabla"  # Guess we can have description on most things? Is it used?
+        elements:
+          - name: fe_bpx01_x
+            tango_device: b312a-fe/dia/bpx-01-x
+            axis: 1
+            instrument: "/FE"
+            parameters:  # "Axis parameters" in sardana code I think, but axis seems redundant here.
+                         # But what is "axis_attributes" then?
+              Step_per_unit: 2884.96213487198
+              Offset: 48.33095
+              Sign: -1
+              EncoderSource: attr://EncAbsEnc
+              EncoderSourceFormula: VALUE/20000
+              UseEncoderSource: TRUE
+            tango_attribute_configuration:
+              # Tango specific settings, not really sardana stuff but useful
+              Position:
+                unit: "mm"
+                
+          - name: fe_mm01_x
+            tango_device: b312a-fe/opt/mm-01-x
+            axis: 2
+            description: "Slit left"
+            # ...
+          - name: fe_mm01_x
+            tango_device: b312a-fe/opt/mm-02-x
+            axis: 3
+            description: "Slit right"
+            # ...
+          
+      - name: icepap_ctrl_e1
+        tango_device: b312a-a101237cab01/ctl/ipap-06
+        python_module: "/home/johfor/kits/external/sardana-icepap/sardana_icepap/ctrl/IcePAPCtrl.py"
+        python_class: IcepapController
+        type: Motor        
+        properties:
+          Host: "b312a-a101237-cab01-ctl-ipap-06"
+          Port: 5000
+          ConnectionInInit: False
+          Timeout: 3
+
+      # ==== PseudoMotor ====
+      - name: fe_h_slit_ctrl
+        # If no tango_device is given, we'll make one up
+        # e.g. controller/slit/fe_h_slit_ctrl
+        python_module: /home/johfor/kits/investigations/sardana/bloch_pm/bloch_pm.py
+        python_class: BlochSlit
+        type: PseudoMotor
+        motor_roles:
+          # These names are defined in the controller code. But maybe
+          # the order is what's important and specifying names here is
+          # useless anyway? They are not in the property, just the
+          # ids.  In order to validate these names, we need to import the
+          # module.  Guess that's OK since we can run the tool in the
+          # environment.  That way we can also check that files exist,
+          # and we need to e.g. write the environment file anyway.
+          # Obviously not a problem for "online" configuration though.
+          - name: sl2t
+            element: fe_mm01_x  # reference to an icepap motor
+          - name: sl2b
+            element: fe_mm02_x_what
+        elements:
+          - name: fe_hg
+            tango_device: pm/fe_h_slit_ctrl/1
+            role: Gap  # also defined in the class. 
+                       # Note that this should be "pseudo_motor_role"
+                       # but I assume the tool will know this is a pseudomotor.
+                       # Axis is implicit from the role.
+            instrument: "/FE"
+            description: "Front-end slit horizontal gap"
+            attributes:
+              sign: -1
+            tango_attribute_config:
+              Position:
+                min_value: -7.1243
+                max_value: 4.567
+                unit: "mm"
+                format: "%6.4f"
+                
+      # === TwoDExpChannel ====
+      - name: twodctrl02
+        type: TwoDExpChannel
+        python_module: "DummyTwoDController.py"
+        python_class: "DummyTwoDController"
+        elements:
+          - name: dummy_2d_ch1 
+            axis: 1  # guess we could enumerate the axis if omitted.
+          - name: dummy_2d_ch2
+            axis: 2
+                  
+      # === CTExpChannel ===
+      - name: ring_current_ctrl
+        type: CTExpChannel
+        python_module: TangoAttrCTCtrl.py
+        python_class: TangoAttrCTController
+        elements:
+          - name: ring_current
+            tango_device: expchan/ring_current_ctrl/1
+            properties:
+              Formula: "VALUE*1000"
+              TangoAttribute: "tango://g-v-csproxy-0:10000/R1-101S/DIA/DCCT-01/Current"
+
+macro_servers:
+  - name: ms_micromax
+    tango_server: MacroServer/MicroMAX
+    tango_device: micromax/macroserver/01
+    macro_path:
+      - "/opt/sardana_macros/here/be/macros"
+    recorder_path:
+      - "/opt/sardana_recorders"
+    python_path:
+      - "/some/python/stuff"
+
+    max_parallel_macros: 5  # Q: I prefer snake_case, but the Tango properties
+                            # are all CamelCase (e.g. MaxParallelMacros).
+                            # What should we use? This goes for the whole file I guess.
+
+    pools:
+      - pool_micromax  # reference by name, I see no way around it...
+
+    doors:
+      # A door only talks to a single MS right? Makes sense to put them here?
+      - name: door_micromax
+        tango_device: micromax/door/01
+        description: "front door"
+      - name: door_micromax_ct
+        tango_device: micromax/door/02
+        description: "back door"
+
+    environment:
+      backend: gnu  # Not even sure if we can, or should, set this though
+                    # seems it's part of sardanacustomsettings.py, guess we
+                    # could write to that... might be tricky though.
+      path: "/var/sardana/macroserver/environment"
+      variables:
+        # Guess it should be allowed to put anything here, but most env settings
+        # here aren't very static AFAIK so they may be useless to put in config.
+        # The "known" variables we could do some validation of though.
+        - name: ScanDir
+          value: "/data/micromax/blabla"
+          
+        
+      
+  
