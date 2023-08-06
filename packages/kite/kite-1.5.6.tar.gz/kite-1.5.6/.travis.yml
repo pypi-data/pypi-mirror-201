@@ -1,0 +1,48 @@
+language: python
+
+env:
+    global:
+        - OMP_NUM_THREADS=4
+
+cache:
+  pip: true
+  directories: $TRAVIS_BUILD_DIR/kite/test/data
+
+matrix:
+    include:
+        - os: linux
+          sudo: required
+          python: 2.7
+          virtualenv:
+              system_site_packages: true
+          dist: precise
+
+addons:
+    apt:
+        packages: [ python-dev, python-pyside,
+              gfortran, libatlas-dev, libopenblas-dev, libyaml-dev,
+             python-tk, xvfb, git]
+
+before_install:
+  - pip install --upgrade pip setuptools wheel
+  - pip install --only-binary=numpy,scipy,matplotlib scipy numpy matplotlib
+  - pip install flake8 pyyaml coveralls future coverage nose
+  - pip install git+https://github.com/pyrocko/pyrocko.git
+
+before_script:
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then flake8 src/ apps/ test/ ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export DISPLAY=:99.0 ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sh -e /etc/init.d/xvfb start ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sleep 3 ; fi
+
+install:
+    - pip install .
+
+script:
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then nosetests test/; fi
+
+after_success:
+    - coveralls
+
+notifications:
+    email: false
