@@ -1,0 +1,50 @@
+{% load helpers %}
+
+<div class="card">
+<h5 class="card-header">
+    Роли АИС
+</h5>
+<div class="card-body">
+{% if tenant_roles %}
+    <table class="table table-hover">
+        <tr>
+            <th>Название</th>
+            <th>короткий URL</th>
+            <th>Группа</th>
+            <th></th>
+        </tr>
+        {% for role in tenant_roles %}
+        <tr>
+            <td>{{ role.name }}</td>
+            <td>{{ role.slug }}</td>
+            <td>{{ role.parent.name }}</td>
+            <td class="text-end noprint">
+                <a href="{% url 'plugins:netbox_rolesandgroups:tenantrole' pk=role.pk %}"
+                   class="btn btn-primary btn-sm lh-1" title="Просмотреть">
+                    <i class="mdi mdi-book" aria-hidden="true"></i>
+                  </a>
+                  <a href="{% url 'plugins:netbox_rolesandgroups:tenantrole_edit' pk=role.pk %}?return_url=
+                  {% url 'tenancy:tenant' pk=object.pk %}" class="btn btn-warning btn-sm lh-1" title="Редактировать">
+                    <i class="mdi mdi-pencil" aria-hidden="true"></i>
+                  </a>
+                  <a href="{% url 'plugins:netbox_rolesandgroups:tenantrole_delete' pk=role.pk %}?return_url=
+                  {% url 'tenancy:tenant' pk=object.pk %}" class="btn btn-danger btn-sm lh-1" title="Удалить">
+                    <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i>
+                  </a>
+              </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+        <div class="text-muted">
+            Нет
+        </div>
+    {% endif %}
+    </div>
+        <div class="card-footer text-end noprint">
+            <a href="{% url 'plugins:netbox_rolesandgroups:tenantrole_add' %}?tenant={{ object.pk }}&return_url={% url 'tenancy:tenant' pk=object.pk %}" class="btn btn-primary btn-sm">
+                <i class="mdi mdi-plus-thick" aria-hidden="true"></i>
+                Добавить ПО
+            </a>
+        </div>
+</div>
