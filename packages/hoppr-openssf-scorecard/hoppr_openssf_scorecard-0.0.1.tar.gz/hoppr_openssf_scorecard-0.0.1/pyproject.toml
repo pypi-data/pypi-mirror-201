@@ -1,0 +1,168 @@
+[tool.poetry]
+name = "hoppr-openssf-scorecard"
+version = "0.0.1"
+description = "Hoppr plugin to generate an OpenSSF scorecard"
+authors = ["LMCO Open Source <open.source@lmco.com>"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://hoppr.dev"
+repository = "https://gitlab.com/hoppr/plugins/hoppr-openssf-scorecard-plugin"
+
+keywords = [
+  "hoppr",
+  "plugin",
+  "openssf",
+  "scorecard"
+]
+
+classifiers = [
+  "Development Status :: 2 - Pre-Alpha",
+  "Framework :: Pydantic",
+  "Framework :: Pytest",
+  "Framework :: Trio",
+  "Intended Audience :: System Administrators",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Information Technology",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Communications :: File Sharing",
+  "Topic :: Security",
+  "Topic :: Software Development :: Version Control",
+  "Topic :: System :: Archiving :: Packaging",
+  "Topic :: System :: Software Distribution",
+  "Typing :: Typed"
+]
+
+[[tool.poetry.packages]]
+include = "hoppr_openssf_scorecard"
+
+[tool.poetry.scripts]
+scorecard-test = "test.integration:main"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+hoppr = "^1.8.0"
+httpx = "^0.23.3"
+jmespath = "^1.0.1"
+packageurl-python = "^0.10.4"
+pydantic = "^1.10.6"
+trio = "^0.22.0"
+xmltodict = "^0.13.0"
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.0.0"
+isort = "^5.10.1"
+pre-commit = "^3.0.0"
+setuptools = "^67.0.0"
+
+[tool.poetry.group.test.dependencies]
+mypy = "^1.0.0"
+pylint = "^2.12.2"
+pytest = "^7.0.1"
+pytest-cov = "^4.0.0"
+pytest-httpx = "^0.21.3"
+pytest-pretty = "^1.1.0"
+pytest-trio = "^0.8.0"
+trio-typing = "^0.8.0"
+types-requests = "^2.27.15"
+types-setuptools = "^67.1.0.0"
+
+[tool.poetry.plugins."hoppr.plugin"]
+hoppr_openssf_scorecard = "hoppr_openssf_scorecard.plugin:HopprScorecardPlugin"
+
+[tool.black]
+color = true
+line-length = 120
+skip-string-normalization = true
+target-version = ["py310"]
+
+[tool.coverage.report]
+exclude_lines = [
+  "pragma: no cover",
+  "if TYPE_CHECKING:",
+]
+precision = 2
+skip_covered = true
+skip_empty = true
+
+[tool.isort]
+atomic = true
+lines_between_types = 1
+line_length = 120
+profile = "black"
+py_version = 310
+skip_gitignore = true
+
+[tool.mypy]
+check_untyped_defs = true
+enable_error_code = ["ignore-without-code"]
+explicit_package_bases = true
+follow_imports = "silent"
+namespace_packages = true
+no_implicit_reexport = true
+plugins = ["pydantic.mypy"]
+pretty = true
+python_version = "3.10"
+show_error_codes = true
+warn_redundant_casts = true
+warn_return_any = true
+warn_unused_configs = true
+
+[[tool.mypy.overrides]]
+module = ["jmespath", "packageurl.*", "xmltodict"]
+allow_untyped_defs = true
+allow_incomplete_defs = true
+allow_untyped_calls = true
+ignore_missing_imports = true
+
+[tool.pylint.main]
+extension-pkg-whitelist = ["pydantic"]
+init-hook = """\
+  from pylint.config import find_default_config_files;\
+  import sys;\
+  sys.path.append(str(list(find_default_config_files())[0].parent / 'hoppr_openssf_scorecard'))\
+  """
+py-version = "3.9"
+
+[tool.pylint.classes]
+valid-metaclass-classmethod-first-arg = ["cls", "mcs"]
+
+[tool.pylint.format]
+max-line-length = 120
+
+[tool.pylint.messages_control]
+confidence = ["HIGH", "CONTROL_FLOW", "INFERENCE", "INFERENCE_FAILURE", "UNDEFINED"]
+disable = [
+  "raw-checker-failed",
+  "bad-inline-option",
+  "locally-disabled",
+  "file-ignored",
+  "suppressed-message",
+  "useless-suppression",
+  "deprecated-pragma",
+  "use-symbolic-message-instead",
+  "use-dict-literal"
+]
+enable = ["c-extension-no-member"]
+
+[tool.pytest.ini_options]
+addopts = [
+  "--strict-markers",
+  "--cov=hoppr_openssf_scorecard",
+  "--cov-report=term-missing",
+  "--cov-report=xml",
+  "--cov-fail-under=100",
+  "--junit-xml=test.xml"
+]
+console_output_style = "progress"
+junit_family = "xunit2"
+testpaths = ["test"]
+trio_mode = true
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
