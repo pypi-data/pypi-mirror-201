@@ -1,0 +1,26 @@
+# -*- coding: utf-8 -*-
+from setuptools import setup
+
+packages = \
+['rumex', 'rumex.parsing', 'rumex.tests']
+
+package_data = \
+{'': ['*']}
+
+setup_kwargs = {
+    'name': 'rumex',
+    'version': '0.2.3',
+    'description': '',
+    'long_description': '=====\nRumex\n=====\n\n`Behaviour Driven Development`_ (BDD) testing library.\n\nRumex is a lightweight library alternative to the `behave`_ framework.\n\n\nBasic example\n-------------\n\n.. code:: python\n\n    import rumex\n\n    example_file = rumex.InputFile(\n        text=\'\'\'\n            Name: Basic example\n\n            Scenario: Simple arithmetics\n\n                Given an integer 1\n                And an integer 2\n                When addition is performed\n                Then the result is 3\n        \'\'\',\n        uri=\'in place file, just an example\',\n    )\n\n    steps = rumex.StepMapper()\n\n\n    class Context:\n\n        def __init__(self):\n            self.integers = []\n            self.sum = None\n\n\n    @steps(r\'an integer (\\d+)\')\n    def store_integer(integer: int, *, context: Context):\n        context.integers.append(integer)\n\n\n    @steps(r\'addition is performed\')\n    def add(*, context: Context):\n        context.sum = sum(context.integers)\n\n\n    @steps(r\'the result is (\\d+)\')\n    def check_result(expected_result: int, *, context: Context):\n        assert expected_result == context.sum\n\n\n    rumex.run(\n        files=[example_file],\n        steps=steps,\n        context_maker=Context,\n    )\n\n\nMore examples\n~~~~~~~~~~~~~\n\nSee `docs/examples`_\n\n\nAPI\n---\n\nFor complete API documentation see `docs/api`_\n\nrumex.run\n~~~~~~~~~\n\n.. code::\n\n    rumex.run(\n        *,\n        files: Iterable[InputFile],\n        steps: StepMapperProto,\n        context_maker: Callable[[], Any] | None = None,\n        parser: ParserProto = rumex.parsing.parser.parse,\n        executor: ExecutorProto = rumex.runner.execute_file,\n        reporter=rumex.runner.report,\n        map_=builtins.map\n    )\n\nRumex entry point for running tests.\n\n.. rubric:: Parameters\n\n- files: Files to be parsed and executed.\n- steps: See `StepMapper` or `StepMapperProto` for more info.\n- context_maker: A callable that returns an object that can be passed to step functions.\n- parser: A callable that takes `InputFile` and returns `File`.\n- executor: A callable that takes `File` `steps` and `context_maker` and returns `ExecutedFile`.\n- reporter: A callable that takes the collection of all executed files. This can be as simple as raising an exception if any of the executed files is a `FailedFile`.\n- map\\_: Must have the same interface as the Python\'s built-in `map`. Custom implementation might be used to speed up file parsing or execution.\n\nrumex.InputFile\n~~~~~~~~~~~~~~~\n\nFrozen dataclass\n\n.. code::\n\n    rumex.InputFile(\n        *,\n        uri: str,\n        text: str\n    )\n\nContainer for a test file to be parsed.\n\nDoes not have to represent an actual file.\nCould be e.g. an entry in a database.\n\n.. rubric:: Parameters\n\n- uri: A unique identifer. If it\'s a file, this could be a path to this file.\n- text: The content of the file.\n\nrumex.StepMapper\n~~~~~~~~~~~~~~~~\n\nPrepare step functions.\n\nMethods\n.......\n\n:\n\n----\n\n.. code::\n\n    before_scenario(\n        self,\n        callable_: ContextCallable,\n        /\n    )\n\nRegister a function to execute at the start of each scenario.\n\n.. rubric:: Parameters\n\n- callable\\_: The function to be executed.\n\n----\n\n.. code::\n\n    before_step(\n        self,\n        callable_: ContextCallable,\n        /\n    )\n\nRegister a function to execute before each step.\n\n.. rubric:: Parameters\n\n- callable\\_: The function to be executed.\n\n----\n\n.. code::\n\n    __call__(\n        self,\n        pattern: str\n    )\n\nCreate decorator for registering steps.\n\nFor example, to register a function:\n\n.. code:: python\n\n    def say_hello(person, *, context): ...\n\n\nto match sentence "Then Bob says hello",\nyou can do:\n\n.. code:: python\n\n        steps = StepMapper()\n\n        @steps(r\'(\\w+) says hello\')\n        def say_hello(person, *, context):\n            context.get_person(person).say(\'hello\')\n\n\n.. rubric:: Parameters\n\n- pattern: Regex pattern that will be used to match a sentence.\n\n----\n\n.. code::\n\n    iter_steps(\n        self,\n        scenario: Scenario\n    )\n\nSee documentation of `StepMapperProto`.\n\n\n\n\nrumex.find_input_files\n~~~~~~~~~~~~~~~~~~~~~~\n\n.. code::\n\n    rumex.find_input_files(\n        *,\n        root: Path,\n        extension: str\n    )\n\nFind regular files and return them as `InputFile[s]`.\n\n.. rubric:: Parameters\n\n- root: Where to start searching recursively.\n- extension: Extension of the files to look for.\n\n\n.. _`Behaviour Driven Development`:\n  https://en.wikipedia.org/wiki/Behavior-driven_development\n\n.. _`behave`: https://github.com/behave/behave\n\n.. _`docs/examples`: docs/examples\n\n.. _`docs/api`: docs/api.rst\n',
+    'author': 'uigctaw',
+    'author_email': 'uigctaw@metadata.social',
+    'maintainer': 'None',
+    'maintainer_email': 'None',
+    'url': 'None',
+    'packages': packages,
+    'package_data': package_data,
+    'python_requires': '>=3.10,<4.0',
+}
+
+
+setup(**setup_kwargs)
