@@ -1,0 +1,50 @@
+-- Auto generated test script file from rdbunit
+-- Input from fixed.rdbu
+ATTACH DATABASE ":memory:" AS test_default;
+
+-- BEGIN SETUP
+DROP TABLE IF EXISTS relationships;
+CREATE TABLE relationships(id INTEGER, parent_id INTEGER);
+INSERT INTO relationships VALUES (1, 2);
+INSERT INTO relationships VALUES (2, 3);
+INSERT INTO relationships VALUES (3, NULL);
+
+-- BEGIN SELECT
+CREATE VIEW test_select_result AS
+WITH RECURSIVE progenitors(id, parent_id, generation)  AS (
+  SELECT id, parent_id, 0 FROM relationships
+  UNION
+  SELECT progenitors.id, relationships.parent_id, generation + 1
+  FROM progenitors
+  INNER JOIN relationships ON progenitors.parent_id = relationships.id
+),
+ordered_progenitors AS (
+  SELECT id, parent_id,
+    Row_number() OVER (PARTITION BY id ORDER BY GENERATION DESC) AS row
+  FROM progenitors
+)
+SELECT id, parent_id FROM ordered_progenitors WHERE row = 1;
+
+-- BEGIN RESULT
+DROP TABLE IF EXISTS test_expected;
+CREATE TABLE test_expected(id INTEGER, parent_id INTEGER);
+INSERT INTO test_expected VALUES (1, 3);
+INSERT INTO test_expected VALUES (2, 3);
+INSERT INTO test_expected VALUES (3, NULL);
+
+        SELECT CASE WHEN
+          (SELECT COUNT(*) FROM (
+            SELECT * FROM test_expected
+            UNION
+            SELECT * FROM test_select_result
+          ) AS u1) = (SELECT COUNT(*) FROM test_expected) AND
+          (SELECT COUNT(*) FROM (
+            SELECT * FROM test_expected
+            UNION
+            SELECT * FROM test_select_result
+          ) AS u2) = (SELECT COUNT(*) FROM test_select_result)
+THEN 'ok 1 - fixed.rdbu: test_select_result' ELSE
+'not ok 1 - fixed.rdbu: test_select_result' END;
+
+SELECT * FROM test_select_result;
+SELECT '1..1';

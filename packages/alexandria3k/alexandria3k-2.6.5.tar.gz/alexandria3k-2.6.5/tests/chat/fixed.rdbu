@@ -1,0 +1,33 @@
+BEGIN SETUP
+relationships:
+id	parent_id
+1	2
+2	3
+3 	null
+END
+
+BEGIN SELECT
+
+WITH RECURSIVE progenitors(id, parent_id, generation)  AS (
+  SELECT id, parent_id, 0 FROM relationships
+  UNION
+  SELECT progenitors.id, relationships.parent_id, generation + 1
+  FROM progenitors
+  INNER JOIN relationships ON progenitors.parent_id = relationships.id
+  WHERE relationships.parent_id is not null
+),
+ordered_progenitors AS (
+  SELECT id, parent_id,
+    Row_number() OVER (PARTITION BY id ORDER BY GENERATION DESC) AS row
+  FROM progenitors
+)
+SELECT id, parent_id FROM ordered_progenitors WHERE row = 1;
+
+END
+
+BEGIN RESULT
+id	parent_id
+1	3
+2	3
+3	null
+END

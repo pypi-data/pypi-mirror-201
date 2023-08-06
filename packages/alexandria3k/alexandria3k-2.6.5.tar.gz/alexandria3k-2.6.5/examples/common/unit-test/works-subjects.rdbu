@@ -1,0 +1,51 @@
+BEGIN SETUP
+works:
+id	doi
+1	d1
+2	d2
+3	d3
+4	d4
+5	d5
+6	d6
+
+work_subjects:
+work_id	name
+1	biology
+2	maths
+3	maths
+4	biology
+5	astronomy
+5	maths
+END
+
+BEGIN CREATE
+CREATE TABLE subject_names AS
+  SELECT row_number() OVER (ORDER BY '') AS id, name
+    FROM (SELECT DISTINCT name FROM work_subjects);
+END
+
+BEGIN RESULT
+subject_names:
+id	name
+1	biology
+2	maths
+3	astronomy
+END
+
+BEGIN CREATE
+CREATE TABLE works_subjects AS
+  SELECT subject_names.id AS subject_id, work_id
+    FROM subject_names
+    INNER JOIN work_subjects ON subject_names.name = work_subjects.name;
+END
+
+BEGIN RESULT
+works_subjects:
+subject_id	work_id
+1		1
+2		2
+2		3
+1		4
+3		5
+2		5
+END
