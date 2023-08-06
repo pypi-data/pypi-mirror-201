@@ -1,0 +1,174 @@
+[build-system]
+requires = ["setuptools>=61.2"]
+
+[tool.poetry]
+name = "castor-extractor"
+version = "0.3.4"
+description = "Extract your metadata assets."
+authors = ["Castor <support@castordoc.com>"]
+license = "EULA"
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Operating System :: OS Independent",
+]
+readme = "README.md"
+homepage = "https://www.castordoc.com/"
+documentation = "https://docs.castordoc.com/castor-package/castor-extractor"
+include = ["README.md", "CHANGELOG.md", "LICENCE", "*/*/*/*.sql"]
+
+
+[tool.poetry.dependencies]
+python = ">=3.7, <3.11"
+cachetools = ">=4.2.4,<5.0.0"
+certifi = "2021.10.8"
+charset-normalizer = ">=2.0.7, <3.0.0"
+click = "~8.0"
+google-api-core = ">=2.1.1, <3.0.0"
+google-auth = ">=1.6.3 , <3.0.0"
+google-cloud-bigquery = ">=2.0.0, < 3.0.0"
+google-cloud-bigquery-storage = ">=2.0.0, <3.0.0"
+google-cloud-core = ">=2.1.0, <3.0.0"
+google-cloud-storage = ">=1.42.3, <2.0.0"
+google-crc32c = ">=1.3.0, <2.0.0"
+google-resumable-media = ">=2.0.3"
+googleapis-common-protos = ">=1.53.0, <7.0.0"
+idna = ">=2.5,<2.9"
+looker-sdk = { version = ">=22.4.0, <=23.0.0", optional = true }
+msal = "^1.20.0"
+protobuf = ">=2.0.0, <4.0.0"
+psycopg2-binary = { version = ">=2.0.0, < 3.0.0", optional = true }
+pyarrow = ">=6.0.0, <7.0.0"
+pyasn1 = ">=0.4.8, < 1.0.0"
+pyasn1-modules = ">=0.2.8, <1.0.0"
+pycryptodome = ">=3.0.0, <4.0.0"
+python-dateutil = ">=2.0.0, <=3.0.0"
+pytz = "2021.3"
+requests = ">=2.0.0, <3.0.0"
+rsa = ">=4.0.0, <5.0.0"
+setuptools = "^65.6.3"
+six = ">=1.16.0, <2.0.0"
+snowflake-connector-python = { version = ">=2.6.2,!=2.7.10", optional = true }
+snowflake-sqlalchemy = { version = "!=1.2.5, <2.0.0", optional = true }
+sqlalchemy = "~1.4"
+sqlalchemy-bigquery = { version = ">=1.0.0, <= 2.0.0", optional = true }
+sqlalchemy-redshift = { version = "==0.8.2", optional = true }
+tableauserverclient = { version = "==0.17.0", optional = true }
+tqdm = ">=4.0.0, <5.0.0"
+typing-extensions = ">=4.0.0"
+urllib3 = ">=1.0.0, <2.0.0"
+websocket-client = { version = "^0", optional = true }
+
+
+[tool.poetry.extras]
+bigquery = ["sqlalchemy-bigquery"]
+tableau = ["tableauserverclient"]
+looker = ["looker-sdk"]
+metabase = ["psycopg2-binary"]
+qlik = ["websocket-client"]
+redshift = ["psycopg2-binary", "sqlalchemy-redshift"]
+snowflake = ["snowflake-connector-python", "snowflake-sqlalchemy"]
+all = [
+  "sqlalchemy-bigquery",
+  "tableauserverclient",
+  "looker-sdk",
+  "psycopg2-binary",
+  "websocket-client",
+  "sqlalchemy-redshift",
+  "snowflake-connector-python",
+  "snowflake-sqlalchemy",
+]
+
+[tool.poetry.group.test.dependencies]
+black = "^22"
+flakehell = "^0.9.0"
+isort = "^5.8.0"
+
+[tool.poetry.scripts]
+castor-extract-bigquery = "castor_extractor.commands.extract_bigquery:main"
+castor-extract-looker = "castor_extractor.commands.extract_looker:main"
+castor-extract-metabase-api = "castor_extractor.commands.extract_metabase_api:main"
+castor-extract-metabase-db = "castor_extractor.commands.extract_metabase_db:main"
+castor-extract-mode = "castor_extractor.commands.extract_mode:main"
+castor-extract-powerbi = "castor_extractor.commands.extract_powerbi:main"
+castor-extract-qlik = "castor_extractor.commands.extract_qlik:main"
+castor-extract-postgres = "castor_extractor.commands.extract_postgres:main"
+castor-extract-redshift = "castor_extractor.commands.extract_redshift:main"
+castor-extract-snowflake = "castor_extractor.commands.extract_snowflake:main"
+castor-extract-tableau = "castor_extractor.commands.extract_tableau:main"
+castor-file-check = "castor_extractor.commands.file_check:main"
+castor-upload = "castor_extractor.commands.upload:main"
+
+[[tool.poetry.source]]
+name = "test-pypi"
+url = "https://test.pypi.org/legacy/"
+
+[tool.black]
+line-length = 80
+include = '\.pyi?$'
+exclude = '''
+(
+  /(
+      \.eggs         # exclude a few common directories in the
+    | \.git          # root of the project
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | \venv
+    | _build
+    | buck-out
+    | build
+    | dist
+  )/
+)
+'''
+
+[tool.flakehell]
+format = "grouped"   # make output nice
+max_line_length = 80
+show_source = true   # show line of source code in output
+# the following is needed otherwise flake8 crashes
+extended_default_ignore = []
+
+# list of plugins and rules for them
+[tool.flakehell.plugins]
+# include everything in pyflakes except F401
+pyflakes = ["+*", "-F401"]
+# enable only codes from S100 to S199
+flake8-bandit = ["-*", "+S1??"]
+# enable everything that starts from `flake8-`
+"flake8-*" = ["+*"]
+# explicitly disable plugin
+flake8-docstrings = ["-*"]
+
+[tool.isort]
+profile = "black"
+src_paths = ["extractor"]
+multi_line_output = 3
+combine_as_imports = true
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+line_length = 80
+
+[tool.sqlfluff.core]
+sql_file_exts = ".sql"
+exclude_rules = "L023,L025,L031,L032,L034"
+dialect = "postgres"
+
+[tool.sqlfluff.rules]
+max_line_length = 120
+
+[tool.sqlfluff.rules.L010]
+capitalisation_policy = "upper"
+
+[tool.sqlfluff.rules.L047]
+prefer_count_1 = true
+
+[tool.sqlfluff.indentation]
+indented_joins = true
+indented_using_on = true
+
+[tool.sqlfluff.templater]
+unwrap_wrapped_queries = true
