@@ -1,0 +1,21 @@
+from __future__ import absolute_import
+
+# flake8: noqa
+
+# import apis into api package
+from oneroster_client.api.academic_sessions_management_api import AcademicSessionsManagementApi
+from oneroster_client.api.categories_management_api import CategoriesManagementApi
+from oneroster_client.api.classes_management_api import ClassesManagementApi
+from oneroster_client.api.courses_management_api import CoursesManagementApi
+from oneroster_client.api.demographics_management_api import DemographicsManagementApi
+from oneroster_client.api.enrollments_management_api import EnrollmentsManagementApi
+from oneroster_client.api.grading_periods_management_api import GradingPeriodsManagementApi
+from oneroster_client.api.line_items_management_api import LineItemsManagementApi
+from oneroster_client.api.orgs_management_api import OrgsManagementApi
+from oneroster_client.api.resources_management_api import ResourcesManagementApi
+from oneroster_client.api.results_management_api import ResultsManagementApi
+from oneroster_client.api.schools_management_api import SchoolsManagementApi
+from oneroster_client.api.students_management_api import StudentsManagementApi
+from oneroster_client.api.teachers_management_api import TeachersManagementApi
+from oneroster_client.api.terms_management_api import TermsManagementApi
+from oneroster_client.api.users_management_api import UsersManagementApi
