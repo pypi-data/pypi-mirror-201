@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>KG-VIS</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="../static/bootstrap.css">
+    <script src="../static/jquery-3.3.1.min.js"></script>
+    <script src="../static/bootstrap.js"></script>
+    <script src="../static/jquery.blockUI.js"></script>
+    <script src="../static/jquery.form.min.js"></script>
+    <script src="../static/echarts.min.js"></script>
+
+    <script>
+        $(function () {
+            $("#form_main").submit(function () {
+
+            // use sample dataset
+            var use_builtin = $('#use_builtin').val();
+            if (use_builtin != '') {
+                $.blockUI({ message: '<h4>' + 'Processing' + '</h4>', fadeIn: 0 });
+                return true;
+            }
+
+            var filepath = $("input[name='dataFile']").val();
+            var extStart = filepath.lastIndexOf(".");
+            var ext = filepath.substring(extStart, filepath.length).toUpperCase();
+            if (ext != ".xls" && ext != ".xlsx") {
+                alert('Only support EXCEL file!');
+                return false;
+            }
+
+            $.blockUI({ message: '<h4>' + 'Processing' + '</h4>', fadeIn: 0 });
+            });
+
+            var options = {
+            type: 'POST',
+            success: function (obj) {
+                // console.log(obj);
+                if (obj && obj["html"]) {
+                    $('#kg_result').html(obj["html"]);
+                }
+                else if (obj && obj["message"]) {
+                    $('#kg_result').html(obj["message"]);
+                }
+                else {
+                    $('#kg_result').html(obj);
+                }
+                $.unblockUI();
+            }
+            };
+
+            $('#form_main').ajaxForm(options);
+
+            $('#dataFile').change(function () {
+            $('#dataFileCover').val($(this).val());
+            });
+
+            draw();
+        });
+
+        function translate_gui(lan){
+            let chineseArray = ['浏览主题语料库','选择语言','文章级别','句子级别','使用自定义的语料库','上传文件需符合指定的excel格式','知识图谱可视化（力导向图）','最小支持度','食品节点&nbsp;&nbsp;','添加剂节点&nbsp;&nbsp;','语义关联&nbsp;&nbsp;','可视化结果','绘制','上传','点击此处上传...']
+            let englishArray = ['View Corpse','Change Language','Article Level','Sentence Level','Use Your Own Corpse', 'The file should be the Excel format.','Force Directed Graph','Minimum Support','&nbsp;&nbsp; Type I Vertice Color: &nbsp;&nbsp;','&nbsp;&nbsp; Type II Vertice Color: &nbsp;&nbsp;','Edge Color: ','Result','Draw','Upload','click here to upload ...']
+            if (lan == 'cn'){
+                 $('#header_corpse').html(chineseArray[0]);
+                 $('.language_box').html(chineseArray[1]);
+                 $('#btn_article_level').val(chineseArray[2]);
+                 $('#btn_sentence_level').val(chineseArray[3]);
+                 $('#header_user_corpse').html(chineseArray[4]);
+                 $('#desc_file_format').html(chineseArray[5]);
+                 $('#header_fdg').html(chineseArray[6]);
+                 $('#desc_min_supp').html(chineseArray[7]);
+                 $('#desc_v1_color').html(chineseArray[8]);
+                 $('#desc_v2_color').html(chineseArray[9]);
+                 $('#desc_edge_color').html(chineseArray[10]);
+                 $('#header_result').html(chineseArray[11]);
+                 $('#btn_draw').val(chineseArray[12]);
+                 $('#btn_upload').val(chineseArray[13]);
+                 $('#dataFileCover').val(chineseArray[14]);
+            }
+            else{
+                 $('#header_corpse').html(englishArray[0]);
+                 $('.language_box').html(englishArray[1]);
+                 $('#btn_article_level').val(englishArray[2]);
+                 $('#btn_sentence_level').val(englishArray[3]);
+                 $('#header_user_corpse').html(englishArray[4]);
+                 $('#desc_file_format').html(englishArray[5]);
+                 $('#header_fdg').html(englishArray[6]);
+                 $('#desc_min_supp').html(englishArray[7]);
+                 $('#desc_v1_color').html(englishArrsay[8]);
+                 $('#desc_v2_color').html(englishArray[9]);
+                 $('#desc_edge_color').html(englishArray[10]);
+                 $('#header_result').html(englishArray[11]);
+                 $('#btn_draw').val(englishArray[12]);
+                 $('#btn_upload').val(englishArray[13]);
+                 $('#dataFileCover').val(englishArray[14]);
+            }
+        }
+
+        function draw() {
+            var text = $("#graph-input").val();
+            var data = eval(text);
+            
+            var min_sup = $('#min_sup').val();
+            if (min_sup < 1){
+                min_sup = 1;
+            }
+
+            var graph = data2Graph(data, min_sup);
+            drawGraph(graph);
+        }
+
+        function data2Graph(data, min_sup) {
+            var graph = {};
+            var vertices = {};
+            var categories = {};
+            var categories_colors = [$('#vertice_color1').val(), $('#vertice_color2').val()] // ['rgba(80, 128, 128, 1)', 'rgba(128, 80, 80, 1)'];
+            var categories_symbols = ['circle', 'diamond']; // 'circle', 'rect', 'roundRect', 'triangle', 'diamond', 'pin', 'arrow', 'none'
+            var categories_symbolSizes = {};
+            var categories_names = ['Food', 'Chemical'];
+            var links = [];
+            
+            v_max = 1; // max accumulated vertice value
+            e_max = 1; // max edge value
+
+            for (var i = 0; i < data.length; i++) {
+                var s = String(data[i][0]);
+                var t = String(data[i][1]);
+                var v = parseInt(data[i][2]);
+
+                if (v < min_sup) {
+                    continue;
+                }
+
+                if (e_max < v) {
+                    e_max = v;
+                }
+
+                if (s in vertices) {
+                    vertices[s] += v;
+
+                    if (v_max < vertices[s]) {
+                        v_max = vertices[s];
+                    }
+                }
+                else {
+                    vertices[s] = v;
+                }
+
+                if (t in vertices) {
+                    vertices[t] += v;
+
+                    if (v_max < vertices[t]) {
+                        v_max = vertices[t];
+                    }
+                }
+                else {
+                    vertices[t] = v;
+                }
+
+                categories[s] = 0; // food
+                categories[t] = 1; // chemical
+
+
+                //
+                // api doc: https://echarts.apache.org/zh/option.html#series-graph.nodes
+                links.push({
+                    'source': s, 'target': t, 'value': v,
+                    'lineStyle': {
+                        'width': v  / min_sup + 1, // to avoid too thick edges     .(生成鳊鱼与添加剂图的时候用到的参数)'width': v * 0.07 / min_sup + 3, // to avoid too thick edges
+                        'curveness': 0.1, // between 0 and 1
+                        'color': $('#edge_color').val(), 
+                        //shadowColor: 'rgba(0, 0, 0, 0.5)',
+                        //shadowBlur: 5,
+                    } 
+                });
+                //values.push(1+Math.round(v/6));
+            }
+            var nodes = [];
+            var labels = [];
+            $.each(vertices, function (k, v) { 
+                // console.log(k, v);
+                nodes.push({
+                    'name': k,
+                    'value': v,
+                    'catogery': categories[k],
+                    'symbol': categories_symbols[categories[k]],
+                    'symbolSize': v * 50 / v_max + 3, 
+                    'itemStyle': {
+                        'color': categories_colors[categories[k]],
+                    },
+                });
+                labels.push({
+                    //'name': categories_names[categories[k]],
+                    //'keyword': '',
+                    //'base': categories_names[categories[k]],
+                    'show': true,
+                })
+            });
+            graph['links'] = links;
+            graph['data'] = nodes;
+            graph['label'] = labels;
+            return graph;
+        }
+
+        function drawGraph(graph) {
+            var myChart = echarts.init(document.getElementById("kg_result"));
+            // console.log(graph.data)
+            var option = {
+                tooltip: {},
+                series: [
+                    {
+                        type: 'graph',
+                        layout: 'force',
+                        circular: {
+                            rotateLabel: true,
+                        },
+                        symbolSize: 30,
+                        data: graph.data,
+                        links: graph.links,
+                        edgeSymbol: ['none', 'arrow'],
+                        roam: true,
+                        label: {
+                            normal: {
+                                show: true,
+                                position: 'right',
+                                formatter: function (e) {
+                                    return e['data']['value'];
+                                }
+                            }
+                        },
+                        categories: graph.label,
+                        focusNodeAdjacency: true,
+                        edgeLabel: {
+                            normal: {
+                                show: true,
+                                position: 'middle'
+                            }
+                        },
+                        force: {
+                            repulsion: 1000,
+                            edgeLength: 200
+                        }
+                    }
+                ]
+            };
+            myChart.setOption(option);
+        }
+    </script>
+
+    <style>
+        td {
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        img {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        .slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 15px;
+            border-radius: 5px;
+            background: #d3d3d3;
+            outline: none;
+            opacity: 0.7;
+            -webkit-transition: .2s;
+            transition: opacity .2s;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: #4CAF50;
+            cursor: pointer;
+        }
+
+        .slider::-moz-range-thumb {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: #4CAF50;
+            cursor: pointer;
+        }
+
+        footer {
+            display: none;
+        }
+
+        text {
+            font-style: normal;
+            pointer-events: none;
+        }
+
+        .tippy-popper {
+            font-style: italic;
+        }
+
+        circle {
+            stroke-width: 1.5px;
+        }
+
+        line {
+            stroke: #999;
+            stroke-width: 1.5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <br />
+        <div class="row p-2 m-2">
+            <div class="col-3">
+                <form id="form_main"  class="form-horizontal" action="/submit" method="post" enctype="multipart/form-data">
+
+                    <div class="card">
+                        <h6 id="header_corpse" class="card-header">
+                            View Corpse
+                        </h6>
+
+                        <div class="card-body">
+                            <div class="btn-group">
+                                <input type="submit" id="btn_article_level" class="btn btn-default btn-outline-dark"
+                                onclick="$('#use_builtin').val('/static/FoodSafetyAriticles.xlsx'); $('#command_type').val('table');" value="Article Level" />
+                                <input type="submit" id="btn_sentence_level" class="btn btn-default btn-outline-dark"
+                                onclick="$('#use_builtin').val('/static/FoodSafetySentences_jiagu.xlsx'); $('#command_type').val('table');" value="Sentence Level" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h6 class="card-header" id="header_user_corpse">
+                            Use Your Own Corpse
+                        </h6>
+
+                        <div class="card-body">
+                            <p id = "desc_file_format">
+                                The file should be the Excel format.
+                            </p>
+
+                            <input type="file" name="dataFile" id="dataFile" style="display:none" 
+                            accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"/>
+                            <input type="text" id="dataFileCover" onclick="$('#dataFile').click();" class="input-large"
+                                style="height:30px; width: 100%; color: lightgray" value="click here to upload ...">
+                            <br /><br />
+
+                            <div class="btn-group">
+                                <input id="btn_upload" class="btn btn-default btn-outline-dark" type="submit"
+                                    onclick="$('#use_builtin').val(''); $('#command_type').val('table');" value="Upload" />
+                                <!--input class="btn btn-default btn-outline-dark" type="submit" value="Test with sample file" /-->
+                            </div>
+                        </div>
+                    </div>
+
+                    <br/>
+
+                    <div class="card">
+                        <h6 class="card-header" id="header_fdg">
+                            Force Directed Graph
+                        </h6>
+
+                        <div class="card-body">
+
+                            <!--h6>
+                                Between-class Distance <span class="font-italic font-weight-bold">
+                                    d
+                                </span>
+                                <span id="d_label" class="badge badge-pill badge-secondary">
+                                    2
+                                </span>
+                            </h6>
+                            <div class="row">
+                                <input type="range" min="0" max="8" value="2" class="slider"
+                                    oninput="$('#d_label').html(this.value);" id="d" name="d">
+                            </div-->
+
+                            <br />
+
+                            <h6>
+                                <span id="desc_min_supp">Minimum Support</span> <span class="font-italic font-weight-bold">min_sup</span>
+                                <span id="min_sup_label" class="badge badge-pill badge-secondary">
+                                    20
+                                </span>
+                            </h6>
+                            <div class="row">
+                                <input type="range" min="1" max="200" value="20" class="slider"
+                                    oninput="$('#min_sup_label').html(this.value);" id="min_sup" name="min_sup">
+                            </div>
+
+                            <br/>
+
+                            <div class="row"> 
+                                <span id="desc_v1_color">&nbsp;&nbsp; Type I Vertice Color: &nbsp;&nbsp;</span>
+                                <input type="color" id="vertice_color1" onchange="clickColor(0, -1, -1, 5)" 
+                                value="#408080" style="width:50px;">                                
+                            </div>
+
+                            <div class="row" >
+                                <span id="desc_v2_color">&nbsp;&nbsp; Type II Vertice Color: &nbsp;&nbsp;</span>
+                                <input type="color" id="vertice_color2" onchange="clickColor(0, -1, -1, 5)" 
+                                value="#804040" style="width:50px;">
+                            </div>
+
+                            <div class="row" >
+                                <span id="desc_edge_color">&nbsp;&nbsp; Edge Color: &nbsp;&nbsp;</span>
+                                <input type="color" id="edge_color" onchange="clickColor(0, -1, -1, 5)" 
+                                value="#000000" style="width:50px;">                            
+                            </div>
+
+                            <br />
+                            <input type="hidden" id="use_builtin" name="use_builtin" value="" />
+                            <input type="hidden" id="command_type" name="command_type" value="" />
+                            
+                            <textarea id="graph-input" class="form-control" rows="8">{{ associations }}</textarea>
+                            <!--e.g., [ ['鳊鱼', '恩诺沙星', 1], ['鳊鱼', '孔雀石绿', 2]] -->
+                            <input type="button" id="btn_draw" class="btn btn-default btn-outline-dark"
+                                onclick="draw();" value="Draw" />
+                        </div>
+                    </div>
+
+                    <br />
+
+                    
+
+                </form>
+
+                <div class="card">
+                    <h6 class="language_box card-header">
+                        Change Language
+                    </h6>
+
+                    <div class="card-body">
+                        <div class="btn-group">
+                            <input type="button" class=" btn btn-default btn-outline-dark"
+                                onclick="translate_gui('cn')" value="中文" />
+                            <input type="button" class=" btn btn-default btn-outline-dark"
+                                onclick="translate_gui('en')" value="English" />
+                        </div>
+                    </div>
+                </div>
+
+                <br/>
+
+                <hr />
+                <p>
+                    © KG-VIS - A web wrapper for knowledge graph (oo@zju.edu.cn)
+                </p>
+            </div>
+            <div class="col-9">
+                <div class="card">
+                    <h6 class="card-header" id="header_result">Result</h6>
+                    <div class="card-body">
+                        <div id="kg_result" style="width: 100%; min-height: 900px; border:1px dashed;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <a href="https://github.com/zhangys11/nlp" class="github-corner" aria-label="View source on Github">
+                <svg width="60" height="60" viewBox="0 0 250 250"
+                    style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true">
+                    <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+                    <path
+                        d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+                        fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+                    <path
+                        d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+                        fill="currentColor" class="octo-body"></path>
+                </svg>
+            </a>
+        </div>
+    </div>
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="modelDatasets" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Data File Format Specification</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>The file should be in csv format. Example:</p>
+
+                    <div>
+                        <pre># X1,X2,y
+-2.100552557727890957e+00,-6.128650159277657106e-02,0
+-1.159019414554130156e+00,5.913233466995695409e-01,0
+2.390116885110828981e-01,-2.151085116975746558e+00,0
+-1.685507377135475160e+00,2.318535329405873868e-01,0
+1.665344297477713287e-01,-4.572513228039341571e-01,1
+-1.167678798682300290e+00,5.999644077804777709e-01,1
+5.400378568542962832e-01,1.761797786765964546e-01,1
+-1.721382016840375950e+00,8.207273112628025169e-01,1
+</pre>
+                    </div>
+                    Note: <i>1. Use comma delimiter. 2. Each column is a feature Xi. The last column is y. </i>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>
