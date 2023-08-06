@@ -1,0 +1,143 @@
+<h1 align="center">
+  <a href="bio2byte.be/b2btools" target="_blank" ref="noreferrer noopener">
+  <img src="https://pbs.twimg.com/profile_images/1247824923546079232/B9b_Yg7n_400x400.jpg" width="224px"/>
+  </a>
+  <br/>
+  ConforMine
+</h1>
+<p align="center">This package provides predictions on protein Conformational Variability from their amino acid 
+sequence. This is a standalone package and will be later incorporated in <a href="https://pypi.org/project/b2bTools/" target="_top">b2BTools</a>.</p>
+
+
+## ⚡️Quick start
+
+First of all, download and install the package:
+
+```console
+$ pip install conformine
+```
+
+Use this example as an entry point:
+
+```python
+from conformine import Conformine
+import matplotlib.pyplot as plt
+conf = Conformine("/path/to/example.fasta")
+conf.predict()
+predictions = conf.get_all_predictions()
+
+ConVa_pred = predictions['SEQ001']['ConVa']
+
+plt.plot(range(len(ConVa_pred)), ConVa_pred, label = "ConVa")
+
+plt.legend()
+plt.xlabel('aa_position')
+plt.ylabel('pred_values')
+plt.show()
+```
+
+
+
+### 🧭 Basic flow
+This section will explain you in details the script mentioned inside the Quick start section.
+
+1) Import the `Conformine` class from the `conformine` package:
+
+```python
+from conformine import Conformine
+```
+
+2) Instantiate an object by passing the path to the input file in FASTA format:
+
+```python
+conf = Conformine("/path/to/example.fasta")
+```
+
+3) Run the predictions:
+
+```python
+conf.predict()
+```
+
+4) Get the prediction values after running the predictor for a specific sequence identifier:
+
+```python
+predictions = single_seq.get_all_predictions()
+```
+
+**⚠️ Important note:** The method `get_all_predictions` will return a dictionary with the following structure:
+
+```python
+{
+  "SEQUENCE_ID_000": {
+    "id": "SEQUENCE_ID_000",
+    "seq": "the input sequence 0",
+    "result001": [0.001, 0.002, ..., 0.00],
+    "result002": [0.001, 0.002, ..., 0.00],
+    "...": [...],
+    "resultN": [0.001, 0.002, ..., 0.00]
+  },
+  "SEQUENCE_ID_001": {
+    "id": "SEQUENCE_ID_001",
+    "seq": "the input sequence 1",
+    "result001": [0.001, 0.002, ..., 0.00],
+    "result002": [0.001, 0.002, ..., 0.00],
+    "...": [...],
+    "resultN": [0.001, 0.002, ..., 0.00]
+  },
+  "...": { ... },
+  "SEQUENCE_ID_N": {
+    "id": "SEQUENCE_ID_N",
+    "seq": "the input sequence N",
+    "result001": [0.001, 0.002, ..., 0.00],
+    "result002": [0.001, 0.002, ..., 0.00],
+    "...": [...],
+    "resultN": [0.001, 0.002, ..., 0.00]
+  },
+}
+```
+
+To know all the available result keys, please review this table:
+
+| Output key               | Output values (type) | Output values (example)       |
+|--------------------------|----------------------|-------------------------------|
+| `"id"`                   | [Char]               | "SEQUENCE_ID_000"             |
+| `"seq"`                  | [Char]               | `['M', 'A', ..., 'S', 'T']`   |
+| `"ConVa"`                | [Float]              | `[0.1992, 0.12, ..., 0.0020]` |
+| `"core_helix"`           | [Float]              | `[0.1996, 0.12, ..., 0.0019]` |
+| `"core_sheet"`           | [Float]              | `[0.1989, 0.08, ..., 0.0031]` |
+| `"coil"`                 | [Float]              | `[0.0420, 0.69, ..., 0.5566]` |
+| `"surr_helix"`           | [Float]              | `[0.6666, 0.13, ..., 0.9954]` |
+| `"surr_sheet"`           | [Float]              | `[0.1954, 0.06, ..., 0.0007]` |
+| `"Predicted_ShiftCrypt"` | [Float]              | `[0.6786, 0.71, ..., 0.7219]` |
+
+5) You are ready to use the sequence and predictions to work with them. Here is an example of plotting the data.
+
+```python
+import matplotlib.pyplot as plt
+ConVa_pred = predictions['SEQ001']['ConVa']
+
+plt.plot(range(len(ConVa_pred)), ConVa_pred, label = "ConVa")
+
+plt.legend()
+plt.xlabel('aa_position')
+plt.ylabel('pred_values')
+plt.show()
+```
+## 📖 How to cite
+If you use this package or data in this package, please cite:
+
+| Predictor  | Cite                                                                                                                                                                                                             | Digital Object Identifier (DOI) |
+|------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
+| ConforMine | _Jose Gavalda-Garcia, Joel Roca-Martinez, Gabriele Orlando, Daniele Raimondi and Wim Vranken._ ConVa and ConforMine: A novel metric and estimator for protein conformational variability.<br/>**In preparation** | TBA                             |
+
+## 📝 Terms of use
+
+1. The Bio2Byte group aims to promote open science by providing freely available online services, database and software relating to the life sciences, with focus on proteins. Where we present scientific data generated by others we impose no additional restriction on the use of the contributed data than those provided by the data owner.
+1. The Bio2Byte group expects attribution (e.g. in publications, services or products) for any of its online services, databases or software in accordance with good scientific practice. The expected attribution will be indicated in 'How to cite' sections (or equivalent).
+1. The Bio2Byte group is not liable to you or third parties claiming through you, for any loss or damage.
+1. Any questions or comments concerning these Terms of Use can be addressed to [Wim Vranken](mailto:wim.vranken@vub.be).
+
+<hr/>
+<p align="center">© Wim Vranken, Bio2Byte group, VUB</p>
+<p align="center"><a href="https://bio2byte.be/b2btools/" target="_blank" ref="noreferrer noopener">https://bio2byte.be/b2btools/</a></p>
