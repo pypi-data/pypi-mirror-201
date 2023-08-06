@@ -1,0 +1,81 @@
+from __future__ import annotations
+from sharingiscaring.GRPCClient.service_pb2_grpc import QueriesStub
+from sharingiscaring.GRPCClient.types_pb2 import *
+from sharingiscaring.GRPCClient.queries._SharedConverters import (
+    Mixin as _SharedConverters,
+)
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from sharingiscaring.GRPCClient import GRPCClient
+import os
+import sys
+
+sys.path.append(os.path.dirname("sharingiscaring"))
+from sharingiscaring.GRPCClient.CCD_Types import *
+
+
+class Mixin(_SharedConverters):
+    def convertMethods(self, message) -> list[CCD_ReceiveName]:
+        methods = []
+        for method in message:
+
+            for descriptor in method.DESCRIPTOR.fields:
+                _, value = self.get_key_value_from_descriptor(descriptor, method)
+
+                methods.append(self.convertType(value))
+
+        return methods
+
+    def convertInstanceInfo_V0(self, message) -> CCD_InstanceInfo_V0:
+        result = {}
+        for descriptor in message.DESCRIPTOR.fields:
+            key, value = self.get_key_value_from_descriptor(descriptor, message)
+
+            if type(value) in self.simple_types:
+                result[key] = self.convertType(value)
+
+            elif key == "methods":
+                result[key] = self.convertMethods(value)
+
+        return CCD_InstanceInfo_V0(**result)
+
+    def convertInstanceInfo_V1(self, message) -> CCD_InstanceInfo_V1:
+        result = {}
+        for descriptor in message.DESCRIPTOR.fields:
+            key, value = self.get_key_value_from_descriptor(descriptor, message)
+
+            if type(value) in self.simple_types:
+                result[key] = self.convertType(value)
+
+            elif key == "methods":
+                result[key] = self.convertMethods(value)
+
+        return CCD_InstanceInfo_V1(**result)
+
+    def get_instance_info(
+        self: GRPCClient, contract_index: int, contract_sub_index: int, block_hash: str
+    ) -> CCD_InstanceInfo:
+
+        result = {}
+        instanceInfoRequest = self.generate_instance_info_request_from(
+            contract_index, contract_sub_index, block_hash
+        )
+
+        self.check_connection(sys._getframe().f_code.co_name)
+        grpc_return_value: InstanceInfo = self.stub.GetInstanceInfo(
+            request=instanceInfoRequest
+        )
+
+        for descriptor in grpc_return_value.DESCRIPTOR.fields:
+            key, value = self.get_key_value_from_descriptor(
+                descriptor, grpc_return_value
+            )
+
+            if type(value) == InstanceInfo.V0:
+                result[f"{key}"] = self.convertInstanceInfo_V0(value)
+
+            elif type(value) == InstanceInfo.V1:
+                result[f"{key}"] = self.convertInstanceInfo_V1(value)
+
+        return CCD_InstanceInfo(**result)
