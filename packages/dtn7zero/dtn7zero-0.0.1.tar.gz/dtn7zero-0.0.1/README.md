@@ -1,0 +1,111 @@
+# dtn7zero
+This is a DTN7 python implementation (work-in-progress) with [NetworkZero](https://networkzero.readthedocs.io/en/latest/networkzero.html) like API.
+
+The current features are:
+- a full bundle protocol agent (without fragment or CRC support)
+- a minimal TCP convergence layer
+- a [dtn7rs](https://github.com/dtn7/dtn7-rs) REST convergence layer
+- an ipnd module
+- a standalone 'external' endpoint (which connects to a [dtn7rs](https://github.com/dtn7/dtn7-rs))
+- a simplified [NetworkZero](https://networkzero.readthedocs.io/en/latest/networkzero.html) like API to easily get started
+- full MicroPython support (tested on an ESP32-GENERIC)
+- (currently uses epidemic routing and in-memory storage managing)
+- (with extendability for new convergence layer adapters, routing algorithms, and storage managers)
+
+## Getting Started
+To use dtn7zero in your CPython environment, simply install it via pip (or pip3 on linux): \
+(currently the package is only available on the test instance)
+```shell
+$ pip install -i https://test.pypi.org/simple/ --upgrade dtn7zero
+```
+
+## Development Mode
+You can install this project locally to directly reflect code changes in your environment.
+Simply run this in the project root folder (requires at least pip v21.1):
+```shell
+$ pip install --editable .
+```
+
+## MicroPython Installation Guide
+This whole project was tested on an ESP32 (GENERIC) and this installation guide is tailored for the ESP32.
+If you plan to use another microcontroller you might need to do adjustments 
+(most certainly the MicroPython installation, and the MPY_MARCH in esp-deployment.py).
+
+Important note for linux: it may be that mpremote assumes another USB device with higher priority than the ESP32.
+In that case all mpremote commands (especially inside esp-deployment.py) will fail as no communication is possible.
+Check all USB devices mpremote considers in priority order with `mpremote devs`.
+
+### First Time MicroPython Installation For ESP32 (GENERIC)
+1. download the newest [firmware](https://micropython.org/download/esp32/)
+2. install the esp flash tool: `pip install esptool`
+3. connect your ESP32 via USB and start a terminal at the location of the downloaded firmware
+4. start the following command (with the correct USB port), then hold **boot** until it starts erasing: \
+`esptool --chip esp32 --port /dev/ttyUSB0 erase_flash`
+5. start the following command (with the correct USB port and firmware name), then hold **boot** until it starts flashing: \
+`esptool --chip esp32 --port /dev/ttyUSB0 --baud 460800 write_flash -z 0x1000 esp32-20220618-v1.19.1.bin`
+6. done, you may now connect to it via: `mpremote` (installation via pip: `pip install mpremote`)
+
+### Update To New MicroPython Version
+1. download the newest [firmware](https://micropython.org/download/esp32/)
+2. start the following command (with the correct USB port and firmware name), then hold **boot** until it starts flashing: \
+`esptool --chip esp32 --port /dev/ttyUSB0 --baud 460800 write_flash -z 0x1000 esp32-20220618-v1.19.1.bin`
+3. done
+
+### First Time dtn7zero Deployment
+1. make sure you check out the repository and the submodules (especially py-dtn7)
+2. install the mpremote tool: `pip install mpremote`
+3. install the mpy-cross compiler tool: `pip install mpy-cross`
+4. populate wlan.json with an appropriate hostname and at least one ssid -> password mapping
+5. check your connection to the ESP32 with: `mpremote`
+6. copy wlan.json to your ESP32: `mpremote fs cp wlan.json :wlan.json`
+7. copy boot.py to your ESP32: `mpremote fs cp boot.py :boot.py`
+8. deploy the dtn7zero and dependencies onto the ESP32 (this can take a while): `python scripts/esp-deployment.py`
+9. done
+
+### Continuous dtn7zero Deployment
+1. check your connection to the ESP32 with: `mpremote`
+2. deploy the changes of dtn7zero and dependencies onto the ESP32 (this can take a while): `python scripts/esp-deployment.py`
+3. done
+
+### First dtn7zero Functionality Check On MicroPython
+1. you may check that wlan is connecting correctly (connect via `mpremote` and press **enable** for a soft reset)
+2. you may also check that you can import dtn7zero (connect via `mpremote` and `import dtn7zero`)
+3. you can also check that everything works (run the test script `mpremote run scripts/test-bundle-protocol-agent.py`)
+
+
+## Useful Links
+the DTN7 website: https://dtn7.github.io \
+dtn7 go implementation: https://github.com/dtn7/dtn7-go \
+dtn7 rust implementation: https://github.com/dtn7/dtn7-rs \
+dtn7 python bundle implementation and dtn7rs-rest-api access: https://github.com/teschmitt/py-dtn7
+
+Bundle Protocol 7 RFC: https://datatracker.ietf.org/doc/html/rfc9171 \
+Bundle Protocol Security (BPSec) RFC: https://datatracker.ietf.org/doc/html/rfc9172 \
+Default Security Contexts for BPSec RFC: https://datatracker.ietf.org/doc/html/rfc9173 \
+TCP Convergence-Layer Protocol Version 4 RFC: https://datatracker.ietf.org/doc/html/rfc9174 \
+Minimal TCP Convergence-Layer Protocol RFC (draft): https://datatracker.ietf.org/doc/html/draft-ietf-dtn-mtcpcl-01 \
+UDP Convergence Layer RFC (draft): https://datatracker.ietf.org/doc/html/draft-sipos-dtn-udpcl-01
+
+Outdated Standards: \
+DTN URI Scheme: https://www.ietf.org/archive/id/draft-irtf-dtnrg-dtn-uri-scheme-00.html
+
+## Further Research
+This is some information gathered about future mesh extensions:
+
+1. [ESP-Mesh(ESP-WIFI-Mesh)](https://www.espressif.com/en/products/sdks/esp-wifi-mesh/overview)
+   - a special mesh standard which is based of Wi-Fi and uses the special AP_STA mode 
+   - no micropython implementation known
+
+2. [ESP-NOW](https://www.espressif.com/en/products/software/esp-now/overview)
+   - a special p2p mode, which is based of Wi-Fi and can send data to neighbouring devices via MAC addressing
+   - no mesh protocol, but broadcast is possible, looks promising to build an esp32-dtn-mesh
+   - non-official, but tested micropython [library](https://github.com/glenn20/micropython/blob/espnow-g20/docs/library/espnow.rst) available, as well as [builds](https://github.com/glenn20/micropython-espnow-images) with the current firmware
+
+3. Alternative: AP_STA mode for simultaneous AP and STA without explicit ESP-MESH usage
+   - only available for [Arduino+C](https://techtutorialsx.com/2021/01/04/esp32-soft-ap-and-station-modes/)
+   - [painlessMesh](https://gitlab.com/painlessMesh/painlessMesh) also uses this mode to build its mesh
+
+### Open End Topics / Known Issues
+- interface between router and cla is inconsistent (different responsibilities for send and receive)
+- dtn7rs-rest-cla and in-memory storage together use too much RAM (therefore the rest-cla is disabled in the simple API)
+- additional group (for example: "dtn://group/~news") registration on singleton endpoints (can there be registrations from multiple local endpoints on the same group?)
