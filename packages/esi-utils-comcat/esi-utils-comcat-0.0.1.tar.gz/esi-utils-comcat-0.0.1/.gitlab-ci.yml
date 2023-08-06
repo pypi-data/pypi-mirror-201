@@ -1,0 +1,81 @@
+default:
+  image: ${CI_REGISTRY}/devops/images/usgs/python:3.9
+  tags:
+    - development
+
+stages:
+  - build
+  - test
+  - deploy
+
+# Builds the code
+.build_code:
+  tags:
+    - development
+
+Build Code:
+  artifacts:
+    paths:
+      - dist/
+  cache: {}
+  extends:
+    - .build_code
+  rules:
+    - when: always
+  script:
+    - export PATH=${PATH}:"/home/usgs-user/.local/bin"
+    - pip install -e .[dev,test]
+    - pip -V
+    - pip show build
+    - pip show setuptools
+    - python -m build
+  stage: build
+
+## --------------------------------------------------
+# Tests the database code
+## --------------------------------------------------
+.test_code:
+  tags:
+    - development
+    
+Format/Test Code:
+  cache: {}
+  extends:
+    - .test_code
+  rules:
+    - when: always
+  script:
+    - export PATH=${PATH}:"/home/usgs-user/.local/bin"
+    - echo ${PATH}
+    - pip install -e .[dev,test]
+    - black src/esi_utils_comcat/*.py
+    - pytest .
+  stage: test
+
+# --------------------------------------------------
+# Deploy the pip package
+# --------------------------------------------------
+.deploy:
+  tags:
+    - development
+    
+Deploy Code:
+  cache: {}
+  extends:
+    - .deploy
+  # only:
+  #   refs:
+  #     - tags
+  rules:
+    - when: manual
+  when: manual
+  script:
+    - export PATH=${PATH}:"/home/usgs-user/.local/bin"
+    - pip install twine
+    - |
+      TWINE_PASSWORD=${CI_JOB_TOKEN} TWINE_USERNAME=gitlab-ci-token \
+        python -m twine upload --verbose \
+        --repository-url ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/pypi \
+        dist/*
+    - echo "Deploying!"
+  stage: deploy
