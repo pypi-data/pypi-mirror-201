@@ -1,0 +1,183 @@
+Metadata-Version: 2.1
+Name: sxs
+Version: 2022.4.5
+Summary: Interface to data produced by the Simulating eXtreme Spacetimes collaboration
+Home-page: https://github.com/sxs-collaboration/sxs
+License: MIT
+Author: Michael Boyle
+Author-email: michael.oliver.boyle@gmail.com
+Requires-Python: >=3.8,<3.12
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Provides-Extra: ecosystem
+Provides-Extra: mkapi
+Provides-Extra: mkdocs
+Provides-Extra: pymdown-extensions
+Requires-Dist: black (>=22.1) ; implementation_name == "cpython"
+Requires-Dist: caltechdata-api (>=0.3.0,<0.4.0)
+Requires-Dist: corner (>=2.1.0,<3.0.0) ; extra == "ecosystem"
+Requires-Dist: feedparser (>=6.0.1,<7.0.0)
+Requires-Dist: h5py (>=3,<4)
+Requires-Dist: inflection (>=0.5.1,<0.6.0)
+Requires-Dist: ipykernel (>=5.3.4,<6.0.0) ; extra == "ecosystem"
+Requires-Dist: ipywidgets (>=7.5.1,<8.0.0) ; extra == "ecosystem"
+Requires-Dist: jupyter_contrib_nbextensions (>=0.5.1,<0.6.0) ; extra == "ecosystem"
+Requires-Dist: jupyterlab (>=2.2.8,<3.0.0) ; extra == "ecosystem"
+Requires-Dist: line_profiler (>=3.0.2,<4.0.0) ; extra == "ecosystem"
+Requires-Dist: matplotlib (>=2.1.1) ; extra == "ecosystem"
+Requires-Dist: memory_profiler (>=0.57.0,<0.58.0) ; extra == "ecosystem"
+Requires-Dist: mkapi (==1.0.13) ; (python_version >= "3.7") and (extra == "mkapi")
+Requires-Dist: mkdocs (>=1.1.2) ; (implementation_name == "cpython") and (extra == "mkdocs")
+Requires-Dist: numba (>=0.55) ; implementation_name == "cpython"
+Requires-Dist: numpy (>=1.20,<2.0)
+Requires-Dist: numpy-quaternion (>=0.3.1)
+Requires-Dist: pandas (>=1.1.2,<2.0.0)
+Requires-Dist: pylatexenc (>=2.7,<3.0)
+Requires-Dist: pymdown-extensions (>=8,<9) ; (implementation_name == "cpython") and (extra == "pymdown-extensions")
+Requires-Dist: pytest-forked (>=1.3.0,<2.0.0)
+Requires-Dist: pytz (>=2020.1,<2021.0)
+Requires-Dist: qgrid (>=1.3.1,<2.0.0) ; extra == "ecosystem"
+Requires-Dist: quaternionic (>=1.0,<2.0)
+Requires-Dist: requests (>=2.24.0,<3.0.0)
+Requires-Dist: rise (>=5.6.1,<6.0.0) ; extra == "ecosystem"
+Requires-Dist: scipy (>=1.0,<2.0)
+Requires-Dist: scri (>=2020.8.18) ; (sys_platform != "win32") and (extra == "ecosystem")
+Requires-Dist: spherical (>=1.0,<2.0)
+Requires-Dist: spinsfast (>=2022) ; sys_platform != "win32"
+Requires-Dist: sympy (>=1.6.2,<2.0.0) ; extra == "ecosystem"
+Requires-Dist: tqdm (>=4.48.2,<4.61.2)
+Requires-Dist: urllib3 (>=1.25.10,<2.0.0)
+Description-Content-Type: text/markdown
+
+[![Test Status](https://github.com/sxs-collaboration/sxs/workflows/tests/badge.svg)](https://github.com/sxs-collaboration/sxs/actions)
+[![Documentation Status](https://readthedocs.org/projects/sxs/badge/?version=main)](https://sxs.readthedocs.io/en/main/?badge=main)
+[![PyPI Version](https://img.shields.io/pypi/v/sxs?color=)](https://pypi.org/project/sxs/)
+[![Conda Version](https://img.shields.io/conda/vn/conda-forge/sxs.svg?color=)](https://anaconda.org/conda-forge/sxs)
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/sxs-collaboration/sxs/blob/main/LICENSE)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/moble/sxs_notebooks/master)
+
+
+# Simulating eXtreme Spacetimes python package
+
+The `sxs` python package provides a high-level interface for using data
+produced by the SXS collaboration.  In particular, the function `sxs.load` can
+automatically find, download, and load data, returning objects that provide
+common interfaces to the various types of data, without forcing the user to
+worry about details like data formats or where to find the data.  It can also
+automatically select the newest or highest-resolution dataset for a given
+simulation, or return a range of versions or resolutions.  Currently, the
+high-level objects encapsulate
+
+  * Catalog — a listing of all data produced by the SXS collaboration
+  * Metadata — data describing the simulation parameters
+  * Horizons — time-series data describing the apparent horizons
+  * Waveforms — time-series data describing the extrapolated gravitational-wave
+    modes
+
+
+## Installation
+
+Because this package is pure python code, installation is very simple.  In
+particular, with a reasonably modern installation, you can just run a command
+like
+
+```bash
+conda install -c conda-forge sxs
+```
+
+or
+
+```bash
+python -m pip install sxs
+```
+
+Here, `conda` requires the [conda](https://docs.anaconda.com/anaconda/install/)
+installation of python, which is the most recommended approach for scientific
+python; the second command assumes that you have an appropriate python
+environment set up in some other way.  Either of these commands will download
+and install the `sxs` package and its most vital requirements.
+
+If you want to install all the goodies that enable things like jupyter
+notebooks with plots and interactive tables, you could run
+
+```bash
+conda install -c conda-forge sxs-ecosystem
+```
+
+or
+
+```bash
+python -m pip install sxs[ecosystem]
+```
+
+You will probably also want to set some sensible defaults to automatically
+download and cache data:
+
+```bash
+python -c "import sxs; sxs.write_config(download=True, cache=True)"
+```
+
+This will write a configuration file in the directory returned by
+`sxs.sxs_directory("config")`, and downloaded data will be cached in the
+directory returned by `sxs.sxs_directory("cache")`.  See [that function's
+documentation](https://sxs.readthedocs.io/en/main/api/sxs.utilities.sxs_directories/#sxsutilitiessxs_directoriessxs_directory)
+for details.
+
+
+## Usage
+
+An extensive demonstration of this package's capabilities is available
+[here](https://mybinder.org/v2/gh/moble/sxs_notebooks/master), in the form of
+interactive jupyter notebooks that are actually running this code and some
+pre-downloaded data.  The following is just a very brief overview of the `sxs`
+package's main components.
+
+There are four important objects to understand in this package:
+
+```python
+import sxs
+
+catalog = sxs.load("catalog")
+metadata = sxs.load("SXS:BBH:0123/Lev/metadata.json")
+horizons = sxs.load("SXS:BBH:0123/Lev/Horizons.h5")
+waveform = sxs.load("SXS:BBH:0123/Lev/rhOverM", extrapolation_order=2)
+```
+
+[The `catalog`
+object](https://sxs.readthedocs.io/en/main/api/sxs.catalog.catalog/#sxs.catalog.catalog.Catalog)
+contains information about every simulation in the catalog, including all
+available data files, and information about how to get them.  You probably
+don't need to actually know about details like where to get the data, but
+`catalog` can help you find the simulations you care about.  Most importantly,
+`catalog.simulations` is a `dict` object, where the keys are names of
+simulations (like "SXS:BBH:0123") and the values are the same types as [the
+`metadata`
+object](https://sxs.readthedocs.io/en/main/api/sxs.metadata.metadata/#sxs.metadata.metadata.Metadata),
+which contains metadata about that simulation — things like mass ratio, spins,
+etc.  This `metadata` reflects the actual output of the simulations, which
+leads to some inconsistencies in their formats.  A more consistent interface
+(though it is biased toward returning NaNs where a human might glean more
+information) is provided by `catalog.table`, which returns a
+[`pandas`](https://pandas.pydata.org/docs/) `DataFrame` with specific data
+types for each column.
+
+The actual data itself is primarily contained in the next two objects.  [The
+`horizons`
+object](https://sxs.readthedocs.io/en/main/api/sxs.horizons/#sxs.horizons.Horizons)
+has three attributes — `horizons.A`, `horizons.B`, and `horizons.C` — typically
+representing the original two horizons of the black-hole binary and the common
+horizon that forms at merger.  In matter simulations, one or more of these may
+be `None`.  Otherwise, each of these three is a
+[`HorizonQuantities`](https://sxs.readthedocs.io/en/main/api/sxs.horizons/#sxs.horizons.HorizonQuantities)
+object, containing several timeseries relating to mass, spin, and position.
+
+Finally, the
+[`waveform`](https://sxs.readthedocs.io/en/main/api/sxs.waveforms.waveform_modes/#sxs.waveforms.waveform_modes.WaveformModes)
+encapsulates the modes of the waveform and the corresponding time information,
+along with relevant metadata like data type, spin weight, etc., and useful
+features like numpy-array-style slicing.
+
