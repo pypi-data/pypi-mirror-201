@@ -1,0 +1,36 @@
+from sym.sdk.annotations import reducer, hook
+from sym.sdk.integrations import slack
+
+
+# Reducers fill in the blanks that your workflow needs in order to run.
+# For more information, please see https://docs.symops.com/docs/reducers
+@reducer
+def get_approvers(event):
+    """Route Sym requests to a specified channel."""
+
+    # Make sure that this channel has been created in your workspace!
+    return slack.channel("#sym-requests", allow_self=True)
+
+
+@hook
+def after_approve(event):
+    send_next_steps_message()
+
+
+@hook
+def after_deny(event):
+    send_next_steps_message()
+
+
+def send_next_steps_message():
+    message = (
+        ":tada: Congratulations, you just ran an approval-only Sym Flow!\n\n\n"
+        "*Next, you might want to try:*\n"
+        "\t•\tAdding <https://docs.symops.com/docs/customizing-implpy-logic|custom logic> to `SYM_TEMPLATE_VAR_IMPL_PATH`\n"
+        "\t•\tAdding an integration, such as <https://docs.symops.com/docs/pagerduty|PagerDuty>, to your `sym_environment`\n"
+        "\t•\tChecking out our <https://github.com/symopsio/examples|Examples Repo> to see some full Flows in action\n\n"
+        f"_Hint: You can remove this message by modifying the hooks in `SYM_TEMPLATE_VAR_IMPL_PATH`, and running `terraform apply` to apply your changes._\n\n\n"
+        "If you have any questions or would like help, please reach out at support@symops.com, or by running `/sym support` in Slack."
+    )
+
+    slack.send_message(slack.channel("#sym-requests"), message)
