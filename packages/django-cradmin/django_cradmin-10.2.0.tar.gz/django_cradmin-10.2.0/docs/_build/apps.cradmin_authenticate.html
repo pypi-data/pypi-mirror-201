@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cradmin_authenticate — Login/logout views &mdash; Django CRadmin 1.0.0-alpha documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="cradmin_register_account — A register account workflow" href="apps.cradmin_register_account.html" />
+    <link rel="prev" title="Account management apps introduction and overview" href="account-apps-overview.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Django CRadmin
+          </a>
+              <div class="version">
+                1.0.0-alpha
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Install and configure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="newbie.html">Newbie guide</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="viewhelpers_mixins.html"><cite>viewhelpers.mixins</cite> — View mixin classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="viewhelpers_generic.html"><cite>viewhelpers.generic</cite> — Generic views</a></li>
+<li class="toctree-l1"><a class="reference internal" href="viewhelpers_detail.html"><cite>viewhelpers.detail</cite> — Model object detail views</a></li>
+<li class="toctree-l1"><a class="reference internal" href="viewhelpers_formview_formviewmixin.html"><cite>viewhelpers.formview.formviewmixin</cite> — Form view mixins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="viewhelpers_formview_formview.html"><cite>viewhelpers.formview.formview</cite> — Form views</a></li>
+<li class="toctree-l1"><a class="reference internal" href="viewhelpers_formview_create_update_view_mixin.html"><cite>viewhelpers.formview.create_update_view_mixin</cite> — Create and update view mixins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="viewhelpers_formview_createview.html"><cite>viewhelpers.formview.createview</cite> — Create views</a></li>
+<li class="toctree-l1"><a class="reference internal" href="viewhelpers_formview_updateview.html"><cite>viewhelpers.formview.updateview</cite> — Update views</a></li>
+<li class="toctree-l1"><a class="reference internal" href="viewhelpers_formview_deleteview.html"><cite>viewhelpers.formview.deleteview</cite> — Implements the preview+confirm+delete workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="viewhelpers_formview_previewmixin.html"><cite>viewhelpers.formview.previewmixin</cite> — Preview view mixin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="viewhelpers_uimock.html"><cite>viewhelpers.uimock</cite> — Create UI mocks</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="writing_tests_guide.html">Writing tests - writing tests for cradmin instances and apps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cradmin_testhelpers.html">Testhelpers — Makes it easier to write tests for your cradmin views</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="sortable.html"><cite>sortable</cite> — Making objects sortable</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="account-apps-overview.html">Account management apps introduction and overview</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#"><cite>cradmin_authenticate</cite> — Login/logout views</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#install">Install</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#configure">Configure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-it-works">How it works</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#where-to-redirect-after-login">Where to redirect after login</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#where-to-redirect-after-logout">Where to redirect after logout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#nesting-next-redirects">Nesting “next” redirects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#views-and-their-names">Views and their names</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#customization">Customization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-django_cradmin.apps.cradmin_authenticate.views.login">django_cradmin.apps.cradmin_authenticate.views.login</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#django_cradmin.apps.cradmin_authenticate.views.login.AbstractLoginForm"><code class="docutils literal notranslate"><span class="pre">AbstractLoginForm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#django_cradmin.apps.cradmin_authenticate.views.login.UsernameLoginForm"><code class="docutils literal notranslate"><span class="pre">UsernameLoginForm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#django_cradmin.apps.cradmin_authenticate.views.login.EmailLoginForm"><code class="docutils literal notranslate"><span class="pre">EmailLoginForm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#django_cradmin.apps.cradmin_authenticate.views.login.EmailLoginFormNoSanityCheck"><code class="docutils literal notranslate"><span class="pre">EmailLoginFormNoSanityCheck</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#django_cradmin.apps.cradmin_authenticate.views.login.LoginView"><code class="docutils literal notranslate"><span class="pre">LoginView</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-django_cradmin.apps.cradmin_authenticate.backends">django_cradmin.apps.cradmin_authenticate.backends</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#django_cradmin.apps.cradmin_authenticate.backends.EmailAuthBackend"><code class="docutils literal notranslate"><span class="pre">EmailAuthBackend</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="apps.cradmin_register_account.html"><cite>cradmin_register_account</cite> — A register account workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="apps.cradmin_activate_account.html"><cite>cradmin_activate_account</cite> — An activate account workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="apps.cradmin_resetpassword.html"><cite>cradmin_resetpassword</cite> — A password reset workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="apps.cradmin_invite.html"><cite>cradmin_invite</cite> — A generalized invite workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="apps.cradmin_email.html"><cite>cradmin_email</cite> — Utilities for working with email</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="apps.cradmin_generic_token_with_metadata.html"><cite>cradmin_generic_token_with_metadata</cite> — Secure generic tokens with metadata</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="urlutils.html"><cite>urlutils</cite> — Utilities for working with URLs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="renderable.html"><cite>renderable</cite> — Unified renderable interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="crhumanize.html"><cite>utils.crhumanize</cite> — Utilities for humanizing data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="delay_middleware.html"><cite>delay_middleware</cite> — Middleware for testing how your app behaves with latency</a></li>
+<li class="toctree-l1"><a class="reference internal" href="messages_debug_middleware.html"><cite>messages_debug_middleware</cite> — Debug django messages rendering/styles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="uicontainer.html"><cite>uicontainer</cite> — HTML builder with form support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="crbreadcrumb.html"><cite>crbreadcrumb</cite> — Generalized breadcrumb rendering</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="develop.html">Develop django_cradmin, or run the demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="databasedumps.html">Using and creating database dumps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="i18n.html">Localization/internationalization/translation</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="crapp.html">CRApp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="crinstance.html">CRInstance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="crmenu.html">Cradmin menu system</a></li>
+<li class="toctree-l1"><a class="reference internal" href="settings.html">Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="templatetags.html">Template tags</a></li>
+<li class="toctree-l1"><a class="reference internal" href="theme.html">Creating a custom theme</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Django CRadmin</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active"><cite>cradmin_authenticate</cite> — Login/logout views</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/apps.cradmin_authenticate.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="cradmin-authenticate-login-logout-views">
+<h1><cite>cradmin_authenticate</cite> — Login/logout views<a class="headerlink" href="#cradmin-authenticate-login-logout-views" title="Permalink to this heading"></a></h1>
+<p>The purpose of the <code class="xref py py-mod docutils literal notranslate"><span class="pre">cradmim.apps.cradmin_authenticate</span></code> app is to provide a
+general purpose login/logout workflow.</p>
+<p>It is designed to work with any user model that uses and email
+and a password for login.</p>
+<section id="install">
+<h2>Install<a class="headerlink" href="#install" title="Permalink to this heading"></a></h2>
+<p>Add the following to <code class="docutils literal notranslate"><span class="pre">INSTALLED_APPS</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">INSTALLED_APPS</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="c1"># ...</span>
+    <span class="s1">&#39;django_cradmin&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;django_cradmin.apps.cradmin_authenticate&#39;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>And add something like this to your root url config:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">urlpatterns</span> <span class="o">=</span> <span class="n">patterns</span><span class="p">(</span>
+    <span class="c1"># ...</span>
+    <span class="n">url</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^authenticate/&#39;</span><span class="p">,</span> <span class="n">include</span><span class="p">(</span><span class="s1">&#39;django_cradmin.apps.cradmin_authenticate.urls&#39;</span><span class="p">)),</span>
+    <span class="c1"># ...</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="configure">
+<h2>Configure<a class="headerlink" href="#configure" title="Permalink to this heading"></a></h2>
+<dl class="simple">
+<dt>Required settings:</dt><dd><dl class="simple">
+<dt>LOGIN_REDIRECT_URL</dt><dd><p>The default URL to redirect to after login unless you
+provide a <code class="docutils literal notranslate"><span class="pre">next</span></code>-attribute as input to the view
+(see <a class="reference internal" href="#authenticate-redirect-after-login"><span class="std std-ref">Where to redirect after login</span></a>).</p>
+</dd>
+</dl>
+</dd>
+<dt>Optional settings:</dt><dd><dl class="simple">
+<dt>DJANGO_CRADMIN_FORGOTPASSWORD_URL</dt><dd><p>If this is set, we show a forgot password link on the login page.</p>
+</dd>
+<dt>DJANGO_CRADMIN_USE_EMAIL_AUTH_BACKEND</dt><dd><p>If this is set (<code class="docutils literal notranslate"><span class="pre">True</span></code>), we explicitly use <code class="docutils literal notranslate"><span class="pre">email</span></code> to login, not <code class="docutils literal notranslate"><span class="pre">USERNAME_FIELD</span></code>. This will also work
+with the standard django user model.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+<section id="how-it-works">
+<h2>How it works<a class="headerlink" href="#how-it-works" title="Permalink to this heading"></a></h2>
+<p>We determine the username field from the <code class="docutils literal notranslate"><span class="pre">USERNAME_FIELD</span></code>
+attribute of the user model. As long as the username field is
+<code class="docutils literal notranslate"><span class="pre">email</span></code> or <code class="docutils literal notranslate"><span class="pre">username</span></code>, and you use password to login,
+the view should just work out of the box.</p>
+<p>You can extend <code class="docutils literal notranslate"><span class="pre">django_cradmin.apps.cradmin_authenticate.views.LoginView</span></code> and
+add a custom login form class by overriding the <code class="docutils literal notranslate"><span class="pre">get_form_class</span></code>-method.</p>
+</section>
+<section id="where-to-redirect-after-login">
+<span id="authenticate-redirect-after-login"></span><h2>Where to redirect after login<a class="headerlink" href="#where-to-redirect-after-login" title="Permalink to this heading"></a></h2>
+<p>You can change the <code class="docutils literal notranslate"><span class="pre">LOGIN_REDIRECT_URL</span></code> setting as documented
+above if you want to change the default URL to redirect to after
+login. If login is part of a workflow where you just want users
+to login before they continue to the next step, you can use
+the <code class="docutils literal notranslate"><span class="pre">next</span></code> querystring parameter. Example:</p>
+<div class="highlight-django notranslate"><div class="highlight"><pre><span></span><span class="x">&lt;a href=&quot;</span><span class="cp">{%</span> <span class="k">url</span> <span class="s1">&#39;cradmin-authenticate-login&#39;</span> <span class="cp">%}</span><span class="x">?next=/comments/add&quot;&gt;</span>
+<span class="x">    Add comment</span>
+<span class="x">&lt;/a&gt;</span>
+</pre></div>
+</div>
+</section>
+<section id="where-to-redirect-after-logout">
+<h2>Where to redirect after logout<a class="headerlink" href="#where-to-redirect-after-logout" title="Permalink to this heading"></a></h2>
+<p>Just like with the login view, you can supply a <code class="docutils literal notranslate"><span class="pre">next</span></code> querystring
+attribute to the logout view. This can be used for workflows
+like login as another user:</p>
+<div class="highlight-django notranslate"><div class="highlight"><pre><span></span><span class="x">&lt;a href=&quot;</span><span class="cp">{%</span> <span class="k">url</span> <span class="s1">&#39;cradmin-authenticate-logout&#39;</span> <span class="cp">%}</span><span class="x">?next=</span><span class="cp">{%</span> <span class="k">url</span> <span class="s1">&#39;cradmin-authenticate-login&#39;</span> <span class="cp">%}</span><span class="x">&quot;&gt;</span>
+<span class="x">    Login as another user</span>
+<span class="x">&lt;/a&gt;</span>
+</pre></div>
+</div>
+</section>
+<section id="nesting-next-redirects">
+<h2>Nesting “next” redirects<a class="headerlink" href="#nesting-next-redirects" title="Permalink to this heading"></a></h2>
+<p>You can nest <code class="docutils literal notranslate"><span class="pre">next</span></code> — you just have to url quote correctly.</p>
+<p>Lets say you want to add an add comment as another user
+button. This means that you want to logout, login, and then redirect to
+the add comment view, which we for this example assume is at <code class="docutils literal notranslate"><span class="pre">/comments/add</span></code>.
+This would look something like this in a template:</p>
+<div class="highlight-django notranslate"><div class="highlight"><pre><span></span><span class="x">&lt;a href=&quot;</span><span class="cp">{%</span> <span class="k">url</span> <span class="s1">&#39;cradmin-authenticate-logout&#39;</span> <span class="cp">%}</span><span class="x">?next=</span><span class="cp">{%</span> <span class="k">url</span> <span class="s1">&#39;cradmin-authenticate-login&#39;</span> <span class="cp">%}</span><span class="x">%3Fnext%3D%2Fcomments%2Fadd&quot;&gt;</span>
+<span class="x">    Add comment as another user</span>
+<span class="x">&lt;/a&gt;</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">%&lt;number&gt;&lt;letter&gt;</span></code> stuff is URL escape codes. You will most likely want
+to handle this using python code. Lets generate the same URL using Python:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">django.utils.http</span> <span class="kn">import</span> <span class="n">urlencode</span>
+<span class="kn">from</span> <span class="nn">django.core.urlresolvers</span> <span class="kn">import</span> <span class="n">reverse</span>
+
+<span class="n">login_url</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{login_url}</span><span class="s1">?</span><span class="si">{arguments}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+    <span class="n">login_url</span><span class="o">=</span><span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;cradmin-authenticate-login&#39;</span><span class="p">),</span>
+    <span class="n">arguments</span><span class="o">=</span><span class="n">urlencode</span><span class="p">({</span>
+        <span class="s1">&#39;next&#39;</span><span class="p">:</span> <span class="s1">&#39;/comments/add&#39;</span>
+    <span class="p">})</span>
+<span class="p">)</span>
+<span class="n">logout_url</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{logout_url}</span><span class="s1">?</span><span class="si">{arguments}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+    <span class="n">logout_url</span><span class="o">=</span><span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;cradmin-authenticate-logout&#39;</span><span class="p">),</span>
+    <span class="n">arguments</span><span class="o">=</span><span class="n">urlencode</span><span class="p">({</span>
+        <span class="s1">&#39;next&#39;</span><span class="p">:</span> <span class="n">login_url</span>
+    <span class="p">})</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="views-and-their-names">
+<h2>Views and their names<a class="headerlink" href="#views-and-their-names" title="Permalink to this heading"></a></h2>
+<p>The app provides the following two views:</p>
+<dl class="simple">
+<dt>cradmin-authenticate-login</dt><dd><p>The view named <code class="docutils literal notranslate"><span class="pre">cradmin-authenticate-login</span></code> is used for login.</p>
+</dd>
+<dt>cradmin-authenticate-logout</dt><dd><p>The view named <code class="docutils literal notranslate"><span class="pre">cradmin-authenticate-logout</span></code> is used for logging users out.</p>
+</dd>
+</dl>
+</section>
+<section id="customization">
+<h2>Customization<a class="headerlink" href="#customization" title="Permalink to this heading"></a></h2>
+<p>The authentication-view is handled by the <a class="reference internal" href="#django_cradmin.apps.cradmin_authenticate.views.login.LoginView" title="django_cradmin.apps.cradmin_authenticate.views.login.LoginView"><code class="xref py py-class docutils literal notranslate"><span class="pre">django_cradmin.apps.cradmin_authenticate.views.login.LoginView</span></code></a> in
+combination with the various subclasses of <a class="reference internal" href="#django_cradmin.apps.cradmin_authenticate.views.login.AbstractLoginForm" title="django_cradmin.apps.cradmin_authenticate.views.login.AbstractLoginForm"><code class="xref py py-class docutils literal notranslate"><span class="pre">django_cradmin.apps.cradmin_authenticate.views.login.AbstractLoginForm</span></code></a>.</p>
+<p>If you want to customize the default behaviour, extend/override the suitable class from these:</p>
+<section id="module-django_cradmin.apps.cradmin_authenticate.views.login">
+<span id="django-cradmin-apps-cradmin-authenticate-views-login"></span><h3>django_cradmin.apps.cradmin_authenticate.views.login<a class="headerlink" href="#module-django_cradmin.apps.cradmin_authenticate.views.login" title="Permalink to this heading"></a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_authenticate.views.login.AbstractLoginForm">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AbstractLoginForm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#django_cradmin.apps.cradmin_authenticate.views.login.AbstractLoginForm" title="Permalink to this definition"></a></dt>
+<dd><p>Superclass for the various Login-forms used by <a class="reference internal" href="#django_cradmin.apps.cradmin_authenticate.views.login.LoginView" title="django_cradmin.apps.cradmin_authenticate.views.login.LoginView"><code class="xref py py-class docutils literal notranslate"><span class="pre">LoginView</span></code></a> by default. Known subclasses:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><a class="reference internal" href="#django_cradmin.apps.cradmin_authenticate.views.login.EmailLoginForm" title="django_cradmin.apps.cradmin_authenticate.views.login.EmailLoginForm"><code class="xref py py-class docutils literal notranslate"><span class="pre">EmailLoginForm</span></code></a></p></li>
+<li><p><a class="reference internal" href="#django_cradmin.apps.cradmin_authenticate.views.login.EmailLoginFormNoSanityCheck" title="django_cradmin.apps.cradmin_authenticate.views.login.EmailLoginFormNoSanityCheck"><code class="xref py py-class docutils literal notranslate"><span class="pre">EmailLoginFormNoSanityCheck</span></code></a></p></li>
+<li><p><a class="reference internal" href="#django_cradmin.apps.cradmin_authenticate.views.login.UsernameLoginForm" title="django_cradmin.apps.cradmin_authenticate.views.login.UsernameLoginForm"><code class="xref py py-class docutils literal notranslate"><span class="pre">UsernameLoginForm</span></code></a></p></li>
+</ul>
+</div></blockquote>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_authenticate.views.login.AbstractLoginForm.username_field">
+<span class="sig-name descname"><span class="pre">username_field</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#django_cradmin.apps.cradmin_authenticate.views.login.AbstractLoginForm.username_field" title="Permalink to this definition"></a></dt>
+<dd><p>The field used with the password for authentication.
+Must be set in subclasses</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_authenticate.views.login.AbstractLoginForm.username_field_placeholder">
+<span class="sig-name descname"><span class="pre">username_field_placeholder</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#django_cradmin.apps.cradmin_authenticate.views.login.AbstractLoginForm.username_field_placeholder" title="Permalink to this definition"></a></dt>
+<dd><p>The placeholder text for the username field.
+Must be set in subclasses</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_authenticate.views.login.AbstractLoginForm.password_field_placeholder">
+<span class="sig-name descname"><span class="pre">password_field_placeholder</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Password'</span></em><a class="headerlink" href="#django_cradmin.apps.cradmin_authenticate.views.login.AbstractLoginForm.password_field_placeholder" title="Permalink to this definition"></a></dt>
+<dd><p>The placeholder text for the password field.
+Must be set in subclasses</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_authenticate.views.login.AbstractLoginForm.error_message_invalid_login">
+<span class="sig-name descname"><span class="pre">error_message_invalid_login</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#django_cradmin.apps.cradmin_authenticate.views.login.AbstractLoginForm.error_message_invalid_login" title="Permalink to this definition"></a></dt>
+<dd><p>Error message to show if username and password do not match</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_authenticate.views.login.AbstractLoginForm.error_message_inactive">
+<span class="sig-name descname"><span class="pre">error_message_inactive</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'This</span> <span class="pre">account</span> <span class="pre">is</span> <span class="pre">inactive.'</span></em><a class="headerlink" href="#django_cradmin.apps.cradmin_authenticate.views.login.AbstractLoginForm.error_message_inactive" title="Permalink to this definition"></a></dt>
+<dd><p>Error message to show if the account is inactive.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_authenticate.views.login.AbstractLoginForm.password">
+<span class="sig-name descname"><span class="pre">password</span></span><a class="headerlink" href="#django_cradmin.apps.cradmin_authenticate.views.login.AbstractLoginForm.password" title="Permalink to this definition"></a></dt>
+<dd><p>The password field</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_authenticate.views.login.AbstractLoginForm.authenticate">
+<span class="sig-name descname"><span class="pre">authenticate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#django_cradmin.apps.cradmin_authenticate.views.login.AbstractLoginForm.authenticate" title="Permalink to this definition"></a></dt>
+<dd><p>Wrapper around <code class="docutils literal notranslate"><span class="pre">django.contrib.auth.authenticate</span></code> to make
+it easy for subclasses to add extra kwargs.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_authenticate.views.login.AbstractLoginForm.clean">
+<span class="sig-name descname"><span class="pre">clean</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#django_cradmin.apps.cradmin_authenticate.views.login.AbstractLoginForm.clean" title="Permalink to this definition"></a></dt>
+<dd><p>validate the form, and execute <code class="xref py py-func docutils literal notranslate"><span class="pre">django.contrib.auth.authenticate()</span></code> to login the user if form is valid.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_authenticate.views.login.AbstractLoginForm.media">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">media</span></span><a class="headerlink" href="#django_cradmin.apps.cradmin_authenticate.views.login.AbstractLoginForm.media" title="Permalink to this definition"></a></dt>
+<dd><p>Return all media required to render the widgets on this form.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_authenticate.views.login.UsernameLoginForm">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">UsernameLoginForm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#django_cradmin.apps.cradmin_authenticate.views.login.UsernameLoginForm" title="Permalink to this definition"></a></dt>
+<dd><p>This form is used for username-based login.</p>
+<p>Using this form in its default state requires the <cite>User</cite>-models <code class="docutils literal notranslate"><span class="pre">USERNAME_FIELD</span></code> to be <code class="docutils literal notranslate"><span class="pre">username</span></code>.
+This is set in the field <code class="docutils literal notranslate"><span class="pre">username_field</span></code> in this class.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_authenticate.views.login.UsernameLoginForm.username_field">
+<span class="sig-name descname"><span class="pre">username_field</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'username'</span></em><a class="headerlink" href="#django_cradmin.apps.cradmin_authenticate.views.login.UsernameLoginForm.username_field" title="Permalink to this definition"></a></dt>
+<dd><p>The field used with the password for authentication.
+Must be set in subclasses</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_authenticate.views.login.UsernameLoginForm.username_field_placeholder">
+<span class="sig-name descname"><span class="pre">username_field_placeholder</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Username'</span></em><a class="headerlink" href="#django_cradmin.apps.cradmin_authenticate.views.login.UsernameLoginForm.username_field_placeholder" title="Permalink to this definition"></a></dt>
+<dd><p>The placeholder text for the username field.
+Must be set in subclasses</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_authenticate.views.login.UsernameLoginForm.error_message_invalid_login">
+<span class="sig-name descname"><span class="pre">error_message_invalid_login</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&quot;Your</span> <span class="pre">username</span> <span class="pre">and</span> <span class="pre">password</span> <span class="pre">didn't</span> <span class="pre">match.</span> <span class="pre">Please</span> <span class="pre">try</span> <span class="pre">again.&quot;</span></em><a class="headerlink" href="#django_cradmin.apps.cradmin_authenticate.views.login.UsernameLoginForm.error_message_invalid_login" title="Permalink to this definition"></a></dt>
+<dd><p>Error message to show if username and password do not match</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_authenticate.views.login.UsernameLoginForm.media">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">media</span></span><a class="headerlink" href="#django_cradmin.apps.cradmin_authenticate.views.login.UsernameLoginForm.media" title="Permalink to this definition"></a></dt>
+<dd><p>Return all media required to render the widgets on this form.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_authenticate.views.login.EmailLoginForm">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">EmailLoginForm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#django_cradmin.apps.cradmin_authenticate.views.login.EmailLoginForm" title="Permalink to this definition"></a></dt>
+<dd><p>This form is used for email-based login along with the
+<a class="reference internal" href="#django_cradmin.apps.cradmin_authenticate.backends.EmailAuthBackend" title="django_cradmin.apps.cradmin_authenticate.backends.EmailAuthBackend"><code class="xref py py-class docutils literal notranslate"><span class="pre">django_cradmin.apps.cradmin_authenticate.backends.EmailAuthBackend</span></code></a>.</p>
+<p>This requires adding <code class="docutils literal notranslate"><span class="pre">DJANGO_CRADMIN_USE_EMAIL_AUTH_BACKEND</span> <span class="pre">=</span> <span class="pre">True</span></code> to your <code class="docutils literal notranslate"><span class="pre">settings.py</span></code>.</p>
+<p>This will work with the default django <code class="docutils literal notranslate"><span class="pre">User</span></code>-model, and your own custom <code class="docutils literal notranslate"><span class="pre">User</span></code> model,
+as long as your <code class="docutils literal notranslate"><span class="pre">User</span></code> model has the field <code class="docutils literal notranslate"><span class="pre">email</span></code> for login. If your <code class="docutils literal notranslate"><span class="pre">email</span></code> field
+is called something else, you will need to override the <code class="docutils literal notranslate"><span class="pre">username_field</span></code> attribute of
+this class.</p>
+<p>If you want to use this class without the <code class="xref py py-class docutils literal notranslate"><span class="pre">EmailAuthBackend</span></code>, you should rather use the
+<a class="reference internal" href="#django_cradmin.apps.cradmin_authenticate.views.login.EmailLoginFormNoSanityCheck" title="django_cradmin.apps.cradmin_authenticate.views.login.EmailLoginFormNoSanityCheck"><code class="xref py py-class docutils literal notranslate"><span class="pre">EmailLoginFormNoSanityCheck</span></code></a>.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_authenticate.views.login.EmailLoginForm.username_field">
+<span class="sig-name descname"><span class="pre">username_field</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'email'</span></em><a class="headerlink" href="#django_cradmin.apps.cradmin_authenticate.views.login.EmailLoginForm.username_field" title="Permalink to this definition"></a></dt>
+<dd><p>The field used with the password for authentication.
+Must be set in subclasses</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_authenticate.views.login.EmailLoginForm.username_field_placeholder">
+<span class="sig-name descname"><span class="pre">username_field_placeholder</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Email'</span></em><a class="headerlink" href="#django_cradmin.apps.cradmin_authenticate.views.login.EmailLoginForm.username_field_placeholder" title="Permalink to this definition"></a></dt>
+<dd><p>The placeholder text for the username field.
+Must be set in subclasses</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_authenticate.views.login.EmailLoginForm.error_message_invalid_login">
+<span class="sig-name descname"><span class="pre">error_message_invalid_login</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&quot;Your</span> <span class="pre">email</span> <span class="pre">and</span> <span class="pre">password</span> <span class="pre">didn't</span> <span class="pre">match.</span> <span class="pre">Please</span> <span class="pre">try</span> <span class="pre">again.&quot;</span></em><a class="headerlink" href="#django_cradmin.apps.cradmin_authenticate.views.login.EmailLoginForm.error_message_invalid_login" title="Permalink to this definition"></a></dt>
+<dd><p>Error message to show if username and password do not match</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_authenticate.views.login.EmailLoginForm.media">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">media</span></span><a class="headerlink" href="#django_cradmin.apps.cradmin_authenticate.views.login.EmailLoginForm.media" title="Permalink to this definition"></a></dt>
+<dd><p>Return all media required to render the widgets on this form.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_authenticate.views.login.EmailLoginFormNoSanityCheck">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">EmailLoginFormNoSanityCheck</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#django_cradmin.apps.cradmin_authenticate.views.login.EmailLoginFormNoSanityCheck" title="Permalink to this definition"></a></dt>
+<dd><p>This works exactly like <a class="reference internal" href="#django_cradmin.apps.cradmin_authenticate.views.login.EmailLoginForm" title="django_cradmin.apps.cradmin_authenticate.views.login.EmailLoginForm"><code class="xref py py-class docutils literal notranslate"><span class="pre">EmailLoginForm</span></code></a>, but does not require
+<code class="docutils literal notranslate"><span class="pre">DJANGO_CRADMIN_USE_EMAIL_AUTH_BACKEND</span></code> to be set.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_authenticate.views.login.EmailLoginFormNoSanityCheck.media">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">media</span></span><a class="headerlink" href="#django_cradmin.apps.cradmin_authenticate.views.login.EmailLoginFormNoSanityCheck.media" title="Permalink to this definition"></a></dt>
+<dd><p>Return all media required to render the widgets on this form.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_authenticate.views.login.LoginView">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LoginView</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#django_cradmin.apps.cradmin_authenticate.views.login.LoginView" title="Permalink to this definition"></a></dt>
+<dd><p>View for handling login.
+By default, a “forgot password” link is read from <code class="docutils literal notranslate"><span class="pre">DJANGO_CRADMIN_FORGOTPASSWORD_URL</span></code> to your <code class="docutils literal notranslate"><span class="pre">settings.py</span></code>.</p>
+<p>Constructor. Called in the URLconf; can contain helpful extra
+keyword arguments, and other things.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_authenticate.views.login.LoginView.get_form_class">
+<span class="sig-name descname"><span class="pre">get_form_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#django_cradmin.apps.cradmin_authenticate.views.login.LoginView.get_form_class" title="Permalink to this definition"></a></dt>
+<dd><p>Determine which subclass of <a class="reference internal" href="#django_cradmin.apps.cradmin_authenticate.views.login.AbstractLoginForm" title="django_cradmin.apps.cradmin_authenticate.views.login.AbstractLoginForm"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractLoginForm</span></code></a> should be used for login.</p>
+<p>if <code class="docutils literal notranslate"><span class="pre">settings.DJANGO_CRADMIN_USE_EMAIL_AUTH_BACKEND</span></code> is set, the <a class="reference internal" href="#django_cradmin.apps.cradmin_authenticate.views.login.EmailLoginForm" title="django_cradmin.apps.cradmin_authenticate.views.login.EmailLoginForm"><code class="xref py py-class docutils literal notranslate"><span class="pre">EmailLoginForm</span></code></a> will be used.
+If not, the <code class="docutils literal notranslate"><span class="pre">user_model.USERNAME_FIELD</span></code> will be checked, and <a class="reference internal" href="#django_cradmin.apps.cradmin_authenticate.views.login.EmailLoginFormNoSanityCheck" title="django_cradmin.apps.cradmin_authenticate.views.login.EmailLoginFormNoSanityCheck"><code class="xref py py-class docutils literal notranslate"><span class="pre">EmailLoginFormNoSanityCheck</span></code></a>
+will be used if this is <code class="docutils literal notranslate"><span class="pre">email</span></code>, and <a class="reference internal" href="#django_cradmin.apps.cradmin_authenticate.views.login.UsernameLoginForm" title="django_cradmin.apps.cradmin_authenticate.views.login.UsernameLoginForm"><code class="xref py py-class docutils literal notranslate"><span class="pre">UsernameLoginForm</span></code></a> if it is set to <cite>username</cite>.</p>
+<p>Override this function to add your own login-form.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_authenticate.views.login.LoginView.get">
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#django_cradmin.apps.cradmin_authenticate.views.login.LoginView.get" title="Permalink to this definition"></a></dt>
+<dd><p>If user is authenticated, call <a class="reference internal" href="#django_cradmin.apps.cradmin_authenticate.views.login.LoginView.get_redirect_url" title="django_cradmin.apps.cradmin_authenticate.views.login.LoginView.get_redirect_url"><code class="xref py py-meth docutils literal notranslate"><span class="pre">LoginView.get_redirect_url()</span></code></a>, else render the login form.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_authenticate.views.login.LoginView.get_initial_email_value">
+<span class="sig-name descname"><span class="pre">get_initial_email_value</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#django_cradmin.apps.cradmin_authenticate.views.login.LoginView.get_initial_email_value" title="Permalink to this definition"></a></dt>
+<dd><p>Can be overriden to provide an initial value for the email.</p>
+<p>If this returns anything other than <code class="docutils literal notranslate"><span class="pre">None</span></code>, it changes
+the behavior of the form to focus on the password field
+instead of the email field at page load, and the email field
+becomes a hidden field instead of an input field.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#django_cradmin.apps.cradmin_authenticate.views.login.LoginView.initial_email_value" title="django_cradmin.apps.cradmin_authenticate.views.login.LoginView.initial_email_value"><code class="xref py py-meth docutils literal notranslate"><span class="pre">initial_email_value()</span></code></a>.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The initial email value if we have any. Should
+return something that evaluates to <code class="docutils literal notranslate"><span class="pre">bool(value)</span> <span class="pre">==</span> <span class="pre">False</span></code>
+if we have no initial email value.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_authenticate.views.login.LoginView.initial_email_value">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">initial_email_value</span></span><a class="headerlink" href="#django_cradmin.apps.cradmin_authenticate.views.login.LoginView.initial_email_value" title="Permalink to this definition"></a></dt>
+<dd><p>We use this to retrieve the value of <a class="reference internal" href="#django_cradmin.apps.cradmin_authenticate.views.login.LoginView.get_initial_email_value" title="django_cradmin.apps.cradmin_authenticate.views.login.LoginView.get_initial_email_value"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_initial_email_value()</span></code></a>,
+and you should use it if you need the value in your subclasses.</p>
+<p>This method only retrieves the value returned by
+<a class="reference internal" href="#django_cradmin.apps.cradmin_authenticate.views.login.LoginView.get_initial_email_value" title="django_cradmin.apps.cradmin_authenticate.views.login.LoginView.get_initial_email_value"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_initial_email_value()</span></code></a> once, and cache it internally.
+This means that the get_initial_email_value method can perform
+potentially expensive operations, or operations that should
+only run once (like request.session.pop) without worrying
+about it.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_authenticate.views.login.LoginView.get_form_renderable">
+<span class="sig-name descname"><span class="pre">get_form_renderable</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#django_cradmin.apps.cradmin_authenticate.views.login.LoginView.get_form_renderable" title="Permalink to this definition"></a></dt>
+<dd><p>Get a <a class="reference internal" href="renderable.html#django_cradmin.renderable.AbstractRenderable" title="django_cradmin.renderable.AbstractRenderable"><code class="xref py py-class docutils literal notranslate"><span class="pre">django_cradmin.renderable.AbstractRenderable</span></code></a> that renders
+the form.</p>
+<p>This will typically be a <a class="reference internal" href="uicontainer.html"><span class="doc">uicontainer — HTML builder with form support</span></a> tree containing a
+<code class="xref py py-class docutils literal notranslate"><span class="pre">django_cradmin.uicontainer.form.Form</span></code>, but it can be any
+AbstractRenderable. Not using a <code class="xref py py-class docutils literal notranslate"><span class="pre">django_cradmin.uicontainer.form.Form</span></code>
+(or a subclass of it) is fairly complex when it comes to handling error
+messages and form rendering, so it is generally not recommended.</p>
+<p>See <a class="reference internal" href="viewhelpers_formview_formview.html#django_cradmin.viewhelpers.formview.formview.WithinRoleFormView" title="django_cradmin.viewhelpers.formview.formview.WithinRoleFormView"><code class="xref py py-meth docutils literal notranslate"><span class="pre">django_cradmin.viewhelpers.formview.formview.WithinRoleFormView()</span></code></a> for examples.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The renderable object.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="renderable.html#django_cradmin.renderable.AbstractRenderable" title="django_cradmin.renderable.AbstractRenderable">django_cradmin.renderable.AbstractRenderable</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_authenticate.views.login.LoginView.get_redirect_url">
+<span class="sig-name descname"><span class="pre">get_redirect_url</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#django_cradmin.apps.cradmin_authenticate.views.login.LoginView.get_redirect_url" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the redirect url to use. We always want to redirect to the <cite>next</cite> queryparam if
+provided regardless.</p>
+<p>Returns the <cite>settings.LOGIN_REDIRECT_URL</cite> if no <cite>next</cite> queryparam is provided.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_authenticate.views.login.LoginView.get_success_url">
+<span class="sig-name descname"><span class="pre">get_success_url</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#django_cradmin.apps.cradmin_authenticate.views.login.LoginView.get_success_url" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the redirect-url after login-success. This will either be the <code class="docutils literal notranslate"><span class="pre">next</span></code> field in <code class="docutils literal notranslate"><span class="pre">request.GET</span></code>
+if present, or <code class="docutils literal notranslate"><span class="pre">settings.LOGIN_REDIRECT_URL</span></code> if not.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_authenticate.views.login.LoginView.form_valid">
+<span class="sig-name descname"><span class="pre">form_valid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">form</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#django_cradmin.apps.cradmin_authenticate.views.login.LoginView.form_valid" title="Permalink to this definition"></a></dt>
+<dd><p>Run <code class="xref py py-func docutils literal notranslate"><span class="pre">django.contrib.auth.login()</span></code> once the login-form was validated.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_authenticate.views.login.LoginView.get_context_data">
+<span class="sig-name descname"><span class="pre">get_context_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#django_cradmin.apps.cradmin_authenticate.views.login.LoginView.get_context_data" title="Permalink to this definition"></a></dt>
+<dd><p>adds form from <code class="xref py py-func docutils literal notranslate"><span class="pre">get_form_helper()</span></code>, and (if set) <code class="docutils literal notranslate"><span class="pre">settings.DJANGO_CRADMIN_FORGOTPASSWORD_URL</span></code> to
+template-context.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-django_cradmin.apps.cradmin_authenticate.backends">
+<span id="django-cradmin-apps-cradmin-authenticate-backends"></span><h3>django_cradmin.apps.cradmin_authenticate.backends<a class="headerlink" href="#module-django_cradmin.apps.cradmin_authenticate.backends" title="Permalink to this heading"></a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_authenticate.backends.EmailAuthBackend">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">EmailAuthBackend</span></span><a class="headerlink" href="#django_cradmin.apps.cradmin_authenticate.backends.EmailAuthBackend" title="Permalink to this definition"></a></dt>
+<dd><p>Custom Authentication backend for using <cite>email</cite> as your login-field on any <code class="docutils literal notranslate"><span class="pre">User</span></code>-model. This will also work with
+the default django <code class="docutils literal notranslate"><span class="pre">User</span></code>-model, as it does not require <code class="docutils literal notranslate"><span class="pre">USERNAME_FIELD</span></code> to be <code class="docutils literal notranslate"><span class="pre">email</span></code>.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_authenticate.backends.EmailAuthBackend.authenticate">
+<span class="sig-name descname"><span class="pre">authenticate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">email</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#django_cradmin.apps.cradmin_authenticate.backends.EmailAuthBackend.authenticate" title="Permalink to this definition"></a></dt>
+<dd><p>Find the <cite>User</cite> corresponding to <code class="docutils literal notranslate"><span class="pre">email</span></code>, verify <code class="docutils literal notranslate"><span class="pre">password</span></code> and return user.</p>
+<p>NOTE: this function is defined by Django as required for an Auth-backend</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>email</strong> – <code class="docutils literal notranslate"><span class="pre">email</span></code> for the user to authenticate</p></li>
+<li><p><strong>password</strong> – <code class="docutils literal notranslate"><span class="pre">password</span></code> for the user to authenticate</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the <code class="docutils literal notranslate"><span class="pre">User</span></code> if authentication was successful, or <code class="docutils literal notranslate"><span class="pre">None</span></code> if not.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_authenticate.backends.EmailAuthBackend.get_user">
+<span class="sig-name descname"><span class="pre">get_user</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#django_cradmin.apps.cradmin_authenticate.backends.EmailAuthBackend.get_user" title="Permalink to this definition"></a></dt>
+<dd><p>locate and return a <code class="xref py py-class docutils literal notranslate"><span class="pre">User</span></code> based on the <code class="docutils literal notranslate"><span class="pre">primary</span> <span class="pre">key</span></code> of the current <code class="xref py py-class docutils literal notranslate"><span class="pre">User</span></code> model.</p>
+<p>NOTE: this function is defined by Django as required for an Auth-backend</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>user_id</strong> – the <code class="docutils literal notranslate"><span class="pre">id</span></code> of a <code class="xref py py-class docutils literal notranslate"><span class="pre">User</span></code></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the <code class="docutils literal notranslate"><span class="pre">User</span></code> matching the given <code class="docutils literal notranslate"><span class="pre">user_id</span></code> if it exists, <code class="docutils literal notranslate"><span class="pre">None</span></code> if not.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="account-apps-overview.html" class="btn btn-neutral float-left" title="Account management apps introduction and overview" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="apps.cradmin_register_account.html" class="btn btn-neutral float-right" title="cradmin_register_account — A register account workflow" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2014, Espen Angell Kristiansen, Vegard Angell, Tor Johansen, Magne Westlie.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

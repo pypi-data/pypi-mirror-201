@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cradmin_register_account — A register account workflow &mdash; Django CRadmin 1.0.0-alpha documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="cradmin_activate_account — An activate account workflow" href="apps.cradmin_activate_account.html" />
+    <link rel="prev" title="cradmin_authenticate — Login/logout views" href="apps.cradmin_authenticate.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Django CRadmin
+          </a>
+              <div class="version">
+                1.0.0-alpha
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Install and configure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="newbie.html">Newbie guide</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="viewhelpers_mixins.html"><cite>viewhelpers.mixins</cite> — View mixin classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="viewhelpers_generic.html"><cite>viewhelpers.generic</cite> — Generic views</a></li>
+<li class="toctree-l1"><a class="reference internal" href="viewhelpers_detail.html"><cite>viewhelpers.detail</cite> — Model object detail views</a></li>
+<li class="toctree-l1"><a class="reference internal" href="viewhelpers_formview_formviewmixin.html"><cite>viewhelpers.formview.formviewmixin</cite> — Form view mixins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="viewhelpers_formview_formview.html"><cite>viewhelpers.formview.formview</cite> — Form views</a></li>
+<li class="toctree-l1"><a class="reference internal" href="viewhelpers_formview_create_update_view_mixin.html"><cite>viewhelpers.formview.create_update_view_mixin</cite> — Create and update view mixins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="viewhelpers_formview_createview.html"><cite>viewhelpers.formview.createview</cite> — Create views</a></li>
+<li class="toctree-l1"><a class="reference internal" href="viewhelpers_formview_updateview.html"><cite>viewhelpers.formview.updateview</cite> — Update views</a></li>
+<li class="toctree-l1"><a class="reference internal" href="viewhelpers_formview_deleteview.html"><cite>viewhelpers.formview.deleteview</cite> — Implements the preview+confirm+delete workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="viewhelpers_formview_previewmixin.html"><cite>viewhelpers.formview.previewmixin</cite> — Preview view mixin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="viewhelpers_uimock.html"><cite>viewhelpers.uimock</cite> — Create UI mocks</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="writing_tests_guide.html">Writing tests - writing tests for cradmin instances and apps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cradmin_testhelpers.html">Testhelpers — Makes it easier to write tests for your cradmin views</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="sortable.html"><cite>sortable</cite> — Making objects sortable</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="account-apps-overview.html">Account management apps introduction and overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="apps.cradmin_authenticate.html"><cite>cradmin_authenticate</cite> — Login/logout views</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#"><cite>cradmin_register_account</cite> — A register account workflow</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#install">Install</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#quickstart">Quickstart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#configure">Configure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-it-works">How it works</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#step-one-create-an-inactive-user">Step One — Create an inactive user</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-two-activate-the-account">Step two — Activate the account</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#register-account-form">Register account form</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#form-classes-for-django-contrib-auth-models-user">Form classes for <code class="docutils literal notranslate"><span class="pre">django.contrib.auth.models.User</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#django_cradmin.apps.cradmin_register_account.forms.auth_user.AuthUserCreateAccountForm"><code class="docutils literal notranslate"><span class="pre">AuthUserCreateAccountForm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#django_cradmin.apps.cradmin_register_account.forms.auth_user.AuthUserCreateAccountAutoUsernameForm"><code class="docutils literal notranslate"><span class="pre">AuthUserCreateAccountAutoUsernameForm</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#form-classes-for-custom-user-models">Form classes for custom user models</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#django_cradmin.apps.cradmin_register_account.forms.email.EmailUserCreateAccountForm"><code class="docutils literal notranslate"><span class="pre">EmailUserCreateAccountForm</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#abstract-register-account-form-classes">Abstract register account form classes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#django_cradmin.apps.cradmin_register_account.forms.base.AbstractCreateAccountForm"><code class="docutils literal notranslate"><span class="pre">AbstractCreateAccountForm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#django_cradmin.apps.cradmin_register_account.forms.base.AbstractCreateAccountWithPasswordForm"><code class="docutils literal notranslate"><span class="pre">AbstractCreateAccountWithPasswordForm</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#where-to-redirect-after-the-account-has-been-created">Where to redirect after the account has been created</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="apps.cradmin_activate_account.html"><cite>cradmin_activate_account</cite> — An activate account workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="apps.cradmin_resetpassword.html"><cite>cradmin_resetpassword</cite> — A password reset workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="apps.cradmin_invite.html"><cite>cradmin_invite</cite> — A generalized invite workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="apps.cradmin_email.html"><cite>cradmin_email</cite> — Utilities for working with email</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="apps.cradmin_generic_token_with_metadata.html"><cite>cradmin_generic_token_with_metadata</cite> — Secure generic tokens with metadata</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="urlutils.html"><cite>urlutils</cite> — Utilities for working with URLs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="renderable.html"><cite>renderable</cite> — Unified renderable interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="crhumanize.html"><cite>utils.crhumanize</cite> — Utilities for humanizing data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="delay_middleware.html"><cite>delay_middleware</cite> — Middleware for testing how your app behaves with latency</a></li>
+<li class="toctree-l1"><a class="reference internal" href="messages_debug_middleware.html"><cite>messages_debug_middleware</cite> — Debug django messages rendering/styles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="uicontainer.html"><cite>uicontainer</cite> — HTML builder with form support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="crbreadcrumb.html"><cite>crbreadcrumb</cite> — Generalized breadcrumb rendering</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="develop.html">Develop django_cradmin, or run the demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="databasedumps.html">Using and creating database dumps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="i18n.html">Localization/internationalization/translation</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="crapp.html">CRApp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="crinstance.html">CRInstance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="crmenu.html">Cradmin menu system</a></li>
+<li class="toctree-l1"><a class="reference internal" href="settings.html">Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="templatetags.html">Template tags</a></li>
+<li class="toctree-l1"><a class="reference internal" href="theme.html">Creating a custom theme</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Django CRadmin</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active"><cite>cradmin_register_account</cite> — A register account workflow</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/apps.cradmin_register_account.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="cradmin-register-account-a-register-account-workflow">
+<h1><cite>cradmin_register_account</cite> — A register account workflow<a class="headerlink" href="#cradmin-register-account-a-register-account-workflow" title="Permalink to this heading"></a></h1>
+<p>The purpose of the <code class="xref py py-mod docutils literal notranslate"><span class="pre">django_cradmin.apps.cradmin_register_account</span></code> app is to provide a
+general purpose register account workflow where all you need to do is provide a
+form class.</p>
+<p>It is designed to work with any user model, and we provide out of the box
+ready to use form classes for the default Django user model, and for
+custom user models with email and password.</p>
+<section id="install">
+<h2>Install<a class="headerlink" href="#install" title="Permalink to this heading"></a></h2>
+<p>This app requires the following apps:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="apps.cradmin_generic_token_with_metadata.html"><span class="doc">cradmin_generic_token_with_metadata — Secure generic tokens with metadata</span></a></p></li>
+<li><p><a class="reference internal" href="#"><span class="doc">cradmin_register_account — A register account workflow</span></a></p></li>
+</ul>
+<p>In addition to the changes required by the apps listed above, add the following
+to <code class="docutils literal notranslate"><span class="pre">INSTALLED_APPS</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">INSTALLED_APPS</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="c1"># ...</span>
+    <span class="s1">&#39;django_cradmin.apps.cradmin_register_account&#39;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>And add something like this to your root url config:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">urlpatterns</span> <span class="o">=</span> <span class="n">patterns</span><span class="p">(</span>
+    <span class="c1"># ...</span>
+    <span class="n">url</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^register/&#39;</span><span class="p">,</span> <span class="n">include</span><span class="p">(</span><span class="s1">&#39;django_cradmin.apps.cradmin_register_account.urls&#39;</span><span class="p">)),</span>
+    <span class="c1"># ...</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="quickstart">
+<h2>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this heading"></a></h2>
+<p>Set the <code class="docutils literal notranslate"><span class="pre">DJANGO_CRADMIN_SITENAME</span></code> setting to the name of your site:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">DJANGO_CRADMIN_SITENAME</span> <span class="o">=</span> <span class="s1">&#39;Testsite&#39;</span>
+</pre></div>
+</div>
+<p>Set the <code class="docutils literal notranslate"><span class="pre">LOGIN_URL</span></code> or <code class="docutils literal notranslate"><span class="pre">DJANGO_CRADMIN_REGISTER_ACCOUNT_REDIRECT_URL</span></code> setting
+to the URL you want your users to go to after the user is created and activated:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">DJANGO_CRADMIN_REGISTER_ACCOUNT_REDIRECT_URL</span> <span class="o">=</span> <span class="s1">&#39;/authenticate/login&#39;</span>
+</pre></div>
+</div>
+<p>Set the <code class="docutils literal notranslate"><span class="pre">DJANGO_CRADMIN_REGISTER_ACCOUNT_FORM_CLASS</span></code> setting to a register account
+form class compatible with your user model:</p>
+<blockquote>
+<div><p>If you are using the default <code class="docutils literal notranslate"><span class="pre">django.contrib.auth.models.User</span></code> model:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">DJANGO_CRADMIN_REGISTER_ACCOUNT_FORM_CLASS</span> <span class="o">=</span> \
+    <span class="s1">&#39;django_cradmin.apps.cradmin_register_account.forms.auth_user.AuthUserCreateAccountForm&#39;</span>
+</pre></div>
+</div>
+<p>If you have a custom user model with an <code class="docutils literal notranslate"><span class="pre">email</span></code>-field and a <code class="docutils literal notranslate"><span class="pre">set_password()</span></code>-method,
+you can use:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">DJANGO_CRADMIN_REGISTER_ACCOUNT_FORM_CLASS</span> <span class="o">=</span> \
+    <span class="s1">&#39;django_cradmin.apps.cradmin_register_account.forms.email.EmailUserCreateAccountForm&#39;</span>
+</pre></div>
+</div>
+<p>If your user model does not fit with any of these descriptions, or for more details,
+continue reading this document.</p>
+</div></blockquote>
+<p>Now you should be able to visit <a class="reference external" href="http://localhost:8000/register/begin">http://localhost:8000/register/begin</a> to register a new user.</p>
+</section>
+<section id="configure">
+<span id="register-account-settings"></span><h2>Configure<a class="headerlink" href="#configure" title="Permalink to this heading"></a></h2>
+<dl>
+<dt>Required settings:</dt><dd><dl>
+<dt>DJANGO_CRADMIN_SITENAME</dt><dd><p>The name of the site.</p>
+</dd>
+<dt>DJANGO_CRADMIN_REGISTER_ACCOUNT_REDIRECT_URL or LOGIN_URL</dt><dd><p>The URL to redirect to after login is found in the following order:</p>
+<ol class="arabic simple">
+<li><p>Via the <code class="docutils literal notranslate"><span class="pre">next</span></code>-attribute as input to the view
+(see <a class="reference internal" href="#register-account-redirect-after-login"><span class="std std-ref">Where to redirect after the account has been created</span></a>).</p></li>
+<li><p>Use the <code class="docutils literal notranslate"><span class="pre">DJANGO_CRADMIN_REGISTER_ACCOUNT_REDIRECT_URL</span></code> setting if defined.</p></li>
+<li><p>Use the <code class="docutils literal notranslate"><span class="pre">LOGIN_URL</span></code> setting.</p></li>
+</ol>
+<p>This means that you have to set one of the settings in order for
+the workflow to work out of the box.</p>
+</dd>
+<dt>DJANGO_CRADMIN_REGISTER_ACCOUNT_FORM_CLASS</dt><dd><p>Must be set to the full Python path to a Django ModelForm
+that handles input and saving of new users. We provide default
+implementations for the default Django user model, and an
+implementation usable with many custom user models.</p>
+<p>See <a class="reference internal" href="#register-account-form-class"><span class="std std-ref">Register account form</span></a> for details.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+<section id="how-it-works">
+<h2>How it works<a class="headerlink" href="#how-it-works" title="Permalink to this heading"></a></h2>
+<section id="step-one-create-an-inactive-user">
+<h3>Step One — Create an inactive user<a class="headerlink" href="#step-one-create-an-inactive-user" title="Permalink to this heading"></a></h3>
+<p>The first step is to create a user object. This is taken care of by
+the view named <code class="docutils literal notranslate"><span class="pre">cradmin-register-account-begin</span></code>. This view displays
+and validate/process the form configured via the
+<code class="docutils literal notranslate"><span class="pre">DJANGO_CRADMIN_REGISTER_ACCOUNT_FORM_CLASS</span></code> setting.</p>
+</section>
+<section id="step-two-activate-the-account">
+<h3>Step two — Activate the account<a class="headerlink" href="#step-two-activate-the-account" title="Permalink to this heading"></a></h3>
+<p>Uses the <a class="reference internal" href="apps.cradmin_activate_account.html"><span class="doc">cradmin_activate_account</span></a> app.</p>
+</section>
+</section>
+<section id="register-account-form">
+<span id="register-account-form-class"></span><h2>Register account form<a class="headerlink" href="#register-account-form" title="Permalink to this heading"></a></h2>
+<p>The register account forms are just normal Django ModelForm subclasses. They must provide:</p>
+<ul class="simple">
+<li><p>Layout via Django crispy forms layouts.</p></li>
+<li><p>Validation.</p></li>
+<li><p>A save method that sets the user as inactive and it should
+most likely set a usable password unless you use an authentication
+backend that sets passwords in some other way.</p></li>
+</ul>
+<p>To make this easier, we provide some classes you can extend or use.</p>
+<p>If you use <code class="docutils literal notranslate"><span class="pre">django.contrib.auth.models.User</span></code>, the following form classes can be used
+without any modification, or as base class for your own register account form class:</p>
+<blockquote>
+<div><p>In the <code class="docutils literal notranslate"><span class="pre">django_cradmin.apps.cradmin_register_account.forms.auth_user_form</span></code> module:</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#django_cradmin.apps.cradmin_register_account.forms.auth_user.AuthUserCreateAccountForm" title="django_cradmin.apps.cradmin_register_account.forms.auth_user.AuthUserCreateAccountForm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AuthUserCreateAccountForm</span></code></a></p></td>
+<td><p>A create account form for <code class="docutils literal notranslate"><span class="pre">auth_user</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#django_cradmin.apps.cradmin_register_account.forms.auth_user.AuthUserCreateAccountAutoUsernameForm" title="django_cradmin.apps.cradmin_register_account.forms.auth_user.AuthUserCreateAccountAutoUsernameForm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AuthUserCreateAccountAutoUsernameForm</span></code></a></p></td>
+<td><p>A create account form for <code class="docutils literal notranslate"><span class="pre">auth_user</span></code> that autocreates the username from the email.</p></td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>If you have a custom user model, you may be able to use the following form classes
+without any modification, or as base class for your own register account form class:</p>
+<blockquote>
+<div><p>In the <code class="docutils literal notranslate"><span class="pre">django_cradmin.apps.cradmin_register_account.forms.auth_user_form</span></code> module:</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#django_cradmin.apps.cradmin_register_account.forms.email.EmailUserCreateAccountForm" title="django_cradmin.apps.cradmin_register_account.forms.email.EmailUserCreateAccountForm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EmailUserCreateAccountForm</span></code></a></p></td>
+<td><p>A create account form for a custom user model with an email field and a <code class="docutils literal notranslate"><span class="pre">set_password()</span></code>-method.</p></td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>If you want to create a completely custom register account form, you will most likely want
+to extend one of these abstract form classes:</p>
+<blockquote>
+<div><p>In the <code class="docutils literal notranslate"><span class="pre">django_cradmin.apps.cradmin_register_account.forms.base</span></code> module:</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#django_cradmin.apps.cradmin_register_account.forms.base.AbstractCreateAccountForm" title="django_cradmin.apps.cradmin_register_account.forms.base.AbstractCreateAccountForm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AbstractCreateAccountForm</span></code></a></p></td>
+<td><p>Base class for account creation forms.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#django_cradmin.apps.cradmin_register_account.forms.base.AbstractCreateAccountWithPasswordForm" title="django_cradmin.apps.cradmin_register_account.forms.base.AbstractCreateAccountWithPasswordForm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AbstractCreateAccountWithPasswordForm</span></code></a></p></td>
+<td><p>Extends <a class="reference internal" href="#django_cradmin.apps.cradmin_register_account.forms.base.AbstractCreateAccountForm" title="django_cradmin.apps.cradmin_register_account.forms.base.AbstractCreateAccountForm"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractCreateAccountForm</span></code></a> with the typical password + repeat password fields.</p></td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<section id="form-classes-for-django-contrib-auth-models-user">
+<h3>Form classes for <code class="docutils literal notranslate"><span class="pre">django.contrib.auth.models.User</span></code><a class="headerlink" href="#form-classes-for-django-contrib-auth-models-user" title="Permalink to this heading"></a></h3>
+<p>The following forms are available in <code class="docutils literal notranslate"><span class="pre">django_cradmin.apps.cradmin_register_account.forms.auth_user</span></code>.
+They provide ready-to-use register account forms suitable if your user model is <code class="docutils literal notranslate"><span class="pre">django.contrib.auth.models.User</span></code>.
+They can also be used as base classes for your own register account forms.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_register_account.forms.auth_user.AuthUserCreateAccountForm">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AuthUserCreateAccountForm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#django_cradmin.apps.cradmin_register_account.forms.auth_user.AuthUserCreateAccountForm" title="Permalink to this definition"></a></dt>
+<dd><p>A create account form for <code class="docutils literal notranslate"><span class="pre">auth_user</span></code>.</p>
+<p>Can be used directly as the <code class="docutils literal notranslate"><span class="pre">DJANGO_CRADMIN_REGISTER_ACCOUNT_FORM_CLASS</span></code>
+setting, or extended to create a custom register account form.</p>
+<p>To use it directly, set the following setting:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">DJANGO_CRADMIN_REGISTER_ACCOUNT_FORM_CLASS</span> <span class="o">=</span> \
+    <span class="s1">&#39;django_cradmin.apps.cradmin_register_account.forms.auth_user.AuthUserCreateAccountForm&#39;</span>
+</pre></div>
+</div>
+<p>The form only includes username, email and password. To add more fields, simply
+override the Meta-class and the field layout. Lets say we want to make
+a form that includes the <code class="docutils literal notranslate"><span class="pre">first_name</span></code> and <code class="docutils literal notranslate"><span class="pre">last_name</span></code> fields:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">django_cradmin.apps.cradmin_register_account.forms.auth_user</span> <span class="kn">import</span> <span class="n">AuthUserCreateAccountForm</span>
+
+<span class="k">class</span> <span class="nc">AuthUserCreateAccountWithFullNameForm</span><span class="p">(</span><span class="n">AuthUserCreateAccountForm</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">(</span><span class="n">AuthUserCreateAccountForm</span><span class="o">.</span><span class="n">Meta</span><span class="p">):</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;email&#39;</span><span class="p">,</span> <span class="s1">&#39;username&#39;</span><span class="p">,</span> <span class="s1">&#39;first_name&#39;</span><span class="p">,</span> <span class="s1">&#39;last_name&#39;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">get_field_layout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="s1">&#39;username&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;email&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;first_name&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;last_name&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;password1&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;password2&#39;</span><span class="p">,</span>
+        <span class="p">]</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_register_account.forms.auth_user.AuthUserCreateAccountForm.get_field_renderables">
+<span class="sig-name descname"><span class="pre">get_field_renderables</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#django_cradmin.apps.cradmin_register_account.forms.auth_user.AuthUserCreateAccountForm.get_field_renderables" title="Permalink to this definition"></a></dt>
+<dd><p>Get field renderables.</p>
+<p>Must be overridden in subclasses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List of <code class="xref py py-class docutils literal notranslate"><span class="pre">django_cradmin.uicontainer.container.AbstractContainerRenderable</span></code>.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.4/library/stdtypes.html#list" title="(in Python v3.4)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_register_account.forms.auth_user.AuthUserCreateAccountForm.media">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">media</span></span><a class="headerlink" href="#django_cradmin.apps.cradmin_register_account.forms.auth_user.AuthUserCreateAccountForm.media" title="Permalink to this definition"></a></dt>
+<dd><p>Return all media required to render the widgets on this form.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_register_account.forms.auth_user.AuthUserCreateAccountAutoUsernameForm">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AuthUserCreateAccountAutoUsernameForm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#django_cradmin.apps.cradmin_register_account.forms.auth_user.AuthUserCreateAccountAutoUsernameForm" title="Permalink to this definition"></a></dt>
+<dd><p>A create account form for <code class="docutils literal notranslate"><span class="pre">auth_user</span></code> that autocreates the username
+from the email.</p>
+<p>This is a subclass of <a class="reference internal" href="#django_cradmin.apps.cradmin_register_account.forms.auth_user.AuthUserCreateAccountForm" title="django_cradmin.apps.cradmin_register_account.forms.auth_user.AuthUserCreateAccountForm"><code class="xref py py-class docutils literal notranslate"><span class="pre">AuthUserCreateAccountForm</span></code></a>,
+and the examples for extending that class works for this class too.</p>
+<p>Can be used directly as the <code class="docutils literal notranslate"><span class="pre">DJANGO_CRADMIN_REGISTER_ACCOUNT_FORM_CLASS</span></code>
+setting, or extended to create a custom register account form.</p>
+<p>To use it directly, set the following setting:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">DJANGO_CRADMIN_REGISTER_ACCOUNT_FORM_CLASS</span> <span class="o">=</span> \
+    <span class="s1">&#39;django_cradmin.apps.cradmin_register_account.forms.auth_user.AuthUserCreateAccountAutoUsernameForm&#39;</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_register_account.forms.auth_user.AuthUserCreateAccountAutoUsernameForm.set_extra_user_attributes">
+<span class="sig-name descname"><span class="pre">set_extra_user_attributes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#django_cradmin.apps.cradmin_register_account.forms.auth_user.AuthUserCreateAccountAutoUsernameForm.set_extra_user_attributes" title="Permalink to this definition"></a></dt>
+<dd><p>Override this to set extra user attributes in addition to
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">deactivate_user()</span></code> and
+<a class="reference internal" href="#django_cradmin.apps.cradmin_register_account.forms.base.AbstractCreateAccountForm.set_password" title="django_cradmin.apps.cradmin_register_account.forms.base.AbstractCreateAccountForm.set_password"><code class="xref py py-meth docutils literal notranslate"><span class="pre">set_password()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_register_account.forms.auth_user.AuthUserCreateAccountAutoUsernameForm.get_field_renderables">
+<span class="sig-name descname"><span class="pre">get_field_renderables</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#django_cradmin.apps.cradmin_register_account.forms.auth_user.AuthUserCreateAccountAutoUsernameForm.get_field_renderables" title="Permalink to this definition"></a></dt>
+<dd><p>Get field renderables.</p>
+<p>Must be overridden in subclasses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List of <code class="xref py py-class docutils literal notranslate"><span class="pre">django_cradmin.uicontainer.container.AbstractContainerRenderable</span></code>.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.4/library/stdtypes.html#list" title="(in Python v3.4)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_register_account.forms.auth_user.AuthUserCreateAccountAutoUsernameForm.media">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">media</span></span><a class="headerlink" href="#django_cradmin.apps.cradmin_register_account.forms.auth_user.AuthUserCreateAccountAutoUsernameForm.media" title="Permalink to this definition"></a></dt>
+<dd><p>Return all media required to render the widgets on this form.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="form-classes-for-custom-user-models">
+<h3>Form classes for custom user models<a class="headerlink" href="#form-classes-for-custom-user-models" title="Permalink to this heading"></a></h3>
+<p>The following forms are available in <code class="docutils literal notranslate"><span class="pre">django_cradmin.apps.cradmin_register_account.forms.email</span></code>.
+They provide ready-to-use register account forms suitable if your user model has an <code class="docutils literal notranslate"><span class="pre">email</span></code>-field
+and a <code class="docutils literal notranslate"><span class="pre">set_password()</span></code>-method. They can also be used as base classes for your own register account forms.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_register_account.forms.email.EmailUserCreateAccountForm">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">EmailUserCreateAccountForm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#django_cradmin.apps.cradmin_register_account.forms.email.EmailUserCreateAccountForm" title="Permalink to this definition"></a></dt>
+<dd><p>A create account form for a custom user model with an
+email field and a <code class="docutils literal notranslate"><span class="pre">set_password()</span></code>-method.</p>
+<p>Can be used directly as the <code class="docutils literal notranslate"><span class="pre">DJANGO_CRADMIN_REGISTER_ACCOUNT_FORM_CLASS</span></code>
+setting, or extended to create a custom register account form.</p>
+<p>To use it directly, set the following setting:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">DJANGO_CRADMIN_REGISTER_ACCOUNT_FORM_CLASS</span> <span class="o">=</span> \
+    <span class="s1">&#39;django_cradmin.apps.cradmin_register_account.forms.email.EmailUserCreateAccountForm&#39;</span>
+</pre></div>
+</div>
+<p>The form only includes username, email and password. To add more fields, simply
+override the Meta-class and the field layout. Lets say we want to make
+a form that includes the <code class="docutils literal notranslate"><span class="pre">full_name</span></code> field:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">django_cradmin.apps.cradmin_register_account.forms.auth_user</span> <span class="kn">import</span> <span class="n">EmailUserCreateAccountForm</span>
+
+<span class="k">class</span> <span class="nc">AuthUserCreateAccountWithFullNameForm</span><span class="p">(</span><span class="n">EmailUserCreateAccountForm</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">(</span><span class="n">EmailUserCreateAccountForm</span><span class="o">.</span><span class="n">Meta</span><span class="p">):</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;username&#39;</span><span class="p">,</span> <span class="s1">&#39;full_name&#39;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">get_field_renderables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">field_renderables</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">AuthUserCreateAccountWithFullNameForm</span><span class="p">)</span><span class="o">.</span><span class="n">get_field_renderables</span><span class="p">()</span>
+        <span class="n">field_renderables</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">uicontainer</span><span class="o">.</span><span class="n">fieldwrapper</span><span class="o">.</span><span class="n">FieldWrapper</span><span class="p">(</span><span class="n">fieldname</span><span class="o">=</span><span class="s1">&#39;full_name))</span>
+        <span class="k">return</span> <span class="n">field_renderables</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_register_account.forms.email.EmailUserCreateAccountForm.get_field_renderables">
+<span class="sig-name descname"><span class="pre">get_field_renderables</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#django_cradmin.apps.cradmin_register_account.forms.email.EmailUserCreateAccountForm.get_field_renderables" title="Permalink to this definition"></a></dt>
+<dd><p>Get field renderables.</p>
+<p>Must be overridden in subclasses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List of <code class="xref py py-class docutils literal notranslate"><span class="pre">django_cradmin.uicontainer.container.AbstractContainerRenderable</span></code>.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.4/library/stdtypes.html#list" title="(in Python v3.4)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_register_account.forms.email.EmailUserCreateAccountForm.media">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">media</span></span><a class="headerlink" href="#django_cradmin.apps.cradmin_register_account.forms.email.EmailUserCreateAccountForm.media" title="Permalink to this definition"></a></dt>
+<dd><p>Return all media required to render the widgets on this form.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="abstract-register-account-form-classes">
+<h3>Abstract register account form classes<a class="headerlink" href="#abstract-register-account-form-classes" title="Permalink to this heading"></a></h3>
+<p>The following base forms are available in <code class="docutils literal notranslate"><span class="pre">django_cradmin.apps.cradmin_register_account.forms.base</span></code>.
+They provide a common structure for all the register account forms.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_register_account.forms.base.AbstractCreateAccountForm">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AbstractCreateAccountForm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#django_cradmin.apps.cradmin_register_account.forms.base.AbstractCreateAccountForm" title="Permalink to this definition"></a></dt>
+<dd><p>Base class for account creation forms.</p>
+<p>Subclasses <strong>must</strong> override:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#django_cradmin.apps.cradmin_register_account.forms.base.AbstractCreateAccountForm.set_password" title="django_cradmin.apps.cradmin_register_account.forms.base.AbstractCreateAccountForm.set_password"><code class="xref py py-meth docutils literal notranslate"><span class="pre">set_password()</span></code></a>.</p></li>
+<li><p><a class="reference internal" href="#django_cradmin.apps.cradmin_register_account.forms.base.AbstractCreateAccountForm.get_field_renderables" title="django_cradmin.apps.cradmin_register_account.forms.base.AbstractCreateAccountForm.get_field_renderables"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_field_renderables()</span></code></a>.</p></li>
+</ul>
+<dl class="py method">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_register_account.forms.base.AbstractCreateAccountForm.get_submit_button_label">
+<span class="sig-name descname"><span class="pre">get_submit_button_label</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#django_cradmin.apps.cradmin_register_account.forms.base.AbstractCreateAccountForm.get_submit_button_label" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the submit button label.</p>
+<p>Override this to provide a custom label.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_register_account.forms.base.AbstractCreateAccountForm.set_password">
+<span class="sig-name descname"><span class="pre">set_password</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#django_cradmin.apps.cradmin_register_account.forms.base.AbstractCreateAccountForm.set_password" title="Permalink to this definition"></a></dt>
+<dd><p>Set the password of the given <code class="docutils literal notranslate"><span class="pre">user</span></code>.</p>
+<p><strong>Must</strong> be overridden in subclasses.</p>
+<p>Should not save the user, only set the password.</p>
+<p>Typically this will retrieve the password from the form, or
+generate a password, and set the password using <code class="docutils literal notranslate"><span class="pre">user.set_password</span></code>. Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyCreateAccountForm</span><span class="p">(</span><span class="n">AbstractCreateAccountForm</span><span class="p">):</span>
+    <span class="o">...</span>
+    <span class="k">def</span> <span class="nf">set_password</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user</span><span class="p">):</span>
+        <span class="n">raw_password</span> <span class="o">=</span> <span class="s1">&#39;secret&#39;</span>  <span class="c1"># or self.cleaned_data[&#39;password&#39;]</span>
+        <span class="n">user</span><span class="o">.</span><span class="n">set_password</span><span class="p">(</span><span class="n">raw_password</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_register_account.forms.base.AbstractCreateAccountForm.set_extra_user_attributes">
+<span class="sig-name descname"><span class="pre">set_extra_user_attributes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#django_cradmin.apps.cradmin_register_account.forms.base.AbstractCreateAccountForm.set_extra_user_attributes" title="Permalink to this definition"></a></dt>
+<dd><p>Override this to set extra user attributes in addition to
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">deactivate_user()</span></code> and
+<a class="reference internal" href="#django_cradmin.apps.cradmin_register_account.forms.base.AbstractCreateAccountForm.set_password" title="django_cradmin.apps.cradmin_register_account.forms.base.AbstractCreateAccountForm.set_password"><code class="xref py py-meth docutils literal notranslate"><span class="pre">set_password()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_register_account.forms.base.AbstractCreateAccountForm.set_extra_user_attributes_before_clean">
+<span class="sig-name descname"><span class="pre">set_extra_user_attributes_before_clean</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#django_cradmin.apps.cradmin_register_account.forms.base.AbstractCreateAccountForm.set_extra_user_attributes_before_clean" title="Permalink to this definition"></a></dt>
+<dd><p>Override this to set extra user attributes before the any cleaning is run on the user instance.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_register_account.forms.base.AbstractCreateAccountForm.get_field_renderables">
+<span class="sig-name descname"><span class="pre">get_field_renderables</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#django_cradmin.apps.cradmin_register_account.forms.base.AbstractCreateAccountForm.get_field_renderables" title="Permalink to this definition"></a></dt>
+<dd><p>Get field renderables.</p>
+<p>Must be overridden in subclasses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List of <code class="xref py py-class docutils literal notranslate"><span class="pre">django_cradmin.uicontainer.container.AbstractContainerRenderable</span></code>.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.4/library/stdtypes.html#list" title="(in Python v3.4)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_register_account.forms.base.AbstractCreateAccountForm.get_form_renderable">
+<span class="sig-name descname"><span class="pre">get_form_renderable</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#django_cradmin.apps.cradmin_register_account.forms.base.AbstractCreateAccountForm.get_form_renderable" title="Permalink to this definition"></a></dt>
+<dd><p>Get a <a class="reference internal" href="renderable.html#django_cradmin.renderable.AbstractRenderable" title="django_cradmin.renderable.AbstractRenderable"><code class="xref py py-class docutils literal notranslate"><span class="pre">django_cradmin.renderable.AbstractRenderable</span></code></a> that renders
+the form.</p>
+<p>This will typically be a <a class="reference internal" href="uicontainer.html"><span class="doc">uicontainer — HTML builder with form support</span></a> tree containing a
+<code class="xref py py-class docutils literal notranslate"><span class="pre">django_cradmin.uicontainer.form.Form</span></code>, but it can be any
+AbstractRenderable. Not using a <code class="xref py py-class docutils literal notranslate"><span class="pre">django_cradmin.uicontainer.form.Form</span></code>
+(or a subclass of it) is fairly complex when it comes to handling error
+messages and form rendering, so it is generally not recommended.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The renderable object.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="renderable.html#django_cradmin.renderable.AbstractRenderable" title="django_cradmin.renderable.AbstractRenderable">django_cradmin.renderable.AbstractRenderable</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_register_account.forms.base.AbstractCreateAccountForm.save">
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">commit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#django_cradmin.apps.cradmin_register_account.forms.base.AbstractCreateAccountForm.save" title="Permalink to this definition"></a></dt>
+<dd><p>Save this form’s self.instance object if commit=True. Otherwise, add
+a save_m2m() method to the form which can be called after the instance
+is saved manually at a later time. Return the model instance.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_register_account.forms.base.AbstractCreateAccountForm.media">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">media</span></span><a class="headerlink" href="#django_cradmin.apps.cradmin_register_account.forms.base.AbstractCreateAccountForm.media" title="Permalink to this definition"></a></dt>
+<dd><p>Return all media required to render the widgets on this form.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_register_account.forms.base.AbstractCreateAccountWithPasswordForm">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AbstractCreateAccountWithPasswordForm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#django_cradmin.apps.cradmin_register_account.forms.base.AbstractCreateAccountWithPasswordForm" title="Permalink to this definition"></a></dt>
+<dd><p>Extends <a class="reference internal" href="#django_cradmin.apps.cradmin_register_account.forms.base.AbstractCreateAccountForm" title="django_cradmin.apps.cradmin_register_account.forms.base.AbstractCreateAccountForm"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractCreateAccountForm</span></code></a> with the typical
+password + repeat password fields. Validates that the passwords
+match.</p>
+<p>Subclasses <strong>must</strong> override:</p>
+<ul class="simple">
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">deactivate_user()</span></code>.</p></li>
+</ul>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_register_account.forms.base.AbstractCreateAccountWithPasswordForm.password1">
+<span class="sig-name descname"><span class="pre">password1</span></span><a class="headerlink" href="#django_cradmin.apps.cradmin_register_account.forms.base.AbstractCreateAccountWithPasswordForm.password1" title="Permalink to this definition"></a></dt>
+<dd><p>The first password.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_register_account.forms.base.AbstractCreateAccountWithPasswordForm.password2">
+<span class="sig-name descname"><span class="pre">password2</span></span><a class="headerlink" href="#django_cradmin.apps.cradmin_register_account.forms.base.AbstractCreateAccountWithPasswordForm.password2" title="Permalink to this definition"></a></dt>
+<dd><p>The repeat password fields.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_register_account.forms.base.AbstractCreateAccountWithPasswordForm.set_password">
+<span class="sig-name descname"><span class="pre">set_password</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#django_cradmin.apps.cradmin_register_account.forms.base.AbstractCreateAccountWithPasswordForm.set_password" title="Permalink to this definition"></a></dt>
+<dd><p>Set the password of the user using <code class="docutils literal notranslate"><span class="pre">user.set_password(...)</span></code>.</p>
+<p>Does not save the user.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_register_account.forms.base.AbstractCreateAccountWithPasswordForm.clean">
+<span class="sig-name descname"><span class="pre">clean</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#django_cradmin.apps.cradmin_register_account.forms.base.AbstractCreateAccountWithPasswordForm.clean" title="Permalink to this definition"></a></dt>
+<dd><p>Validate the form.</p>
+<p>The default implementation validates that the passwords
+match.</p>
+<p>Make sure to call super if you override this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyCreateAccountForm</span><span class="p">(</span><span class="n">AbstractCreateAccountWithPasswordForm</span><span class="p">):</span>
+    <span class="o">...</span>
+    <span class="k">def</span> <span class="nf">clean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">cleaned_data</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">MyCreateAccountForm</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">clean</span><span class="p">()</span>
+        <span class="c1"># ...</span>
+        <span class="k">return</span> <span class="n">cleaned_data</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="django_cradmin.apps.cradmin_register_account.forms.base.AbstractCreateAccountWithPasswordForm.media">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">media</span></span><a class="headerlink" href="#django_cradmin.apps.cradmin_register_account.forms.base.AbstractCreateAccountWithPasswordForm.media" title="Permalink to this definition"></a></dt>
+<dd><p>Return all media required to render the widgets on this form.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+<section id="where-to-redirect-after-the-account-has-been-created">
+<span id="register-account-redirect-after-login"></span><h2>Where to redirect after the account has been created<a class="headerlink" href="#where-to-redirect-after-the-account-has-been-created" title="Permalink to this heading"></a></h2>
+<p>You can change the <code class="docutils literal notranslate"><span class="pre">DJANGO_CRADMIN_REGISTER_ACCOUNT_REDIRECT_URL</span></code> or <code class="docutils literal notranslate"><span class="pre">LOGIN_URL</span></code>
+settings as <a class="reference internal" href="#register-account-settings"><span class="std std-ref">documented above</span></a> if you want to change
+he default URL to redirect to after the account has been created.</p>
+<p>If account creation is part of a workflow where you just want users to register a
+user before they continue to the next step, you can use the <code class="docutils literal notranslate"><span class="pre">next</span></code> querystring
+parameter. Example:</p>
+<div class="highlight-django notranslate"><div class="highlight"><pre><span></span><span class="x">&lt;a href=&quot;</span><span class="cp">{%</span> <span class="k">url</span> <span class="s1">&#39;cradmin-register-account-begin&#39;</span> <span class="cp">%}</span><span class="x">?next=/account/edit/details&quot;&gt;</span>
+<span class="x">    Create account</span>
+<span class="x">&lt;/a&gt;</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="apps.cradmin_authenticate.html" class="btn btn-neutral float-left" title="cradmin_authenticate — Login/logout views" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="apps.cradmin_activate_account.html" class="btn btn-neutral float-right" title="cradmin_activate_account — An activate account workflow" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2014, Espen Angell Kristiansen, Vegard Angell, Tor Johansen, Magne Westlie.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
