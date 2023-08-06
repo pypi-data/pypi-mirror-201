@@ -1,0 +1,76 @@
+[build-system]
+requires = ["setuptools_scm[toml] >= 6.2"]
+build-backend = "setuptools.build_meta"
+
+# https://setuptools.pypa.io/en/latest/userguide/pyproject_config.html
+[project]
+name = "setuptools-generate"
+description = "Generate shell completions and man page when building a python package."
+authors = [{ name = "Wu Zhenyu", email = "wuzhenyu@ustc.edu" }]
+readme = "README.md"
+requires-python = ">= 3.9"
+keywords = ["shell completion", "man", "build", "setuptools"]
+license = { text = "GPL v3" }
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Topic :: Software Development :: Build Tools",
+  "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+  "Operating System :: Microsoft :: Windows",
+  "Operating System :: POSIX",
+  "Operating System :: Unix",
+  "Operating System :: MacOS",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+]
+dynamic = ["version", "dependencies", "optional-dependencies"]
+
+[project.urls]
+Homepage = "https://setuptools-generate.readthedocs.io"
+Download = "https://github.com/Freed-Wu/setuptools-generate/releases"
+"Bug Report" = "https://github.com/Freed-Wu/setuptools-generate/issues"
+Source = "https://github.com/Freed-Wu/setuptools-generate"
+
+[project.entry-points."setuptools.finalize_distribution_options"]
+generate = "setuptools_generate:generate"
+
+[tool.setuptools.package-data]
+setuptools_generate = ["py.typed", "assets/**"]
+
+[tool.setuptools_scm]
+write_to = "src/setuptools_generate/_version.py"
+
+[tool.setuptools.dynamic]
+dependencies = { file = "requirements.txt" }
+
+# begin: scripts/update-pyproject.toml.pl
+[tool.setuptools.dynamic.optional-dependencies.dev]
+file = "requirements/dev.txt"
+# end: scripts/update-pyproject.toml.pl
+
+[tool.black]
+line-length = 79
+
+[tool.isort]
+line_length = 79
+profile = "black"
+
+# https://github.com/PyCQA/pydocstyle/issues/418
+[tool.pydocstyle]
+add_ignore = "D205, D400"
+
+[tool.doq]
+template_path = "templates"
+
+[tool.coverage.report]
+exclude_lines = [
+  "if TYPE_CHECKING:",
+  "if __name__ == .__main__.:",
+  "\\s*import tomli as tomllib",
+]
+
+[tool.bandit.assert_used]
+skips = ["*_test.py", "test_*.py"]
