@@ -1,0 +1,3 @@
+from setuptools import setup
+
+setup(name='FlagCapture', packages=['FlagCapture'], zip_safe=True, version='0.1.6', author='Michael Caggeso', author_email='laurencaggeso@gmail.com', long_description='Made it so you can move while people log on, and so you have only to type `import FlagCapture` and `import FlagCapture.Game` and so you can always tag people', description='Made it so you can move while people log on, and so you have only to type `import FlagCapture` and `import FlagCapture.Game` and so you can always tag people', url="https://pypi.org/search/?q=FlagCapture&o=", download_url="https://pypi.org/search/?q=FlagCapture&o=", )
