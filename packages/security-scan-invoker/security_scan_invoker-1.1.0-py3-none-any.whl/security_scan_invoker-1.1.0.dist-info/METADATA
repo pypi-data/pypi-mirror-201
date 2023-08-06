@@ -1,0 +1,202 @@
+Metadata-Version: 2.1
+Name: security-scan-invoker
+Version: 1.1.0
+Summary: Submits a Veracode scan if able. Will perform pre-scan checks to determine the
+Project-URL: Source Code, https://github.com/JohnDeere/security-scan-invoker
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: requests
+Requires-Dist: veracode-api-signing
+Requires-Dist: xmltodict
+Requires-Dist: black
+
+<!--
+# Copyright 2020-2023 Deere & Company.
+
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+
+#     http://www.apache.org/licenses/LICENSE-2.0
+
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+-->
+
+# security-scan-invoker
+
+A python module to submit and monitor scan statuses for static security scanning platforms
+
+### Currently Supported Integrations
+
+- Veracode
+
+### Prerequisites
+
+- Install Make
+
+  For Mac users, you can use [Homebrew](https://brew.sh/)
+
+  `brew install make`
+
+  For Windows users, you can use [Chocolatey](https://chocolatey.org/install)
+
+  `choco install make`
+
+### Project Initialization
+
+- Setup Virtual Environment
+
+  `make init`
+
+    - Activate venv
+        - Mac
+            - `source venv/bin/activate`
+        - Windows
+            - `.\venv\Scripts\activate`
+
+  You’ll know the venv is activated since you’ll see (venv) in the terminal
+
+    - To deactivate venv, simply type `deactivate` in the terminal
+
+- Run Tox from the Makefile
+
+  `make verify`
+
+- Auto format Python files to PEP8
+
+  `make fix`
+
+- Clean up Python virtual environments
+
+  `make clean`
+
+### Supported Python Versions
+
+Explicitly tested and supported Python versions can be found in the [tox.ini](tox.ini) file, but
+generally this will be the latest 3 versions of Python.
+
+### Usage
+
+**GitHub Action**
+
+```yaml
+  - name: Veracode upload for analysis
+    uses: JohnDeere/security-scan-invoker@{VERSION}
+    with:
+      veracode_secret_id: ${{ secrets.VERACODE_ACCESS_KEY_ID }}
+      veracode_secret_key: ${{ secrets.VERACODE_SECRET_ACCESS_KEY }}
+      package_to_scan: veracode-scanner.zip
+      veracode_project_name: "Your_Project_name"
+```
+
+**CLI usage:**
+
+`security_scan_invoker --vid <ID> --vkey <KEY> --appname <APPNAME> --filepath <FILEPATH> --version <VERSION>`
+
+**CLI with optional arguments included:**
+
+`security_scan_invoker --vid <ID> --vkey <KEY> --appname <APPNAME> --filepath <FILEPATH> --version <VERSION> --allow_rescan <True> --select_previous_modules <True>`
+
+**Python module import usage:**
+
+``` Python
+from security_scan_invoker.main import run_veracode_scanner_app
+from security_scan_invoker.scanner_args import ScannerArgs
+
+args = {
+   "vid": "<VID>",
+   "vkey": "<VKEY>",
+   "appname": "<APPNAME>",
+   "filepath": "<FILEPATH>",
+   "version": "<UNIQUE_VERSION>",
+   "allow_rescan": "<ALLOW_RESCAN>",
+   "select_previous_modules": "<SELECT_PREVIOUS_MODULES>",
+}
+
+exit_code: int = run_veracode_scanner_app(ScannerArgs(args))
+```
+
+**Note:** `version` must be unique. One possible way to maintain uniqueness is by setting the
+version to `commit hash + job number`.
+
+### Build Actions and Results
+
+| Previous scan status    | New version? | ALLOW_RESCAN | Action                                   | Build status             |
+|-------------------------|--------------|--------------|------------------------------------------|--------------------------|
+| Results Ready           | Y            | N/A          | Submit new scan                          | Based on submit response |
+| Results Ready           | N            | false        | Skip scan                                | Pass                     |
+| Results Ready           | N            | true         | Submit Rescan                            | Based on submit response |
+| Scan in Progress        | Y/N          | N/A          | Skip scan                                | Pass                     |
+| Pre-Scan Submitted      | Y/N          | N/A          | Skip scan                                | Pass                     |
+| Pre-Scan Success        | Y/N          | N/A          | Skip scan                                | Pass                     |
+| Not Submitted to Engine | Y/N          | N/A          | Skip scan                                | Pass                     |
+| Submitted to Engine     | Y/N          | N/A          | Skip scan                                | Pass                     |
+| Pending Internal Review | Y/N          | N/A          | Skip scan                                | Pass                     |
+| Incomplete              | Y            | N/A          | Delete Previous Scan and Submit New Scan | Based on submit response |
+| Incomplete              | N            | N/A          | Fail build                               | Fail                     |
+| Scan Canceled           | Y            | N/A          | Delete Previous Scan and Submit New Scan | Based on submit response |
+| Scan Canceled           | N            | N/A          | Fail build                               | Fail                     |
+| No Modules Defined      | Y            | N/A          | Delete Previous Scan and Submit New Scan | Based on submit response |
+| No Modules Defined      | N            | N/A          | Fail build                               | Fail                     |
+| Pre-scan Canceled       | Y            | N/A          | Delete Previous Scan and Submit New Scan | Based on submit response |
+| Pre-scan Canceled       | N            | N/A          | Fail build                               | Fail                     |
+| Pre-scan Failed         | Y            | N/A          | Delete Previous Scan and Submit New Scan | Based on submit response |
+| Pre-scan Failed         | N            | N/A          | Fail build                               | Fail                     |
+
+### FAQ and Common Errors
+
+**Q**: I got an error saying `ERROR: Get app list returned status_code: 401`
+
+**A:** This means the passed API credentials don't have access to the Veracode App Profile
+
+This could be due to any of the following:
+
+1. Veracode credentials aren't properly passed into the build (from GitHub secrets, for instance)
+2. Veracode credentials are expired and need to be regenerated. By default, credentials are valid
+   for 1 year.
+3. The Veracode credentials don't have access to the app profile.
+
+*Note*: Sometimes Veracode returns 401 errors for unknown reasons. This is rare, but may coincide
+with a problem in their platform. Check the [Veracode status page](https://status.veracode.com/) to
+check the health of their services.
+
+**Q**: I got an error
+saying `ERROR: Can't find app called ______ in any of the _____ apps associated with your ID and Key`
+
+**A:** This means that your Veracode credentials were recognized by Veracode but the app wasn't in
+the list of apps tied to your credentials.
+
+This could be due to any of the following:
+
+1. The specified app profile doesn't exist in Veracode.
+2. Your credentials don't have access to the app.
+
+**Q**: I got an error saying `ERROR: The following build status is not handled: ______`
+
+**A:** This means the previous scan failed and is in a state that needs investigation. It is not
+handled automatically by veracode-scanner.
+Please [create an issue](https://github.com/JohnDeere/veracode-scanner/issues) on this repository.
+
+**Q:** I got an error
+saying `ERROR: You are trying to scan version ______, which is the same version as the previous scan, and it is in a bad state: ______`
+
+**A:** This means that you are re-executing a scan with the same commit as the previous scan, which
+is in a bad state. Follow these steps:
+
+1. Scan with a new commit. veracode-scanner will delete the previous bad scan and start a scan on
+   the new commit.
+
+**Q:** I got an error
+saying `ERROR: We found an issue in deleting the previous scan, which is in a bad state`
+
+**A:** This means veracode-scanner failed to automatically delete the previous scan. Ensure that
+your Veracode credentials have `Delete Scans` access.
+
+**Q: I found a bug. What do I do?**
+
+**A:** Submit bug reports and feature requests as
+an [issue](https://github.com/JohnDeere/veracode-scanner/issues) on the veracode-scanner repo
