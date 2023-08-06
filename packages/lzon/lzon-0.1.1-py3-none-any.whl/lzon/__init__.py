@@ -1,0 +1,1 @@
+from .lzon import loads
