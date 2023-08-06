@@ -1,0 +1,61 @@
+[tool.poetry]
+name = "nmdc_submission_schema"
+version = "1.0.2"
+description = "The home of the NMDC submission schema. *Not* the home of sheets_and_friends. *Not* a GH pages host of NMDC DataHarmonizer interfaces."
+authors = ["Mark Andrew Miller <mam@lbl.gov>"]
+license = "MIT"
+readme = "README.md"
+include = ["README.md", "src/nmdc_submission_schema/schema", "project"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+# = 1.4.5 for merged SchemaViews from URLs
+linkml-runtime = "^1.4.0"
+
+[tool.poetry-dynamic-versioning]
+# We need poetry-dynamic-versioning to update the version in the src schema file,
+# then generate project artifacts from that schema with the real version populated,
+# and then perform any build or publish actions. Since this requires running
+# `poetry dynamic-versioning` manually before `poetry build`, we set enable = false.
+enable = false
+vcs = "git"
+style = "pep440"
+
+[tool.poetry-dynamic-versioning.substitution]
+files = [
+    "*.py",
+    "src/**/__init__.py",
+    "src/**/__version__.py",
+    "src/**/_version.py",
+    "src/nmdc_submission_schema/schema/nmdc_submission_schema.yaml"
+]
+patterns = [
+    "(^\\s*__version__\\s*(?::.*?)?=\\s*['\\\"])[^'\\\"]*(['\\\"])",
+    "(^version:\\s*['\\\"]?)[^'\\\"]*?(['\\\"]?)$"
+]
+
+[tool.poetry.dev-dependencies]
+check-jsonschema = "^0.22.0"
+linkml = "^1.4.0"
+mkdocs-material = "^9.1.2"
+mkdocs-mermaid2-plugin = "^0.6.0"
+oaklib = "^0.3.1"
+schemasheets = "^0.1.21"
+
+sheets-and-friends = "^0.5.0"
+## /Users/MAM/Documents/gitrepos/sheets_and_friends
+## /home/mark/gitrepos/sheets_and_friends
+#sheets-and-friends = { path = "/home/mark/gitrepos/sheets_and_friends", develop = true }
+
+
+[build-system]
+requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]
+build-backend = "poetry_dynamic_versioning.backend"
+
+[tool.poetry.extras]
+docs = ["linkml", "mkdocs-material"]
+
+[tool.poetry.scripts]
+oak-tree-to-pv-list = "src.nmdc_submission_schema.datamodel.oak_tree_to_pv_list:main"
+dh-json2linkml = 'src.nmdc_submission_schema.datamodel.dh_json2linkml:update_json'
+linkml-json2dh = 'src.nmdc_submission_schema.datamodel.linkml_json2dh:extract_lists'
