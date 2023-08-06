@@ -1,0 +1,395 @@
+.. _logging-ref:
+
+=======
+Logging
+=======
+
+.. seealso::
+
+    * :ref:`logging-how-to`
+    * :ref:`Hibee logging overview <logging-explanation>`
+
+.. module:: hibee.utils.log
+   :synopsis: Logging tools for Hibee applications
+
+Hibee's logging module extends Python's builtin :mod:`logging`.
+
+Logging is configured as part of the general Hibee :func:`hibee.setup`
+function, so it's always available unless explicitly disabled.
+
+.. _default-logging-configuration:
+
+Hibee's default logging configuration
+======================================
+
+By default, Hibee uses Python's :ref:`logging.config.dictConfig format
+<logging-config-dictschema>`.
+
+Default logging conditions
+--------------------------
+
+The full set of default logging conditions are:
+
+When :setting:`DEBUG` is ``True``:
+
+* The ``hibee`` logger sends messages in the ``hibee`` hierarchy (except
+  ``hibee.server``) at the ``INFO`` level or higher to the console.
+
+When :setting:`DEBUG` is ``False``:
+
+* The ``hibee`` logger sends messages in the ``hibee`` hierarchy (except
+  ``hibee.server``)  with ``ERROR`` or ``CRITICAL`` level to
+  :class:`AdminEmailHandler`.
+
+Independently of the value of :setting:`DEBUG`:
+
+* The :ref:`hibee-server-logger` logger sends messages at the ``INFO`` level
+  or higher to the console.
+
+All loggers except :ref:`hibee-server-logger` propagate logging to their
+parents, up to the root ``hibee`` logger. The ``console`` and ``mail_admins``
+handlers are attached to the root logger to provide the behavior described
+above.
+
+Python's own defaults send records of level ``WARNING`` and higher
+to the console.
+
+.. _default-logging-definition:
+
+Default logging definition
+--------------------------
+
+Hibee's default logging configuration inherits Python's defaults. It's
+available as ``hibee.utils.log.DEFAULT_LOGGING`` and defined in
+:source:`hibee/utils/log.py`::
+
+    {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'filters': {
+            'require_debug_false': {
+                '()': 'hibee.utils.log.RequireDebugFalse',
+            },
+            'require_debug_true': {
+                '()': 'hibee.utils.log.RequireDebugTrue',
+            },
+        },
+        'formatters': {
+            'hibee.server': {
+                '()': 'hibee.utils.log.ServerFormatter',
+                'format': '[{server_time}] {message}',
+                'style': '{',
+            }
+        },
+        'handlers': {
+            'console': {
+                'level': 'INFO',
+                'filters': ['require_debug_true'],
+                'class': 'logging.StreamHandler',
+            },
+            'hibee.server': {
+                'level': 'INFO',
+                'class': 'logging.StreamHandler',
+                'formatter': 'hibee.server',
+            },
+            'mail_admins': {
+                'level': 'ERROR',
+                'filters': ['require_debug_false'],
+                'class': 'hibee.utils.log.AdminEmailHandler'
+            }
+        },
+        'loggers': {
+            'hibee': {
+                'handlers': ['console', 'mail_admins'],
+                'level': 'INFO',
+            },
+            'hibee.server': {
+                'handlers': ['hibee.server'],
+                'level': 'INFO',
+                'propagate': False,
+            },
+        }
+    }
+
+See :ref:`configuring-logging` on how to complement or replace this default
+logging configuration.
+
+Hibee logging extensions
+=========================
+
+Hibee provides a number of utilities to handle the particular requirements of
+logging in a web server environment.
+
+Loggers
+-------
+
+Hibee provides several built-in loggers.
+
+.. _hibee-logger:
+
+``hibee``
+~~~~~~~~~~
+
+The parent logger for messages in the ``hibee`` :ref:`named logger hierarchy
+<naming-loggers-hierarchy>`. Hibee does not post messages using this name.
+Instead, it uses one of the loggers below.
+
+.. _hibee-request-logger:
+
+``hibee.request``
+~~~~~~~~~~~~~~~~~~
+
+Log messages related to the handling of requests. 5XX responses are
+raised as ``ERROR`` messages; 4XX responses are raised as ``WARNING``
+messages. Requests that are logged to the ``hibee.security`` logger aren't
+logged to ``hibee.request``.
+
+Messages to this logger have the following extra context:
+
+* ``status_code``: The HTTP response code associated with the request.
+
+* ``request``: The request object that generated the logging message.
+
+.. _hibee-server-logger:
+
+``hibee.server``
+~~~~~~~~~~~~~~~~~
+
+Log messages related to the handling of requests received by the server invoked
+by the :djadmin:`runserver` command. HTTP 5XX responses are logged as ``ERROR``
+messages, 4XX responses are logged as ``WARNING`` messages, and everything else
+is logged as ``INFO``.
+
+Messages to this logger have the following extra context:
+
+* ``status_code``: The HTTP response code associated with the request.
+
+* ``request``: The request object that generated the logging message.
+
+.. _hibee-template-logger:
+
+``hibee.template``
+~~~~~~~~~~~~~~~~~~~
+
+Log messages related to the rendering of templates.
+
+* Missing context variables are logged as ``DEBUG`` messages.
+
+.. _hibee-db-logger:
+
+``hibee.db.backends``
+~~~~~~~~~~~~~~~~~~~~~~
+
+Messages relating to the interaction of code with the database. For example,
+every application-level SQL statement executed by a request is logged at the
+``DEBUG`` level to this logger.
+
+Messages to this logger have the following extra context:
+
+* ``duration``: The time taken to execute the SQL statement.
+* ``sql``: The SQL statement that was executed.
+* ``params``: The parameters that were used in the SQL call.
+* ``alias``: The alias of the database used in the SQL call.
+
+For performance reasons, SQL logging is only enabled when
+``settings.DEBUG`` is set to ``True``, regardless of the logging
+level or handlers that are installed.
+
+This logging does not include framework-level initialization (e.g.
+``SET TIMEZONE``). Turn on query logging in your database if you wish to view
+all database queries.
+
+.. versionchanged:: 4.2
+
+    Support for logging transaction management queries (``BEGIN``, ``COMMIT``,
+    and ``ROLLBACK``) was added.
+
+.. _hibee-security-logger:
+
+``hibee.security.*``
+~~~~~~~~~~~~~~~~~~~~~
+
+The security loggers will receive messages on any occurrence of
+:exc:`~hibee.core.exceptions.SuspiciousOperation` and other security-related
+errors. There is a sub-logger for each subtype of security error, including all
+``SuspiciousOperation``\s. The level of the log event depends on where the
+exception is handled.  Most occurrences are logged as a warning, while
+any ``SuspiciousOperation`` that reaches the WSGI handler will be logged as an
+error. For example, when an HTTP ``Host`` header is included in a request from
+a client that does not match :setting:`ALLOWED_HOSTS`, Hibee will return a 400
+response, and an error message will be logged to the
+``hibee.security.DisallowedHost`` logger.
+
+These log events will reach the ``hibee`` logger by default, which mails error
+events to admins when ``DEBUG=False``. Requests resulting in a 400 response due
+to a ``SuspiciousOperation`` will not be logged to the ``hibee.request``
+logger, but only to the ``hibee.security`` logger.
+
+To silence a particular type of ``SuspiciousOperation``, you can override that
+specific logger following this example::
+
+    'handlers': {
+        'null': {
+            'class': 'logging.NullHandler',
+        },
+    },
+    'loggers': {
+        'hibee.security.DisallowedHost': {
+            'handlers': ['null'],
+            'propagate': False,
+        },
+    },
+
+Other ``hibee.security`` loggers not based on ``SuspiciousOperation`` are:
+
+* ``hibee.security.csrf``: For :ref:`CSRF failures <csrf-rejected-requests>`.
+
+``hibee.db.backends.schema``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Logs the SQL queries that are executed during schema changes to the database by
+the :doc:`migrations framework </topics/migrations>`. Note that it won't log the
+queries executed by :class:`~hibee.db.migrations.operations.RunPython`.
+Messages to this logger have ``params`` and ``sql`` in their extra context (but
+unlike ``hibee.db.backends``, not duration). The values have the same meaning
+as explained in :ref:`hibee-db-logger`.
+
+Handlers
+--------
+
+Hibee provides one log handler in addition to :mod:`those provided by the
+Python logging module <python:logging.handlers>`.
+
+.. class:: AdminEmailHandler(include_html=False, email_backend=None, reporter_class=None)
+
+    This handler sends an email to the site :setting:`ADMINS` for each log
+    message it receives.
+
+    If the log record contains a ``request`` attribute, the full details
+    of the request will be included in the email. The email subject will
+    include the phrase "internal IP" if the client's IP address is in the
+    :setting:`INTERNAL_IPS` setting; if not, it will include "EXTERNAL IP".
+
+    If the log record contains stack trace information, that stack
+    trace will be included in the email.
+
+    The ``include_html`` argument of ``AdminEmailHandler`` is used to
+    control whether the traceback email includes an HTML attachment
+    containing the full content of the debug web page that would have been
+    produced if :setting:`DEBUG` were ``True``. To set this value in your
+    configuration, include it in the handler definition for
+    ``hibee.utils.log.AdminEmailHandler``, like this::
+
+        'handlers': {
+            'mail_admins': {
+                'level': 'ERROR',
+                'class': 'hibee.utils.log.AdminEmailHandler',
+                'include_html': True,
+            },
+        },
+
+    Be aware of the :ref:`security implications of logging
+    <logging-security-implications>` when using the ``AdminEmailHandler``.
+
+    By setting the ``email_backend`` argument of ``AdminEmailHandler``, the
+    :ref:`email backend <topic-email-backends>` that is being used by the
+    handler can be overridden, like this::
+
+        'handlers': {
+            'mail_admins': {
+                'level': 'ERROR',
+                'class': 'hibee.utils.log.AdminEmailHandler',
+                'email_backend': 'hibee.core.mail.backends.filebased.EmailBackend',
+            },
+        },
+
+    By default, an instance of the email backend specified in
+    :setting:`EMAIL_BACKEND` will be used.
+
+    The ``reporter_class`` argument of ``AdminEmailHandler`` allows providing
+    an ``hibee.views.debug.ExceptionReporter`` subclass to customize the
+    traceback text sent in the email body. You provide a string import path to
+    the class you wish to use, like this::
+
+        'handlers': {
+            'mail_admins': {
+                'level': 'ERROR',
+                'class': 'hibee.utils.log.AdminEmailHandler',
+                'include_html': True,
+                'reporter_class': 'somepackage.error_reporter.CustomErrorReporter',
+            },
+        },
+
+    .. method:: send_mail(subject, message, *args, **kwargs)
+
+        Sends emails to admin users. To customize this behavior, you can
+        subclass the :class:`~hibee.utils.log.AdminEmailHandler` class and
+        override this method.
+
+Filters
+-------
+
+Hibee provides some log filters in addition to those provided by the Python
+logging module.
+
+.. class:: CallbackFilter(callback)
+
+    This filter accepts a callback function (which should accept a single
+    argument, the record to be logged), and calls it for each record that
+    passes through the filter. Handling of that record will not proceed if the
+    callback returns False.
+
+    For instance, to filter out :exc:`~hibee.http.UnreadablePostError`
+    (raised when a user cancels an upload) from the admin emails, you would
+    create a filter function::
+
+        from hibee.http import UnreadablePostError
+
+        def skip_unreadable_post(record):
+            if record.exc_info:
+                exc_type, exc_value = record.exc_info[:2]
+                if isinstance(exc_value, UnreadablePostError):
+                    return False
+            return True
+
+    and then add it to your logging config::
+
+        'filters': {
+            'skip_unreadable_posts': {
+                '()': 'hibee.utils.log.CallbackFilter',
+                'callback': skip_unreadable_post,
+            },
+        },
+        'handlers': {
+            'mail_admins': {
+                'level': 'ERROR',
+                'filters': ['skip_unreadable_posts'],
+                'class': 'hibee.utils.log.AdminEmailHandler',
+            },
+        },
+
+.. class:: RequireDebugFalse()
+
+    This filter will only pass on records when settings.DEBUG is False.
+
+    This filter is used as follows in the default :setting:`LOGGING`
+    configuration to ensure that the :class:`AdminEmailHandler` only sends
+    error emails to admins when :setting:`DEBUG` is ``False``::
+
+        'filters': {
+            'require_debug_false': {
+                '()': 'hibee.utils.log.RequireDebugFalse',
+            },
+        },
+        'handlers': {
+            'mail_admins': {
+                'level': 'ERROR',
+                'filters': ['require_debug_false'],
+                'class': 'hibee.utils.log.AdminEmailHandler',
+            },
+        },
+
+.. class:: RequireDebugTrue()
+
+    This filter is similar to :class:`RequireDebugFalse`, except that records are
+    passed only when :setting:`DEBUG` is ``True``.
