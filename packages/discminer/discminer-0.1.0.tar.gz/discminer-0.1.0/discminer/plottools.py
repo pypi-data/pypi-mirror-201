@@ -1,0 +1,609 @@
+"""
+plottools module
+===========
+"""
+import os
+import copy
+import matplotlib
+import numpy as np
+from math import ceil
+import matplotlib.pyplot as plt
+import matplotlib.patches as patches
+from collections.abc import Iterable
+from .tools.utils import weighted_std
+from .tools.fit_kernel import _gauss
+
+SMALL_SIZE = 10
+MEDIUM_SIZE = 15
+BIGGER_SIZE = 22
+
+_residuals_colors = {
+    'velocity': ["#"+tmp for tmp in ["000b14","004f8f","1f9aff","fff7db","ff5a47","cc0033","140200"]],
+    'linewidth': ["#"+tmp for tmp in ["000b14","036407","81ae71","fff7db","ff5a47","cc0033","140200"]],
+    'intensity': ["#"+tmp for tmp in ["000b14","382406","6a593c","fff7db","ff5a47","cc0033","140200"]]
+}
+
+_residuals_cranges = {
+    'velocity': None,
+    'linewidth': None,
+    'intensity': None,
+}
+
+_attribute_colors = {
+    'velocity': ["#"+tmp for tmp in ["000b14","004f8f","1f9aff","fff7db","ff5a47","cc0033","140200"]],
+    'linewidth': ["#"+tmp for tmp in ["001219","005f73","0a9396","94d2bd","e9d8a6","ee9b00","ca6702","bb3e03","ae2012","9b2226"]],
+    'intensity': "terrain_r",
+}
+
+_attribute_cranges = {
+    'velocity': None,
+    'linewidth': None,
+    'intensity': "matplotlib",    
+}
+
+def use_discminer_style():
+    tools = os.path.dirname(os.path.realpath(__file__))+'/tools/'
+    plt.style.use(tools+'discminer.mplstyle') 
+
+#*************
+#AX DECORATORS
+#*************
+def mod_nticks_cbars(cbars, nbins=5):
+    for cb in cbars:
+        cb.locator = matplotlib.ticker.MaxNLocator(nbins=nbins)
+        cb.update_ticks()
+        
+def mod_major_ticks(ax, axis='both', nbins=6):
+    ax.locator_params(axis=axis, nbins=nbins)
+    
+def mod_minor_ticks(ax):
+    ax.minorticks_on()
+    ax.xaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator(2)) #1 minor tick per major interval
+    ax.yaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator(2))
+
+def make_up_ax(ax, xlims=(None, None), ylims=(None, None), 
+               mod_minor=True, mod_major=True, **kwargs_tick_params):
+    kwargs_t = dict(labeltop=True, labelbottom=False, top=True, right=True, which='both', direction='in')
+    kwargs_t.update(kwargs_tick_params)
+    if mod_major: mod_major_ticks(ax)
+    if mod_minor: mod_minor_ticks(ax)
+    ax.set_xlim(*xlims)
+    ax.set_ylim(*ylims)
+    ax.tick_params(**kwargs_t)
+
+#**********************
+#COLORMAP CUSTOMISATION
+#**********************
+def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=256):
+    new_cmap = matplotlib.colors.LinearSegmentedColormap.from_list(
+        'trunc({n},{a:.2f},{b:.2f})'.format(n=cmap.name, a=minval, b=maxval),
+        cmap(np.linspace(minval, maxval, n)))
+    return new_cmap
+
+def get_cmap_from_color(color, lev=3):
+    cmap = matplotlib.colors.to_rgba(color)
+    newcolors = np.tile(cmap, lev).reshape(lev,4) #Repeats the colour lev times
+    newcolors[:,-1] = np.linspace(0.25, 0.95, lev) #Modifies alpha only
+    new_cmap = ListedColormap(newcolors)
+    return new_cmap
+
+def mask_cmap_interval(cmap, cmap_lims, mask_lims, mask_color=np.ones(4), append=False):
+    if isinstance(cmap, str): cmap = plt.get_cmap(cmap)
+    cmap0, cmap1 = cmap_lims
+    mask0, mask1 = mask_lims
+    c0 = (mask0-cmap0)/(cmap1-cmap0)
+    c1 = (mask1-cmap0)/(cmap1-cmap0)
+    id0 = int(round(c0*(cmap.N)))
+    id1 = int(round(c1*(cmap.N)))
+    new_cmap = copy.copy(cmap)
+    new_cmap._init()
+    """#This block does not work, mpl does not know where to put the newly added colors
+    if append:
+       mask_color_arr = np.broadcast_to(mask_color, (id1-id0, 4))
+       new_cmap._lut = np.insert(new_cmap._lut, id0, mask_color_arr, axis=0)
+       new_cmap.N = cmap.N + id1-id0
+       #Next line redoes the continuous linearsegmented colormap, thus the masked color block is reduced to a single color  
+       #new_cmap = new_cmap._resample(new_cmap.N) 
+    """
+    new_cmap._lut[id0:id1,:] = mask_color 
+    return new_cmap
+
+def get_continuous_cmap(hex_list, float_list=None):                                                                               
+    """
+    Taken from https://github.com/KerryHalupka/custom_colormap 
+ 
+    Creates and returns a color map that can be used in heat map figures.                                                             
+    If float_list is not provided, the color map returned is a homogeneous gradient of the colors in hex_list.
+    If float_list is provided, each color in hex_list is set to start at the corresponding location in float_list. 
+
+    Parameters                                                                                        
+    ----------                                                                                          
+    hex_list: list of hex code strings                                                                
+    float_list: list of floats between 0 and 1, same length as hex_list. Must start with 0 and end with 1.
+
+    Returns     
+    ----------
+    matplotlib cmap
+
+    Examples
+    ----------
+    fig, ax = plt.subplots(1,1)
+    hex_list = ['#0091ad', '#fffffc', '#ffd166']
+    x, y = np.mgrid[-5:5:0.05, -5:5:0.05]                                
+    z = (np.sqrt(x**2 + y**2) + np.sin(x**2 + y**2))
+    im = ax.imshow(z, cmap=get_continuous_cmap(hex_list))                                                         
+    fig.colorbar(im)                                                                                                                                                                      
+    ax.yaxis.set_major_locator(plt.NullLocator()) # remove y axis ticks                                                                                                                               
+    ax.xaxis.set_major_locator(plt.NullLocator()) # remove x axis ticks
+    plt.show()
+    """
+
+    rgb_list = [matplotlib.colors.to_rgb(i) for i in hex_list]
+    if float_list is None: float_list = np.linspace(0,1,len(rgb_list))
+
+    cdict = dict()                                                                                
+    for num, col in enumerate(['red', 'green', 'blue']):                                               
+        col_list = [[float_list[i], rgb_list[i][num], rgb_list[i][num]] for i in range(len(float_list))]
+        cdict[col] = col_list
+        cmap_new = matplotlib.colors.LinearSegmentedColormap('my_cmp', segmentdata=cdict, N=256)
+    return cmap_new
+
+def get_discminer_cmap(observable, kind='attribute'):
+    if kind=='attribute':
+        colors = _attribute_colors[observable]
+        cranges = _attribute_cranges[observable]
+    elif kind=='residuals':
+        colors = _residuals_colors[observable]
+        cranges = _residuals_cranges[observable]
+    else:
+        raise InputError(
+            kind, "kind must be 'attribute' or 'residuals'"
+        )
+
+    if cranges=='matplotlib':
+        cmap = copy.copy(plt.get_cmap(colors))
+    elif isinstance(cranges, Iterable) or cranges is None:
+        cmap = get_continuous_cmap(colors, float_list=cranges)
+        
+    return cmap
+        
+#**************
+#COLORBAR STUFF
+#**************
+def add_cbar_ax(fig, ax, perc=4, orientation='horizontal', subplots=True):
+    figx, figy = fig.get_size_inches()
+    figr = figy/figx
+    axp = ax.get_position()
+    x0, x1, y0, y1 = axp.x0, axp.x1, axp.y0, axp.y1
+    w = x1 - x0
+    h = y1 - y0
+    dy = 0.01*perc
+    dx = dy*figr    
+    if subplots:
+        if orientation=='horizontal': return fig.add_axes([x0, y0, w, dy])
+        if orientation=='vertical': return fig.add_axes([x1+0.5*dx, y0+0.1*h, dx, h-0.2*h])        
+    else:
+        if orientation=='horizontal': return fig.add_axes([x0, y0-0.5*dy, w, dy])
+        if orientation=='vertical': return fig.add_axes([x1+0.5*dx, y0, dx, h])        
+        
+def make_round_cbar(ax, Rout, levels,
+                    rwidth=0.06, cmap=get_discminer_cmap('velocity'),
+                    quadrant=2, unit='km/s', fmt='%4.1f'):
+
+    sign_xy = {1: [1,1],
+               2: [-1,1],
+               3: [-1,-1],
+               4: [1,-1],
+    }[quadrant]
+    
+    phi0 = {1: 0.0,
+            2: np.pi,
+            3: -2*np.pi/3,
+            4: -np.pi/3,
+    }[quadrant]
+
+    phi1 = {1: np.pi/3,
+            2: 2*np.pi/3,
+            3: -np.pi,
+            4: 0.0,
+    }[quadrant]
+
+    rot_quad = {1: lambda phi_lev: np.degrees(phi0+phi_lev),
+                2: lambda phi_lev: -np.degrees(phi0-phi_lev),
+                3: lambda phi_lev: -np.degrees(phi1-phi_lev),
+                4: lambda phi_lev: np.degrees(phi1+phi_lev),
+    }[quadrant]
+
+    cticks_ha = {1: 'left',
+                 2: 'right',
+                 3: 'right',
+                 4: 'left'
+    }[quadrant]
+
+    text_R = {1: 1}
+    
+    phi_max = np.max([phi0,phi1])
+    phi_min = np.min([phi0,phi1])
+    
+    xlims = ax.get_xlim()
+    xcbar = np.linspace(*xlims, 1000)
+    ycbar = np.linspace(-Rout, Rout, 1000)
+    xx, yy = np.meshgrid(xcbar, ycbar)
+    rr = np.hypot(xx, yy)
+    pp = np.arctan2(yy, xx)
+
+    cbar_phi2lev = lambda phi: (levels[-1]-levels[0])*np.abs((phi0-phi)/(phi1-phi0)) + levels[0]
+    cbar_lev2phi = lambda lev: (phi1-phi0)*(lev-levels[0])/np.abs(levels[-1]-levels[0]) + phi0
+
+    r0 = Rout+0.05*Rout
+    r1 = r0+rwidth*Rout
+    cbar_polar = np.zeros_like(rr) + np.nan
+    mask_polar = (rr>=r0) & (rr<=r1) & (pp>=phi_min) & (pp<=phi_max)
+    cbar_polar[mask_polar] = cbar_phi2lev(pp[mask_polar])
+    cbar_im = ax.contourf(xx,yy, cbar_polar, levels=levels, cmap=cmap, extend='both', origin='lower') #np.ma.array(cbar_polar, mask=~mask_polar )
+
+    cbar_levels_pol = np.linspace(levels[0], levels[-1], 5)
+    cbar_levels_phi = cbar_lev2phi(cbar_levels_pol)
+
+    for i,cbi in enumerate(cbar_levels_phi):
+        Rtext = r1 + 0.03*Rout
+        ax.text(Rtext*np.cos(cbi), Rtext*np.sin(cbi), fmt%cbar_levels_pol[i], fontsize=SMALL_SIZE+1, c='0.7',
+                ha=cticks_ha, va='center', weight='bold', rotation_mode='anchor', rotation=rot_quad(cbi))
+
+    ax.text(sign_xy[0]*Rtext, -sign_xy[1]*0.1*Rout, unit, fontsize=SMALL_SIZE+2, c='0.7', ha='center', va='center', weight='bold', rotation=0)
+
+#********************
+#DISC PLOT DECORATORS
+#********************
+def _make_text_substructures(ax, gaps=[], rings=[], kinks=[]):
+    kwargs_text = dict(fontsize=SMALL_SIZE+2, ha='center', va='bottom', transform=ax.transAxes, weight='bold', rotation=90)    
+    xlims = ax.get_xlim()
+    xext = xlims[1]-xlims[0]
+
+    def text_it(R, text):
+        for Ri in R:
+            if Ri < xlims[0]: continue
+            posx = (Ri-xlims[0])/xext
+            ax.text(posx, 1.02, text%Ri, **kwargs_text)        
+
+    text_it(gaps, r'D%d')
+    text_it(rings, r'B%d')
+    text_it(kinks, r'K%d')
+
+def make_substructures(ax, gaps=[], rings=[], kinks=[],
+                       twodim=False, polar=False, make_labels=True, make_legend=False, 
+                       kwargs_gaps={}, kwargs_rings={}, kwargs_kinks={}, func1d='axvline'):
+    '''Overlay ring-like (if twodim) or vertical lines (if not twodim) to illustrate the radial location of substructures in the disc'''
+    kwargs_g = dict(color='0.2', ls='--', lw=1.7, dash_capstyle='round', dashes=(3.0, 2.5), alpha=1.0)
+    kwargs_r = dict(color='0.2', ls='-', lw=1.7, dash_capstyle='round', alpha=1.0)
+    kwargs_k = dict(color='purple', ls=':', lw=2.5, dash_capstyle='round', dashes=(0.5, 1.5), alpha=0.9)
+    kwargs_g.update(kwargs_gaps)
+    kwargs_r.update(kwargs_rings)
+    kwargs_k.update(kwargs_kinks)        
+    if twodim:
+        nphi = 100
+        phi = np.linspace(0, 2*np.pi, nphi)
+        phi_deg = np.degrees(phi-np.pi)
+        if polar:
+            for R in gaps: ax.plot(phi_deg, [R]*nphi, **kwargs_g)
+            for R in rings: ax.plot(phi_deg, [R]*nphi, **kwargs_r)
+            for R in kinks: ax.plot(phi_deg, [R]*nphi, **kwargs_k)                
+        else:
+            cos_phi = np.cos(phi)
+            sin_phi = np.sin(phi)
+            for R in gaps: ax.plot(R*cos_phi, R*sin_phi, **kwargs_g)
+            for R in rings: ax.plot(R*cos_phi, R*sin_phi, **kwargs_r)
+            for R in kinks: ax.plot(R*cos_phi, R*sin_phi, **kwargs_k)
+    else:
+        if func1d=='axvline': func1d=ax.axvline
+        elif func1d=='axhline': func1d=ax.axhline            
+        for R in gaps: func1d(R, **kwargs_g)
+        for R in rings: func1d(R, **kwargs_r)
+        for R in kinks: func1d(R, **kwargs_k)
+
+        if make_labels:
+            _make_text_substructures(ax, gaps=gaps, rings=rings, kinks=kinks)
+        
+    if make_legend and len(gaps)>0: ax.plot([None], [None], label='Gaps', **kwargs_g)
+    if make_legend and len(rings)>0: ax.plot([None], [None], label='Rings', **kwargs_r)
+    if make_legend and len(kinks)>0: ax.plot([None], [None], label='Kinks', **kwargs_k)
+
+    return ax
+
+
+def make_round_map(
+        map2d, levels, X, Y, Rout,
+        z_func=None, z_pars=None, incl=None, PA=None, xc=0, yc=0, #Optional, make N-sky axis
+        fig=None, ax=None,
+        rwidth=0.06, cmap=get_discminer_cmap('velocity'), unit='km/s', fmt='%5.2f', quadrant=None, #cbar kwargs
+        gaps=[], rings=[], kinks=[],
+        label_gaps=False, label_rings=True, label_kinks=True,
+        mask_wedge=None, mask_inner=None
+):
+
+    #SOME DEFINITIONS
+    if fig is None:
+        fig, ax = plt.subplots(ncols=1, nrows=1, figsize=(7, 7))
+
+    X = np.nan_to_num(X.to('au').value)
+    Y = np.nan_to_num(Y.to('au').value)
+    Rout = Rout.to('au').value
+        
+    xlim_rec = 1.15*Rout
+    fill_angs_2pi = np.linspace(0, 2*np.pi, 100)
+    
+    cmap_c = copy.copy(cmap)
+    cmap_c.set_under('0.4')
+    cmap_c.set_over('0.4')
+
+    def make_text_2D(ax, Rlist, posx=0.0, sposy=-1, fmt='%d', va=None, **kwargs_text):
+        if va is not None:
+            _va = va
+            dy = 0
+        else:
+            if sposy<0:
+                _va = 'top'
+                dy = 2
+            elif sposy>0:
+                _va = 'bottom'
+                dy = -1
+            else:
+                return 0
+
+        kwargs = dict(fontsize=SMALL_SIZE+3, ha='center', va=_va, weight='bold', rotation=0)
+        kwargs.update(kwargs_text)
+        for Ri in Rlist:
+            ax.text(posx, sposy*(Ri+dy), fmt%Ri, **kwargs)
+    
+    #MAIN PLOT
+    im = ax.contourf(X, Y, map2d, levels=levels, cmap=cmap_c, extend='both', origin='lower')
+    make_substructures(ax, gaps=gaps, rings=rings, kinks=kinks, twodim=True)
+            
+    #RADIAL GRID
+    ax.plot(Rout*np.cos(fill_angs_2pi), Rout*np.sin(fill_angs_2pi), color='k', ls='-', lw=5.0, alpha=0.9) #Radial border 
+
+    get_intdigits = lambda n: len(str(n).split('.')[0])
+
+    R_subst = np.concatenate([gaps, rings, kinks], axis=None)
+    if len(R_subst)>0:
+        Rref = np.max(R_subst)
+    else:
+        Rref = 0.0
+    Rref_digits = get_intdigits(Rref)        
+        
+    R_after_ref = 10**(Rref_digits-1)*ceil(Rref/(10**(Rref_digits-1)))
+    Rgrid_polar = np.arange(R_after_ref, Rout, 50)
+    
+    for j,Ri in enumerate(Rgrid_polar[0:-1:2]):
+        if Ri == Rref: continue
+        ax.plot(Ri*np.cos(fill_angs_2pi), Ri*np.sin(fill_angs_2pi), color='k', lw=1.2, alpha=0.5, dash_capstyle='round', dashes=(0.5, 3.5)) #will be labeled
+
+    for j,Ri in enumerate(Rgrid_polar[1::2]):
+        ax.plot(Ri*np.cos(fill_angs_2pi), Ri*np.sin(fill_angs_2pi), color='k', ls=':', lw=0.4, alpha=1.0)
+
+    #AZIMUTHAL GRID
+    for j,phii in enumerate(np.arange(0, 2*np.pi, np.pi/6)):
+        ax.plot([0, Rout*np.cos(phii)], [0, Rout*np.sin(phii)], color='k', ls=':', lw=0.4, alpha=1.0)
+
+    for deg in np.linspace(0, 90, 4):
+        deg_rad = np.radians(deg)
+        txt = ax.text(1.04*Rout*np.cos(deg_rad), 1.04*Rout*np.sin(deg_rad), r'$%d$'%deg, c='0.0',
+                      fontsize=SMALL_SIZE-2, ha='center', va='center', weight='bold', rotation=-(90-deg)) #rotation_mode='anchor', 
+        txt.set_text(r'$%d^{\circ}$'%deg)
+    
+    #SKY AXIS
+    if np.all(np.asarray([z_func, z_pars, incl, PA])!=None):
+        from .grid import GridTools
+        ynorth = np.linspace(-1.1*Rout, 1.1*Rout, 100)
+        xnorth = np.zeros_like(ynorth)
+        xn, yn = [], []
+        for i in range(len(ynorth)):
+            xni, yni = GridTools.get_disc_from_sky_coords(xnorth[i], ynorth[i], z_func, z_pars, incl, PA, xc=0, yc=0)
+            xn.append(xni)
+            yn.append(yni)
+            #plt.scatter(xn, yn, c='k', s=5)
+        xn, yn = np.asarray(xn), np.asarray(yn)
+        ax.plot(xn, yn, color='0.0', lw=1.7, dash_capstyle='round', dashes=(1.5, 2.5))
+
+        #MAKE TEXT Nsky
+        text_nsky = lambda x, y: ax.text(x, y, r'$\vec{\rm N}$$_{\rm sky}$', fontsize=SMALL_SIZE+3,
+                                         ha='center', va='bottom', weight='bold', rotation=np.degrees(-PA))
+        
+        if yni>xni:
+            ci = yni
+            cn = yn
+        else:
+            ci = xni
+            cn = xn
+
+        if ci>xlim_rec:
+            ii = np.argmin(np.abs(cn-xlim_rec))
+            text_nsky(xn[ii], yn[ii])
+        else:
+            text_nsky(xni, yni)
+    else:
+        xni, yni = None, None
+        
+    #MAKE TEXT FOR SUBSTRUCTURES AND RADIAL GRID
+    if label_gaps:
+        make_text_2D(ax, gaps, fmt='D%d')
+    if label_rings:
+        make_text_2D(ax, rings, fmt='B%d')
+    if label_kinks:
+        make_text_2D(ax, kinks, fmt='K%d')
+
+    make_text_2D(ax, Rgrid_polar[2:-1:2], sposy=-1, fmt='%d', fontsize=SMALL_SIZE+3, color='0.1', va='center') #label every other radius, in the north
+    make_text_2D(ax, Rgrid_polar[2:-1:2], sposy=1, fmt='%d', fontsize=SMALL_SIZE+3, color='0.1', va='center') # and south
+
+    #SET LIMITS AND AXES
+    for side in ['left','top','right']: ax.spines[side].set_visible(False)
+    make_up_ax(ax,
+               xlims=(-xlim_rec, xlim_rec),
+               ylims=(-xlim_rec, xlim_rec),
+               labelleft=False, left=False, right=False, labeltop=False, top=False, labelbottom=True, bottom=True,
+               labelsize=SMALL_SIZE+3, rotation=45)
+    mod_major_ticks(ax, axis='x', nbins=10)
+    ax.set_xlabel('Offset [au]', fontsize=MEDIUM_SIZE+2)
+    ax.set_aspect(1)
+
+    #MAKE ROUND COLORBAR
+    if quadrant is None: #Guess best quadrant based on Nsky position
+        if xni is None:
+            quadrant = 2
+        elif (yni>0 and xni<0) or (yni<0 and xni>0):
+            quadrant = 3
+        else:
+            quadrant = 2
+            
+    make_round_cbar(ax, Rout, levels, cmap=cmap_c, unit=unit, fmt=fmt, quadrant=quadrant)
+
+    sq = {1: -1,
+          2: 1,
+          3: 1,
+          4: -1,
+    }[quadrant]
+        
+    ax.plot([sq*Rout, sq*Rout], [0, -xlim_rec], color='0.0', lw=1.0, dash_capstyle='round', dashes=(1.5, 2.5)) #Rout projected onto Cartesian xaxis
+
+    #MASK
+    kw_mask = dict(facecolor='0.5', edgecolor='k', lw=1.0, alpha=0.6)
+    if mask_wedge is not None:
+        wedge = patches.Wedge((0,0), Rout, *mask_wedge.to('deg').value, **kw_mask)
+        ax.add_artist(wedge)
+
+    if mask_inner is not None:
+        inner = patches.Circle((0,0), mask_inner.to('au').value, **kw_mask)
+        ax.add_artist(inner)
+        
+    return fig, ax
+        
+def make_polar_map(
+        map2d, levels, R, PHI, Rout,
+        Rin = 0.0,
+        fig=None, ax=None, 
+        cmap=get_discminer_cmap('velocity'), unit='km/s', fmt='%5.2f', clabel=r'$\Delta$ Centroid Velocity [km s$^{-1}$]', #cbar kwargs 
+        gaps=[], rings=[], kinks=[] #,filaments=[],                            
+):
+    from scipy.interpolate import griddata
+
+    #SOME DEFINITIONS
+    if fig is None:
+        fig, ax = plt.subplots(ncols=1, nrows=1, figsize=(12, 3))
+    Rout = Rout.to('au').value
+    try:
+        Rin = Rin.to('au').value
+    except AttributeError:
+        Rin = Rin
+
+    #GRID AND PLOT
+    phi_nonan_deg = np.nan_to_num(PHI, nan=10*np.nanmax(PHI)).to('deg').value
+    R_nonan_au = np.nan_to_num(R).to('au').value
+
+    dR = int((Rout-Rin)/50)
+    PP, RR = np.meshgrid(np.linspace(-180, 180, 10000),
+                         np.arange(Rin, Rout+dR, dR),
+                         indexing='xy')
+    
+    pmap2d = griddata((phi_nonan_deg.flatten(), R_nonan_au.flatten()), map2d.flatten(), (PP, RR), method='linear')
+
+    im=ax.contourf(pmap2d, cmap=cmap,
+                   extent=[PP.min(), PP.max(), RR.min(), RR.max()],
+                   levels=levels,
+                   extend='both', origin='lower')
+
+    """
+    kw_fil = dict(s=20, lw=1, marker='+')
+    for i,filament in enumerate(filaments):
+        if i==0 and filament is not None:
+            kw_fil.update(dict(fc='red', ec='firebrick'))
+        elif i==1 and filament is not None:
+            kw_fil.update(dict(fc='blue', ec='navy'))
+        rrr=R_nonan_up_au[filament.skeleton.astype('bool')]
+        ppr=phi_nonan_up_deg[filament.skeleton.astype('bool')]
+        ax.scatter(ppr, rrr, **kw_fil)
+    """
+
+    #DECORATIONS
+    ax.axvline(-90, ls=':', lw=2.5, color='0.3', dash_capstyle='round')
+    ax.axvline(90, ls=':', lw=2.5, color='0.3', dash_capstyle='round')
+    ax.axvline(0, ls=':', lw=2.5, color='0.3', dash_capstyle='round')
+
+    make_up_ax(ax, labelbottom=True, labeltop=False, labelsize=SMALL_SIZE+1,
+               xlims=(-180.1, 180.1), ylims=(1.1*Rin, 0.95*Rout))
+    ax.set_xticks(np.linspace(-180, 180, 13))
+    ax.set_xlabel('Azimuth [deg]', fontsize=MEDIUM_SIZE)
+    ax.set_ylabel('Radius [au]', fontsize=MEDIUM_SIZE)
+    mod_major_ticks(ax, axis='y', nbins=10)
+    
+    make_substructures(ax, gaps=gaps, rings=rings, kinks=kinks, twodim=True, polar=True)
+                       
+    cax = add_cbar_ax(fig, ax, orientation='vertical', subplots=False, perc=6)    
+    cbar = plt.colorbar(im, cax=cax, format=fmt, orientation='vertical', ticks=np.linspace(levels.min(), levels.max(), 5))
+    cbar.ax.tick_params(which='major', direction='in', width=2.7, size=4.8, pad=4, labelsize=SMALL_SIZE)
+    cbar.ax.tick_params(which='minor', direction='in', width=2.7, size=3.3)
+    cbar.set_label(clabel, fontsize=SMALL_SIZE, labelpad=20, rotation=270)
+    mod_minor_ticks(cbar.ax)
+
+    return fig, ax
+
+#***************************
+#PEAK RESIDUALS AND CLUSTERS
+#***************************
+def append_sigma_panel(fig, ax, values, ax_std=None, weights=None, hist=False, fit_gauss_hist=False): #attach sigma panel to AxesSubplot, based on input values
+    ax = np.atleast_1d(ax)
+
+    if ax_std is None:
+        axp = ax[-1].get_position()
+        ax = np.append(ax, fig.add_axes([axp.x0 + axp.width, axp.y0, 0.1, axp.height]))
+    else:
+        ax = np.append(ax, ax_std)
+        
+    #gauss = lambda x, A, mu, sigma: A*np.exp(-(x-mu)**2/(2.*sigma**2))
+    ax1_ylims = ax[-2].get_ylim()
+
+    for axi in ax[:-1]:
+        axi.tick_params(which='both', right=False, labelright=False)
+
+    ax[-1].tick_params(which='both', top=False, bottom=False, labelbottom=False, 
+                       left=False, labelleft=False, right=True, labelright=True)
+    ax[-1].yaxis.set_label_position('right')
+    ax[-1].spines['left'].set_color('0.6')
+    ax[-1].spines['left'].set_linewidth(3.5)
+
+    if weights is not None:
+        values_mean = np.sum(weights*values)/np.sum(weights)
+        values_std = weighted_std(values, weights, weighted_mean=values_mean)
+    else:
+        values_mean = np.mean(values)
+        values_std = np.std(values)
+
+    max_y = 1.0
+
+    if hist:
+        n, bins, patches = ax[-1].hist(values, bins=2*int(round(len(values)**(1/3.)))-1, orientation='horizontal', 
+                                       density=True, linewidth=1.5, facecolor='0.95', edgecolor='k', alpha=1.0)
+        max_y = np.max(n)
+        if fit_gauss_hist: #Fit Gaussian to histogram to compare against data distribution
+            coeff, var_matrix = curve_fit(_gauss, 0.5*(bins[1:]+bins[:-1]), n, p0=[max_y, values_mean, values_std])
+            values_x = np.linspace(values_mean-4*values_std, values_mean+4*values_std, 100)
+            values_y = _gauss(values_x, *coeff)
+            ax[-1].plot(values_y, values_x, color='tomato', ls='--', lw=2.0)
+
+    values_x = np.linspace(values_mean-4*values_std, values_mean+4*values_std, 100)
+    values_pars =  [max_y, values_mean, values_std]
+    values_y = _gauss(values_x, *values_pars)
+    ax[-1].plot(values_y, values_x, color='limegreen', lw=3.5)
+    ax[-1].set_xlim(-0.2*max_y, 1.2*max_y)
+
+    for i in range(0,4): 
+        values_stdi = values_mean+i*values_std
+        gauss_values_stdi = _gauss(values_stdi, *values_pars)
+        ax[-1].plot([-0.2*max_y, gauss_values_stdi], [values_stdi]*2, color='0.6', ls=':', lw=2.)
+        for axi in ax[:-1]: axi.axhline(values_stdi, color='0.6', ls=':', lw=2.)
+        if values_stdi < ax1_ylims[-1] and i>0:
+            ax[-1].text(gauss_values_stdi+0.2*max_y, values_stdi, r'%d$\sigma$'%i, 
+                        fontsize=14, ha='center', va='center', rotation=-90)
+
+    for axi in ax:
+        axi.set_ylim(*ax1_ylims)
+
