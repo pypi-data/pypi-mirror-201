@@ -1,0 +1,86 @@
+---
+paths:
+  /api/webhooks/gitlab/jobs/monitor:
+    post:
+      operationId: api.webhooks.gitlab.jobs.monitor.monitor
+      summary: "Monitor job creations and destructions"
+      tags:
+        - gitlab
+      requestBody:
+        description: |
+          The request body corresponds to the Gitlab API payload for a Job webhook event.
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                 - $ref: "#/components/schemas/GitlabBuildEvent"
+                 - $ref: "#/components/schemas/GitlabSystemEvent"
+              discriminator:
+                propertyName: object_kind
+      responses:
+        200:
+          $ref: "#/components/responses/200_ok"
+        204:
+          $ref: "#/components/responses/204_no_content"
+        400:
+          $ref: "#/components/responses/400_bad_request"
+        500:
+          $ref: "#/components/responses/500_internal_server_error"
+
+  /api/webhooks/gitlab/jobs/monitor/insert/{project_id}:
+    post:
+      operationId: api.webhooks.gitlab.jobs.monitor.insert
+      summary: "Insert jobs from a selected project, or all projects if zero"
+      description: |
+        Insert jobs from a selected project, or all projects if zero.
+      tags:
+        - gitlab
+      parameters:
+        - name: "project_id"
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 0
+      responses:
+        200:
+          $ref: "#/components/responses/200_ok"
+        204:
+          $ref: "#/components/responses/204_no_content"
+        400:
+          $ref: "#/components/responses/400_bad_request"
+        500:
+          $ref: "#/components/responses/500_internal_server_error"
+
+  /api/webhooks/gitlab/jobs/monitor/update:
+    post:
+      operationId: api.webhooks.gitlab.jobs.monitor.update
+      summary: "Update stale jobs statuses"
+      description: |
+        Asynchronous operation to update stale jobs in status file.
+      tags:
+        - gitlab
+      responses:
+        202:
+          $ref: "#/components/responses/202_accepted"
+        400:
+          $ref: "#/components/responses/400_bad_request"
+        500:
+          $ref: "#/components/responses/500_internal_server_error"
+
+  /api/webhooks/gitlab/jobs/monitor/purge:
+    post:
+      operationId: api.webhooks.gitlab.jobs.monitor.purge
+      summary: "Remove stale jobs"
+      description: |
+        Asynchronous operation to remove stale jobs from status file.
+      tags:
+        - gitlab
+      responses:
+        202:
+          $ref: "#/components/responses/202_accepted"
+        400:
+          $ref: "#/components/responses/400_bad_request"
+        500:
+          $ref: "#/components/responses/500_internal_server_error"
