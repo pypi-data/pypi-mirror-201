@@ -1,0 +1,8 @@
+from enum import Enum
+
+
+class GetWorkspaceInvitationResponse404Error(str, Enum):
+    ERROR_GROUP_INVITATION_DOES_NOT_EXIST = "ERROR_GROUP_INVITATION_DOES_NOT_EXIST"
+
+    def __str__(self) -> str:
+        return str(self.value)

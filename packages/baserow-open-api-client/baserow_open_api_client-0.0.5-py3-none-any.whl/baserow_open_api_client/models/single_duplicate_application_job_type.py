@@ -1,0 +1,110 @@
+from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
+
+import attr
+
+from ..types import UNSET, Unset
+
+if TYPE_CHECKING:
+    from ..models.specific_application import SpecificApplication
+
+
+T = TypeVar("T", bound="SingleDuplicateApplicationJobType")
+
+
+@attr.s(auto_attribs=True)
+class SingleDuplicateApplicationJobType:
+    """
+    Attributes:
+        id (int):
+        type (str): The type of the job.
+        progress_percentage (int): A percentage indicating how far along the job is. 100 means that it's finished.
+        state (str): Indicates the state of the import job.
+        original_application (SpecificApplication):
+        duplicated_application (SpecificApplication):
+        human_readable_error (Union[Unset, str]): A human readable error message indicating what went wrong.
+    """
+
+    id: int
+    type: str
+    progress_percentage: int
+    state: str
+    original_application: "SpecificApplication"
+    duplicated_application: "SpecificApplication"
+    human_readable_error: Union[Unset, str] = UNSET
+    additional_properties: Dict[str, Any] = attr.ib(init=False, factory=dict)
+
+    def to_dict(self) -> Dict[str, Any]:
+        id = self.id
+        type = self.type
+        progress_percentage = self.progress_percentage
+        state = self.state
+        original_application = self.original_application.to_dict()
+
+        duplicated_application = self.duplicated_application.to_dict()
+
+        human_readable_error = self.human_readable_error
+
+        field_dict: Dict[str, Any] = {}
+        field_dict.update(self.additional_properties)
+        field_dict.update(
+            {
+                "id": id,
+                "type": type,
+                "progress_percentage": progress_percentage,
+                "state": state,
+                "original_application": original_application,
+                "duplicated_application": duplicated_application,
+            }
+        )
+        if human_readable_error is not UNSET:
+            field_dict["human_readable_error"] = human_readable_error
+
+        return field_dict
+
+    @classmethod
+    def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+        from ..models.specific_application import SpecificApplication
+
+        d = src_dict.copy()
+        id = d.pop("id")
+
+        type = d.pop("type")
+
+        progress_percentage = d.pop("progress_percentage")
+
+        state = d.pop("state")
+
+        original_application = SpecificApplication.from_dict(d.pop("original_application"))
+
+        duplicated_application = SpecificApplication.from_dict(d.pop("duplicated_application"))
+
+        human_readable_error = d.pop("human_readable_error", UNSET)
+
+        single_duplicate_application_job_type = cls(
+            id=id,
+            type=type,
+            progress_percentage=progress_percentage,
+            state=state,
+            original_application=original_application,
+            duplicated_application=duplicated_application,
+            human_readable_error=human_readable_error,
+        )
+
+        single_duplicate_application_job_type.additional_properties = d
+        return single_duplicate_application_job_type
+
+    @property
+    def additional_keys(self) -> List[str]:
+        return list(self.additional_properties.keys())
+
+    def __getitem__(self, key: str) -> Any:
+        return self.additional_properties[key]
+
+    def __setitem__(self, key: str, value: Any) -> None:
+        self.additional_properties[key] = value
+
+    def __delitem__(self, key: str) -> None:
+        del self.additional_properties[key]
+
+    def __contains__(self, key: str) -> bool:
+        return key in self.additional_properties
