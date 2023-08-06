@@ -1,0 +1,2 @@
+class CliChatError(Exception):
+    pass
