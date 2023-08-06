@@ -1,0 +1,226 @@
+/*
+ * Library to support support file format date and time values
+ *
+ * Copyright (C) 2011-2023, Joachim Metz <joachim.metz@gmail.com>
+ *
+ * Refer to AUTHORS for acknowledgements.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+#if !defined( _LIBCAES_H )
+#define _LIBCAES_H
+
+#include <libcaes/definitions.h>
+#include <libcaes/error.h>
+#include <libcaes/extern.h>
+#include <libcaes/features.h>
+#include <libcaes/types.h>
+
+#include <stdio.h>
+
+#if defined( __cplusplus )
+extern "C" {
+#endif
+
+/* -------------------------------------------------------------------------
+ * Support functions
+ * ------------------------------------------------------------------------- */
+
+/* Returns the library version
+ */
+LIBCAES_EXTERN \
+const char *libcaes_get_version(
+             void );
+
+/* -------------------------------------------------------------------------
+ * Error functions
+ * ------------------------------------------------------------------------- */
+
+/* Frees an error
+ */
+LIBCAES_EXTERN \
+void libcaes_error_free(
+      libcaes_error_t **error );
+
+/* Prints a descriptive string of the error to the stream
+ * Returns the amount of printed characters if successful or -1 on error
+ */
+LIBCAES_EXTERN \
+int libcaes_error_fprint(
+     libcaes_error_t *error,
+     FILE *stream );
+
+/* Prints a descriptive string of the error to the string
+ * The end-of-string character is not included in the return value
+ * Returns the amount of printed characters if successful or -1 on error
+ */
+LIBCAES_EXTERN \
+int libcaes_error_sprint(
+     libcaes_error_t *error,
+     char *string,
+     size_t size );
+
+/* Prints a backtrace of the error to the stream
+ * Returns the amount of printed characters if successful or -1 on error
+ */
+LIBCAES_EXTERN \
+int libcaes_error_backtrace_fprint(
+     libcaes_error_t *error,
+     FILE *stream );
+
+/* Prints a backtrace of the error to the string
+ * The end-of-string character is not included in the return value
+ * Returns the amount of printed characters if successful or -1 on error
+ */
+LIBCAES_EXTERN \
+int libcaes_error_backtrace_sprint(
+     libcaes_error_t *error,
+     char *string,
+     size_t size );
+
+/* -------------------------------------------------------------------------
+ * Context functions
+ * ------------------------------------------------------------------------- */
+
+/* Creates a context
+ * Make sure the value context is referencing, is set to NULL
+ * Returns 1 if successful or -1 on error
+ */
+LIBCAES_EXTERN \
+int libcaes_context_initialize(
+     libcaes_context_t **context,
+     libcaes_error_t **error );
+
+/* Frees a context
+ * Returns 1 if successful or -1 on error
+ */
+LIBCAES_EXTERN \
+int libcaes_context_free(
+     libcaes_context_t **context,
+     libcaes_error_t **error );
+
+/* Sets the key
+ * Returns 1 if successful or -1 on error
+ */
+LIBCAES_EXTERN \
+int libcaes_context_set_key(
+     libcaes_context_t *context,
+     int mode,
+     const uint8_t *key,
+     size_t key_bit_size,
+     libcaes_error_t **error );
+
+/* De- or encrypts a block of data using AES-CBC (Cipher Block Chaining)
+ * The size must be a multitude of the AES block size (16 byte)
+ * Returns 1 if successful or -1 on error
+ */
+LIBCAES_EXTERN \
+int libcaes_crypt_cbc(
+     libcaes_context_t *context,
+     int mode,
+     const uint8_t *initialization_vector,
+     size_t initialization_vector_size,
+     const uint8_t *input_data,
+     size_t input_data_size,
+     uint8_t *output_data,
+     size_t output_data_size,
+     libcaes_error_t **error );
+
+/* De- or encrypts a block of data using AES-CCM (Counter with CBC-MAC)
+ * Note that the key must be set in encryption mode (LIBCAES_CRYPT_MODE_ENCRYPT) for both de- and encryption.
+ * Returns 1 if successful or -1 on error
+ */
+LIBCAES_EXTERN \
+int libcaes_crypt_ccm(
+     libcaes_context_t *context,
+     int mode,
+     const uint8_t *nonce,
+     size_t nonce_size,
+     const uint8_t *input_data,
+     size_t input_data_size,
+     uint8_t *output_data,
+     size_t output_data_size,
+     libcaes_error_t **error );
+
+/* De- or encrypts a block of data using AES-ECB (Electronic CodeBook)
+ * The size must be a multitude of the AES block size (16 byte)
+ * Returns 1 if successful or -1 on error
+ */
+LIBCAES_EXTERN \
+int libcaes_crypt_ecb(
+     libcaes_context_t *context,
+     int mode,
+     const uint8_t *input_data,
+     size_t input_data_size,
+     uint8_t *output_data,
+     size_t output_data_size,
+     libcaes_error_t **error );
+
+/* -------------------------------------------------------------------------
+ * Tweaked context functions
+ * ------------------------------------------------------------------------- */
+
+/* Creates a tweaked context
+ * Make sure the value tweaked context is referencing, is set to NULL
+ * Returns 1 if successful or -1 on error
+ */
+LIBCAES_EXTERN \
+int libcaes_tweaked_context_initialize(
+     libcaes_tweaked_context_t **tweaked_context,
+     libcaes_error_t **error );
+
+/* Frees a tweaked context
+ * Returns 1 if successful or -1 on error
+ */
+LIBCAES_EXTERN \
+int libcaes_tweaked_context_free(
+     libcaes_tweaked_context_t **tweaked_context,
+     libcaes_error_t **error );
+
+/* Sets the keys
+ * Returns 1 if successful or -1 on error
+ */
+LIBCAES_EXTERN \
+int libcaes_tweaked_context_set_keys(
+     libcaes_tweaked_context_t *tweaked_context,
+     int mode,
+     const uint8_t *key,
+     size_t key_bit_size,
+     const uint8_t *tweak_key,
+     size_t tweak_key_bit_size,
+     libcaes_error_t **error );
+
+/* De- or encrypts a block of data using AES-XTS (XEX-based tweaked-codebook mode with ciphertext stealing)
+ * The size must be a multitude of the AES block size (16 byte)
+ * Returns 1 if successful or -1 on error
+ */
+LIBCAES_EXTERN \
+int libcaes_crypt_xts(
+     libcaes_tweaked_context_t *tweaked_context,
+     int mode,
+     const uint8_t *tweak_value,
+     size_t tweak_value_size,
+     const uint8_t *input_data,
+     size_t input_data_size,
+     uint8_t *output_data,
+     size_t output_data_size,
+     libcaes_error_t **error );
+
+#if defined( __cplusplus )
+}
+#endif
+
+#endif /* !defined( _LIBCAES_H ) */
+
