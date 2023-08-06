@@ -1,0 +1,86 @@
+Metadata-Version: 2.1
+Name: intake-duckdb
+Version: 0.1.0
+Summary: DuckDB plugin for Intake
+Author: Blake Rosenthal
+Maintainer-email: Blake Rosenthal <brosenthal@anaconda.com>
+License: Copyright (c) 2023, Anaconda, Inc.
+        All rights reserved.
+        
+        Redistribution and use in source and binary forms, with or without
+        modification, are permitted provided that the following conditions are
+        met:
+        
+        Redistributions of source code must retain the above copyright notice,
+        this list of conditions and the following disclaimer.
+        
+        Redistributions in binary form must reproduce the above copyright
+        notice, this list of conditions and the following disclaimer in the
+        documentation and/or other materials provided with the distribution.
+        THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+        "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+        LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+        A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+        HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+        SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+        LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+        DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+        THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+        (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+        OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+        
+Keywords: intake,duckdb,duck
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: intake
+Requires-Dist: pandas
+Requires-Dist: duckdb
+Provides-Extra: test
+Requires-Dist: pytest ; extra == 'test'
+Requires-Dist: intake[server] ; extra == 'test'
+Requires-Dist: python-snappy ; extra == 'test'
+
+# Intake-DuckDB
+
+DuckDB Plugin for Intake
+
+## Installation
+
+```shell
+pip install git+https://github.com/blakerosenthal/intake-duckdb.git
+```
+
+## Usage
+
+Load an entire table into a dataframe
+```python
+source = intake.open_duckdb("path/to/dbfile", "tablename")
+df = source.read()
+
+```
+Or a custom SQL in [valid DuckDB query syntax](https://duckdb.org/docs/sql/query_syntax/select)
+```python
+source = intake.open_duckdb("path/to/dbfile", "SELECT col1, col2 FROM tablename")
+df = source.read()
+```
+
+Can also iterate over table chunks
+```python
+source_chunked = intake.open_duckdb("path/to/dbfile", "tablename", chunks=10)
+source_chunked.discover()
+for chunk in source_chunked.read_chunked():
+    # do something
+    ...
+```
+
+DuckDB catalog: create an Intake catalog from a DuckDB backend
+```python
+cat = intake.open_duckdb_cat("path/to/dbfile")
+
+# list the sources in 'cat'
+list(cat)
+
+df = cat["tablename"].read()
+df_chunks = [chunk for chunk in cat["tablename"](chunks=10).read_chunked()]
+```
