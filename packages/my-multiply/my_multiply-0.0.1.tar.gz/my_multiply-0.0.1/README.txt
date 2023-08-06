@@ -1,0 +1,1 @@
+My simple sample library for multiplication
