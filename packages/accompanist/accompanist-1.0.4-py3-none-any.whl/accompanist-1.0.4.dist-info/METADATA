@@ -1,0 +1,117 @@
+Metadata-Version: 2.1
+Name: accompanist
+Version: 1.0.4
+Summary: AWS WAF log analysis report generator
+Author: itsuki
+License: MIT
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: click
+Requires-Dist: boto3
+Requires-Dist: datetime
+Requires-Dist: pandas
+Requires-Dist: matplotlib
+Requires-Dist: PdfPages
+
+
+# Introduction
+
+Accomapnist - It's an accompanist on AWS WAF log analysis.
+
+You can analysis AWS WAF log and generate analysis report with only 2 CLI commands.
+
+- The feature & Report Item
+    - Histgram of requests
+    - Top 5 of below items
+        - Blocked or counted rule group
+        - URI path
+        - IP address
+        - Country code
+    - The number of requests on specific URI
+    - Comment (written by you if you have any comments))
+
+# Note
+
+- Target WAF
+    - AWS WAFv2
+        - Logging: CloudWatch Logs
+        - Action: BLOCK or COUNT
+    - Third Party WAF
+        - Logging: CloudWatch Logs
+        - Action: BLOCK or COUNT
+
+- Requirement of Client Environment
+    - IAM Role/User: including permissions to execute as follows
+        - (1) `start_query` of Logs Insights
+        - (2) `get_query_result` of Logs Insights
+        - The example role is noted the last
+
+# Install
+
+```bash
+pip install accompanist
+```
+
+# Usage
+
+1. Create configuration file (JSON format) including 3 elements below
+
+(e.g.) config.json
+```json
+{
+  "log_group": "aws-waf-logs-foo-bar",
+  "target_uri": [
+    "/foo",
+    "/bar"
+  ],
+  "comment": [
+    "- note 1",
+    "- note 2",
+    "-",
+    "-",
+    "-"
+  ]
+}
+```
+
+2. Get query result
+
+(e.g.) To get BLOCK log for 3 days
+```bash
+accompanist listen --action BLOCK --days 3
+```
+
+3. Generate report (PDF format)
+
+```bash
+accompanist play
+```
+
+# Uninstall
+
+```bash
+pip uninstall accompanist
+```
+
+# Index
+
+IAM Role with minimum permissions
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "CWLI",
+            "Effect": "Allow",
+            "Action": [
+                "logs:StartQuery",
+                "logs:GetQueryResults"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+```
+In the "Resource", you should consider to squeeze only needed ARNs as well.
+
