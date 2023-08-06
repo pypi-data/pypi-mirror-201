@@ -1,0 +1,96 @@
+#!python
+# This file is placed in the Public Domain.
+# pylint: disable=C0115,C0116,W0212,E0402,E0401,E0611,R0201,C0413
+
+
+'command'
+
+
+import getpass
+import os
+import pwd
+import sys
+import termios
+import traceback
+
+
+from operbot.handler import Client, Command, Handler, command, parse, scan
+from operbot.modules import cmd, irc, rss, thr
+from operbot.persist import Persist
+
+
+NAME = "operbot"
+
+
+Persist.workdir = "/var/lib/operbot"
+
+
+scan(cmd)
+scan(irc)
+scan(rss)
+scan(thr)
+
+
+class CLI(Client):
+
+    def announce(self, txt):
+        pass
+
+    def raw(self, txt):
+        print(txt)
+
+
+def privileges(username):
+    if os.getuid() != 0:
+        return
+    try:
+        pwnam = pwd.getpwnam(username)
+    except KeyError:
+        username = getpass.getuser()
+        pwnam = pwd.getpwnam(username)
+    os.setgroups([])
+    os.setgid(pwnam.pw_gid)
+    os.setuid(pwnam.pw_uid)
+
+
+def waiter():
+    got = []
+    for ex in Handler.errors:
+        traceback.print_exception(type(ex), ex, ex.__traceback__)
+        got.append(ex)
+    for exc in got:
+        Handler.errors.remove(exc)
+    got = []
+    for ex in Command.errors:
+        traceback.print_exception(type(ex), ex, ex.__traceback__)
+        got.append(ex)
+    for exc in got:
+        Command.errors.remove(exc)
+
+
+def wrap(func):
+    fds = sys.stdin.fileno()
+    gotterm = True
+    try:
+        old = termios.tcgetattr(fds)
+    except termios.error:
+        gotterm = False
+    try:
+        func()
+    except (EOFError, KeyboardInterrupt):
+        print("")
+    finally:
+        if gotterm:
+            termios.tcsetattr(fds, termios.TCSADRAIN, old)
+
+
+def main():
+    privileges(NAME)
+    cfg = parse(' '.join(sys.argv[1:]))
+    cli = CLI()
+    command(cli, cfg.otxt)
+
+
+if __name__ == "__main__":
+    wrap(main)
+    waiter()
