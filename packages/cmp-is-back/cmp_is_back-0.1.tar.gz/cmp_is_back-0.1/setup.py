@@ -1,0 +1,46 @@
+#!/usr/bin/python2.7
+import setuptools
+
+setuptools.setup(
+    name="cmp_is_back",
+    version="0.1",
+    author="cheny0y0 <anony> + REGE",
+    author_email="",
+    description="(Just for fun) Bring cmp() and __cmp__ back.",
+    long_description="(Just for fun) Bring cmp() and __cmp__ back.",
+    long_description_content_type="text/plain",
+    url="",
+    packages=setuptools.find_packages(),
+    install_requires=[],
+    classifiers=[
+        "Programming Language :: Python :: 1",
+        "Programming Language :: Python :: 1.3",
+        "Programming Language :: Python :: 1.4",
+        "Programming Language :: Python :: 1.5",
+        "Programming Language :: Python :: 1.6",
+        "Programming Language :: Python :: 2",
+        "Programming Language :: Python :: 2.0",
+        "Programming Language :: Python :: 2.1",
+        "Programming Language :: Python :: 2.2",
+        "Programming Language :: Python :: 2.3",
+        "Programming Language :: Python :: 2.4",
+        "Programming Language :: Python :: 2.5",
+        "Programming Language :: Python :: 2.6",
+        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.0",
+        "Programming Language :: Python :: 3.1",
+        "Programming Language :: Python :: 3.2",
+        "Programming Language :: Python :: 3.3",
+        "Programming Language :: Python :: 3.4",
+        "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
+        "Operating System :: OS Independent"
+    ]
+)
