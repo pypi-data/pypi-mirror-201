@@ -1,0 +1,1 @@
+from .myclass import Calculator
