@@ -1,0 +1,122 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "flake8-github-annotations"
+description = 'A flake8 formatter that turns output into Github Annotations'
+repository = "https://github.com/gustavgransbo/flake8-github-annotations"
+readme = "README.md"
+requires-python = ">=3.7"
+license = "MIT"
+keywords = []
+authors = [
+  { name = "Gustav Gränsbo", email = "gustav.gransbo@gmail.com" },
+]
+classifiers = [
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.7",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+]
+dependencies = [
+  "flake8 >= 3.0.0"
+]
+dynamic = ["version"]
+
+[project.entry-points]
+"flake8.report" = { github = "flake8_github_annotations:GithubAnnotationsFormatter" }
+
+
+[project.urls]
+Documentation = "https://github.com/gustavgransbo/flake8-github-annotations#readme"
+Issues = "https://github.com/gustavgransbo/flake8-github-annotations/issues"
+Source = "https://github.com/gustavgransbo/flake8-github-annotations"
+
+[tool.hatch.version]
+path = "src/flake8_github_annotations/__about__.py"
+
+[tool.hatch.scripts]
+check = [
+  "hatch run test:test",
+  "hatch run types:check",
+  "hatch run style:check",
+]
+
+[tool.hatch.envs.test]
+# Environment used to run tests
+dependencies = [
+  "pytest",
+  "importlib_metadata; python_version < '3.10'",
+]
+
+[tool.hatch.envs.test.scripts]
+test = 'pytest'
+
+[[tool.hatch.envs.test.matrix]]
+python = [
+  "3.7",
+  "3.8",
+  "3.9",
+  "3.10",
+  "3.11",
+]
+
+[tool.hatch.envs.types]
+# Environment used to type check
+dependencies = [
+  "mypy",
+  "pytest",
+  "importlib_metadata; python_version < '3.10'",
+]
+
+[tool.hatch.envs.types.scripts]
+check = 'mypy .'
+
+[tool.hatch.envs.style]
+# Environment used to lint and enforce code style
+dependencies = [
+  "flake8",
+  "black",
+  "isort",
+  "flake8-black",
+  "flake8-isort",
+  "flake8-bugbear",
+]
+
+[tool.hatch.envs.style.scripts]
+check = 'flake8'
+fmt = [
+  "black .",
+  "isort .",
+  "check"
+]
+
+[tool.hatch.envs.ci-style]
+template = "style"
+
+[tool.hatch.envs.ci-style.scripts]
+check = 'flake8 --format github'
+
+
+[tool.hatch.envs.dev]
+# Environment with all dev dependencies, to be used by IDE.
+dependencies = [
+  "flake8",
+  "black",
+  "isort",
+  "flake8-black",
+  "flake8-isort",
+  "flake8-bugbear",
+  "mypy",
+  "pytest",
+]
+
+[tool.isort]
+profile = "black"
+
+[[tool.mypy.overrides]]
+module = "flake8.*"
+ignore_missing_imports = true
