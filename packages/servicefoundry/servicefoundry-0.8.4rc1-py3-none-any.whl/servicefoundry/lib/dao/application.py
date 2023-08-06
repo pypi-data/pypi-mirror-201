@@ -1,0 +1,157 @@
+import json
+import shlex
+from typing import Any, Dict, Optional, Sequence, Union
+
+import servicefoundry.lib.dao.version as version_lib
+from servicefoundry.cli.console import console
+from servicefoundry.lib.clients.service_foundry_client import (
+    ServiceFoundryServiceClient,
+)
+from servicefoundry.lib.model.entity import Deployment, TriggerJobResult
+from servicefoundry.lib.util import get_application_fqn_from_deployment_fqn
+from servicefoundry.logger import logger
+
+
+def list_applications(
+    application_type: str,
+    workspace_fqn: Optional[str] = None,
+    client: Optional[ServiceFoundryServiceClient] = None,
+):
+    client = client or ServiceFoundryServiceClient()
+    if workspace_fqn:
+        workspace = client.get_id_from_fqn(fqn=workspace_fqn, fqn_type="workspace")
+        applications = client.list_applications(workspace_id=workspace["workspaceId"])
+    else:
+        applications = client.list_applications()
+
+    if application_type != "all":
+        applications = [
+            application
+            for application in applications
+            if application.deployment.manifest.type == application_type
+        ]
+    return applications
+
+
+def get_application(
+    application_fqn: str,
+    client: Optional[ServiceFoundryServiceClient] = None,
+):
+    client = client or ServiceFoundryServiceClient()
+    application = client.get_id_from_fqn(fqn=application_fqn, fqn_type="app")
+    application = client.get_application_info(
+        application_id=application["applicationId"]
+    )
+    return application
+
+
+def delete_application(
+    application_fqn: str,
+    client: Optional[ServiceFoundryServiceClient] = None,
+) -> Dict[str, Any]:
+    client = client or ServiceFoundryServiceClient()
+    application = client.get_id_from_fqn(fqn=application_fqn, fqn_type="app")
+    response = client.remove_application(application_id=application["applicationId"])
+
+    console.print("""[yellow]Deleted Application[/]""")
+    return response
+
+
+def redeploy_application(
+    application_fqn: str,
+    version: int,
+    wait: bool,
+    client: Optional[ServiceFoundryServiceClient] = None,
+) -> Deployment:
+    from servicefoundry.v2.lib.deployable_patched_models import Application
+
+    client = client or ServiceFoundryServiceClient()
+
+    deployment_info = version_lib.get_version(
+        application_fqn=application_fqn, version=version
+    )
+
+    manifest = deployment_info.manifest.dict()
+
+    application_id = deployment_info.applicationId
+    application_info = client.get_application_info(application_id=application_id)
+    workspace_fqn = application_info.workspace.fqn
+
+    application = Application.parse_obj(manifest)
+    deployment = application.deploy(workspace_fqn=workspace_fqn, wait=wait)
+    return deployment
+
+
+def trigger_job(
+    application_fqn: str,
+    command: Optional[Union[str, Sequence[str]]] = None,
+    params: Optional[Dict[str, str]] = None,
+) -> TriggerJobResult:
+    """
+    Trigger a Job on Truefoundry platform
+
+    Args:
+        application_fqn: Fully Qualified Name of the Deployed Job (without the version number)
+        command: command to run the job with, defaults to `None`. Can be a `str` or `List[str]`
+            When `None`, the job is triggered with configured command at the time of deployment.
+            When passed as a list, the command will be joined using `shlex.join`
+
+    Returns:
+        TriggerJobResult: metadata returning status of job trigger
+    """
+    client = ServiceFoundryServiceClient()
+
+    if params and command:
+        raise Exception("Either pass `command` or `params` but not both")
+
+    try:
+        # If user is passing in deployment fqn copied from UI, till we change the fqns on UI
+        application_fqn = get_application_fqn_from_deployment_fqn(application_fqn)
+        logger.warning(
+            "Detected version number in `application_fqn`. "
+            "Automatically discarding the version number. "
+            f"This automatic conversion will be removed in future. "
+            f"Please pass {application_fqn!r} as the value."
+        )
+    except ValueError:
+        pass
+    _application_info = client.get_application_info_by_fqn(
+        application_fqn=application_fqn
+    )
+    application_info = client.get_application_info(
+        application_id=_application_info.applicationId
+    )
+    if command:
+        if not isinstance(command, str):
+            command_str = shlex.join(command).strip()
+        else:
+            command_str = command.strip()
+        message = f"Job triggered with command {command_str!r}"
+    elif not params and not command:
+        command_str = ""
+        message = "Job triggered with pre-configured command"
+
+    if params:
+
+        # Check if params has any non string values
+        for key, value in params.items():
+            if not isinstance(value, str):
+                raise Exception(
+                    f"Invalid value {value!r} for key {key!r}. "
+                    "Only string values are allowed for `params`"
+                )
+        command_str = ""
+        message = f"Job triggered with params {params!r}"
+
+    result = client.trigger_job(
+        deployment_id=application_info.activeDeploymentId,
+        component_name=application_info.name,
+        command=command_str if command_str else None,
+        params=params if params else None,
+    )
+    previous_runs_url = f"{client.base_url.strip('/')}/deployments/{application_info.id}?tab=previousRuns"
+    logger.info(
+        f"{message}.\n"
+        f"You can check the status of your job run at {previous_runs_url}"
+    )
+    return result
