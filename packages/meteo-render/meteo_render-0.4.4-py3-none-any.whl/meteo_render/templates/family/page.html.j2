@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Weather</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <table>
+        {% for day in data %}
+        <tr>
+            <td class="day-name">
+                {{ extra["day_names"][day["date"]] if day["date"] in extra["day_names"] else day["date"] }}
+            <td>
+            {% for hour in day["hours"][5:] %}
+            <td class="weather-hour{% if hour["time"] == extra["hour"] %} weather-this-hour{% endif %}">
+                <p>
+                    <span class="logo">
+                        <img class="weather-logo" src="img/{{ extra["images"][hour["weathercode"]] }}"/>
+                    </span>
+                </p>
+                <p class="weather-desc">
+                    {{ extra["names"][hour["weathercode"]] }}
+                </p>
+                <p>
+                    {% if hour["temperature_2m"] < 0.1 %}
+                    <span class="temp temp-freezing">
+                    {% elif hour["temperature_2m"] < 10.1 %}
+                    <span class="temp temp-cold">
+                    {% elif hour["temperature_2m"] < 20.1 %}
+                    <span class="temp temp-mild">
+                    {% else %}
+                    <span class="temp temp-hot">
+                    {% endif %} 
+                        {{ hour["temperature_2m"] | int }}
+                    </span>
+                </p>
+                <p class="hour-time">
+                    {{ hour["time"][-5:] }}
+                </p>
+            <td>
+            {% endfor %}
+        <tr>
+        {% endfor %}
+    </table> 
+  </body>
+</html>
