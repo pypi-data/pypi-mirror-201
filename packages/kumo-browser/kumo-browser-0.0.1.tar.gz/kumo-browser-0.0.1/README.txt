@@ -1,0 +1,1 @@
+This is simple library which creates Browser which returns different types of the content based on the structure of the web page
