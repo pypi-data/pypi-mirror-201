@@ -1,0 +1,70 @@
+类 〇按键:
+    """特殊键码集"""
+
+    匚无 = "\ue000"
+    匚取消 = "\ue001"  # ^break
+    匚帮助 = "\ue002"
+    匚退格 = "\ue003"
+    TAB = "\ue004"
+    匚清除 = "\ue005"
+    匚回车 = "\ue006"
+    ENTER = "\ue007"
+    SHIFT = "\ue008"
+    SHIFT_左 = SHIFT
+    CONTROL = "\ue009"
+    CONTROL_左 = CONTROL
+    ALT = "\ue00a"
+    ALT_左 = ALT
+    匚暂停 = "\ue00b"
+    ESCAPE = "\ue00c"
+    匚空格 = "\ue00d"
+    匚上页 = "\ue00e"
+    匚下页 = "\ue00f"
+    匚末尾 = "\ue010"
+    匚开端 = "\ue011"
+    匚左箭头键 = "\ue012"
+    # ARROW_LEFT = LEFT
+    匚上箭头键 = "\ue013"
+    # ARROW_UP = UP
+    匚右箭头键 = "\ue014"
+    # ARROW_RIGHT = RIGHT
+    匚下箭头键 = "\ue015"
+    # ARROW_DOWN = DOWN
+    匚插入 = "\ue016"
+    匚删除 = "\ue017"
+    匚分号 = "\ue018"
+    匚等号 = "\ue019"
+
+    匚小键盘0 = "\ue01a"  # number pad keys
+    匚小键盘1 = "\ue01b"
+    匚小键盘2 = "\ue01c"
+    匚小键盘3 = "\ue01d"
+    匚小键盘4 = "\ue01e"
+    匚小键盘5 = "\ue01f"
+    匚小键盘6 = "\ue020"
+    匚小键盘7 = "\ue021"
+    匚小键盘8 = "\ue022"
+    匚小键盘9 = "\ue023"
+    匚乘号 = "\ue024"
+    匚加号 = "\ue025"
+    匚分隔符 = "\ue026"
+    匚减号 = "\ue027"
+    匚小数点 = "\ue028"
+    匚除号 = "\ue029"
+
+    F1 = "\ue031"  # function  keys
+    F2 = "\ue032"
+    F3 = "\ue033"
+    F4 = "\ue034"
+    F5 = "\ue035"
+    F6 = "\ue036"
+    F7 = "\ue037"
+    F8 = "\ue038"
+    F9 = "\ue039"
+    F10 = "\ue03a"
+    F11 = "\ue03b"
+    F12 = "\ue03c"
+
+    META = "\ue03d"
+    COMMAND = "\ue03d"
+    匚全角_半角 = "\ue040"
