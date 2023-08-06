@@ -1,0 +1,1 @@
+from .object_detection import ObjectDetectionProcessor as ObjectDetectionProcessor
