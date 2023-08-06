@@ -1,0 +1,66 @@
+[project]
+name="chemivec"
+version="0.0.1a"
+description="Vectorized cheminformatics library leveraging EPAM Indigo Toolkit"
+readme = "Readme.md"
+requires-python = ">=3.8"
+dependencies = [
+    'numpy>=1.7',
+    'pandas'
+]
+
+[project.urls]
+"Homepage" = "https://github.com/alkorolyov/chemivec"
+
+[build-system]
+requires = [
+    "scikit-build-core",
+    "numpy>=1.7",
+]
+build-backend = "scikit_build_core.build"
+
+[tool.scikit-build]
+#cmake.verbose = true
+#logging.level = "INFO"
+build-dir = "build" #for local `pip install . `
+
+[tool.cibuildwheel]
+# Minimum supported Python >= 3.8, 
+# Skipping 32bit and muslinux images
+# Using default "manylinux2014" image
+
+skip = "*-win32 *_i686 *-musllinux_*" 
+build = "cp3{8,9,10,11}-*"
+test-requires = ["pytest"]
+test-command = "pytest {project}/tests"
+build-verbosity = 1
+
+[tool.cibuildwheel.environment]
+#CMAKE_ARGS="-DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++"
+#CMAKE_GENERATOR="Ninja"
+#PIP_PREFER_BINARY="true"
+
+# Windows
+[tool.cibuildwheel.windows]
+
+[tool.cibuildwheel.windows.environment]
+CMAKE_ARGS="-DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++"
+CMAKE_GENERATOR="Ninja"
+PIP_PREFER_BINARY="true"
+
+# Linux
+[tool.cibuildwheel.linux.environment]
+CMAKE_ARGS="-DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++"
+CMAKE_GENERATOR="Ninja"
+PIP_PREFER_BINARY="true"
+
+[tool.cibuildwheel.linux]
+manylinux-x86_64-image = "manylinux2014"
+environment-pass = ["CMAKE_ARGS", "CMAKE_GENERATOR", "CIBUILDWHEEL", "PIP_PREFER_BINARY"]
+before-all = [
+    "yum install cairo-devel -y"
+]
+
+# MacOS
+[tool.cibuildwheel.macos]
+archs = ["x86_64", "arm64"]
