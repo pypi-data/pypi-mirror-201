@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Helplist</title>
+    <style>
+        body {
+            font-size: 17px;
+            line-height: 26px;
+            font-family: "Courier New", Courier, FangSong, STFangsong, STZhongsong, SimSun, monospace;
+        }
+
+        pre {
+            margin: 10px;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        h4 {
+            margin: 30px 0 0;
+        }
+
+        table {
+            margin: 10px auto;
+            width: 1200px;
+            border-collapse: collapse;
+        }
+
+        table tr:nth-child(odd) {
+            background-color: rgba(222, 222, 222, 0.22);
+            line-height: 1.7rem;
+        }
+
+        td {
+            padding: 1rem;
+        }
+
+        tr {
+            border-top: 1px solid rgba(64, 64, 64, 0.64);
+        }
+
+        td a {
+            text-decoration: none;
+            color: rgba(64, 64, 64, 0.64);
+        }
+
+        td a:hover {
+            color: dodgerblue;
+        }
+
+    </style>
+</head>
+<body>
+<table>
+    {% for entry in entries %}
+        <tr>
+            <td>
+                {%- for cap in entry.iter_captions() %}
+                    <div>{{ cap[0] }} {{ cap[1] }}</div>
+                {% endfor -%}
+            </td>
+            <td class="gray">
+                {%- if url_prefix -%}
+                    <a href="{{ url_prefix }}{{ entry.endpoint }}">{{ entry.endpoint }}</a>
+                {%- else -%}
+                    {{ entry.funcname }}
+                {%- endif -%}
+            </td>
+            <td><a id={{ entry.endpoint }} href="#{{ entry.endpoint }}">
+                {{- ["&spades;", "&hearts;", "&diams;", "&clubs;"][loop.index0 % 4] | safe }}</a>
+            </td>
+            <td>
+                {%- if entry.docstring_title.startswith('http://') or entry.docstring_title.startswith('https://') -%}
+                    <a target="_blank" href="{{ entry.docstring_title }}">{{ entry.docstring_title }}</a>
+                {%- else -%}
+                    {{ entry.docstring_title }}
+                {%- endif -%}
+            </td>
+        </tr>
+    {% endfor %}
+
+</table>
+</body>
+</html>

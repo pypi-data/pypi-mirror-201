@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Help</title>
+    <style>
+        html {
+            max-width: 800px;
+            margin: auto;
+            font-size: 18px;
+            line-height: 30px;
+            font-family: {{ font_family or '"Courier New", Courier, monospace' }};
+        }
+
+        h4 {
+            margin: 30px 0 0;
+        }
+
+        pre {
+            margin: 10px;
+            padding: 20px;
+            background-color: rgba(222, 222, 222, 0.33);
+            border-radius: 6px;
+        }
+
+        code {
+            font-family: "Courier New", Courier, SimSun, monospace;
+        }
+    </style>
+</head>
+<body>
+{% if docstring %}
+    <h4>Docstring:</h4>
+    <pre><code>{{ docstring }}</code></pre>
+{% endif %}
+
+<h4>Request:</h4>
+<pre><code>
+    {%- for cap in captions -%}
+        <div>{{ cap[0] }} {{ cap[1] }}</div>
+    {%- endfor -%}
+</code></pre>
+
+{% if req_headlines %}
+    <h4>Request line and headers:</h4>
+    <pre><code>
+    {%- for line in req_headlines -%}
+        <div>{{ line }}</div>
+    {%- endfor -%}
+    </code></pre>
+{% endif %}
+
+{% if req %}
+    <h4>Request Payload:</h4>
+    {% if req.__class__ == 'str' %}
+        <pre><code>{{ req }}</code></pre>
+    {% else %}
+        <pre><code>{{ req | tojson(indent=4) }}</code></pre>
+    {% endif %}
+{% endif %}
+
+{% if jsonschema %}
+    <h4>Request Payload JSON Schema:</h4>
+    <pre><code>{{ jsonschema | tojson(indent=4) }}</code></pre>
+{% endif %}
+
+{% if resp %}
+    <h4>Response:</h4>
+    <pre><code>{{ resp | tojson(indent=4) }}</code></pre>
+{% endif %}
+
+{% if images %}
+    {% for url in images %}
+        <img src="url" alt="">
+    {% endfor %}
+{% endif %}
+
+{% if external %}
+    <h4>External:</h4>
+    <pre><code><a target="_blank" href="{{ external }}">{{ external }}</a></code></pre>
+{% endif %}
+
+</body>
+</html>
