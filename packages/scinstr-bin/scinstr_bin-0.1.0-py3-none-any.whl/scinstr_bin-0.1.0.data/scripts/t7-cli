@@ -1,0 +1,127 @@
+#!python
+# -*- coding: utf-8 -*-
+
+"""
+author    Benoit Dubois
+copyright FEMTO ENGINEERING, 2020-2022
+license   GPL v3+
+brief     Basic CLI for T7(-Pro) device.
+"""
+import sys
+import time
+import signal
+import argparse
+import textwrap
+import datetime as dt
+import logging
+import scinstr.daq.labjack.t7eth as t7eth
+import scinstr.daq.labjack.t7usb as t7usb
+
+# Ctrl-c closes the application
+signal.signal(signal.SIGINT, signal.SIG_DFL)
+
+
+DEFAULT_SAMP_PERIOD = 1  # in second
+DEFAULT_FILENAME = time.strftime("%Y%m%d-%H%M%S") + "_t7.dat"
+
+AINS_LIST = (0, 1, 2, 3, 4, 5, 6, 7, 8)
+AINS = {"AIN{}".format(ain): ain for ain in AINS_LIST}
+
+
+# =============================================================================
+def parse_cmd_line():
+    """Parses command line.
+    :returns: an object holding attributes (Namespace)
+    """
+    parser = argparse.ArgumentParser(description='Labjack T7 data logging')
+    parser.add_argument('interface_type', choices=['ethernet', 'usb'],
+                        help='Specify device interface type.')
+    parser.add_argument('interface_name',
+                        help=textwrap.dedent('''\
+    If type is \'eth\', give IP of device.
+    If type is \'usb\' give \'bus:address\' (use \'lsusb\').
+        '''))
+    parser.add_argument('ains', type=int, nargs='+',
+                        help='Number of analog inputs to acquire')
+    parser.add_argument('-p', '--period', dest='period', type=int,
+                        default=DEFAULT_SAMP_PERIOD,
+                        help='Sampling period in second')
+    parser.add_argument('-f', '--filename', dest='filename', type=str,
+                        default=DEFAULT_FILENAME)
+    parser.add_argument('-s', '--stdout', dest='stdout', action='store_true',
+                        help='Print data to stdout')
+    return parser.parse_args()
+
+# =============================================================================
+def voltage_to_temperature(voltage):
+    i0 = 200e-6
+    r0 = 100
+    alpha = 0.00385
+    k = 1 / alpha / r0
+    resistance = voltage / i0
+    return k * (resistance - r0)
+
+# =============================================================================
+def main():
+    """Request continously data value;
+    """
+    args = parse_cmd_line()
+    if args.interface_type == 'usb':
+        if args.interface_name:
+            bus, address = args.interface_name.split(':')
+        dev = t7usb.T7Usb(bus=bus, address=address)
+    else:
+        dev = t7eth.T7Eth(args.interface_name)
+    with open(args.filename, 'a') as fd:
+        header = ''.join(f"{ain}\t" for ain in args.ains)
+        fd.write(header[:-1] + "\n")
+    while True:
+        try:
+            begin_time = time.time()
+            try:
+                dev.connect()
+            except Exception as ex:
+                logging.error("Connection to device failed: %r", ex)
+                continue
+            try:
+                retval = dev.get_ains_voltage(args.ains)
+            except Exception as ex:
+                logging.error("Getting data from device failed: %r", ex)
+                continue
+            dev.close()
+            timestamp = str(dt.datetime.utcnow())
+            retval = ''.join(f"{v}\t" for v in retval)[:-1]
+            msg = timestamp + '\t' + retval
+            if args.stdout:
+                print(msg)
+            with open(args.filename, 'a') as fd:
+                fd.write(msg + '\n')
+            time.sleep(begin_time + args.period - time.time())
+        except KeyboardInterrupt:
+            break
+
+# =============================================================================
+def configure_logging():
+    """Configures logs.
+    """
+    date_fmt = "%d/%m/%Y %H:%M:%S"
+    log_format = "%(asctime)s %(levelname) -8s %(filename)s " + \
+                 " %(funcName)s (%(lineno)d): %(message)s"
+    logging.basicConfig(level=logging.WARNING,
+                        datefmt=date_fmt,
+                        format=log_format,
+                        filemode='w')
+    console = logging.StreamHandler()
+    # define a Handler which writes INFO messages or higher to the sys.stderr
+    console.setLevel(logging.DEBUG)
+    # set a format which is simpler for console use
+    formatter = logging.Formatter('%(levelname)s: %(message)s')
+    # tell the handler to use this format
+    console.setFormatter(formatter)
+    # add the handler to the root logger
+    logging.getLogger('').addHandler(console)
+
+
+# =============================================================================
+configure_logging()
+main()

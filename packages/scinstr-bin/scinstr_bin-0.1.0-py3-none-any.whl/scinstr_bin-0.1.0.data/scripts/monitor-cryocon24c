@@ -1,0 +1,221 @@
+#!python
+# -*- coding: utf-8 -*-
+
+"""package cryocon
+author    Benoit Dubois
+copyright FEMTO ENGINEERING
+license   GPL v3.0+
+brief     A basic monitoring program for Cryo-Con 24C temperature gauge.
+details   Return temperature from Cryo-Con 24C temperature gauge with
+          a tuningable sampling period (minimum = 1.0 s).
+"""
+
+import sys
+import logging
+import argparse
+import time
+import datetime as dt
+import math
+
+# Ctrl-c closes the application
+import signal
+signal.signal(signal.SIGINT, signal.SIG_DFL)
+
+import numpy as np
+from PyQt4.QtCore import QCoreApplication, QSettings, QFileInfo, QDateTime, \
+    pyqtSlot
+
+import utilsben.mjdutils as mjd
+from cryocon.cryocon24c import CryoCon24cEth
+from cryocon.constants import CC24C_PORT
+
+APP_NAME = "CryoConMonitor"
+DEFAULT_SAMP_PERIOD = 30.0  # Default sampling period of monitored data (in s)
+
+
+#==============================================================================
+def parse_cmd_line():
+    """Parses command line.
+    :returns: an object holding attributes (Namespace)
+    """
+    parser = argparse.ArgumentParser(description='Cryo-Con 24C Monitoring')
+    parser.add_argument('ip', dest='ip', type=str)
+    parser.add_argument('-p', '--port', dest='port', type=int,
+                        default=CC24C_PORT, help='--port=<int>')
+    parser.add_argument('-m', '--period', dest='period', type=float,
+                        default=DEFAULT_SAMP_PERIOD, help='--period=<float>')
+    return parser.parse_args()
+
+
+#==============================================================================
+def make_header(ui, acq_start_date):
+    """Collect data information (channel, measurement type and parameters)
+    to be used as header for a data file.
+    :param ui: UI containing acquisition configuration (QObject)
+    :param acq_start_date: date @ starting of acquisition (str)
+    :returns: the data header (str)
+    """
+    now = "Date " + acq_start_date + "\n"
+    channel_info = ""
+    for channel in ui.module_widget.enabled_channels():
+        ch_nb = str(channel.id)
+        func = str(channel.param_wdgt.func_cbox.currentText())
+        rang = channel.param_wdgt.range_cbox.currentText().toAscii()
+        reso = str(channel.param_wdgt.reso_cbox.currentText())
+        trans = str(channel.param_wdgt.temp_cbox.currentText())
+        res = str(channel.param_wdgt.res_sb.cleanText())
+        channel_info += "Channel(" + ch_nb + "), " \
+            + ui.plot_widget.legend(channel.id).parameters.label + "; " \
+            + func + "; " + rang  + "; " + reso + "; " + trans + "; " + res \
+            + "\n"
+    header = now + channel_info
+    return header
+
+
+#==============================================================================
+def get_filename(current_filename):
+    """Handle data filename based on user specifications: a user can select
+    the period covered by a set of data ie an hour, a day or a week.
+    :param current_filename: name of current data file (QObject)
+    :returns: filename and flag indicating if name changed (QObject, Bool)
+    """
+    settings = QSettings()
+    interval_base = settings.value("app/interval_base")
+    hour_sync = settings.value("app/hour_sync").toInt()[0]
+    working_directory = settings.value("app/work_dir").toString()
+    #
+    file_base_name = QFileInfo(current_filename.fileName()).completeBaseName()
+    current_start_date = \
+        str(file_base_name).lstrip(APP_NAME + '_').rstrip(".dat")
+    year, month, day, hour, minute, second = int(current_start_date[0:4]), \
+      int(current_start_date[4:6]), \
+      int(current_start_date[6:8]), \
+      int(current_start_date[9:11]), \
+      int(current_start_date[11:13]), \
+      int(current_start_date[13:15])
+    start_day = mjd.date_to_mjd(year, month, day)
+    start_hour = mjd.hmsm_to_days(hour, minute, second)
+    #
+    now = mjd.datetime_to_mjd(dt.datetime.utcnow())
+    current_hour, current_day = math.modf(now)
+    is_changed = False
+    if interval_base == 'week':
+        if (current_day % 7) == 5 \
+            and current_hour > (hour_sync / 24) \
+            and start_day != current_day: # 5 => monday
+            file_start_date = time.strftime("%Y%m%d-%H%M%S", time.gmtime())
+            current_filename.setFileName(working_directory + '/' + APP_NAME \
+                                         + '_' + file_start_date + ".dat")
+            is_changed = True
+    elif interval_base == 'day':
+        if current_hour > (hour_sync / 24) and start_day != current_day:
+            file_start_date = time.strftime("%Y%m%d-%H%M%S", time.gmtime())
+            current_filename.setFileName(working_directory + '/' + APP_NAME \
+                                         + '_' + file_start_date + ".dat")
+            is_changed = True
+    else: # interval_base == 'hour'
+        hc, mc, sc, uc = mjd.days_to_hmsm(current_hour)
+        hs, ms, ss, us = mjd.days_to_hmsm(start_hour)
+        if hc > hs or (hc == 0 and hs == 23):
+            file_start_date = time.strftime("%Y%m%d-%H%M%S", time.gmtime())
+            current_filename.setFileName(working_directory + '/' + APP_NAME \
+                                         + '_' + file_start_date + ".dat")
+            is_changed = True
+    return current_filename, is_changed
+
+
+#==============================================================================
+def get_file(ui, current_file):
+    """Handle data file creation with a period of a day:
+    Each day the data file from the previous day is renamed with its creation
+    date.
+    :param ui: UI containing acquisition configuration (QObject)
+    :param current_filename: current data file (QFile)
+    :returns: (new) current file (QFile)
+    """
+    settings = QSettings()
+    working_directory = settings.value("app/work_dir").toString()
+    file_date_creation = QFileInfo(current_file.fileName()).created().toUTC()
+    # if the file has not been created during the current day.
+    if file_date_creation.daysTo(QDateTime.currentDateTimeUtc()) > 0:
+        is_ok = current_file.copy(working_directory + '/' + APP_NAME + '_' \
+                + file_date_creation.toString("yyyyMMdd-hhmmss") + ".dat")
+        if is_ok is True:
+            make_header(ui, time.strftime("%Y%m%d-%H%M%S", time.gmtime()))
+            current_file.resize(0)
+    return current_file
+
+
+#==============================================================================
+@pyqtSlot(object, object, object)
+def write_sample(ui, data_container, data_file):
+    """Writes new sample(s) in data file.
+    :param ui: UI containing acquisition configuration (QObject)
+    :param data_container: container of data (QObject)
+    :param data_file: name of current data file (QObject)
+    :returns: None
+    """
+    data_file = get_file(ui, data_file)
+    # Write sample
+    samples = np.fliplr(np.array( \
+        [float(data_container.data(key)[-1]) for key in data_container], \
+        ndmin=2))
+    samples.reverse()
+    with open(data_file.fileName(), 'a', 0) as fd:
+        np.savetxt(fname=fd, X=samples, delimiter='\t')
+
+
+#==============================================================================
+# simple_test() function
+#==============================================================================
+def simple_test():
+    """Basic test: request continously temperature value of each input.
+    """
+    # Create Qt app
+    app = QCoreApplication(sys.argv)
+    # Parse command line
+    args = parse_cmd_line()
+    ip = args.ip
+    port = args.port
+    period = args.period
+    #
+    dev = CryoCon24cEth(ip=ip, port=port, timeout=1.0)
+    dev.connect()
+    # Configuration of device
+    dev.write("INP A:UNIT K;:INP B:UNIT K;:INP C:UNIT K")
+    # Infinite loop
+    while True:
+        now = mjd.datetime_to_mjd(dt.datetime.utcnow())
+        retval = dev.ask("INP A:TEMP?;:INP B:TEMP?;:INP C:TEMP?;:INP D:TEMP?")
+        print(str(now) + '\t' + retval.replace(';', '\t'))
+        time.sleep(period)
+    sys.exit(app.exec_())
+
+
+#==============================================================================
+def configure_logging():
+    """Configures logs.
+    """
+    date_fmt = "%d/%m/%Y %H:%M:%S"
+    log_format = "%(asctime)s %(levelname) -8s %(filename)s " + \
+                 " %(funcName)s (%(lineno)d): %(message)s"
+    logging.basicConfig(level=logging.INFO, \
+                        datefmt=date_fmt, \
+                        format=log_format, \
+                        #filename=DEF_APP_PATH+APP_NAME+".log" , \
+                        filemode='w')
+    console = logging.StreamHandler()
+    # define a Handler which writes INFO messages or higher to the sys.stderr
+    console.setLevel(logging.DEBUG)
+    # set a format which is simpler for console use
+    formatter = logging.Formatter('%(levelname)s: %(message)s')
+    # tell the handler to use this format
+    console.setFormatter(formatter)
+    # add the handler to the root logger
+    logging.getLogger('').addHandler(console)
+
+
+#==============================================================================
+if __name__ == "__main__":
+    configure_logging()
+    simple_test()

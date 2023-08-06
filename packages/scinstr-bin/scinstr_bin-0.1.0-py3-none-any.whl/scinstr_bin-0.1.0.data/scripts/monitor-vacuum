@@ -1,0 +1,62 @@
+#!python
+# -*- coding: utf-8 -*-
+
+"""package scinstr-bin
+author    Benoit Dubois
+copyright FEMTO ENGINEERING, 2021
+license   GPL v3.0+
+brief     A basic monitoring program for vacuum gauge.
+details   Return pressure from vacuum gauge through RS232 interface
+          with a definable sampling period (minimum = 1 s).
+          Work with Pfeiffer TPG261 and Center One gauge controller.
+"""
+import signal
+import argparse
+import time
+from datetime import datetime
+import scinstr.vacuum.tpg261 as gauge
+
+# Ctrl-c closes the application
+signal.signal(signal.SIGINT, signal.SIG_DFL)
+
+
+DEFAULT_SERIAL_PORT = 0
+
+parser = argparse.ArgumentParser(description=' Monitoring')
+parser.add_argument('-p', '--period', dest='period', type=float,
+                    default=30.0, help='--period <float> [s]')
+parser.add_argument('-s', '--serialport', dest='port',
+                    help='--serialport <str>')
+parser.add_argument('-o', '--output', dest='filename',
+                    help='--output <filename> ')
+parser.add_argument('--utc', action='store_true', help='Use UTC time.')
+
+args = parser.parse_args()
+period = args.period
+port = args.port
+filename = args.filename
+utc = args.utc
+
+dev = gauge.Tpg261Serial(port=port)
+dev.connect()
+
+try:
+    while True:
+        if utc is True:
+            timetag = datetime.utcnow()
+        else:
+            timetag = datetime.now()
+        pressure = dev.pressure(1)[1]
+        formated_data = "{}\t{}\t{}".format(time.mktime(timetag.timetuple()),
+                                            timetag.strftime("%Y%m%d-%H%M%S"),
+                                            pressure)
+        print(formated_data)
+        if filename is not None:
+            with open(filename, 'a') as fd:
+                fd.write(formated_data)
+        if utc is True:
+            time.sleep(period - (datetime.utcnow() - timetag).total_seconds())
+        else:
+            time.sleep(period - (datetime.now() - timetag).total_seconds())
+except KeyboardInterrupt:
+    pass

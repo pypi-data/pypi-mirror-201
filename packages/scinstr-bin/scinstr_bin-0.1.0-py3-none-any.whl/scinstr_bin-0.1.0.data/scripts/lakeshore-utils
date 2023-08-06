@@ -1,0 +1,372 @@
+#!python
+# -*- coding: utf-8 -*-
+
+"""packake scinstr
+author    Benoit Dubois
+copyright FEMTO ENGINEERING, 2021-2022
+license   GPL v3.0+
+brief     Small utility for Lakeshore 3xx device.
+"""
+import logging
+import datetime
+import argparse
+import textwrap
+import scinstr.tctrl.l350 as l350
+
+# TODO: Backup des courbes du lakeshore
+
+CFG_CMD = ('ALARM[A,B,C,D]', 'ANALOG[3,4]', 'BRIGT', 'DISPFLD[1-8]',
+           'DISPLAY', 'FILTER[A,B,C,D]', 'HTRSET[1,2]', 'IEEE',
+           'INCRV[A,B,C,D]', 'INNAME[A,B,C,D]', 'INTSEL',
+           'INTYPE[A,B,C,D]', 'LEDS', 'LOCK', 'MODE', 'MOUT[1-4]',
+           'NET', 'OPSTE', 'OUTMODE[1-4]', 'PID[1-4]', 'RAMP[1-4]',
+           'RANGE[1-4]', 'RELAY[1,2]', 'SETP[1-4]', 'TLIMIT[A,B,C,D]',
+           'WARMUP[3,4]', 'WEBLOG', 'ZONE[1-4][1-10]')
+
+
+# =============================================================================
+def parse_args():
+    """Parse cli argument.
+    """
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.RawTextHelpFormatter,
+        description='''
+        Utilities for Lakeshore temperature controller (330, 350):
+        - load calibration file (.340 file only) to the controller device.
+        - configure input of controller (set calibration file and name).
+        ''')
+    parser.add_argument('interface_type', choices=('eth', 'usb'),
+                        help='Specify device interface type.')
+    parser.add_argument('interface_name',
+                        help=textwrap.dedent('''\
+    If type is \'eth\', give IP of device,
+    If type is \'usb\' give serial port.
+    The USB interface of Lakeshore device emulates a serial port.
+    Check serial ports on your computer to find the good one.
+        '''))
+    #
+    cmdsubparser = parser.add_subparsers(title='subcommands',
+                                         dest='cmd',
+                                         description='valid sub commands',
+                                         help='Query sub command')
+    #
+    loadparser = cmdsubparser.add_parser(
+        'load',
+        formatter_class=argparse.RawTextHelpFormatter,
+        help='Load calibration file (.340 file only) to a curve in Lakeshore device.',
+        epilog=textwrap.dedent('''
+   Example:
+      $ lakeshore-utils usb /dev/ttyUSB0 load 21 X123456.340
+   Load X123456.340 calibration file to curve number 21 of device @serial-port /dev/ttyUSB0
+        ''')
+    )
+    loadparser.add_argument('curve',
+                            type=int,
+                            choices=range(21, 60),
+                            metavar="{21-59}",
+                            help='Specify which curve to configure')
+    loadparser.add_argument('calibration_file',
+                            help='Calibration file to load (.340 file only)')
+    #
+    inputparser = cmdsubparser.add_parser(
+        'input',
+        formatter_class=argparse.RawTextHelpFormatter,
+        help='Configure input of controller',
+        epilog=textwrap.dedent('''
+    Example:
+      $ lakeshore-utils eth 192.168.0.2 confin B -cn 12 -in 'Sensor 1'
+      Connect to Lakeshore device @IP 192.168.0.2, then select the curve number 12 and the name 'Sensor 1' for the input B
+        '''))
+    inputparser.add_argument('id',
+                             choices=('A', 'B', 'C', 'D'),
+                             help='Specify which input to configure')
+    inputparser.add_argument('-cn', '--curve-number', dest='curve_number',
+                             type=int,
+                             help='Specify which curve number the input uses')
+    inputparser.add_argument('-na', '--name', dest='input_name',
+                             help=textwrap.dedent('''\
+    Specify the name to associate with the input (Don\'t forget to use quotes if input name contains spaces).
+    '''))
+    #
+    configparser = cmdsubparser.add_parser(
+        'config',
+        formatter_class=argparse.RawTextHelpFormatter,
+        help='Get/Set configuration from/to Lakeshore device.',
+        epilog=textwrap.dedent('''\
+   Configuration of device can be down/up-loaded from/to a file
+   Example:
+      $ lakeshore-utils eth 192.168.0.113 config download
+   Get configuration of device (@IP 192.168.0.113) to default file \'lakeshore-YYYYmmdd-HHMMSS.cfg\'.
+      $ lakeshore-utils usb /dev/ttyUSB0 config upload -f lakeshore-20220125-110629.cfg
+   Set configuration of device (@serial-port /dev/ttyUSB0) from file \'lakeshore-20220125-110629.cfg\'.
+        '''))
+    configparser.add_argument(
+        'updown', choices=('upload', 'download'),
+        help=textwrap.dedent('''\
+    Select upload or download of a configuration snapshot file.
+    With upload, you must specify an input configuration filename.
+    With download, you can specify the output configuration filename
+    or used the default filename: \'lakeshore-YYYYmmdd-HHMMSS.cfg\'
+    with \'YYYYmmdd-HHMMSS\' the current date.
+    (e.g. \'lakeshore-20220125-110629.cfg\').
+    '''))
+    configparser.add_argument(
+        '-f', '--config-file', dest='cfg_file',
+        help=textwrap.dedent('''\
+    Configuration filename.
+    When used with download, define the output configuration file.
+    When used with upload, define the input configuration file
+    (file must exist).
+    '''))
+    #
+    return parser.parse_args()
+
+# =============================================================================
+def parse_calib_file(file_name):
+    """Extract header and data from a 340 calibration file.
+    :param file_name: filename of calibration file (str)
+    :returns: extracted header and data (dict, array)
+    """
+    with open(file_name) as fd:
+        model = fd.readline().split()[2]
+        sn = fd.readline().split()[2]
+        format_ = int(fd.readline().split()[2])
+        spl = float(fd.readline().split()[2])
+        tc = int(fd.readline().split()[2])
+        nb_bkp = int(fd.readline().split()[3])
+    header = {'model':model, 'sn':sn, 'format':format_, 'spl':spl, 'tc':tc,
+              'nb_bkp':nb_bkp}
+    with open(file_name) as fd:
+        data_raw = fd.readlines()
+    a_nb = []
+    a_unit = []
+    a_temp = []
+    for line in data_raw[9:]:
+        nb, unit, temp = line.split(None, 3)
+        a_nb.append(int(nb))
+        a_unit.append(float(unit))
+        a_temp.append(float(temp))
+    data = [a_nb, a_unit, a_temp]
+    return header, data
+
+
+# =============================================================================
+def upload_calib_curve(dev, file_idx, header, data):
+    """Load a 340 calibration file to device. User calibration files are
+    stored in the device with a specified number index (from 21 to 59 in
+    Lakeshore 350 for example). This index is used to select calibration
+    data for sensors in use.
+    :param dev: Lakeshore device (object)
+    :param file_idx: index of calibration file (int)
+    :param header: header of calibration file (dict)
+    :param data: data of calibration file (array)
+    :returns: None
+    """
+    assert 21 <= file_idx <= 59, "Curve number must be in the range 21-59"
+    assert header['nb_bkp'] <= 200, "Number of point of the curve exceed 200"
+    dev.write("CRVHDR {:2d},{},{},{:1d},{:.3f},{:1d}".format(file_idx,
+                                                             header['model'],
+                                                             header['sn'],
+                                                             header['format'],
+                                                             header['spl'],
+                                                             header['tc']))
+    logging.info("loading header OK")
+    for i in range(header['nb_bkp']):
+        dev.write("CRVPT {:d},{:d},{:0<#7g},{:0<#7g}".format(file_idx,
+                                                             data[0][i],
+                                                             data[1][i],
+                                                             data[2][i]))
+        logging.debug("load data line %d", i+1)
+
+# =============================================================================
+def get_param(dev, parameter):
+    """Get current parameter value from device.
+    :param dev: Lakeshore device (object)
+    :param parameter: parameter name (str)
+    :returns: current parameter value (str)
+    """
+    dev.write(parameter)
+    param = dev.read()
+    return param
+
+# =============================================================================
+def set_param(dev, parameter, value):
+    """Set parameter value to device.
+    :param dev: Lakeshore device (object)
+    :param parameter: parameter name (str)
+    :param value: parameter value (str)
+    :returns: None
+    """
+    dev.write(parameter + ' ' + value)
+
+# =============================================================================
+def string_element_to_list(elements):
+    """Specific method dedicated to parse a (string) in form of enumerated
+    elements (e.g. '1,2,3,4') or range (e.g. '1-4') and return a list of
+    elements.
+    Note 1: do not understand alphabetic range (e.g. 'A-D').
+    Note 2: return int if elements are numerical and string if elements are
+    alphabetical
+    :param elements: string to parse (str)
+    :return: list of elements (list)
+    """
+    if ',' in elements:
+        param = elements.split(',')
+    else:
+        (min_ , max_) = elements.split('-')
+        param = list(range(int(min_), int(max_)+1))
+    return param
+
+# =============================================================================
+def get_cfg_cmd_list(query=False):
+    """Return list of string that can be used as command to set or get whole
+    configuration of a Lakeshore device.
+    :param query: if True the list must be used to get a configuration from
+                  a device else list must be used to set a configuration to
+                  a device (bool)
+    :returns: list of 'command' (list of str)
+    """
+    cmd_list = []
+    for cmd in CFG_CMD:
+        cmd = cmd.replace(']', '')
+        s = cmd.split('[')
+        if query is True:
+            s[0] = s[0] + '?'
+        if len(s) == 1:
+            cmd_list.append('{}'.format(s[0]))
+        elif len(s) == 2:
+            param = string_element_to_list(s[1])
+            for p in param:
+                cmd_list.append('{} {}'.format(s[0], p))
+        elif len(s) == 3:
+            param1 = string_element_to_list(s[1])
+            param2 = string_element_to_list(s[2])
+            for p1 in param1:
+                for p2 in param2:
+                    cmd_list.append('{} {},{}'.format(s[0], p1, p2))
+    return cmd_list
+
+# =============================================================================
+def get_config(dev):
+    """Get current configuration parameters from device (snapshot of device
+    configuration).
+    :param dev: Lakeshore device (object)
+    :returns: current configuration of device (dict)
+    """
+    cmd_list = get_cfg_cmd_list(True)
+    cfg = dict()
+    for param in cmd_list:
+        cfg[param.replace('?','')] = get_param(dev, param)
+    return cfg
+
+# =============================================================================
+def set_config(dev, config):
+    """Set configuration to device.
+    :param dev: Lakeshore device (object)
+    :param config: a configuration of device (dict)
+    :returns: None
+    """
+    for param, value in config.items():
+        set_param(dev, param, value)
+
+# =============================================================================
+def write_config_to_file(config, filename):
+    """Write a configuration in file 'filename'.
+    :param config: device configuration (dict)
+    :param dev: Lakeshore device (object)
+    :returns: None
+    """
+    with open(filename, mode='w') as fd:
+        for param, value in config.items():
+            msg = param + ":" + value + '\n'
+            fd.write(msg)
+
+# =============================================================================
+def read_config_from_file(filename):
+    """Read a configuration from file 'filename'.
+    :param dev: Lakeshore device (object)
+    :returns: device configuration (dict)
+    """
+    cfg = dict()
+    with open(filename) as fd:
+        for line in fd:
+            param, value = line.split(':')
+            if 'INNAME' in param:
+                value = '\"' + value + '\"'
+            cfg[param] = value
+    return cfg
+
+# =============================================================================
+def main():
+    """Script entry.
+    """
+    args = parse_args()
+    if args.interface_type == 'usb':
+        dev = l350.L350Usb(args.interface_name, timeout=0.5)
+    else:
+        dev = l350.L350Eth(args.interface_name, timeout=1.0)
+    try:
+        dev.connect()
+    except Exception as ex:
+        logging.critical("Connection to device failed: %r", ex)
+        return
+
+    if args.cmd == 'load':
+        logging.info("Load file %s to curve %d",
+                     args.calibration_file,
+                     args.curve)
+        header, data = parse_calib_file(args.calibration_file)
+        dev.write("CRVDEL {:d}".format(args.curve))
+        if args.interface_type == 'usb':
+            # Bug in USB interface:
+            # when using command 'CRVDEL', curve loading failed if the
+            # following command is not used.
+            dev.hard_flush()
+        upload_calib_curve(dev, args.curve, header, data)
+        logging.info("-----> OK")
+    elif args.cmd == 'input':
+        if args.curve_number:
+            logging.info("Set curve %d to input %s",
+                         args.curve_number,
+                         args.id)
+            dev.write("INCRV {}, {}".format(args.id, args.curve_number))
+            logging.info("-----> OK")
+        if args.input_name:
+            logging.info("Set name %s to input %s",
+                         args.input_name,
+                         args.id)
+            dev.write("INNAME {}, \"{}\"\n".format(args.id,
+                                                   args.input_name))
+            logging.info("-----> OK")
+    elif args.cmd == 'config':
+        if args.updown == 'download':
+            config = get_config(dev)
+            if not args.cfg_file:
+                date = datetime.datetime.utcnow().strftime("%Y%m%d-%H%M%S")
+                filename = 'lakeshore-' + date + '.cfg'
+            else:
+                filename = args.cfg_file
+            write_config_to_file(config, filename)
+        elif args.updown == 'upload':
+            if not args.cfg_file:
+                logging.error(
+                    "You must specify a config file when uploading configuration.")
+                return
+            config = read_config_from_file(args.cfg_file)
+            set_config(dev, config)
+    else:
+        logging.error("Bad command line (see help)")
+
+    dev.local()
+    dev.close()
+
+
+# =============================================================================
+date_fmt = "%d/%m/%Y %H:%M:%S"
+log_format = "%(asctime)s %(levelname) -8s %(filename)s " + \
+             " %(funcName)s (%(lineno)d): %(message)s"
+logging.basicConfig(level=logging.DEBUG,
+                    datefmt=date_fmt,
+                    format=log_format)
+
+main()

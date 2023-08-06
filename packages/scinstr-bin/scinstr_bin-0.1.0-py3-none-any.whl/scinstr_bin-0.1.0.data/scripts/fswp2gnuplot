@@ -1,0 +1,49 @@
+#!/bin/bash
+#
+# Author: ben (benoit.dubois@femto-engineering.fr)
+#
+# Change data file from R&S FSWP phase noise analyzer to a convenient
+# data file for gnuplot software:
+# - add '#' at the begining of lines of comment to be compatible with
+#   gnuplot comment,
+# - add two empty lines between each block of data.
+#
+# Tested on data file with all traces and device configuration.
+#
+
+# Get number of block of data
+NBD=`grep -c ^Values $1`
+# Get end position of comments
+EPC=`grep -n Values $1 | cut -f1 -d:`
+# Get number of lines of each block of data
+NLD=`grep -n Values $1 | cut -f2 -d\;`
+
+# Add two empty lines between block of data and add '#' at the begining of lines
+# of comment.
+# Notes:
+# - Range is $NBD+1 because data file include also "Integrated Measurements"
+# wich add another set of data. This data are currently not used so
+# they are commented.
+# - 'begin' is the first line number of current comment block.
+# - 'end' is the last line number of current comment block.
+for ((cbd=$((NBD+1));cbd>0;cbd--)); do
+    if [[ $cbd = '1' ]]; then
+        begin=1
+    else
+        pbd=$((cbd-1))
+        pepc=`echo $EPC | cut -f$pbd -d' '`
+        pnld=`echo $NLD | cut -f$pbd -d' '`
+        begin=$((pepc + pnld + 1))
+    fi
+    if [[ $cbd != $((NBD+1)) ]]; then
+        end=`echo $EPC | cut -f$cbd -d' '`
+    else
+        end=`wc -l $1 | cut -f1 -d' '`
+    fi
+    # Add # to comments
+    sed -i "$begin,$end s/^/#/" $1  > /dev/null
+    # Add empty lines
+    if [[ $cbd > '1' ]]; then # Not needed at the begining of file
+        sed -i "$begin s/^/\n\n/" $1
+    fi
+done

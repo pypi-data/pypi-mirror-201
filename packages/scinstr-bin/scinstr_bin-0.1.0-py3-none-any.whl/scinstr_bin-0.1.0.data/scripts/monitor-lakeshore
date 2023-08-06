@@ -1,0 +1,123 @@
+#!python
+# -*- coding: utf-8 -*-
+
+"""package scinstr-bin
+author    Benoit Dubois
+copyright FEMTO ENGINEERING, 2022
+license   GPL v3.0+
+brief     A basic monitoring program Lakeshore temperature controler.
+details   Return temperature from Lakeshore temperature controler with
+          a tunable sampling period (minimum = 1.0 s).
+"""
+
+import logging
+import argparse
+import textwrap
+import time
+import signal
+import datetime as dt
+from scinstr.tctrl import l350
+
+
+# Ctrl-c closes the application
+signal.signal(signal.SIGINT, signal.SIG_DFL)
+
+
+APP_NAME = "LakeshoreMonitor"
+DEFAULT_SAMP_PERIOD = 30.0 # Sampling period of monitored data (in s)
+DEFAULT_FILENAME = time.strftime("%Y%m%d-%H%M%S") + "_lakeshore.dat"
+
+
+#==============================================================================
+def parse_cmd_line():
+    """Parses command line.
+    :returns: an object holding attributes (Namespace)
+    """
+    parser = argparse.ArgumentParser(description='Lakeshore Monitoring')
+    parser.add_argument('interface_type', choices=['ethernet', 'usb'],
+                        help='Specify device interface type.')
+    parser.add_argument('interface_name',
+                        help=textwrap.dedent('''\
+    If type is \'eth\', give IP of device,
+    If type is \'usb\' give serial port.
+    The USB interface of Lakeshore device emulates a serial port.
+    Check serial ports on your computer to find the good one.
+        '''))
+    parser.add_argument('-s', '--sensor', dest='sensor', action='store_true',
+                        help='Return also sensor values')
+    parser.add_argument('-p', '--period', dest='period', type=float,
+                        default=DEFAULT_SAMP_PERIOD, help='--period=<float>')
+    parser.add_argument('-o', '--ofilename', dest='filename', type=str,
+                        default=DEFAULT_FILENAME, help='Output filename')
+    parser.add_argument('-so', '--stdout', dest='stdout', action='store_true',
+                        help='Print data to stdout')
+    return parser.parse_args()
+
+
+#==============================================================================
+def acquisition():
+    """Request continously temperature value of each input.
+    """
+    args = parse_cmd_line()
+
+    if args.interface_type == 'usb':
+        dev = l350.L350Usb(args.interface_name, timeout=0.5)
+    else:
+        dev = l350.L350Eth(args.interface_name, timeout=1.0)
+
+    try:
+        dev.connect()
+    except Exception as ex:
+        logging.critical("Connection to device failed: %r", ex)
+        return
+
+    with open(args.filename, 'a') as fd:
+        fd.write("# timestamp\tchannel_a\tchannel_b\tchannel_c\tchannel_d\n")
+
+    while True:
+        try:
+            begin_time = time.time()
+            retval = dev.query("KRDG? 0")
+            if args.sensor:
+                retval += '\t' + dev.query("SRDG? 0")
+            timestamp = dt.datetime.utcnow()
+            msg = str(timestamp) + "\t" + retval.replace(',', '\t')
+            if args.stdout:
+                print(msg)
+            with open(args.filename, 'a') as fd:
+                fd.write(msg + '\n')
+            sleep_time = begin_time + args.period - time.time()
+            if sleep_time < 0:
+                sleep_time = 0
+            time.sleep(sleep_time)
+        except KeyboardInterrupt:
+            break
+
+    dev.close()
+
+
+#==============================================================================
+def configure_logging():
+    """Configures logs.
+    """
+    date_fmt = "%d/%m/%Y %H:%M:%S"
+    log_format = "%(asctime)s %(levelname) -8s %(filename)s " + \
+                 " %(funcName)s (%(lineno)d): %(message)s"
+    logging.basicConfig(level=logging.WARNING,
+                        datefmt=date_fmt,
+                        format=log_format,
+                        filemode='w')
+    console = logging.StreamHandler()
+    # define a Handler which writes INFO messages or higher to the sys.stderr
+    console.setLevel(logging.DEBUG)
+    # set a format which is simpler for console use
+    formatter = logging.Formatter('%(levelname)s: %(message)s')
+    # tell the handler to use this format
+    console.setFormatter(formatter)
+    # add the handler to the root logger
+    logging.getLogger('').addHandler(console)
+
+
+#==============================================================================
+configure_logging()
+acquisition()

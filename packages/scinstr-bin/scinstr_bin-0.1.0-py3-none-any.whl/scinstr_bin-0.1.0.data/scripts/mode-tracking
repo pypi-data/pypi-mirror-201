@@ -1,0 +1,717 @@
+#!python
+# -*- coding: utf-8 -*-
+
+"""package scinstr-bin
+author    Benoit Dubois
+copyright FEMTO ENGINEERING, 2022
+license   GPL v3.0+
+brief     Acquire data trace from N5234A or N5230A device during the cooling
+          down or warming up process of cryostat.
+details   Usage is basic: user configure the frequency range to monitor on
+          the VNA. and an interval of temperature,
+          then acquisition of the VNA is done each temperature interval.
+          Temperature is acquired via lakeshore device.
+          At the end the user can "replay" the acquisition sequence.
+"""
+
+import sys
+import os
+import os.path
+import signal
+import datetime
+import threading
+import pathlib
+import logging
+import logging.handlers
+from pyqtgraph.parametertree import Parameter, ParameterTree
+import pyqtgraph as pg
+import numpy as np
+from PyQt5.QtGui import QBrush
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, \
+    QHBoxLayout, QMessageBox
+from PyQt5.QtCore import pyqtSlot, pyqtSignal, QObject, Qt
+import scinstr.vna.n523x as vna
+import scinstr.tctrl.l350 as tctrl
+
+# Ctrl-c closes the application
+signal.signal(signal.SIGINT, signal.SIG_DFL)
+signal.signal(signal.SIGTERM, signal.SIG_DFL)
+
+DEFAULT_MAX_TIME_PERIOD = 30  # in minute
+DEFAULT_TEMPERATURE_INTERVAL = 10  # in Kelvin
+DEFAULT_TEMPERATURE_ACQUISITION_PERIOD = 30  # in second
+APP_NAME = "ModeTracking"
+VNA_TIMEOUT = 5  # in second
+
+CONSOLE_LOG_LEVEL = logging.INFO
+FILE_LOG_LEVEL = logging.WARNING
+
+MAGNIFIED_BRUSH = QBrush(Qt.red)
+DEFAULT_BRUSH = QBrush(Qt.black)
+
+#===============================================================================
+class MyVna(vna.N523x):
+
+    def connect(self, try_=3):
+        """Overloaded vna.Vna method because, VNA seems to refuse connection
+        without reasons.
+        :param try_: number of connection attempt (int).
+        """
+        for _ in range(try_):
+            if super().connect() is True:
+                return True
+        return False
+
+
+#===============================================================================
+class ThreadedAcq(QObject):
+    """ThreadedAcq class, used to provide continous data acquisition with
+    blocking-read data acquisition device object. The data are sampled at
+    'tsamp'. Note that sampling time must large in front of acquisition time
+    and or "time constant" to ensure a correct sampling time stability.
+    """
+
+    new_data = pyqtSignal(float)
+    started = pyqtSignal()
+    stopped = pyqtSignal()
+
+    def __init__(self, dev, func, tsamp, parent, *args, **kwargs):
+        """Constructor
+        :param dev: a data acquisition device object instance (object)
+        :param func: a method of 'dev' class which return data (object)
+        :param tsamp: sampling period (float)
+        :returns: None
+        """
+        super().__init__(parent=parent)
+        self._dev = dev
+        self._func = func
+        self.tsamp = tsamp
+        self._data = None
+        self.args = args
+        self.kwargs = kwargs
+        self._idle = threading.Event()
+        self._idle.set()
+
+    def __del__(self):
+        self._idle.set()
+
+    @property
+    def data(self):
+        """Getter of data.
+        :returns: current acquiered data (object)
+        """
+        return self._data
+
+    def is_running(self):
+        return not self._idle.is_set()
+
+    @pyqtSlot()
+    def stop(self):
+        """Stop continuous acquisition.
+        :returns: None
+        """
+        self._idle.set()
+
+    @pyqtSlot()
+    def start(self):
+        """Start continuous acquisition.
+        :returns: None
+        """
+        try:
+            acq_thread = threading.Thread(target=self._get_data,
+                                          args=self.args,
+                                          kwargs=self.kwargs)
+        except Exception as ex:
+            logging.warning("Acquisition problem: %r", ex)
+            return
+        self._idle.clear()
+        acq_thread.start()
+        self.started.emit()
+
+    def _get_data(self, *args, **kwargs):
+        """Virtual acquisition data method: call method '_func' of '_dev'
+        instance specified with '*args' arguments. Emit signal when new data
+        acquired and when acquisition is done.
+        :returns: None
+        """
+        if self._func is None:
+            logging.warning("No acquisition method specified for instance %r",
+                            self._dev)
+            return
+        while not self._idle.wait(self.tsamp):
+            try:
+                if not self._dev.connect():
+                    logging.error("Connection failed")
+                    continue
+            except Exception as ex:
+                logging.error("Connection error: %r", ex)
+                continue
+            try:
+                data = self._func(self._dev, *args, **kwargs)
+            except Exception as ex:
+                logging.error("Get data error: %r", ex)
+            else:
+                if data is not None and data != '':
+                    self._data = data
+                    self.new_data.emit(data)
+            try:
+                self._dev.close()
+            except Exception as ex:
+                logging.error("Disconnection error: %r", ex)
+                continue
+        self.stopped.emit()
+
+
+#===============================================================================
+PARAMS = [
+    {'name': 'Devices', 'type': 'group', 'children': [
+        {'name': 'VNA', 'type': 'group', 'children': [
+            {'name': 'IP', 'type': 'str', 'value': "192.168.0.11"},
+            {'name': 'Port', 'type': 'int', 'value': vna.PORT},
+            {'name': 'Check', 'type': 'action'},
+        ]},
+        {'name': 'Temperature controller', 'type': 'group', 'children': [
+            {'name': 'IP', 'type': 'str', 'value': "192.168.0.221"},
+            {'name': 'Port', 'type': 'int', 'value': tctrl.PORT},
+            {'name': 'Check', 'type': 'action'},
+        ]},
+    ]},
+    {'name': 'Acquisition', 'type': 'group', 'children': [
+        {'name': 'Temperature channel', 'type': 'list',
+             'values': {'A': 0, 'B': 1, 'C': 2, 'D': 3}, 'value': 0,
+             'tip': 'Input channel of temperature controller'},
+        {'name': 'Single acquisition',  'type': 'group', 'children': [
+            {'name': 'Start', 'type': 'action'},
+        ]},
+        {'name': 'Continous acquisition',  'type': 'group', 'children': [
+            {'name': 'Temperature monitoring period', 'type': 'int',
+             'value': DEFAULT_TEMPERATURE_ACQUISITION_PERIOD, 'suffix': 's',
+             'tip': 'Duration between temperature acquisition'},
+            {'name': 'Temperature interval', 'type': 'int',
+             'value': DEFAULT_TEMPERATURE_INTERVAL, 'suffix': 'K',
+             'tip': 'Interval of temperature between each acquisitions'},
+            {'name': 'Timeout interval', 'type': 'int',
+             'value': DEFAULT_MAX_TIME_PERIOD, 'suffix': 'min',
+             'tip': 'Maximum time between acquisitions.'},
+            {'name': 'Start / Stop', 'type': 'action'},
+        ]},
+    ]},
+    {'name': 'Workspace', 'type': 'group', 'children': [
+        {'name': 'Directory', 'type': 'file',
+         'value': os.path.abspath(os.getcwd()),
+         'directory': os.path.abspath(os.getcwd()),
+         'winTitle': 'Choose workspace directory',
+         'fileMode': 'Directory', 'options': ['ShowDirsOnly']},
+        {'name': 'Load data', 'type': 'action'},
+        {'name': 'Clear data', 'type': 'action'},
+        {'name': 'Curves', 'type': 'group', 'children': []},
+    ]},
+    {'name': 'Analysis', 'type': 'group', 'children': [
+        {'name': 'Display', 'type': 'list',
+         'values': ['Enabled only', 'All'], 'value': 'All'},
+        {'name': 'Group by', 'type': 'int', 'value': 1},
+        {'name': 'Reverse order', 'type': 'bool', 'value': False},
+        {'name': 'Forward', 'type': 'action'},
+        {'name': 'Downward', 'type': 'action'},
+    ]},
+]
+
+
+class ModeTrackUi(QMainWindow):
+    """Ui of mode tracking application.
+    """
+
+    def __init__(self):
+        """Constructor.
+        :returns: None
+        """
+        super().__init__()
+        self.setWindowTitle("Mode Tracking")
+        self.setCentralWidget(self._central_widget())
+
+    def _central_widget(self):
+        """Define central widget.
+        :returns: central widget of UI (QWidget)
+        """
+        self.p = Parameter.create(name='params', type='group', children=PARAMS)
+        self.ptree = ParameterTree()
+        self.ptree.setParameters(self.p, showTop=False)
+        self.cplot = pg.PlotWidget()
+        self.aplot = pg.PlotWidget()
+        plot_lay = QVBoxLayout()
+        plot_lay.addWidget(self.cplot)
+        plot_lay.addWidget(self.aplot)
+        main_lay = QHBoxLayout()
+        main_lay.addWidget(self.ptree)
+        main_lay.addLayout(plot_lay)
+        main_lay.setStretchFactor(plot_lay, 2)
+        central_widget = QWidget()
+        central_widget.setLayout(main_lay)
+        return central_widget
+
+
+#===============================================================================
+class ModeTrackApp(QApplication):
+    """Mode tracking application.
+    """
+
+    vna_acq_done = pyqtSignal(object)
+    displayable_items_updated = pyqtSignal()
+    displayed_item_updated = pyqtSignal()
+
+    def __init__(self, args):
+        """Constructor.
+        :returns: None
+        """
+        super().__init__(args)
+        self.ui = ModeTrackUi()
+        self.curves = {}  # Dict of acquired curves from VNA
+        self.last_temp = None  # Last temperature measured
+        self.displayed_item = None  # Current items (Parameter) of the curves displayed in the analysis plot
+        self.displayable_items = []  # List of curve items displayable in analysis plot
+        self.tctrl = tctrl.L350Eth(self.ui.p.param('Devices',
+                                                   'Temperature controller',
+                                                   'IP').value())
+        self.temp_acq = ThreadedAcq(
+            dev=self.tctrl,
+            func=tctrl.L350Eth.get_tc,
+            tsamp=DEFAULT_TEMPERATURE_ACQUISITION_PERIOD,
+            parent=self,
+            key=0)
+        self.temp_acq_watchdog = None
+        self.ui.p.param('Acquisition',
+                        'Continous acquisition',
+                        'Start / Stop').sigActivated.connect(
+                            self.continous_acquisition)
+        self.ui.p.param('Acquisition',
+                        'Single acquisition',
+                        'Start').sigActivated.connect(
+                            self.single_acquisition_checked)
+        self.ui.p.param('Workspace','Clear data').sigActivated.connect(
+            self.clear_workspace_data)
+        self.ui.p.param('Workspace','Load data').sigActivated.connect(
+            self.load_workspace_data)
+        self.ui.p.param('Devices','VNA','Check').sigActivated.connect(
+            self.check_dev_connection)
+        self.ui.p.param('Devices',
+                        'Temperature controller',
+                        'Check').sigActivated.connect(
+            self.check_dev_connection)
+        self.temp_acq.new_data.connect(self.handle_temp_data)
+        self.vna_acq_done.connect(self.handle_vna_data)
+        #
+        self.ui.p.param('Workspace','Curves').sigChildAdded.connect(
+            self.item_added)
+        self.ui.p.param('Workspace','Curves').sigChildAdded.connect(
+            lambda caller, child: child.sigValueChanged.connect(
+                self.item_state_changed))
+        self.ui.p.param('Analysis','Display').sigValueChanged.connect(
+            self.display_state_changed)
+        self.ui.p.param('Analysis','Forward').sigActivated.connect(
+            self.update_displayed_item_forward)
+        self.ui.p.param('Analysis','Downward').sigActivated.connect(
+            self.update_displayed_item_downward)
+        self.ui.p.param('Analysis','Group by').sigValueChanged.connect(
+            self.display_curves)
+        self.displayable_items_updated.connect(
+            self.handle_displayable_items_update)
+        self.displayed_item_updated.connect(
+            self.display_curves)
+        self.displayed_item_updated.connect(
+            self.magnify_current_items)
+        #
+        self.ui.show()
+
+    def __del__(self):
+        if self.temp_acq.is_running():
+            self.temp_acq_watchdog.cancel()
+            self.temp_acq.stop()
+            self.temp_acq.join()
+
+    @pyqtSlot(object)
+    def check_dev_connection(self, emitter):
+        if emitter.parent().name() == 'VNA':
+            ip = self.ui.p.param('Devices', 'VNA', 'IP').value()
+            port = self.ui.p.param('Devices', 'VNA', 'Port').value()
+            dev = MyVna(ip, port, timeout=VNA_TIMEOUT)
+        else:
+            dev = self.tctrl
+        if dev.connect():
+            idn = dev.idn
+        else:
+            idn = "None"
+        dev.close()
+        QMessageBox.information(self.ui,
+                                'Request device ID',
+                                'Device ID returned: {}'.format(idn))
+
+    def single_acquisition(self):
+        self.tctrl.connect()
+        self.last_temp = self.tctrl.get_tc(
+            self.ui.p.param('Acquisition', 'Temperature channel').value())
+        self.tctrl.close()
+        self.acquire_vna_data()
+
+    @pyqtSlot()
+    def single_acquisition_checked(self):
+        if self.temp_acq.is_running():
+            err_msg = "Continous acquisition already running"
+            logging.error(err_msg)
+            QMessageBox.error(self.ui, "Acquisition problem",
+                              err_msg,
+                              QMessageBox.Ok)
+            return
+        self.single_acquisition()
+
+    @pyqtSlot()
+    def continous_acquisition(self):
+        if self.temp_acq.is_running():
+            retval = QMessageBox.question(self.ui, "Acquisition in progress",
+                    "Acquisition in progress, do you realy want to stop?")
+            if retval == QMessageBox.Yes:
+                self.temp_acq.stop()
+        else:
+            # Process initialization (variable self.last_temp, get vna data...)
+            self.single_acquisition()
+            #
+            tsamp = self.ui.p.param('Acquisition',
+                                    'Continous acquisition',
+                                    'Temperature monitoring period').value()
+            channel = self.ui.p.param('Acquisition','Temperature channel').value()
+            watchdog_timeout = self.ui.p.param('Acquisition',
+                                               'Continous acquisition',
+                                               'Timeout interval').value() * 60
+            self.temp_acq.tsamp = tsamp
+            self.temp_acq.kwargs = {'key': channel}
+            self.temp_acq.start()
+            self.temp_acq_watchdog = threading.Timer(watchdog_timeout,
+                                                     self.single_acquisition)
+            self.temp_acq_watchdog.start()
+
+    @pyqtSlot(float)
+    def handle_temp_data(self, temp):
+        logging.info("Current temperature: %r", temp)
+        delta_T = self.ui.p.param('Acquisition',
+                                  'Continous acquisition',
+                                  'Temperature interval').value()
+        if abs(self.last_temp - temp) < delta_T:
+            return
+        self.temp_acq_watchdog.cancel()
+        threading.Thread(target=self.acquire_vna_data).start()
+        watchdog_timeout = self.ui.p.param('Acquisition',
+                                           'Continous acquisition',
+                                           'Timeout interval').value() * 60
+        self.temp_acq_watchdog = threading.Timer(watchdog_timeout,
+                                                 self.single_acquisition)
+        self.temp_acq_watchdog.start()
+        self.last_temp = temp
+
+    @pyqtSlot()
+    def acquire_vna_data(self):
+        """Acquire data from VNA process.
+        Emit signal when acquisition is done.The signal pass acquired data.
+        The data are a dictionary with key defining acquisition (channel, type)
+        and value are acquired data.
+        :returns: None
+        """
+        logging.info("Acquisition from vna")
+        ip = self.ui.p.param('Devices', 'VNA', 'IP').value()
+        port = self.ui.p.param('Devices', 'VNA', 'Port').value()
+        # Acquisition itself
+        dev = MyVna(ip, port, timeout=VNA_TIMEOUT)
+        if not dev.connect():
+            err_msg = "Connection to VNA failed"
+            logging.error(err_msg)
+            QMessageBox.warning(self.ui, "Acquisition problem",
+                                err_msg, QMessageBox.Ok)
+            return
+        dev.write("FORMAT:DATA REAL,64")
+        try:
+            data = dev.get_measurements()
+        except Exception as ex:
+            logging.error("Problem during acquisition: %r", ex)
+            return
+        data = {dev.measurement_number_to_name(idx+1):
+                dat for idx, dat in enumerate(data)}
+        self.vna_acq_done.emit(data)
+
+    @pyqtSlot(object)
+    def handle_vna_data(self, data):
+        """Handle data after VNA acquisition:
+        - add data to dictionary 'curves'
+        - add item to refer data to menu ('Workspace', 'Curves')
+        - plot data in current plot (cplot)
+        - plot data in analysis plot (aplot)
+        - save data in workspace directory
+        Data are a dictionary with keys defining acquisition (channel, type)
+        and values are acquired data.
+        :param data: acquired data from VNA (dict)
+        :returns: None
+        """
+        self.ui.cplot.clear()
+        now = datetime.datetime.utcnow().strftime("%Y%m%d-%H%M%S")
+        for key, dat in data.items():
+            name = '{:08.4f}K_{}_{}'.format(self.last_temp, now, key)
+            self.curves[name] = dat
+            self.ui.p.param('Workspace', 'Curves').addChild(
+                Parameter.create(name=name, type='bool', value=True))
+            self.ui.cplot.plot(dat[0], dat[1], pen ='w')
+            filename = self.ui.p.param('Workspace', 'Directory').value() \
+                 + '/' + name + '.dat'
+            np.savetxt(fname=filename, X=dat, delimiter=' \t')
+
+    @pyqtSlot()
+    def load_workspace_data(self):
+        workdir = pathlib.Path(self.ui.p.param('Workspace', 'Directory').value())
+        if workdir.is_dir() is False:
+            QMessageBox.information(parent=self.ui,
+                                    title='Loading error',
+                                    text='Directory does not exist. Select a good one.')
+            return
+        data_files = list(workdir.glob('*.dat'))
+        data_files.sort()
+        if not data_files:
+            QMessageBox.information(parent=self.ui,
+                                    title='Loading problem',
+                                    text='Directory does not contain data files.')
+            return
+        current_items = self.ui.p.param('Workspace', 'Curves').children()
+        for data_file in data_files:
+            try:
+                data = np.loadtxt(fname=data_file, delimiter='\t')
+            except Exception as ex:
+                logging.error("Problem when reading file: %s", str(ex))
+                QMessageBox.warning(self.ui, "Loading error",
+                                    "Problem when reading file: {}".format(ex),
+                                    QMessageBox.Ok)
+                return
+            name = os.path.basename(data_file)[:-4]
+            self.curves[name] = data
+            new_item = Parameter.create(name=name, type='bool', value=True)
+            if new_item in current_items:
+                logging.error("Curve %r already displayed", new_item)
+                continue
+            self.ui.p.param('Workspace', 'Curves').addChild(new_item)
+
+    @pyqtSlot()
+    def clear_workspace_data(self):
+        """Reset workspace i.e. remove all curve, data, menu entry as if
+        the software was started.
+        :returns: None
+        """
+        self.ui.p.param('Workspace', 'Curves').clearChildren()
+        self.curves = {}
+        self.ui.aplot.clear()
+
+    @pyqtSlot(object, object, object)
+    def item_added(self, caller, child, index):
+        """Handle displayable items when an item is added to 'Workspace/Curves'
+        group. Child is added to displayable items with respect to its state
+        and Analysis/Display value:
+        - if Analysis/Display is 'All', item is added.
+        - if Analysis/Display is 'Enabled only', item is added if its state is
+        True.
+        But the implementation is simplified because default state of added
+        child is True and so the child is alway added.
+        :param caller: parameter where child is added (object)
+        :param child: item added (object)
+        :param value: the new value of the parameter (object)
+        :returns: None
+        """
+        self.displayable_items.append(child)
+        self.displayable_items_updated.emit()
+
+    @pyqtSlot(object, object)
+    def item_state_changed(self, item, value):
+        """Handle changement of curve state parameter, a boolean value used
+        to indicate if the curve must be displayed in aplot widget (only in
+        the case of parameter Analysis/Display is 'Enabled only'):
+        if value is True, the curve is displayable in the analysis plot,
+        if value is False the curve is not displayable in the analysis plot.
+        :param item: parameter that changed (object)
+        :param value: the new value of the parameter (object)
+        :returns: None
+        """
+        if self.ui.p.param('Analysis','Display').value() == 'All':
+            return  # All items are already in displayable list
+        elif value is False:
+            if item not in self.displayable_items:
+                return  # Do not remove a curve that is not in displayable list
+            self.displayable_items.remove(item)
+        else:
+            if item in self.displayable_items:
+                return  # Do not add a curve already in displayable items list
+            # Do no "simply" append the item at the end of the displayable
+            # items list but recreate a sorted list.
+            self.displayable_items = [
+                item for item in self.ui.p.param('Workspace',
+                                                 'Curves').children()
+                if item.value() is True
+            ]
+        self.displayable_items_updated.emit()
+
+    @pyqtSlot(object, object)
+    def display_state_changed(self, caller, display):
+        """Handle display state parameter (Analysis/Display) changement.
+        The plot handles two states of display:
+        - 'All': display all the curves in curve list,
+        - 'Enabled': display enabled curves in the curve list.
+        :param caller: object emiting the signal (object)
+        :param display: state of display 'All' or 'Enable' (str)
+        :returns: None
+        """
+        if display == 'All':
+            self.displayable_items = self.ui.p.param('Workspace',
+                                                     'Curves').children()
+        else:
+            self.displayable_items = [
+                curve for curve in self.ui.p.param('Workspace',
+                                                   'Curves').children()
+                if curve.value() is True
+            ]
+        self.displayable_items_updated.emit()
+
+    @pyqtSlot()
+    def handle_displayable_items_update(self):
+        """Handle displayed item when displayable items has changed.
+        :returns: None
+        """
+        if len(self.displayable_items) == 0:  # If nothing to display
+            return
+        if self.displayed_item is None:  # If nothing already displayed
+            self.displayed_item = self.displayable_items[0]
+            self.displayed_item_updated.emit()
+            return
+        try:  # Check that current item is in displayable items.
+            self.displayable_items.index(self.displayed_item)
+        except ValueError:  # Displayed item is not in displayable items
+            # Begin A/ The folowing is a procedure to find the next displayable
+            # items: test next item in the "all" items list (not only
+            # displayable items). If the item is in displayable list then,
+            # we find the good one, else test the next and so on.
+            ## Find index in the "all" items list.
+            ## of the current displayed item.
+            index_all = self.ui.p.param('Workspace',
+                                        'Curves').children().index(
+                                            self.displayed_item)
+            while True:
+                ## Corresponding item to "index_all+1" in the "all" items list
+                next_item = self.ui.p.param('Workspace',
+                                            'Curves').children()[index_all+1]
+                try:  ## Check that this item is in the displayable list.
+                    next_index = self.displayable_items.index(next_item)
+                except ValueError:
+                    continue  ## If index not is in displayable list retry.
+                ## Else 'next_index' is the good one
+                self.displayed_item = self.displayable_items[next_index]
+                break
+            # End A/
+        self.displayed_item_updated.emit()
+
+    @pyqtSlot()
+    def update_displayed_item_forward(self):
+        """Set current display item to the next availables.
+        :returns: None
+        """
+        if self.displayed_item is None:
+            return
+        last_item_pos = self.displayable_items.index(self.displayed_item)
+        if last_item_pos == len(self.displayable_items) - 1:
+            return  # Current item already at the end
+        self.displayed_item = self.displayable_items[last_item_pos+1]
+        self.displayed_item_updated.emit()
+
+    @pyqtSlot()
+    def update_displayed_item_downward(self):
+        """Set current display item to the previous availables.
+        :returns: None
+        """
+        if self.displayed_item is None:
+            return
+        last_item_pos = self.displayable_items.index(self.displayed_item)
+        if last_item_pos == 0:
+            return  # Current item already at the beginning
+        self.displayed_item = self.displayable_items[last_item_pos-1]
+        self.displayed_item_updated.emit()
+
+    @pyqtSlot()
+    def display_curves(self):
+        """Display curve in analysis plot with respect to parameter values.
+        :returns: None
+        """
+        if len(self.displayable_items) == 0:  # If nothing to display
+            return
+        self.ui.aplot.clear()
+        curves_nb = self.ui.p.param('Analysis','Group by').value()
+        current_item_pos = self.displayable_items.index(self.displayed_item)
+        display_list = self.displayable_items[current_item_pos:
+                                              current_item_pos+curves_nb]
+        undisplay_list = self.displayable_items[:current_item_pos] + \
+            self.displayable_items[current_item_pos+curves_nb:]
+
+        for item in display_list:
+            self.ui.aplot.plot(self.curves[item.name()][0],
+                               self.curves[item.name()][1])
+            self.brush_item(item)
+        for item in undisplay_list:
+            self.brush_item(item, magnify=False)
+
+    def brush_item(self, item, magnify=True):
+        """Brush an item i.e. change the color of the item.
+        :returns: None
+        """
+        pass
+        #if magnify:
+        #    item.setForeground(MAGNIFIED_BRUSH)
+        #else:
+        #    item.setForeground(DEFAULT_BRUSH)
+
+#==============================================================================
+def configure_logging():
+    """Configures logs.
+    """
+    home = os.path.expanduser("~")
+    log_file = "." + APP_NAME + ".log"
+    abs_log_file = os.path.join(home, log_file)
+    file_format = "%(asctime)s %(levelname) -8s %(filename)s " + \
+                 " %(funcName)s (%(lineno)d): %(message)s"
+    date_fmt = "%d/%m/%Y %H:%M:%S"
+    console_format = '%(levelname) -8s %(filename)s (%(lineno)d): %(message)s'
+
+    logger = logging.getLogger("modetrackinglog")
+    logger.setLevel(logging.DEBUG)
+
+    logging.basicConfig(level=CONSOLE_LOG_LEVEL,
+                        datefmt=date_fmt,
+                        format=file_format)
+
+    file_formatter = logging.Formatter(file_format)
+    file_handler = logging.handlers.TimedRotatingFileHandler(
+        filename=abs_log_file,
+        when='midnight',
+        backupCount=30)
+    file_handler.setFormatter(file_formatter)
+    file_handler.setLevel(FILE_LOG_LEVEL)
+
+    # define a Handler which writes messages to the sys.stderr
+    console_handler = logging.StreamHandler()
+    console_formatter = logging.Formatter(console_format)
+    console_handler.setFormatter(console_formatter)
+    console_handler.setLevel(CONSOLE_LOG_LEVEL)
+
+    # add the handlers to the root logger
+    logger.addHandler(console_handler)
+    logger.addHandler(file_handler)
+
+
+#==============================================================================
+def main():
+    """Main()
+    """
+    configure_logging()
+    app = ModeTrackApp(sys.argv)
+    sys.exit(app.exec_())
+
+
+#==============================================================================
+main()
