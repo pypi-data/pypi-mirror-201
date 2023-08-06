@@ -1,0 +1,1189 @@
+syntax = "proto3";
+
+package pricer;
+
+import "google/api/annotations.proto";
+import "google/protobuf/any.proto";
+
+// python -m grpc_tools.protoc -I. --python_out=../grpc_files --grpc_python_out=../grpc_files pricer.proto
+
+enum OptionType {
+    UNKNOWN_OPTION_TYPE                 = 0;
+    CALL                                = 1;
+    PUT                                 = 2;
+    ACCUMULATOR                         = 3;
+    DECUMULATOR                         = 4;
+    STANDARD                            = 5;
+    REVERSE                             = 6;
+    ONE_TOUCH                           = 7;
+    DOUBLE_ONE_TOUCH                    = 8;
+}
+
+enum ExerciseType {
+    UNKNOWN_EXERCISE_TYPE               = 0;
+    EUROPEAN                            = 1;
+    AMERICAN                            = 2;
+}
+
+enum BarrierType {
+    UNKNOWN_BARRIER_TYPE                = 0;
+    UP                                  = 1;
+    DOWN                                = 2;
+}
+
+enum KnockType {
+    UNKNOWN_KNOCK_TYPE                  = 0;
+    IN                                  = 1;
+    OUT                                 = 2;
+}
+
+enum ObsType{
+    UNKNOWN_OBS_TYPE                    = 0;
+    CONTINUOUS                          = 1;
+    DISCRETE                            = 2;
+}
+
+enum RebateType{
+    UNKNOWN_REBATE_TYPE                 = 0;
+    PAH                                 = 1;
+    PAE                                 = 2;
+}
+
+enum PricingMethod{
+    UNKNOWN_PRICING_METHOD              = 0;
+    AS                                  = 1;
+    MC                                  = 2;
+    PDE                                 = 3;
+}
+
+enum AccumulatorType{
+    UNKNOWN_ACCUMULATOR_TYPE            = 0;
+    LINEAR_ACC                          = 1;
+    FIXED_ACC                           = 2;
+    FIXED_ACC_AKO                       = 3;
+    FIXED_ACC_BARRIER                   = 4;
+    LINEAR_ACC_ENHANCED                 = 5;
+    FIXED_ACC_ENHANCED                  = 6;
+    LINEAR_ACC_AKO                      = 7;
+    FIXED_ACC_BARRIER_ENHANCED          = 8;
+    LINEAR_ACC_FIXED_ENHANCED           = 9;
+    LINEAR_ACC_FUSING                   = 10;
+}
+
+enum PriceType {
+    UNKNOWN_PRICE_TYPE                  = 0;
+    VALUE                               = 1;
+    DELTA                               = 2;
+    GAMMA                               = 3;
+    VEGA                                = 4;
+    THETA                               = 5;
+    RHO                                 = 6;
+    DDELTADT                            = 7;
+    DDELTADV                            = 8;
+}
+
+enum PricerType {
+    UNKNOWN_PRICER_TYPE                 = 0;
+    // ACCUMULATOR
+    FIXED_ACC_AKO_AS                    = 1;
+    FIXED_ACC_AS                        = 2;
+    FIXED_ACC_BARRIER_AS                = 3;
+    LINEAR_ACC_AS                       = 4;
+
+    // AIRBAG
+    AIRBAG_AS                           = 5;
+
+    // ASIAN
+    ASIAN_AS                            = 6;
+    DISCRETE_ASIAN_HHM                  = 7;
+    DISCRETE_ASIAN_MC                   = 8;
+
+    // BARRIER
+    BARRIER_AS                          = 9;
+    BARRIER_BINARY_AS                   = 10;
+    DISCRETE_BARRIER_AS                 = 11;
+    DISCRETE_BARRIER_BINARY_AS          = 12;
+    DISCRETE_BARRIER_MC                 = 13;
+
+    // BASKET VANILLA
+    BASKET_VANILLA_AS                   = 14;
+
+    // BINARY
+    BINARY_AS                           = 15;
+    BINARY_SERIES                       = 16;
+
+    // FORWARD
+    FORWARD_AS                          = 17;
+
+    // SHARKFIN
+    SHARKFIN_AS                         = 18;
+    SHARKFIN_SERIES                     = 19;
+
+    // SNOWBALL
+    SNOWBALL_MC                         = 20;
+
+    // SPREAD
+    RATIO_SPREAD_AS                     = 21;
+    RATIO_SPREAD_SERIES                 = 22;
+
+    // ONETOUCH
+    ONE_TOUCH_AS                        = 23;
+    DOUBLE_ONE_TOUCH_AS                 = 24;
+    DISCRETE_ONE_TOUCH_AS               = 25;
+
+    // VANILLA
+    VANILLA_AS                          = 26;
+    VANILLA_SERIES                      = 27;
+
+    LINEAR_ACC_ENHANCED_AS              = 28;
+    BASKET_VANILLA_SERIES               = 29;
+    FIXED_ACC_ENHANCED_AS               = 30;
+    LINEAR_ACC_AKO_AS                   = 31;
+    FIXED_ACC_BARRIER_ENHANCED_AS       = 32;
+    LINEAR_ACC_FIXED_ENHANCED_AS        = 33;
+    DISCRETE_BINARY_MC                  = 34;
+    LINEAR_ACC_FUSING_AS                = 35;
+
+    QUOTIENT_AS                         = 36;
+}
+
+message PricerReply {
+    PriceType price_type                = 1;
+    double result                       = 2;
+}
+
+message BatchPricerRequest {
+    message RequestItem {
+        int32 index                             = 1;
+        PricerType pricer_type                  = 2;
+        google.protobuf.Any pricer_request      = 3;
+    }
+    repeated RequestItem batch_pricer_request   = 1;
+}
+
+message BatchPricerReply {
+    message ReplyItem {
+        int32 index                             = 1;
+        PricerReply pricer_reply                = 2;
+    }
+    repeated ReplyItem batch_pricer_reply       = 1;
+}
+
+// ACCUMULATOR
+message FixedAccAkoRequest {
+    PriceType price_type                = 1;
+    FixedAccAko param                   = 2;
+}
+
+message FixedAccAko {
+    OptionType option_type              = 1; // 期权类型
+    ExerciseType exercise_type          = 2; // 行权类型
+    double spot_price                   = 3;
+    double strike_price                 = 4;
+    int32 expiry_date                   = 5;
+    double current_date                 = 6;
+    double volatility                   = 7;
+    double riskfree_rate                = 8;
+    double dividend                     = 9;
+    double leverage                     = 10;
+    int32 year_base                     = 11;
+    double payoff                       = 12;
+    double barrier_price                = 13;
+    double obs_freq                     = 14;
+    repeated PayoffObservation obs_date = 15; // 观察日序列
+
+}
+
+message LinearAccAkoRequest {
+    PriceType price_type                 = 1;
+    LinearAccAko param                   = 2;
+}
+
+message LinearAccAko {
+    OptionType option_type              = 1; // 期权类型
+    ExerciseType exercise_type          = 2; // 行权类型
+    double spot_price                   = 3;
+    double strike_price                 = 4;
+    int32 expiry_date                   = 5;
+    double current_date                 = 6;
+    double volatility                   = 7;
+    double riskfree_rate                = 8;
+    double dividend                     = 9;
+    double leverage                     = 10;
+    int32 year_base                     = 11;
+    double payoff                       = 12;
+    double barrier_price                = 13;
+    double obs_freq                     = 14;
+    repeated PayoffObservation obs_date = 15; // 观察日序列
+
+}
+
+message LinearAccFusingRequest {
+    PriceType price_type                 = 1;
+    LinearAccFusing param                = 2;
+}
+
+message LinearAccFusing {
+    OptionType option_type              = 1; // 期权类型
+    ExerciseType exercise_type          = 2; // 行权类型
+    double spot_price                   = 3;
+    double strike_price                 = 4;
+    int32 expiry_date                   = 5;
+    double current_date                 = 6;
+    double volatility                   = 7;
+    double riskfree_rate                = 8;
+    double dividend                     = 9;
+    double leverage                     = 10;
+    int32 year_base                     = 11;
+    double payoff                       = 12;
+    double barrier_price                = 13;
+    double obs_freq                     = 14;
+    double final_position_multiplier    = 15;
+    repeated PayoffObservation obs_date = 16; // 观察日序列
+
+}
+
+message FixedAccRequest {
+    PriceType price_type                = 1;
+    FixedAcc param                      = 2;
+}
+
+message FixedAcc {
+    OptionType option_type              = 1; // 期权类型
+    ExerciseType exercise_type          = 2; // 行权类型
+    double spot_price                   = 3;
+    double strike_price                 = 4;
+    int32 expiry_date                   = 5;
+    double current_date                 = 6;
+    double volatility                   = 7;
+    double riskfree_rate                = 8;
+    double dividend                     = 9;
+    double leverage                     = 10;
+    int32 year_base                     = 11;
+    double payoff                       = 12;
+    repeated PayoffObservation obs_date = 13; // 观察日序列
+
+}
+
+message FixedAccBarrierRequest {
+    PriceType price_type                = 1;
+    FixedAccBarrier param               = 2;
+}
+
+message FixedAccBarrier {
+    OptionType option_type              = 1; // 期权类型
+    ExerciseType exercise_type          = 2; // 行权类型
+    double spot_price                   = 3;
+    double strike_price                 = 4;
+    int32 expiry_date                   = 5;
+    double current_date                 = 6;
+    double volatility                   = 7;
+    double riskfree_rate                = 8;
+    double dividend                     = 9;
+    double leverage                     = 10;
+    int32 year_base                     = 11;
+    double payoff                       = 12;
+    double barrier_price                = 13;
+    repeated PayoffObservation obs_date = 14; // 观察日序列
+
+}
+
+message FixedAccBarrierEnhancedRequest {
+    PriceType price_type                = 1;
+    FixedAccBarrierEnhanced param       = 2;
+}
+
+message FixedAccBarrierEnhanced {
+    OptionType option_type              = 1; // 期权类型
+    ExerciseType exercise_type          = 2; // 行权类型
+    double spot_price                   = 3;
+    double strike_price                 = 4;
+    int32 expiry_date                   = 5;
+    double current_date                 = 6;
+    double volatility                   = 7;
+    double riskfree_rate                = 8;
+    double dividend                     = 9;
+    double leverage                     = 10;
+    int32 year_base                     = 11;
+    double payoff                       = 12;
+    double barrier_price                = 13;
+    repeated PayoffObservation obs_date = 14; // 观察日序列
+
+}
+
+message LinearAccRequest {
+    PriceType price_type                = 1;
+    LinearAcc param                     = 2;
+}
+
+message LinearAcc {
+    OptionType option_type              = 1; // 期权类型
+    ExerciseType exercise_type          = 2; // 行权类型
+    double spot_price                   = 3;
+    double strike_price                 = 4;
+    int32 expiry_date                   = 5;
+    double current_date                 = 6;
+    double volatility                   = 7;
+    double riskfree_rate                = 8;
+    double dividend                     = 9;
+    double leverage                     = 10;
+    int32 year_base                     = 11;
+    double barrier_price                = 12;
+    repeated PayoffObservation obs_date = 13; // 观察日序列
+
+}
+
+message LinearAccEnhancedRequest {
+    PriceType price_type                = 1;
+    LinearAccEnhanced param             = 2;
+}
+
+message LinearAccEnhanced {
+    OptionType option_type              = 1; // 期权类型
+    ExerciseType exercise_type          = 2; // 行权类型
+    double spot_price                   = 3;
+    double strike_price                 = 4;
+    int32 expiry_date                   = 5;
+    double current_date                 = 6;
+    double volatility                   = 7;
+    double riskfree_rate                = 8;
+    double dividend                     = 9;
+    double leverage                     = 10;
+    int32 year_base                     = 11;
+    double barrier_price                = 12;
+    repeated PayoffObservation obs_date = 13; // 观察日序列
+
+}
+
+message FixedAccEnhancedRequest {
+    PriceType price_type                = 1;
+    FixedAccEnhanced param             = 2;
+}
+
+message FixedAccEnhanced {
+    OptionType option_type              = 1; // 期权类型
+    ExerciseType exercise_type          = 2; // 行权类型
+    double spot_price                   = 3;
+    double strike_price                 = 4;
+    int32 expiry_date                   = 5;
+    double current_date                 = 6;
+    double volatility                   = 7;
+    double riskfree_rate                = 8;
+    double dividend                     = 9;
+    double leverage                     = 10;
+    int32 year_base                     = 11;
+    double payoff                       = 12;
+    double barrier_price                = 13;
+    repeated PayoffObservation obs_date = 14; // 观察日序列
+
+}
+
+message LinearAccFixedEnhancedRequest {
+    PriceType price_type                = 1;
+    LinearAccFixedEnhanced param        = 2;
+}
+
+message LinearAccFixedEnhanced {
+    OptionType option_type              = 1; // 期权类型
+    ExerciseType exercise_type          = 2; // 行权类型
+    double spot_price                   = 3;
+    double strike_price                 = 4;
+    int32 expiry_date                   = 5;
+    double current_date                 = 6;
+    double volatility                   = 7;
+    double riskfree_rate                = 8;
+    double dividend                     = 9;
+    double leverage                     = 10;
+    int32 year_base                     = 11;
+    double payoff                       = 12;
+    double barrier_price                = 13;
+    repeated PayoffObservation obs_date = 14; // 观察日序列
+
+}
+
+// AIRBAG
+message AirbagRequest {
+    PriceType price_type                = 1;
+    Airbag param                        = 2;
+}
+
+message Airbag {
+    OptionType option_type              = 1; // 期权类型
+    ExerciseType exercise_type          = 2; // 行权类型
+    double spot_price                   = 3;
+    double strike_price                 = 4;
+    int32 expiry_date                   = 5;
+    double current_date                 = 6;
+    double volatility                   = 7;
+    double riskfree_rate                = 8;
+    double dividend                     = 9;
+    int32 year_base                     = 10;
+    double barrier_price                = 11;
+    double participation_rate           = 12;
+    int32 is_knock_in                   = 13;
+    double obs_freq                     = 14;
+
+}
+
+// ASIAN
+message AsianRequest {
+    PriceType price_type                = 1;
+    Asian param                         = 2;
+}
+
+message Asian {
+    OptionType option_type              = 1; // 期权类型
+    ExerciseType exercise_type          = 2; // 行权类型
+    double spot_price                   = 3; // 当前标的价
+    double strike_price                 = 4; // 执行价
+    int32 expiry_date                   = 5; // 到期日离开仓日天数
+    double current_date                 = 6; // 当前日离开仓日天数
+    double obs_start_date               = 7; // 开始观察日
+    double running_avg                  = 8; // 已观察均价
+    double volatility                   = 9; // 波动率
+    double riskfree_rate                = 10; // 无风险利率
+    double dividend                     = 11; // 分红率
+    int32 year_base                     = 12;
+}
+
+message DiscreteAsianMcRequest {
+    PriceType price_type                = 1;
+    DiscreteAsianMc param               = 2;
+}
+
+message DiscreteAsianMc {
+    OptionType option_type              = 1; // 期权类型
+    ExerciseType exercise_type          = 2; // 行权类型
+    double spot_price                   = 3; // 当前标的价
+    double strike_price                 = 4; // 执行价
+    int32 expiry_date                   = 5; // 到期日离开仓日天数
+    double current_date                 = 6; // 当前日离开仓日天数
+    double obs_start_date               = 7; // 开始观察日
+    double running_avg                  = 8; // 已观察均价
+    double volatility                   = 9; // 波动率
+    double riskfree_rate                = 10; // 无风险利率
+    double dividend                     = 11; // 分红率
+    int32 year_base                     = 12;
+    repeated PayoffObservation obs_date = 13;
+}
+
+message DiscreteAsianHhmRequest {
+    PriceType price_type                = 1;
+    DiscreteAsianHhm param              = 2;
+}
+
+message DiscreteAsianHhm {
+    OptionType option_type              = 1; // 期权类型
+    ExerciseType exercise_type          = 2; // 行权类型
+    double spot_price                   = 3; // 当前标的价
+    double strike_price                 = 4; // 执行价
+    int32 expiry_date                   = 5; // 到期日离开仓日天数
+    double current_date                 = 6; // 当前日离开仓日天数
+    double obs_start_date               = 7; // 当前日离开仓日天数
+    double running_avg                  = 8; // 已观察均价
+    double volatility                   = 9; // 波动率
+    double riskfree_rate                = 10; // 无风险利率
+    double dividend                     = 11; // 分红率
+    int32 year_base                     = 12;
+}
+
+// BARRIER
+message BarrierRequest {
+    PriceType price_type                = 1;
+    Barrier param                       = 2;
+}
+
+message Barrier {
+    OptionType option_type              = 1; // 期权类型
+    ExerciseType exercise_type          = 2; // 行权类型
+    double spot_price                   = 3; // 当前标的价
+    double strike_price                 = 4; // 执行价
+    int32 expiry_date                   = 5; // 到期日离开仓日天数
+    double current_date                 = 6; // 当前日离开仓日天数
+    double volatility                   = 7; // 波动率
+    double riskfree_rate                = 8; // 无风险利率
+    double dividend                     = 9; // 分红率
+    int32 year_base                     = 10;// 年基数
+    double barrier_price                = 11;// 障碍价
+    BarrierType barrier_type            = 12;// 障碍方向
+    KnockType knock_type                = 13;// 敲击类型
+    int32 is_knock_in                   = 14;// 是否触发
+    double rebate                       = 15;// 赔付
+}
+
+message BarrierBinaryRequest {
+    PriceType price_type                = 1;
+    BarrierBinary param                 = 2;
+}
+
+message BarrierBinary {
+    OptionType option_type              = 1; // 期权类型
+    ExerciseType exercise_type          = 2; // 行权类型
+    double spot_price                   = 3; // 当前标的价
+    double strike_price                 = 4; // 执行价
+    int32 expiry_date                   = 5; // 到期日离开仓日天数
+    double current_date                 = 6; // 当前日离开仓日天数
+    double volatility                   = 7; // 波动率
+    double riskfree_rate                = 8; // 无风险利率
+    double dividend                     = 9; // 分红率
+    int32 year_base                     = 10;// 年基数
+    double barrier_price                = 11;// 障碍价
+    BarrierType barrier_type            = 12;// 障碍方向
+    KnockType knock_type                = 13;// 敲击类型
+    int32 is_knock_in                   = 14;// 是否触发
+    double payoff                       = 15;
+}
+
+message DiscreteBarrierBinaryRequest {
+    PriceType price_type                = 1;
+    DiscreteBarrierBinary param         = 2;
+}
+
+message DiscreteBarrierBinary {
+    OptionType option_type              = 1; // 期权类型
+    ExerciseType exercise_type          = 2; // 行权类型
+    double spot_price                   = 3; // 当前标的价
+    double strike_price                 = 4; // 执行价
+    int32 expiry_date                   = 5; // 到期日离开仓日天数
+    double current_date                 = 6; // 当前日离开仓日天数
+    double volatility                   = 7; // 波动率
+    double riskfree_rate                = 8; // 无风险利率
+    double dividend                     = 9; // 分红率
+    int32 year_base                     = 10;// 年基数
+    double barrier_price                = 11;// 障碍价
+    BarrierType barrier_type            = 12;// 障碍方向
+    KnockType knock_type                = 13;// 敲击类型
+    int32 is_knock_in                   = 14;// 是否触发
+    double payoff                       = 15;
+    double obs_freq                     = 16;
+
+}
+
+message DiscreteBarrierRequest {
+    PriceType price_type                = 1;
+    DiscreteBarrier param               = 2;
+}
+
+message DiscreteBarrier {
+    OptionType option_type              = 1; // 期权类型
+    ExerciseType exercise_type          = 2; // 行权类型
+    double spot_price                   = 3; // 当前标的价
+    double strike_price                 = 4; // 执行价
+    int32 expiry_date                   = 5; // 到期日离开仓日天数
+    double current_date                 = 6; // 当前日离开仓日天数
+    double volatility                   = 7; // 波动率
+    double riskfree_rate                = 8; // 无风险利率
+    double dividend                     = 9; // 分红率
+    int32 year_base                     = 10;// 年基数
+    double barrier_price                = 11;// 障碍价
+    BarrierType barrier_type            = 12;// 障碍方向
+    KnockType knock_type                = 13;// 敲击类型
+    int32 is_knock_in                   = 14;// 是否触发
+    double rebate                       = 15;// 赔付
+    double obs_freq                     = 16;//观察频率
+}
+
+message DiscreteBarrierMcRequest {
+    PriceType price_type                = 1;
+    DiscreteBarrierMc param             = 2;
+}
+
+message DiscreteBarrierMc {
+    OptionType option_type              = 1; // 期权类型
+    ExerciseType exercise_type          = 2; // 行权类型
+    double spot_price                   = 3; // 当前标的价
+    double strike_price                 = 4; // 执行价
+    int32 expiry_date                   = 5; // 到期日离开仓日天数
+    double current_date                 = 6; // 当前日离开仓日天数
+    double volatility                   = 7; // 波动率
+    double riskfree_rate                = 8; // 无风险利率
+    double dividend                     = 9; // 分红率
+    int32 year_base                     = 10;// 年基数
+    double barrier_price                = 11;// 障碍价
+    BarrierType barrier_type            = 12;// 障碍方向
+    KnockType knock_type                = 13;// 敲击类型
+    int32 is_knock_in                   = 14;// 是否触发
+    double rebate                       = 15;// 赔付
+    repeated KnockObservation obs_date  = 16;// 观察日序列
+}
+
+// BASKET VANILLA
+message BasketVanillaRequest {
+    PriceType price_type                = 1;
+    BasketVanilla param                 = 2;
+}
+
+message BasketVanilla {
+    OptionType option_type              = 1; // 期权类型
+    ExerciseType exercise_type          = 2; // 行权类型
+    double spot_price                   = 3; // 当前标的价
+    double strike_price                 = 4; // 执行价
+    int32 expiry_date                   = 5; // 到期日离开仓日天数
+    double current_date                 = 6; // 当前日离开仓日天数
+    double volatility                   = 7; // 波动率
+    double riskfree_rate                = 8; // 无风险利率
+    double dividend                     = 9; // 分红率
+    int32 year_base                     = 10;
+}
+
+message BasketVanillaSeriesRequest {
+    PriceType price_type                = 1;
+    BasketVanillaSeries param                 = 2;
+}
+
+message BasketVanillaSeries {
+    OptionType option_type              = 1; // 期权类型
+    ExerciseType exercise_type          = 2; // 行权类型
+    double spot_price                   = 3; // 当前标的价
+    double strike_price                 = 4; // 执行价
+    int32 expiry_date                   = 5; // 到期日离开仓日天数
+    double current_date                 = 6; // 当前日离开仓日天数
+    double volatility                   = 7; // 波动率
+    double riskfree_rate                = 8; // 无风险利率
+    double dividend                     = 9; // 分红率
+    int32 year_base                     = 10;
+    repeated PayoffObservation obs_date = 11; // 观察日序列
+}
+
+// BINARY
+message BinaryRequest {
+    PriceType price_type                = 1;
+    Binary param                        = 2;
+}
+
+message Binary {
+    OptionType option_type              = 1; // 期权类型
+    ExerciseType exercise_type          = 2; // 行权类型
+    double spot_price                   = 3; // 当前标的价
+    double strike_price                 = 4; // 执行价
+    int32 expiry_date                   = 5; // 到期日离开仓日天数
+    double current_date                 = 6; // 当前日离开仓日天数
+    double volatility                   = 7; // 波动率
+    double riskfree_rate                = 8; // 无风险利率
+    double dividend                     = 9; // 分红率
+    double payoff                       = 10; // 赔付
+    int32 year_base                     = 11;
+}
+
+message DiscreteBinaryMcRequest {
+    PriceType price_type                = 1;
+    DiscreteBinaryMc param              = 2;
+}
+
+message DiscreteBinaryMc {
+    OptionType option_type              = 1; // 期权类型
+    ExerciseType exercise_type          = 2; // 行权类型
+    double spot_price                   = 3; // 当前标的价
+    double strike_price                 = 4; // 执行价
+    int32 expiry_date                   = 5; // 到期日离开仓日天数
+    double current_date                 = 6; // 当前日离开仓日天数
+    double volatility                   = 7; // 波动率
+    double riskfree_rate                = 8; // 无风险利率
+    double dividend                     = 9; // 分红率
+    double payoff                       = 10; // 赔付
+    int32 year_base                     = 11;
+    repeated KnockObservation obs_date  = 12;// 观察日序列
+}
+
+message BinarySeriesRequest {
+    PriceType price_type                = 1;
+    BinarySeries param                  = 2;
+}
+
+message BinarySeries {
+    OptionType option_type              = 1; // 期权类型
+    ExerciseType exercise_type          = 2; // 行权类型
+    double spot_price                   = 3; // 当前标的价
+    double strike_price                 = 4; // 执行价
+    int32 expiry_date                   = 5; // 到期日离开仓日天数
+    double current_date                 = 6; // 当前日离开仓日天数
+    double volatility                   = 7; // 波动率
+    double riskfree_rate                = 8; // 无风险利率
+    double dividend                     = 9; // 分红率
+    double payoff                       = 10; // 赔付
+    repeated PayoffObservation obs_date = 11; // 观察日序列
+    int32 year_base                     = 12;
+}
+
+// FORWARD
+message ForwardRequest {
+    PriceType price_type                = 1;
+    Forward param                       = 2;
+}
+
+message Forward {
+    double spot_price                   = 1;
+    double strike_price                 = 2;
+    int32 expiry_date                   = 3;
+    double current_date                 = 4;
+}
+
+// SHARKFIN
+message SharkfinRequest {
+    PriceType price_type                = 1;
+    Sharkfin param                      = 2;
+}
+
+message Sharkfin {
+    OptionType option_type              = 1; // 期权类型
+    ExerciseType exercise_type          = 2; // 行权类型
+    double spot_price                   = 3; // 当前标的价
+    double strike_price                 = 4; // 执行价
+    double barrier_price                = 5; // 障碍价
+    int32 expiry_date                   = 6; // 到期日离开仓日天数
+    double current_date                 = 7; // 当前日离开仓日天数
+    double volatility                   = 8; // 波动率
+    double riskfree_rate                = 9; //无风险利率
+    double dividend                     = 10; //分红率
+    int32 year_base                     = 11;
+}
+
+message SharkfinSeriesRequest {
+    PriceType price_type                = 1;
+    SharkfinSeries param                = 2;
+}
+
+message SharkfinSeries {
+    OptionType option_type              = 1; // 期权类型
+    ExerciseType exercise_type          = 2; // 行权类型
+    double spot_price                   = 3; // 当前标的价
+    double strike_price                 = 4; // 执行价
+    double barrier_price                = 5; // 障碍价
+    int32 expiry_date                   = 6; // 到期日离开仓日天数
+    double current_date                 = 7; // 当前日离开仓日天数
+    double volatility                   = 8; // 波动率
+    double riskfree_rate                = 9; //无风险利率
+    double dividend                     = 10; //分红率
+    repeated PayoffObservation obs_date = 11; // 观察日序列
+    int32 year_base                     = 12;
+}
+
+// SNOWBALL
+message SnowballMcRequest {
+    PriceType price_type                = 1;
+    SnowballMc param                    = 2;
+}
+
+message SnowballMc {
+    double notional                                 = 1; // 单位数量名义金额
+    double spot_price                               = 2; // 当前价
+    double entrance_price                           = 3; // 入场价
+    double knock_in_barrier_price                   = 4; // 敲入价
+    double knock_out_barrier_price                  = 5; // 敲出价
+    int32 expiry_date                               = 6; // 到日期
+    double floor_rate                               = 7; // 保底比例
+    double margin_rate                              = 8; // 保证金比例
+    double bonus_rate                               = 9; // 持有到期绝对票息率
+    OptionType option_type                          = 10; // 正向反向雪球方向
+    int32 is_knock_in                               = 11; // 是否敲入
+    double current_date                             = 12; // 当前日离开仓日天数
+    double volatility                               = 13; // 波动率
+    double riskfree_rate                            = 14; // 无风险利率
+    double dividend                                 = 15; // 分红率
+    int32 year_base                                 = 16;
+    repeated KnockObservation knock_in_obs_date     = 17; // 敲入观察序列
+    repeated KnockObservation knock_out_obs_date    = 18; // 敲出观察序列
+    double participation_rate                       = 19;
+}
+
+// RATIO SPREAD
+message RatioSpreadRequest {
+    PriceType price_type                = 1;
+    RatioSpread param                   = 2;
+}
+
+message RatioSpread {
+    OptionType option_type              = 1; // 期权类型
+    ExerciseType exercise_type          = 2; // 行权类型
+    double spot_price                   = 3; // 当前标的价
+    double strike_price                 = 4; // 执行价
+    int32 expiry_date                   = 5; // 到期日离开仓日天数
+    double current_date                 = 6; // 当前日离开仓日天数
+    double volatility                   = 7; // 波动率
+    double riskfree_rate                = 8; //无风险利率
+    double dividend                     = 9; //分红率
+    int32 year_base                     = 10;
+    double leverage                     = 11;
+}
+
+message RatioSpreadSeriesRequest {
+    PriceType price_type                = 1;
+    RatioSpreadSeries param             = 2;
+}
+
+message RatioSpreadSeries {
+    OptionType option_type              = 1; // 期权类型
+    ExerciseType exercise_type          = 2; // 行权类型
+    double spot_price                   = 3; // 当前标的价
+    double strike_price                 = 4; // 执行价
+    int32 expiry_date                   = 5; // 到期日离开仓日天数
+    double current_date                 = 6; // 当前日离开仓日天数
+    double volatility                   = 7; // 波动率
+    double riskfree_rate                = 8; //无风险利率
+    double dividend                     = 9; //分红率
+    int32 year_base                     = 10;
+    double leverage                     = 11;
+    repeated PayoffObservation obs_date = 12; // 观察日序列
+}
+
+// ONETOUCH
+message OneTouchRequest {
+    PriceType price_type                 = 1;
+    OneTouch param                       = 2;
+}
+
+message OneTouch {
+    double spot_price                   = 1; // 当前标的价
+    int32 expiry_date                   = 2; // 到期日离开仓日天数
+    double current_date                 = 3; // 当前日离开仓日天数
+    double volatility                   = 4; // 波动率
+    double riskfree_rate                = 5; // 无风险利率
+    double dividend                     = 6; // 分红率
+    int32 year_base                     = 7;// 年基数
+    double barrier_price                = 8;// 障碍价
+    BarrierType barrier_type            = 9;// 障碍方向
+    KnockType knock_type                = 10;// 敲击类型
+    int32 is_knock_in                   = 11;// 是否触发
+    double rebate                       = 12;// 赔付
+    RebateType rebate_type              = 13;
+}
+
+message DiscreteOneTouchRequest {
+    PriceType price_type                = 1;
+    DiscreteOneTouch param              = 2;
+}
+
+message DiscreteOneTouch {
+    double spot_price                   = 1; // 当前标的价
+    int32 expiry_date                   = 2; // 到期日离开仓日天数
+    double current_date                 = 3; // 当前日离开仓日天数
+    double volatility                   = 4; // 波动率
+    double riskfree_rate                = 5; // 无风险利率
+    double dividend                     = 6; // 分红率
+    int32 year_base                     = 7;// 年基数
+    double barrier_price                = 8;// 障碍价
+    BarrierType barrier_type            = 9;// 障碍方向
+    KnockType knock_type                = 10;// 敲击类型
+    int32 is_knock_in                   = 11;// 是否触发
+    double rebate                       = 12;// 赔付
+    RebateType rebate_type              = 13;
+    double obs_freq                     = 14;
+}
+
+message DoubleOneTouchRequest {
+    PriceType price_type                = 1;
+    DoubleOneTouch param                = 2;
+}
+
+message DoubleOneTouch {
+    double spot_price                   = 1; // 当前标的价
+    int32 expiry_date                   = 2; // 到期日离开仓日天数
+    double current_date                 = 3; // 当前日离开仓日天数
+    double volatility                   = 4; // 波动率
+    double riskfree_rate                = 5; // 无风险利率
+    double dividend                     = 6; // 分红率
+    int32 year_base                     = 7;// 年基数
+    double lower_barrier_price          = 8;// 下障碍价
+    double upper_barrier_price          = 9;// 上障碍价
+    KnockType knock_type                = 10;// 敲击类型
+    int32 is_knock_in                   = 11;// 是否触发
+    double rebate                       = 12;// 赔付
+    RebateType rebate_type              = 13;
+}
+
+// VANILLA
+message VanillaRequest {
+    PriceType price_type                = 1;
+    Vanilla param                       = 2;
+}
+
+message Vanilla {
+    OptionType option_type              = 1; // 期权类型
+    ExerciseType exercise_type          = 2; // 行权类型
+    double spot_price                   = 3; // 当前标的价
+    double strike_price                 = 4; // 执行价
+    int32 expiry_date                   = 5; // 到期日离开仓日天数
+    double current_date                 = 6; // 当前日离开仓日天数
+    double volatility                   = 7; // 波动率
+    double riskfree_rate                = 8; //无风险利率
+    double dividend                     = 9; //分红率
+    int32 year_base                     = 10;
+}
+
+message VanillaSeriesRequest {
+    PriceType price_type                = 1;
+    VanillaSeries param                 = 2;
+}
+
+message VanillaSeries {
+    OptionType option_type              = 1; // 期权类型
+    ExerciseType exercise_type          = 2; // 行权类型
+    double spot_price                   = 3; // 当前标的价
+    double strike_price                 = 4; // 执行价
+    int32 expiry_date                   = 5; // 到期日离开仓日天数
+    double current_date                 = 6; // 当前日离开仓日天数
+    double volatility                   = 7; // 波动率
+    double riskfree_rate                = 8; // 无风险利率
+    double dividend                     = 9; // 分红率
+    repeated PayoffObservation obs_date = 10; // 观察日序列
+    int32 year_base                     = 11;
+}
+
+// QUOTIENT
+message QuotientRequest {
+    PriceType price_type                = 1;
+    Quotient param                       = 2;
+}
+
+message Quotient {
+    OptionType option_type              = 1; // 期权类型
+    ExerciseType exercise_type          = 2; // 行权类型
+    double spot_price1                  = 3; // 当前标的价1
+    double spot_price2                  = 4; // 当前标的价2
+    double strike_price                 = 5; // 执行价
+    int32 expiry_date                   = 6; // 到期日离开仓日天数
+    double current_date                 = 7; // 当前日离开仓日天数
+    double volatility1                  = 8; // 波动率1
+    double volatility2                  = 9; // 波动率2
+    double riskfree_rate                = 10; //无风险利率
+    double dividend1                    = 11; //分红率1
+    double dividend2                    = 12; //分红率2
+    double correlation                  = 13;
+    int32 year_base                     = 14;
+}
+
+message PayoffObservation {
+    int32 obs_index                     = 1; // 观察日离开仓日天数
+    double obs_price                    = 2; // 观察价
+}
+
+message KnockObservation {
+    int32 obs_index                     = 1; // 观察日离开仓日天数
+    double adjust_rate                  = 2; // 观察日调整比率
+    double coupon_rate                  = 3; // 绝对票息率
+}
+
+service PricerService {
+    rpc batchPricer (BatchPricerRequest) returns (BatchPricerReply) {
+        option (google.api.http) = {
+            post: "/pricer/batch_pricer"
+        };
+    };
+
+    rpc fixedAccAko (FixedAccAkoRequest) returns (PricerReply) {
+        option (google.api.http) = {
+            post: "/pricer/fixed_acc_ako_as"
+        };
+    };
+
+    rpc linearAccAko (LinearAccAkoRequest) returns (PricerReply) {
+        option (google.api.http) = {
+            post: "/pricer/linear_acc_ako_as"
+        };
+    };
+
+    rpc linearAccFusing (LinearAccFusingRequest) returns (PricerReply) {
+        option (google.api.http) = {
+            post: "/pricer/linear_acc_fusing_as"
+        };
+    };
+
+    rpc fixedAcc (FixedAccRequest) returns (PricerReply) {
+        option (google.api.http) = {
+            post: "/pricer/fixed_acc_as"
+        };
+    };
+
+    rpc fixedAccEnhanced (FixedAccEnhancedRequest) returns (PricerReply) {
+        option (google.api.http) = {
+            post: "/pricer/fixed_acc_enhanced_as"
+        };
+    };
+
+    rpc fixedAccBarrier (FixedAccBarrierRequest) returns (PricerReply) {
+        option (google.api.http) = {
+            post: "/pricer/fixed_acc_barrier_as"
+        };
+    };
+
+    rpc fixedAccBarrierEnhanced (FixedAccBarrierEnhancedRequest) returns (PricerReply) {
+        option (google.api.http) = {
+            post: "/pricer/fixed_acc_barrier_enhanced_as"
+        };
+    };
+
+    rpc linearAcc (LinearAccRequest) returns (PricerReply) {
+        option (google.api.http) = {
+            post: "/pricer/linear_acc_as"
+        };
+    };
+
+    rpc linearAccEnhanced (LinearAccEnhancedRequest) returns (PricerReply) {
+        option (google.api.http) = {
+            post: "/pricer/linear_acc_enhanced_as"
+        };
+    };
+
+    rpc linearAccFixedEnhanced (LinearAccFixedEnhancedRequest) returns (PricerReply) {
+        option (google.api.http) = {
+            post: "/pricer/linear_acc_fixed_enhanced_as"
+        };
+    };
+
+    rpc airbag (AirbagRequest) returns (PricerReply) {
+        option (google.api.http) = {
+            post: "/pricer/airbag_as"
+        };
+    };
+
+    rpc asian (AsianRequest) returns (PricerReply) {
+        option (google.api.http) = {
+            post: "/pricer/asian_as"
+        };
+    };
+
+    rpc discreteAsianMc (DiscreteAsianMcRequest) returns (PricerReply) {
+        option (google.api.http) = {
+            post: "/pricer/discrete_asian_mc"
+        };
+    };
+
+    rpc discreteAsianHhm (DiscreteAsianHhmRequest) returns (PricerReply) {
+        option (google.api.http) = {
+            post: "/pricer/discrete_asian_hhm"
+        };
+    };
+
+    rpc barrier (BarrierRequest) returns (PricerReply) {
+        option (google.api.http) = {
+            post: "/pricer/barrier_as"
+        };
+    };
+
+    rpc discreteBarrier (DiscreteBarrierRequest) returns (PricerReply) {
+        option (google.api.http) = {
+            post: "/pricer/discrete_barrier_as"
+        };
+    };
+
+    rpc discreteBarrierMc (DiscreteBarrierMcRequest) returns (PricerReply) {
+        option (google.api.http) = {
+            post: "/pricer/discrete_barrier_mc"
+        };
+    };
+
+    rpc barrierBinary (BarrierBinaryRequest) returns (PricerReply) {
+        option (google.api.http) = {
+            post: "/pricer/barrier_binary_as"
+        };
+    };
+
+    rpc discreteBarrierBinary (DiscreteBarrierBinaryRequest) returns (PricerReply) {
+        option (google.api.http) = {
+            post: "/pricer/discrete_barrier_binary_as"
+        };
+    };
+
+    rpc basketVanilla (BasketVanillaRequest) returns (PricerReply) {
+        option (google.api.http) = {
+            post: "/pricer/basket_vanilla_as"
+        };
+    };
+
+    rpc basketVanillaSeries (BasketVanillaSeriesRequest) returns (PricerReply) {
+        option (google.api.http) = {
+            post: "/pricer/basket_vanilla_series"
+        };
+    };
+
+    rpc binary (BinaryRequest) returns (PricerReply) {
+        option (google.api.http) = {
+            post: "/pricer/binary_as"
+        };
+    };
+
+    rpc discreteBinaryMc (DiscreteBinaryMcRequest) returns (PricerReply) {
+        option (google.api.http) = {
+            post: "/pricer/discrete_binary_mc"
+        };
+    };
+
+    rpc binarySeries (BinarySeriesRequest) returns (PricerReply) {
+        option (google.api.http) = {
+            post: "/pricer/binary_series"
+        };
+    };
+
+    rpc forward (ForwardRequest) returns (PricerReply) {
+        option (google.api.http) = {
+            post: "/pricer/forward_as"
+        };
+    };
+
+    rpc sharkfin (SharkfinRequest) returns (PricerReply) {
+        option (google.api.http) = {
+            post: "/pricer/sharkfin_as"
+        };
+    };
+
+    rpc sharkfinSeries (SharkfinSeriesRequest) returns (PricerReply) {
+        option (google.api.http) = {
+            post: "/pricer/sharkfin_series"
+        };
+    };
+
+    rpc snowballMc (SnowballMcRequest) returns (PricerReply) {
+        option (google.api.http) = {
+            post: "/pricer/snowball_mc"
+        };
+    };
+
+    rpc ratioSpread (RatioSpreadRequest) returns (PricerReply) {
+        option (google.api.http) = {
+            post: "/pricer/ratio_spread_as"
+        };
+    };
+
+    rpc ratioSpreadSeries (RatioSpreadSeriesRequest) returns (PricerReply) {
+        option (google.api.http) = {
+            post: "/pricer/ratio_spread_series"
+        };
+    };
+
+    rpc oneTouch (OneTouchRequest) returns (PricerReply) {
+        option (google.api.http) = {
+            post: "/pricer/one_touch_as"
+        };
+    };
+
+    rpc discreteOneTouch (DiscreteOneTouchRequest) returns (PricerReply) {
+        option (google.api.http) = {
+            post: "/pricer/discrete_one_touch_as"
+        };
+    };
+
+    rpc doubleOneTouch (DoubleOneTouchRequest) returns (PricerReply) {
+        option (google.api.http) = {
+            post: "/pricer/double_one_touch_as"
+        };
+    };
+
+    rpc vanilla (VanillaRequest) returns (PricerReply) {
+        option (google.api.http) = {
+            post: "/pricer/vanilla_as"
+        };
+    };
+
+    rpc vanillaSeries (VanillaSeriesRequest) returns (PricerReply) {
+        option (google.api.http) = {
+            post: "/pricer/vanilla_series"
+        };
+    };
+
+    rpc quotient (QuotientRequest) returns (PricerReply) {
+        option (google.api.http) = {
+            post: "/pricer/quotient_as"
+        };
+    };
+}
+
