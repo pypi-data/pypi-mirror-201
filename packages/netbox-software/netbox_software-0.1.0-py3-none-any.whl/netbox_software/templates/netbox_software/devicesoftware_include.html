@@ -1,0 +1,54 @@
+{% load helpers %}
+
+<div class="card">
+<h5 class="card-header">
+    Документы
+</h5>
+<div class="card-body">
+{% if device_software %}
+    <table class="table table-hover">
+        <tr>
+            <th>Название</th>
+            <th>источник</th>
+            <th>версия</th>
+            <th>Тип</th>
+            <th></th>
+        </tr>
+        {% for software in device_software %}
+        <tr>
+            <td>
+                {{ software.name }}
+            </td>
+            <td>{{ software.source }}</td>
+            <td>{{ software.version }}</td>
+            <td>{% badge software.get_software_type_display bg_color=software.get_software_type_color %}</td>
+            <td class="text-end noprint">
+                <a href="{% url 'plugins:netbox_software:devicesoftware' pk=software.pk %}"
+                   class="btn btn-primary btn-sm lh-1" title="Просмотреть">
+                    <i class="mdi mdi-book" aria-hidden="true"></i>
+                  </a>
+                  <a href="{% url 'plugins:netbox_software:devicesoftware_edit' pk=software.pk %}?return_url=
+                  {% url 'dcim:device' pk=object.pk %}" class="btn btn-warning btn-sm lh-1" title="Редактировать">
+                    <i class="mdi mdi-pencil" aria-hidden="true"></i>
+                  </a>
+                  <a href="{% url 'plugins:netbox_software:devicesoftware_delete' pk=software.pk %}?return_url=
+                  {% url 'dcim:device' pk=object.pk %}" class="btn btn-danger btn-sm lh-1" title="Удалить">
+                    <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i>
+                  </a>
+              </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+        <div class="text-muted">
+            Нет
+        </div>
+    {% endif %}
+    </div>
+        <div class="card-footer text-end noprint">
+            <a href="{% url 'plugins:netbox_software:devicesoftware_add' %}?device={{ object.pk }}&return_url={% url 'dcim:device' pk=object.pk %}" class="btn btn-primary btn-sm">
+                <i class="mdi mdi-plus-thick" aria-hidden="true"></i>
+                Добавить ПО
+            </a>
+        </div>
+</div>
