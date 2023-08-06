@@ -1,0 +1,99 @@
+{% extends "main/layout.html" %}
+{% load humanize %}
+{% block content %}
+<div class="breadcrumb-holder">
+	<div class="container-fluid">
+		<ul class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'onboard-list' onboardemp.hashed %}">LISTA TOPIKU</a></li>
+            <li class="breadcrumb-item active">{{ legend|upper }}</li>
+		</ul>
+	</div>
+</div>
+<div class="container-fluid"><br/>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card shadow-lg border-info rounded">
+                <div class="card-header border-primary">
+                    <center>
+                        <h2>{{ legend|upper }}</h2>
+                    </center>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm table-striped table-bordered">
+                        <tr>
+                            <th>Naran</th><th>Fatin & Data Moris</th><th>Sexu</th>
+                        </tr>
+                        <tr>
+                            <td>{{ onboardemp.employee }}</td>
+                            <td>{{ onboard.onboardemp.employee.pob }}, {{ onboard.onboardemp.employee.dob }}</td>
+                            <td>{{ onboard.onboardemp.employee.sex }}</td>
+                        </tr>
+                    </table>
+                    <hr/>
+                    <div class="alert alert-info">
+                        <h5><strong>Topiku:</strong></h5>
+                        <h4>{{ onboard.topic }}</h4>
+                    </div>
+                    <hr/>
+                    {% if group == 'hr' %}
+                        {% if onboard.onboardemp.is_lock == False %}
+                        <a class="btn btn-info btn-sm mb-1" href="{% url 'onboard-det-add' onboard.hashed page %}">Aumenta Materia <i class="fa fa-plus"></i></a>
+                        {% else %}
+                        <a class="btn btn-info btn-sm mb-1 disabled" href="#">Aumenta Materia <i class="fa fa-plus"></i></a>
+                        {% endif %}
+                    {% endif %}
+                    <table class="table table-sm table-striped table-bordered" id="example" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Nu.</th>
+                                <th>Materia</th>
+                                <th>Husi</th>
+                                <th>Data</th>
+                                <th>Obs</th>
+                                <th>Executa</th>
+                                <th>Deskrisaun Detalha</th>
+                                {% if group == 'hr' %}                                  
+                                <th>#</th>
+                                {% endif %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for obj in objects %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ obj.subject }}</td>
+                                <td>{{ obj.employee }}</td>
+                                <td>{{ obj.date|date:"d/m/Y" }}</td>
+                                <td>{{ obj.obs }}</td>
+                                <td>{{ obj.execute }}</td>
+                                <td>{{ obj.desc|safe }}</td>
+                                {% if group == 'hr' %}
+                                  
+                                
+                                <td>
+                                {% if onboardemp.is_lock == False %}
+                                    <a class="btn btn-sm btn-info" href="{% url 'onboard-det-update' onboard.hashed obj.hashed page %}" title="Altera"><i class="fa fa-edit"></i></a>
+                                    <a class="btn btn-sm btn-danger" href="{% url 'onboard-det-delete' onboard.hashed obj.hashed page %}" title="Hapaga"><i class="fa fa-trash"></i></a>
+                                {% else %}
+                                    <a class="btn btn-sm btn-info disabled" href="#" title="Altera"><i class="fa fa-edit"></i></a>
+                                    <a class="btn btn-sm btn-danger disabled" href="#" title="Hapaga"><i class="fa fa-trash"></i></a>
+                                {% endif %}
+                                </td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div> <!--end card-body-->
+            </div> <!--end card-->
+        </div> <!--end col-->
+    </div> <!--end row-->
+</div>
+{% endblock %}
+{% block scripts %}
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$('#example').DataTable();
+		} );
+	</script>
+{% endblock %}

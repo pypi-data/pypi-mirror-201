@@ -1,0 +1,126 @@
+{% extends "main/layout.html" %}
+{% load humanize %}
+{% block content %}
+<div class="breadcrumb-holder">
+	<div class="container-fluid">
+		<ul class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'onboard-emp-list' %}">LISTA FUNSIONARIO</a></li>
+            <li class="breadcrumb-item active">{{ legend|upper }}</li>
+		</ul>
+	</div>
+</div>
+<div class="container-fluid"><br/>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card shadow-lg border-info rounded">
+                <div class="card-header border-primary">
+                    <center>
+                        <h2>{{ legend|upper }}</h2>
+                    </center>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="row">
+                                <div class="col-sm-8">
+                                    <!-- <h4>Informasaun Pessoal</h4> -->
+                                    <table class="table table-sm table-striped table-bordered">
+                                        <thead>
+                                            <tr align="center">
+                                                <th colspan="4">INFOMASAUN PESSOAL</th>
+                                            </tr>
+                                        </thead>
+                                        <tr>
+                                            <th>Naran</th><th>Sexu</th><th>Fatin & Data Moris</th><th>Estadu Civil</th>
+                                        </tr>
+                                        <tr>
+                                            <td>{{ emp }}</td>
+                                            <td>{{ emp.sex }}</td>
+                                            <td>{{ emp.pob }}, {{ emp.dob|date:"d/m/Y" }}</td>
+                                            <td>{{ emp.marital }}</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="col-sm-4">
+                                    <center>
+                                        <img src="{{ img.image.url }}" width="120">
+                                    </center>
+                                </div>
+                            </div><!--end row-->
+                        </div><!--end col-->
+                    </div><!--end row-->
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="card  shadow-lg rounded">
+                                <div class="card-header border-primary">
+                                    <center>
+                                        <h4 align="center">LISTA TOPIKU NO MATERIA</h4>
+                                    </center>
+                                </div>
+                                <div class="card-body">
+                                {% if group == 'hr' %}
+                                    {% if onboardemp.is_finish == False %}
+                                        {% if onboardemp.is_lock == False %}
+                                        <a class="btn btn-info btn-sm mb-1" href="{% url 'onboard-add' onboardemp.hashed %}">Aumenta Topiku <i class="fa fa-plus"></i></a>
+                                        <a class="btn btn-primary btn-sm mb-1" href="{% url 'onboard-emp-lock' onboardemp.hashed %}">Xavi <i class="fa fa-lock"></i></a>
+                                        {% else %}
+                                        <a class="btn btn-warning btn-sm mb-1" href="{% url 'onboard-emp-unlock' onboardemp.hashed %}">Loke <i class="fa fa-unlock"></i></a>
+                                        <a class="btn btn-danger btn-sm mb-1" href="{% url 'onboard-emp-finish' onboardemp.hashed %}">Termina <i class="fa fa-ban"></i></a>
+                                        {% endif %}
+                                    {% else %}
+                                    
+                                    <div class="alert alert-info p-1">Prosesu Termina</div>
+                                    {% endif %}
+                                {% endif %}
+                                    <table class="table table-sm" id="example" width="100%" cellspacing="0">
+                                        <tbody>
+                                        {% for obj in objects %}
+                                            <tr style="background-color: #CCC;">
+                                                <th>Nu.</th>
+                                                <td>
+                                                    <a href="{% url 'onboard-det-list' obj.0.hashed %}">{{ obj.0.topic|upper }}</a>
+                                                {% if group == 'hr' %}
+                                                    {% if onboardemp.is_lock == False %}
+                                                        <a class="btn btn-sm btn-info" href="{% url 'onboard-det-add' obj.0.hashed page %}"><i class="fa fa-plus"></i></a>
+                                                        <a class="btn btn-sm btn-info" href="{% url 'onboard-update' onboardemp.hashed obj.0.hashed %}" title="Altera"><i class="fa fa-edit"></i></a>
+                                                        <a class="btn btn-sm btn-danger" href="{% url 'onboard-delete' onboardemp.hashed obj.0.hashed %}" title="Hapaga"><i class="fa fa-trash"></i></a>
+                                                    {% endif %}
+                                                {% endif %}
+                                                </td>
+                                                <th>Husi</th>
+                                                <th>Data</th>
+                                                <th>Obs</th>
+                                                <th colspan="2">Executa</th>
+                                            </tr>
+                                            {% for obj1 in obj.1 %}
+                                            <tr>
+                                                <td>{{ forloop.counter }}</td>
+                                                <td>{{ obj1.subject }}</td>
+                                                <td>{{ obj1.employee }}</td>
+                                                <td>{{ obj1.date|date:"d/m/Y" }}</td>
+                                                <td>{{ obj1.obs }}</td>
+                                                <td>{{ obj1.execute }}</td>
+                                                <td>
+                                                {% if onboardemp.is_lock == False and group == 'hr' %}
+                                                    <a href="{% url 'onboard-det-update' obj.0.hashed obj1.hashed page %}" title="Altera"><i class="fa fa-edit"></i></a>
+                                                    <a href="{% url 'onboard-det-delete' obj.0.hashed obj1.hashed page %}" title="Hapaga"><i class="fa fa-trash"></i></a>
+                                                {% endif %}
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                    <hr/>
+                                </div><!--end card-body-->
+                            </div><!--end card-->
+                        </div><!--end col-->
+                    </div><!--end row-->
+                </div> <!--end card-body-->
+            </div> <!--end card-->
+        </div> <!--end col-->
+    </div> <!--end row-->
+</div>
+{% endblock %}
+{% block scripts %}
+{% endblock %}
