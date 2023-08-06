@@ -1,0 +1,35 @@
+# -*- coding: utf-8 -*-
+from setuptools import setup
+
+packages = \
+['zoom_background_changer']
+
+package_data = \
+{'': ['*']}
+
+install_requires = \
+['openai>=0.27.4,<0.28.0']
+
+entry_points = \
+{'console_scripts': ['zoom-background-changer = '
+                     'zoom_background_changer.main:main']}
+
+setup_kwargs = {
+    'name': 'zoom-background-changer',
+    'version': '0.1.2',
+    'description': 'Changes your Zoom background using OpenAI Image Generation.',
+    'long_description': '# Zoom Background Changer\n\nThis is a python script that will use OpenAI\'s GPT-3 API to generate a new background image for your Zoom meetings.\nIt can be run as a cron task, manually, or as part of a workflow when you open Zoom!\n\nThe script will generate a new background image based on the current date and weather, and overwrite you existing Zoom background.\n\n## Requirements\n\n- Only works on macOS (for now!)\n- Python 3.9+\n- OpenAI API Key\n  - You can get a free API key from OpenAI [here](https://platform.openai.com/).\n  - You will need to create an account and generate an API key.\n  - You will need to add your API key to the `OPENAI_API_KEY` environment variable.\n\n## Installation\n\n```bash\npip install zoom-background-changer\n```\n\n## Usage\n\n```bash\nzoom-background-changer\n```\n\n## Prompt Template\n\nCan be adjusted by creating a file called `.zoom-background-changer` in your `$HOME` directory.\n\nThis file should contain the following:\n\n```json\n{\n  "prompt": "Today is {date} and the weather is {weather} in {city}.",\n  "city": "Boston"\n}\n```\n\n### Available Variables\n\n- `{date}`: The current date\n- `{weather}`: The current weather, from `https://wttr.in/`\n- `{city}`: The current city, set from the `city` key in the `.zoom-background-changer` file. Defaults to `Boston, MA`.\n- `{time}`: The current time\n\nIf you would like to request other variables to be available, please open an issue!\n',
+    'author': 'Kyle Montag',
+    'author_email': 'thekylemontag@gmail.com',
+    'maintainer': 'None',
+    'maintainer_email': 'None',
+    'url': 'None',
+    'packages': packages,
+    'package_data': package_data,
+    'install_requires': install_requires,
+    'entry_points': entry_points,
+    'python_requires': '>=3.9,<4.0',
+}
+
+
+setup(**setup_kwargs)
