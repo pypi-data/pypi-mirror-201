@@ -1,0 +1,34 @@
+version: 1
+
+ui:
+  port: 8000
+
+signalling:
+  port: 8443
+
+pipelines:
+  - name: fwd
+    elements:
+    - name: aravissrc
+      properties:
+        exposure-auto: "on"
+    - name: video/x-raw, format=RGB,width=1920,height=1080
+    - name: webrtcsink
+
+  - name: port
+    elements:
+    - name: v4l2src
+      properties:
+        device: /dev/video2
+    - name: webrtcsink
+      # properties:
+      #   max-bitrate: "2000"
+
+  - name: stbd
+    elements:
+    - name: v4l2src
+      properties:
+        device: /dev/video0
+    - name: webrtcsink
+      # properties:
+      #   max-bitrate: "2000"
