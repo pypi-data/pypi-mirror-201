@@ -1,0 +1,56 @@
+# Toolbox for analyzing neural topology optimization 
+## Table of Contents
+- [Short summary](#summary)
+- [Installation](#installation)
+- [Usage](#usage)
+- [License](#license)
+## Summary
+### Topology optimization (TO)
+Topology optimization is a mathematical technique used in design to optimize the layout of structures for maximum performance. It involves using algorithms to find the most efficient distribution of material within a given design space, subject to specified constraints. Here, we consider the simplest case of minimizing the compliance of a structure subjected to a linear volume constraint. In simpler terms, we have limited material that needs to be arranged such that the structure formed is as stiff as possible. Using gradient based optimizers, we update the material distribution until convergence.
+
+### Neural reparameterization
+Conventional TO uses a grid based parameterization (the design is representated as an image with the pixels being the variables to be updated). Neural reparameterization changes this parameterization to the parameter space of a neural network. By updating these parameters, you update the design indirectly. Three papers introduced varying archietctures with differing efefctiveness. They are as follows:
+1. [Neural reparameterization improves structural optimization](https://arxiv.org/abs/1909.04240)
+2. [TOuNN: Topology Optimization using Neural Networks](https://rdcu.be/c81ev)
+3. [Length Scale Control in Topology Optimization using Fourier Enhanced Neural Networks](https://arxiv.org/abs/2109.01861)
+
+![image](https://user-images.githubusercontent.com/72760812/229469709-ff62199c-599d-49eb-8f00-69c1199902a3.png)
+
+### Analyzing optimization in neural parameter space
+The high-dimensional nature of neural network parameter spaces makes it difficult to analyze. We hope to provide a collection of tools to probe the optimization process empirically to gain insights. The tools have been collected from many papers and will include the following :
+1. Loss landscape visualization (based on [Visualizing the Loss Landscape of Neural Nets](https://arxiv.org/abs/1712.09913))
+2. Hessian analysis (Will be implemented soon)
+3. Trajectory analysis (Will be implemented soon)
+
+## Installation
+
+Instructions for how to install and run the project:
+
+- git clone https://github.com/bessagroup/neural_opt.git
+
+or
+
+- pip install using `pip install neural-opt-surya`
+
+Note: create a virtual environment with the packages mentioned in `requirements.txt`.
+or use the attached `tested_env.yml` to create a conda environment (Linux only).
+
+## Usage
+
+Examples of how to use the project are detailed in the examples folder.
+Roughly, there are two main modules,
+1. `neural_structural_opt` (Modified from [Hoyer et al.](https://github.com/google-research/neural-structural-optimization))
+2. `analysis_tools` (Modified from [Chatzimichailidis et al.](https://github.com/cc-hpc-itwm/GradVis))
+
+The first is used to run the simulation and save the parameters of the model and offers many choices in terms of the
+neural network models and optimizers. Once the parameters are saved, the second module can be used to create qualitative visualizations.
+At present, the available visualizations include:
+- Filter normalized random projection to 2D
+- Projection using first two PCA components.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE.md file for details.
+
+
+
