@@ -1,0 +1,267 @@
+parameters:
+  country:
+    description: The country to load the data for (in ISO 3166-1 alpha-2 format)
+    type: str
+    allowed: [EL, EU]
+
+sources:
+  plants:
+    description: The names and techical characteristics of the available power plants
+    driver: csv
+    metadata:
+      columns:
+        - Unit
+        - Exit
+        - Zone
+        - Technology
+        - Fuel
+        - PowerCapacity
+        - Efficiency
+        - MinUpTime
+        - MinDownTime 
+        - RampUpRate
+        - RampDownRate
+        - StartUpCost
+        - RampingCost
+        - PartLoadMin
+        - StartUpTime
+        - CO2Intensity
+    args:
+      urlpath: '{{ CATALOG_DIR }}/datasets/plants/{{ country }}/plants.csv'
+
+  load:
+    description: Load prediction for day-ahead scheduling
+    driver: csv
+    metadata:
+      columns:
+        - ds
+        - Total load [MW]
+      freq: H
+      unit: MW
+    args:
+      urlpath: '{{ CATALOG_DIR }}/datasets/load/{{ country }}/load.csv'
+      csv_kwargs:
+        parse_dates: 
+          - ds
+  
+  reserves:
+    description: Secondary reserve demand for day-ahead scheduling
+    driver: csv
+    metadata:
+      columns:
+        - ds
+        - 2U
+        - 2D
+      freq: H
+      unit: MW
+    args:
+      urlpath: '{{ CATALOG_DIR }}/datasets/load/{{ country }}/reserves.csv'
+      csv_kwargs:
+        parse_dates: 
+          - ds
+    
+  generation:
+    description: Committed capacity from the day-ahead scheduling
+    driver: csv
+    metadata:
+      columns: [unit_name,ds,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23]
+      freq: H
+      unit: MW
+    args:
+      urlpath: '{{ CATALOG_DIR }}/datasets/generation/{{ country }}/committed.csv'
+      csv_kwargs:
+        parse_dates: 
+          - ds
+
+  imports:
+    description: Imports prediction for day-ahead scheduling
+    driver: csv
+    metadata:
+      columns:
+        - ds
+        - Imports [MW]
+      freq: H
+      unit: MW
+    args:
+      urlpath: '{{ CATALOG_DIR }}/datasets/flows/{{ country }}/imports.csv'
+      csv_kwargs:
+        parse_dates: 
+          - ds
+
+  exports:
+    description: Exports prediction for day-ahead scheduling
+    driver: csv
+    metadata:
+      columns:
+        - ds
+        - Exports [MW]
+      freq: H
+      unit: MW
+    args:
+      urlpath: '{{ CATALOG_DIR }}/datasets/flows/{{ country }}/exports.csv'
+      csv_kwargs:
+        parse_dates: 
+          - ds
+
+  import_ntc:
+    description: Total NTC (net transfer capacity) for imports.
+    driver: csv
+    metadata:
+      columns:
+        - ds
+        - Total import NTC [MW]
+      freq: H
+      unit: MW
+    args:
+      urlpath: '{{ CATALOG_DIR }}/datasets/ntc/{{ country }}/imports.csv'
+      csv_kwargs:
+        parse_dates: 
+          - ds
+
+  export_ntc:
+    description: Total NTC (net transfer capacity) for exports.
+    driver: csv
+    metadata:
+      columns:
+        - ds
+        - Total export NTC [MW]
+      freq: H
+      unit: MW
+    args:
+      urlpath: '{{ CATALOG_DIR }}/datasets/ntc/{{ country }}/exports.csv'
+      csv_kwargs:
+        parse_dates: 
+          - ds
+
+  res:
+    description: Renewable generation prediction for day-ahead scheduling
+    driver: csv
+    metadata:
+      columns:
+        - ds
+        - RES generation [MW]
+      freq: H
+      unit: MW
+    args:
+      urlpath: '{{ CATALOG_DIR }}/datasets/generation/{{ country }}/RES.csv'
+      csv_kwargs:
+        parse_dates: 
+          - ds
+
+  capacity:
+    description: Available capacity for each power generating unit
+    driver: csv
+    metadata:
+      freq: D
+      unit: MW
+    args:
+      urlpath: '{{ CATALOG_DIR }}/datasets/capacity/{{ country }}/available.csv'
+      csv_kwargs:
+        parse_dates: 
+          - ds
+
+  reservoirs:
+    description: Filling rate [%] of hydro plant reservoirs
+    driver: csv
+    metadata:
+      freq: D
+    args:
+      urlpath: '{{ CATALOG_DIR }}/datasets/hydro/{{ country }}/reservoirs.csv'
+      csv_kwargs:
+        parse_dates: 
+          - ds
+
+  availability_factors:
+    description: Availability factors for renewables
+    driver: csv
+    metadata:
+      source: https://github.com/energy-modelling-toolkit/Dispa-SET/blob/master/Database/AvailabilityFactors/EL/1h/2016.csv
+      columns:
+        - ds
+        - PHOT
+        - WTOF
+        - WTON
+        - HROR
+      freq: H
+    args:
+      urlpath: '{{ CATALOG_DIR }}/datasets/availability_factors/{{ country }}/af.csv'
+      csv_kwargs:
+        parse_dates: 
+          - ds
+
+  carbon_price:
+    description: The carbon price on the EU Emissions Trading System
+    driver: csv
+    metadata:
+      freq: W
+      unit: EUR/tonne
+      columns:
+        - ds
+        - CRBN
+    args:
+      urlpath: '{{ CATALOG_DIR }}/datasets/prices/{{ country }}/carbon.csv'
+      csv_kwargs:
+        parse_dates: 
+          - ds
+
+  ngas_price:
+    description: The natural gas price
+    driver: csv
+    metadata:
+      freq: M
+      unit: EUR/MWh
+      columns:
+        - ds
+        - GAS
+    args:
+      urlpath: '{{ CATALOG_DIR }}/datasets/prices/{{ country }}/ngas.csv'
+      csv_kwargs:
+        parse_dates: 
+          - ds
+        dayfirst: true
+
+  coal_price:
+    description: The Rotterdam Coal Continuous Contract
+    driver: csv
+    metadata:
+      freq: D
+      unit: EUR/MWh
+      columns:
+        - ds
+        - COAL
+    args:
+      urlpath: '{{ CATALOG_DIR }}/datasets/prices/{{ country }}/coal.csv'
+      csv_kwargs:
+        parse_dates: 
+          - ds
+  
+  lignite_price:
+    description: Lignite price
+    driver: csv
+    metadata:
+      freq: M
+      unit: EUR/MWh
+      columns:
+        - ds
+        - LIG
+    args:
+      urlpath: '{{ CATALOG_DIR }}/datasets/prices/{{ country }}/lignite.csv'
+      csv_kwargs:
+        parse_dates: 
+          - ds
+        dayfirst: true
+
+  oil_price:
+    description: The Brent oil price
+    driver: csv
+    metadata:
+      freq: D
+      unit: EUR/MWh
+      columns:
+        - ds
+        - OIL
+    args:
+      urlpath: '{{ CATALOG_DIR }}/datasets/prices/{{ country }}/oil.csv'
+      csv_kwargs:
+        parse_dates: 
+          - ds
