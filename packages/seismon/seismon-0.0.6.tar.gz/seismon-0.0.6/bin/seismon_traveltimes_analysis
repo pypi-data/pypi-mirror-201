@@ -1,0 +1,401 @@
+#!/usr/bin/python
+
+# Copyright (C) 2013 Michael Coughlin
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 3 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
+# Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+"""Earthquake xml file generator.
+
+This script generates earthquake xml files using notices from the
+internet and USGS PDL client.
+
+Comments should be e-mailed to michael.coughlin@ligo.org.
+
+"""
+
+import os, sys, glob, optparse, warnings, time, json
+import numpy as np
+import subprocess
+from subprocess import Popen
+from lxml import etree
+
+import lal.gpstime
+
+from seismon import (eqmon, utils)
+
+import matplotlib
+matplotlib.use("AGG")
+matplotlib.rcParams.update({'font.size': 18})
+from matplotlib import pyplot as plt
+from matplotlib import cm
+
+__author__ = "Michael Coughlin <michael.coughlin@ligo.org>"
+__version__ = 1.0
+__date__    = "9/22/2013"
+
+# =============================================================================
+#
+#                               DEFINITIONS
+#
+# =============================================================================
+
+def parse_commandline():
+    """@parse the options given on the command-line.
+    """
+    parser = optparse.OptionParser(usage=__doc__,version=__version__)
+
+    parser.add_option("-p", "--paramsFile", help="Seismon params file.",
+                      default ="/home/mcoughlin/Seismon/seismon/input/seismon_params_traveltimes.txt")
+    parser.add_option("-t", "--publicFileType", help="Type of public data.",
+                      default ="hour")
+    parser.add_option("-s", "--gpsStart", help="GPS Start Time.", default=800000000,type=int)
+    parser.add_option("-e", "--gpsEnd", help="GPS End Time.", default=1200000000,type=int)
+    parser.add_option("-i", "--ifo", help="IFO.", default="LHO")
+    parser.add_option("-m", "--minMagnitude", help="Minimum earthquake magnitude.", default=5.0,type=float)
+    
+    parser.add_option("-v", "--verbose", action="store_true", default=False,
+                      help="Run verbosely. (Default: False)")
+
+    parser.add_option("--doPublic",  action="store_true", default=False)
+    parser.add_option("--doPrivate",  action="store_true", default=False)
+    parser.add_option("--doDatabase",  action="store_true", default=False)
+    parser.add_option("--doIRIS",  action="store_true", default=False)
+    parser.add_option("--doMultipleEvents",  action="store_true", default=False)
+
+    opts, args = parser.parse_args()
+
+    # show parameters
+    if opts.verbose:
+        print >> sys.stderr, ""
+        print >> sys.stderr, "running network_eqmon..."
+        print >> sys.stderr, "version: %s"%__version__
+        print >> sys.stderr, ""
+        print >> sys.stderr, "***************** PARAMETERS ********************"
+        for o in opts.__dict__.items():
+          print >> sys.stderr, o[0]+":"
+          print >> sys.stderr, o[1]
+        print >> sys.stderr, ""
+
+    return opts
+
+def params_struct(opts):
+    """@create params structure
+
+    @param opts
+        command line options
+    """
+
+    params = utils.readParamsFromFile(opts.paramsFile)
+    params["publicFileType"] = opts.publicFileType
+    params["gpsStart"] = opts.gpsStart
+    params["gpsEnd"] = opts.gpsEnd
+    params["minMagnitude"] = opts.minMagnitude
+    params["ifo"] = opts.ifo
+
+    params["doPublic"] = opts.doPublic
+    params["doPrivate"] = opts.doPrivate
+    params["doDatabase"] = opts.doDatabase
+    params["doIRIS"] = opts.doIRIS
+    params["doMultipleEvents"] = opts.doMultipleEvents
+
+    return params
+
+def private_events_multiple(params):
+    """@write pdl events
+
+    @param params
+        seismon params structure
+    """
+
+    numEventsAdded = 0
+
+    time_diffs = []
+    mag_diffs = []
+    amp_diffs = []
+    sent_diffs = []
+
+    xmls = glob.glob(os.path.join(params["eventfilesLocation"],"private/*.xml"))
+    xmlCombines = []
+
+    for xml in xmls:
+
+        xmlSplit = xml.split("-")
+        xmlCombine = "%s-%s"%(xmlSplit[0],xmlSplit[1])
+        xmlCombines.append(xmlCombine)
+
+    xmlCombines = list(set(xmlCombines))        
+    xmlCombines = xmlCombines[:100]
+
+    for xmlCombine in xmlCombines:
+        xmlall = glob.glob("%s-*"%(xmlCombine))
+        xmlall = sorted(xmlall)
+
+        attributeDics1 = eqmon.read_eqmon(params,xmlall[0])
+        attributeDics2 = eqmon.read_eqmon(params,xmlall[-1])
+
+        time_diff = attributeDics1["traveltimes"]["LHO"]["RthreePointFivetimes"][-1] - attributeDics2["traveltimes"]["LHO"]["RthreePointFivetimes"][-1]
+        mag_diff = attributeDics1["Magnitude"] - attributeDics2["Magnitude"]
+        amp_diff = 100*(attributeDics1["traveltimes"]["LHO"]["Rfamp"][0] - attributeDics2["traveltimes"]["LHO"]["Rfamp"][0])/np.min([attributeDics1["traveltimes"]["LHO"]["Rfamp"][0],attributeDics2["traveltimes"]["LHO"]["Rfamp"][0]])
+        sent_diff = attributeDics1["SentGPS"] - attributeDics2["SentGPS"]
+
+        print attributeDics1["traveltimes"]["LHO"]["Rfamp"][0],attributeDics2["traveltimes"]["LHO"]["Rfamp"][0],amp_diff
+
+        if np.absolute(sent_diff) < 60:
+            continue
+
+        time_diffs.append(time_diff)
+        mag_diffs.append(mag_diff)
+        amp_diffs.append(amp_diff)
+        sent_diffs.append(sent_diff)
+
+    plotDirectory = "/home/mcoughlin/Seismon/stats/plots_multiple"
+
+    time_diffs = np.absolute(time_diffs)
+    mag_diffs = np.absolute(mag_diffs)
+    amp_diffs = np.absolute(amp_diffs)
+    #amp_diffs = np.log10(np.absolute(amp_diffs))
+    #amp_diffs[np.isinf(amp_diffs)] = 0
+
+    hist, bin_edges = np.histogram(time_diffs,bins=50)
+
+    plt.figure()
+    n, bins, patches = plt.hist(time_diffs, 50, normed=0, facecolor='green', alpha=0.75)
+    plt.xlabel('Time Diffs [s]')
+    plt.ylabel('Counts')
+    plt.show()
+    plotName = os.path.join(plotDirectory,'time_diffs.png')
+    plt.savefig(plotName)
+
+    hist, bin_edges = np.histogram(mag_diffs,bins=50)
+
+    plt.figure()
+    n, bins, patches = plt.hist(mag_diffs, 50, normed=0, facecolor='green', alpha=0.75)
+    plt.xlabel('Mag Diffs [mag]')
+    plt.ylabel('Counts')
+    plt.show()
+    plotName = os.path.join(plotDirectory,'mag_diffs.png')
+    plt.savefig(plotName)
+
+    bins = np.linspace(0,1000,50)
+    hist, bin_edges = np.histogram(amp_diffs,bins=bins)
+
+    plt.figure()
+    n, bins, patches = plt.hist(amp_diffs, bins, normed=0, facecolor='green', alpha=0.75)
+    plt.xlabel('Percentage Amplitude Diffs [\%])')
+    plt.ylabel('Counts')
+    plt.show()
+    plotName = os.path.join(plotDirectory,'amp_diffs.png')
+    plt.savefig(plotName)
+
+    hist, bin_edges = np.histogram(sent_diffs,bins=50)
+
+    plt.figure()
+    n, bins, patches = plt.hist(sent_diffs, 50, normed=0, facecolor='green', alpha=0.75)
+    plt.xlabel('Sent Diffs [s]')
+    plt.ylabel('Counts')
+    plt.show()
+    plotName = os.path.join(plotDirectory,'sent_diffs.png')
+    plt.savefig(plotName)
+
+def private_events(params):
+    """@write pdl events
+
+    @param params
+        seismon params structure
+    """
+
+    numEventsAdded = 0
+
+    delays = []
+    mag_diff = []
+    delaysNotice = []
+
+    xmls = glob.glob(os.path.join(params["eventfilesLocation"],"private/*.xml"))
+
+    for xml in xmls:
+
+        print xml
+        attributeDics = eqmon.read_eqmon(params,xml)
+
+        if "Arbitrary" in attributeDics["traveltimes"]:
+            attributeDics = eqmon.eqmon_loc(attributeDics,params["ifo"]) 
+            #attributeDics = eqmon.eqmon_loc(attributeDics,"LSST")
+  
+        if not params["ifo"] in attributeDics["traveltimes"]:
+            continue
+
+        delay = attributeDics["traveltimes"][params["ifo"]]["RthreePointFivetimes"][-1] - attributeDics["SentGPS"]
+        if delay < 0:
+            continue
+        delayNotice = attributeDics["SentGPS"] - attributeDics["GPS"]
+
+        delays.append(delay)
+        delaysNotice.append(delayNotice)
+
+    plotDirectory = "/home/mcoughlin/Seismon/stats/plots/%s"%params["ifo"] 
+    if not os.path.isdir(plotDirectory): 
+        os.mkdir(plotDirectory)
+
+    hist, bin_edges = np.histogram(delays,bins=50)
+
+    plt.figure()
+    n, bins, patches = plt.hist(delays, 50, normed=0, facecolor='green', alpha=0.75)    
+    plt.xlabel('Time between sent xml and 3.5 km/s Rayleigh wave arrival [s]')
+    plt.ylabel('Counts')
+    plt.show()
+    plotName = os.path.join(plotDirectory,'delays.png')
+    plt.savefig(plotName)
+
+    hist, bin_edges = np.histogram(delaysNotice,bins=50)
+
+    plt.figure()
+    n, bins, patches = plt.hist(delaysNotice, 50, normed=0, facecolor='green', alpha=0.75)
+    plt.xlabel('Time between event and notice [s]')
+    plt.ylabel('Counts')
+    plt.show()
+    plotName = os.path.join(plotDirectory,'notices.png')
+    plt.savefig(plotName)
+
+def public_events(params):
+    """@write usgs website events
+
+    @param params
+        seismon params structure
+    """
+
+    numEventsAdded = 0
+
+    download_publiceventfiles(params)
+    events_text = open(os.path.join(params["publicdataLocation"],"events.txt"),"r").read()
+    events = json.loads(events_text)
+
+    for event in events["features"]:
+        attributeDic = eqmon.jsonread(event)
+        if not "GPS" in attributeDic:
+            continue
+        if os.path.isfile(os.path.join(params["eventfilesLocation"],"public/%s-%.0f.xml"%(attributeDic["eventName"],attributeDic["GPS"]))):
+            continue
+
+        file = os.path.join(params["eventfilesLocation"],"public/%s-%.0f.xml"%(attributeDic["eventName"],attributeDic["GPS"]))
+        if attributeDic["Magnitude"] >= float(params["minMagnitude"]):
+            write_info(file,attributeDic)
+
+            print "%s added at "%attributeDic["eventName"], time.time(), ". %.3f seconds after event"%(attributeDic["SentGPS"] - attributeDic["GPS"])
+            numEventsAdded = numEventsAdded + 1
+
+    return numEventsAdded
+
+def database_events(params):
+    """@write usgs database events
+
+    @param params
+        seismon params structure
+    """
+
+    numEventsAdded = 0
+
+    with open(os.path.join(params["databasedataLocation"],"events.txt")) as f:
+
+        for line in f:
+
+            event = line.replace("\n","")
+            attributeDic = eqmon.databaseread(event)
+
+            if not "GPS" in attributeDic:
+                continue
+            if os.path.isfile(os.path.join(params["eventfilesLocation"],"database/%s-%.0f.xml"%(attributeDic["eventName"],attributeDic["GPS"]))):
+                continue
+
+            file = os.path.join(params["eventfilesLocation"],"database/%s-%.0f.xml"%(attributeDic["eventName"],attributeDic["GPS"]))
+            if attributeDic["Magnitude"] >= float(params["minMagnitude"]):
+                write_info(file,attributeDic)
+
+            print "%s added at "%attributeDic["eventName"], time.time(), ". %.3f seconds after event"%(attributeDic["SentGPS"] - attributeDic["GPS"])
+            numEventsAdded = numEventsAdded + 1
+
+    return numEventsAdded
+
+def iris_events(params):
+    """@write usgs database events
+
+    @param params
+        seismon params structure
+    """
+
+    import obspy.fdsn, obspy.core
+
+    starttime = lal.gpstime.gps_to_utc(params["gpsStart"])
+    endtime = lal.gpstime.gps_to_utc(params["gpsEnd"])
+
+    starttime = obspy.core.UTCDateTime(starttime)
+    endtime = obspy.core.UTCDateTime(endtime)
+
+    client = obspy.fdsn.client.Client("IRIS")
+    events = client.get_events(minmagnitude=params["minMagnitude"],starttime=starttime,endtime=endtime)
+
+    numEventsAdded = 0
+    for event in events.events:
+        attributeDic = eqmon.irisread(event)
+        if not "GPS" in attributeDic:
+            continue
+        if os.path.isfile(os.path.join(params["eventfilesLocation"],"iris/%s-%.0f.xml"%(attributeDic["eventName"],attributeDic["GPS"]))):
+            continue
+
+        file = os.path.join(params["eventfilesLocation"],"iris/%s-%.0f.xml"%(attributeDic["eventName"],attributeDic["GPS"]))
+        if attributeDic["Magnitude"] >= float(params["minMagnitude"]):
+            write_info(file,attributeDic)
+
+            print "%s added at "%attributeDic["eventName"], time.time(), ". %.3f seconds after event"%(attributeDic["SentGPS"] - attributeDic["GPS"])
+            numEventsAdded = numEventsAdded + 1
+
+    return numEventsAdded
+
+def run_traveltimes():
+    """@run traveltime calculator
+    """
+
+    warnings.filterwarnings("ignore")
+
+    # Parse command line
+    opts = parse_commandline()
+    # Parse command line
+    params = params_struct(opts)
+
+    if params["doPublic"]:
+        print "Running public events..."
+        numEventsAddedPrivate = public_events(params)
+    if params["doPrivate"]:
+        print "Running private events..."
+        if params["doMultipleEvents"]:
+            numEventsAddedPublic = private_events_multiple(params)
+        else:
+            numEventsAddedPublic = private_events(params)
+    if params["doDatabase"]:
+        print "Running database events..."
+        numEventsAddedDatabase = database_events(params)
+    if params["doIRIS"]:
+        print "Running IRIS events..."
+        numEventsIRIS = iris_events(params)
+
+# =============================================================================
+#
+#                                    MAIN
+#
+# =============================================================================
+
+if __name__=="__main__":
+
+    run_traveltimes()
+

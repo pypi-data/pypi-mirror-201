@@ -1,0 +1,53 @@
+#!/usr/bin/python
+
+"""
+%prog
+
+Michael Coughlin (coughlim@carleton.edu)
+
+This program runs seismon_run.py.
+
+"""
+
+# =============================================================================
+#
+#                               PREAMBLE
+#
+# =============================================================================
+
+import os, time
+
+
+#stupid astropy cludge here
+#os.system("mv /ligo/home/controls/.astropy/config/astropy.cfg /ligo/home/controls/.astropy/config/astropy.cfg.old")
+
+__author__ = "Michael Coughlin <coughlim@carleton.edu>"
+__date__ = "2012/2/7"
+__version__ = "0.1"
+
+gpsEnd = int(os.popen("tconvert now").readline())
+
+while 1:
+   
+   #stupid astropy cludge here
+   #os.system("mv /ligo/home/controls/.astropy/config/astropy.cfg /ligo/home/controls/.astropy/config/astropy.cfg.old")
+
+   paramsFile = "/usr/local/seismon/seismon/seismon/input/seismon_params_H1.txt"
+   timewindow = 10*3600
+   gpsStart = int(os.popen("tconvert now").readline()) - timewindow
+   gpsEnd = gpsStart + timewindow
+
+   start_time = time.time()
+   os.system("/usr/local/seismon/ve/bin/python seismon_info -p %s -s %d -e %d --eventfilesType private --doEarthquakes --doEPICs --doPurge"%(paramsFile,gpsStart,gpsEnd))
+   end_time = time.time()
+   elapsed_time = end_time - start_time
+   print("Elapsed time for Seismon: %f"%(elapsed_time))
+   print("python seismon_info -p %s -s %d -e %d --eventfilesType private --doEarthquakes --doEPICs --doPurge"%(paramsFile,gpsStart,gpsEnd))
+
+   #start_time = time.time()
+   #os.system("/usr/bin/python seismon_info -p %s -s %d -e %d --eventfilesType private --doEarthquakes --doReadEPICs --doPlots"%(paramsFile,gpsEnd-3600,gpsEnd))
+   #end_time = time.time()
+   #elapsed_time = end_time - start_time
+   #print "Elapsed time for Seismon: %f"%(elapsed_time)
+   #print "python seismon_info -p %s -s %d -e %d --eventfilesType private --doEarthquakes --doReadEPICs --doPlots"%(paramsFile,gpsEnd-3600,gpsEnd)
+
