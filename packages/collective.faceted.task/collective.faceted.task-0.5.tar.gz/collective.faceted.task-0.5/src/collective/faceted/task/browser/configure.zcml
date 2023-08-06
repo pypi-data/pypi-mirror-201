@@ -1,0 +1,121 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:browser="http://namespaces.zope.org/browser"
+    xmlns:faceted="http://namespaces.zope.org/faceted"
+    xmlns:plone="http://namespaces.plone.org/plone"
+    i18n_domain="collective.faceted.task">
+
+    <!-- Publish static files -->
+    <browser:resourceDirectory
+      name="collective.faceted.task"
+      directory="static"
+      />
+
+    <adapter
+      for="Products.CMFCore.interfaces.IFolderish
+           zope.publisher.interfaces.browser.IDefaultBrowserLayer
+           plone.dexterity.interfaces.IDexterityFTI"
+      provides="zope.publisher.interfaces.browser.IBrowserPage"
+      factory=".task_view.TaskAddView"
+      name="task"
+    />
+    <class class=".task_view.TaskAddView">
+      <require
+        permission="cmf.AddPortalContent"
+        interface="zope.publisher.interfaces.browser.IBrowserPage"
+       />
+    </class>
+
+    <browser:page
+      for="collective.task.behaviors.ITask"
+      name="edit"
+      class=".task_view.TaskEditForm"
+      permission="zope2.View"
+    />
+
+    <browser:page
+      for="collective.task.behaviors.ITask"
+      name="view"
+      class=".task_view.TaskView"
+      permission="zope2.View"
+    />
+
+    <browser:page
+      for="eea.facetednavigation.interfaces.IFacetedNavigable"
+      name="facetedtask_view"
+      template="templates/facetedtask_view.pt"
+      class=".faceted_view.FacetedTaskContainerView"
+      permission="zope2.View"
+    />
+
+    <browser:page
+      name="faceted_task_config"
+      class="collective.faceted.task.browser.config_view.FacetedTaskConfigView"
+      for="Products.CMFPlone.interfaces.siteroot.IPloneSiteRoot"
+      permission="zope2.View"
+      />
+
+    <adapter
+        for="collective.faceted.task.browser.config_view.FacetedTaskConfigView
+             zope.publisher.interfaces.browser.IBrowserRequest"
+        provides="zope.traversing.interfaces.ITraversable"
+        factory=".config_view.FacetedTaskConfigViewTraverser"
+        name="view"
+    />
+
+    <configure package="collective.eeafaceted.z3ctable">
+
+        <faceted:view
+          name="list_tasks"
+          template="browser/faceted-table-items.pt"
+          for="collective.task.behaviors.ITaskContainer"
+          title="Tasks faceted table items"
+          permission="zope2.View"
+          />
+
+        <browser:viewlet
+          name="collective.task.list_tasks"
+          class="collective.faceted.task.browser.list_tasks.TasksListViewlet"
+          template="browser/faceted-table-items.pt"
+          for="collective.task.behaviors.ITaskContainer"
+          manager="plone.app.layout.viewlets.interfaces.IBelowContentBody"
+          layer="collective.faceted.task.interfaces.ICollectiveFacetedTaskLayer"
+          permission="zope2.View"
+          view="plone.app.layout.globals.interfaces.IViewView"
+          />
+
+    </configure>
+
+    <browser:view
+      for="collective.task.behaviors.ITaskContainer"
+      name="faceted-table-view"
+      class=".task_table_view.FacetedTaskTableView"
+      permission="zope2.View"
+      />
+
+    <browser:view
+      for="*"
+      name="is_faceted_tasks_container"
+      class=".list_tasks.IsFacetedTaskContainer"
+      permission="zope2.View"
+      />
+
+    <adapter
+       for="zope.interface.Interface
+            zope.publisher.interfaces.browser.IBrowserRequest
+            ..interfaces.IFacetedTasksTable
+            z3c.table.interfaces.IColumn"
+       factory="collective.faceted.task.browser.table.FacetedTaskColumnHeader"
+       provides="z3c.table.interfaces.IColumnHeader"
+    />
+
+    <adapter
+      name="path"
+      for="zope.interface.Interface
+           zope.interface.Interface
+           ..interfaces.IFacetedTasksTable"
+      provides="z3c.table.interfaces.IColumn"
+      factory=".table.TitleColumn"
+      />
+
+</configure>
