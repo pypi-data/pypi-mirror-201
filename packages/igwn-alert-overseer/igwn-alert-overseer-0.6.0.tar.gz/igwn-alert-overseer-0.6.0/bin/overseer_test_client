@@ -1,0 +1,59 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# Copyright (C) Alexander Pace, Branson Stephens (2022)
+#
+# This file is part of lvalert-overseer
+#
+# lvalert-overseer is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# It is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with LIGO.ORG.  If not, see <http://www.gnu.org/licenses/>.
+
+from datetime import datetime
+from igwn_alert_overseer.overseer.overseer_client import overseer_client
+import logging, time
+from tornado.ioloop import IOLoop
+import asyncio
+import json
+
+logger = logging.getLogger('overseer_test_client')
+logger.setLevel(logging.DEBUG)
+logger.addHandler(logging.StreamHandler())
+
+port = 8002
+node_name = 'test_superevent'
+sleep_time = 0.05
+max_messages = 100
+
+def main():
+    n = 0
+    client = overseer_client(host='localhost', port=port)
+    while n < max_messages:
+        time.sleep(sleep_time)
+        mdict = {
+            'message': '{n} | {ts}'.format(n=n, ts=datetime.now().isoformat()),
+            'node_name' : node_name,
+            'action': 'push'
+        }
+        mdict = json.dumps(mdict)
+        asyncio.set_event_loop(asyncio.new_event_loop())
+        resp = client.send_to_overseer(mdict, logger)
+        IOLoop.instance().start()
+        rdict = json.loads(resp.result()) 
+        if rdict['success']:
+            print('Published message {} to overseer'.format(n))
+        else:
+            print('Error publishing message {} to overseer'.format(n))
+
+        n+=1
+
+if __name__ == "__main__":
+    main()
