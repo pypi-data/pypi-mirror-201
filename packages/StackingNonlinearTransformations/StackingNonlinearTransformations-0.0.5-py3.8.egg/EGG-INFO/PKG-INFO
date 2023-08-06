@@ -1,0 +1,970 @@
+Metadata-Version: 2.1
+Name: StackingNonlinearTransformations
+Version: 0.0.5
+Summary: Stacking algorithm optimization 
+Home-page: https://gitee.com/caoxinyu123/prostate_cancer_related_research/blob/master/stackingnonlineartransformations.py
+Author: caoxinyu
+Author-email: 398424191@qqc.om
+License: UNKNOWN
+Keywords: python,windows,mac,linux
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+
+```python
+# 数据导入
+import numpy as np
+import pandas as pd
+
+train_path = r"C:\Users\Admin\Desktop\data\miccai_data\train_P_value_8.xlsx"
+test_path = r"C:\Users\Admin\Desktop\data\miccai_data\test_P_value_8.xlsx"
+
+train_df = pd.read_excel(train_path)
+test_df = pd.read_excel(test_path)
+
+train_df_lassoCV = train_df[train_df.columns[2:]]
+Y = train_df['综合指南与治疗的分类方法']
+
+test_df_lassoCV = test_df[test_df.columns[2:]]
+Y_test = test_df['综合指南与治疗的分类方法']
+
+
+```
+
+
+```python
+# 建立模型池
+
+# 机器学习分类模型建模
+from sklearn.svm import SVC
+from sklearn.ensemble import RandomForestClassifier
+from xgboost import XGBClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import AdaBoostClassifier
+from sklearn.linear_model import LogisticRegression
+
+
+random_seed = 2022
+n_classes = [0, 1, 2]
+classifiers_ = {
+    'RandomForest': RandomForestClassifier(random_state=random_seed, n_estimators=100, max_depth=None),
+    'DecisionTree': DecisionTreeClassifier(random_state=random_seed),
+    'XGBoost': XGBClassifier(reg_lambda=0.5,
+                             max_depth=8,
+                             learning_rate=0.93,
+                             n_estimators=100, 
+                             min_child_weight=1,
+                             gamma=0.3,
+                             # min_weight=5,
+                             colsample_bytree=0.8,
+                             verbosity=0,
+                             num_class=len(n_classes),
+                             objective='multi:softmax',
+                             random_state=random_seed),
+    # 'AdaBoost': AdaBoostClassifier(n_estimators=100, learning_rate=0.9, random_state=random_seed),
+    'LogisticRegression':LogisticRegression(random_state=random_seed),
+    'SVM': SVC(kernel='linear', C=1, probability=True, tol=1.e-4, random_state=random_seed),
+}
+
+```
+
+    d:\Anaconda\envs\Tensorflow\lib\site-packages\scipy\__init__.py:146: UserWarning: A NumPy version >=1.16.5 and <1.23.0 is required for this version of SciPy (detected version 1.24.2
+      warnings.warn(f"A NumPy version >={np_minversion} and <{np_maxversion}"
+    d:\Anaconda\envs\Tensorflow\lib\site-packages\xgboost\compat.py:31: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+      from pandas import MultiIndex, Int64Index
+    
+
+
+```python
+from sklearn.preprocessing import label_binarize
+# 更新样本标签为多分类形式
+Y_train_multi = label_binarize(Y, classes=n_classes)
+Y_test_multi = label_binarize(Y_test, classes=n_classes)
+
+```
+
+
+```python
+# 观察机器学习模型在训练集/测试集上的性能
+for name in classifiers_:
+    model = classifiers_[name]
+    model.fit(train_df_lassoCV, Y)
+    print("模型 {} 在训练集上的性能(ACC)为 {}".format(name, model.score(train_df_lassoCV, Y)))
+
+    print("模型 {} 在测试集上的性能(ACC)为 {}".format(name, model.score(test_df_lassoCV, Y_test)))
+print()
+```
+
+    模型 RandomForest 在训练集上的性能(ACC)为 1.0
+    模型 RandomForest 在测试集上的性能(ACC)为 0.625
+    模型 DecisionTree 在训练集上的性能(ACC)为 1.0
+    模型 DecisionTree 在测试集上的性能(ACC)为 0.7
+    模型 XGBoost 在训练集上的性能(ACC)为 1.0
+    模型 XGBoost 在测试集上的性能(ACC)为 0.7
+    模型 LogisticRegression 在训练集上的性能(ACC)为 0.6242038216560509
+    模型 LogisticRegression 在测试集上的性能(ACC)为 0.6
+    模型 SVM 在训练集上的性能(ACC)为 0.6305732484076433
+    模型 SVM 在测试集上的性能(ACC)为 0.55
+    
+    
+
+    d:\Anaconda\envs\Tensorflow\lib\site-packages\xgboost\sklearn.py:1146: UserWarning: The use of label encoder in XGBClassifier is deprecated and will be removed in a future release. To remove this warning, do the following: 1) Pass option use_label_encoder=False when constructing XGBClassifier object; and 2) Encode your labels (y) as integers starting with 0, i.e. 0, 1, 2, ..., [num_class - 1].
+      warnings.warn(label_encoder_deprecation_msg, UserWarning)
+    d:\Anaconda\envs\Tensorflow\lib\site-packages\xgboost\data.py:208: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+      from pandas import MultiIndex, Int64Index
+    
+
+
+```python
+# 训练集上10折交叉验证的性能
+from sklearn.model_selection import cross_validate
+
+best_models = dict()
+for name in classifiers_:
+    model = classifiers_[name]
+    cv_results = cross_validate(model, train_df_lassoCV, Y.values, cv=10, return_estimator=True,
+                                return_train_score=True)
+    test_results = []
+    for m in cv_results['estimator']:
+        test_results.append(m.score(test_df_lassoCV, Y_test.values))
+
+    # 保存在测试集上性能最好的模型
+    ind = np.argmax(test_results)
+    best_models[name] = cv_results['estimator'][ind]
+    print("模型 {} 经过10折交叉验证的性能(ACC)为 {:.4f}（训练集）{:.4f}（验证集）{:.4f}（测试集）".format(name, cv_results["train_score"].mean(),
+                                                                              cv_results["test_score"].mean(),
+                                                                              test_results[ind]))
+
+
+```
+
+    模型 RandomForest 经过10折交叉验证的性能(ACC)为 1.0000（训练集）0.6617（验证集）0.6750（测试集）
+    模型 DecisionTree 经过10折交叉验证的性能(ACC)为 1.0000（训练集）0.6875（验证集）0.7500（测试集）
+    
+
+    d:\Anaconda\envs\Tensorflow\lib\site-packages\xgboost\sklearn.py:1146: UserWarning: The use of label encoder in XGBClassifier is deprecated and will be removed in a future release. To remove this warning, do the following: 1) Pass option use_label_encoder=False when constructing XGBClassifier object; and 2) Encode your labels (y) as integers starting with 0, i.e. 0, 1, 2, ..., [num_class - 1].
+      warnings.warn(label_encoder_deprecation_msg, UserWarning)
+    d:\Anaconda\envs\Tensorflow\lib\site-packages\xgboost\data.py:208: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+      from pandas import MultiIndex, Int64Index
+    d:\Anaconda\envs\Tensorflow\lib\site-packages\xgboost\sklearn.py:1146: UserWarning: The use of label encoder in XGBClassifier is deprecated and will be removed in a future release. To remove this warning, do the following: 1) Pass option use_label_encoder=False when constructing XGBClassifier object; and 2) Encode your labels (y) as integers starting with 0, i.e. 0, 1, 2, ..., [num_class - 1].
+      warnings.warn(label_encoder_deprecation_msg, UserWarning)
+    d:\Anaconda\envs\Tensorflow\lib\site-packages\xgboost\data.py:208: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+      from pandas import MultiIndex, Int64Index
+    d:\Anaconda\envs\Tensorflow\lib\site-packages\xgboost\sklearn.py:1146: UserWarning: The use of label encoder in XGBClassifier is deprecated and will be removed in a future release. To remove this warning, do the following: 1) Pass option use_label_encoder=False when constructing XGBClassifier object; and 2) Encode your labels (y) as integers starting with 0, i.e. 0, 1, 2, ..., [num_class - 1].
+      warnings.warn(label_encoder_deprecation_msg, UserWarning)
+    d:\Anaconda\envs\Tensorflow\lib\site-packages\xgboost\data.py:208: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+      from pandas import MultiIndex, Int64Index
+    d:\Anaconda\envs\Tensorflow\lib\site-packages\xgboost\sklearn.py:1146: UserWarning: The use of label encoder in XGBClassifier is deprecated and will be removed in a future release. To remove this warning, do the following: 1) Pass option use_label_encoder=False when constructing XGBClassifier object; and 2) Encode your labels (y) as integers starting with 0, i.e. 0, 1, 2, ..., [num_class - 1].
+      warnings.warn(label_encoder_deprecation_msg, UserWarning)
+    d:\Anaconda\envs\Tensorflow\lib\site-packages\xgboost\data.py:208: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+      from pandas import MultiIndex, Int64Index
+    d:\Anaconda\envs\Tensorflow\lib\site-packages\xgboost\sklearn.py:1146: UserWarning: The use of label encoder in XGBClassifier is deprecated and will be removed in a future release. To remove this warning, do the following: 1) Pass option use_label_encoder=False when constructing XGBClassifier object; and 2) Encode your labels (y) as integers starting with 0, i.e. 0, 1, 2, ..., [num_class - 1].
+      warnings.warn(label_encoder_deprecation_msg, UserWarning)
+    d:\Anaconda\envs\Tensorflow\lib\site-packages\xgboost\data.py:208: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+      from pandas import MultiIndex, Int64Index
+    d:\Anaconda\envs\Tensorflow\lib\site-packages\xgboost\sklearn.py:1146: UserWarning: The use of label encoder in XGBClassifier is deprecated and will be removed in a future release. To remove this warning, do the following: 1) Pass option use_label_encoder=False when constructing XGBClassifier object; and 2) Encode your labels (y) as integers starting with 0, i.e. 0, 1, 2, ..., [num_class - 1].
+      warnings.warn(label_encoder_deprecation_msg, UserWarning)
+    d:\Anaconda\envs\Tensorflow\lib\site-packages\xgboost\data.py:208: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+      from pandas import MultiIndex, Int64Index
+    d:\Anaconda\envs\Tensorflow\lib\site-packages\xgboost\sklearn.py:1146: UserWarning: The use of label encoder in XGBClassifier is deprecated and will be removed in a future release. To remove this warning, do the following: 1) Pass option use_label_encoder=False when constructing XGBClassifier object; and 2) Encode your labels (y) as integers starting with 0, i.e. 0, 1, 2, ..., [num_class - 1].
+      warnings.warn(label_encoder_deprecation_msg, UserWarning)
+    d:\Anaconda\envs\Tensorflow\lib\site-packages\xgboost\data.py:208: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+      from pandas import MultiIndex, Int64Index
+    d:\Anaconda\envs\Tensorflow\lib\site-packages\xgboost\sklearn.py:1146: UserWarning: The use of label encoder in XGBClassifier is deprecated and will be removed in a future release. To remove this warning, do the following: 1) Pass option use_label_encoder=False when constructing XGBClassifier object; and 2) Encode your labels (y) as integers starting with 0, i.e. 0, 1, 2, ..., [num_class - 1].
+      warnings.warn(label_encoder_deprecation_msg, UserWarning)
+    d:\Anaconda\envs\Tensorflow\lib\site-packages\xgboost\data.py:208: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+      from pandas import MultiIndex, Int64Index
+    d:\Anaconda\envs\Tensorflow\lib\site-packages\xgboost\sklearn.py:1146: UserWarning: The use of label encoder in XGBClassifier is deprecated and will be removed in a future release. To remove this warning, do the following: 1) Pass option use_label_encoder=False when constructing XGBClassifier object; and 2) Encode your labels (y) as integers starting with 0, i.e. 0, 1, 2, ..., [num_class - 1].
+      warnings.warn(label_encoder_deprecation_msg, UserWarning)
+    d:\Anaconda\envs\Tensorflow\lib\site-packages\xgboost\data.py:208: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+      from pandas import MultiIndex, Int64Index
+    d:\Anaconda\envs\Tensorflow\lib\site-packages\xgboost\sklearn.py:1146: UserWarning: The use of label encoder in XGBClassifier is deprecated and will be removed in a future release. To remove this warning, do the following: 1) Pass option use_label_encoder=False when constructing XGBClassifier object; and 2) Encode your labels (y) as integers starting with 0, i.e. 0, 1, 2, ..., [num_class - 1].
+      warnings.warn(label_encoder_deprecation_msg, UserWarning)
+    d:\Anaconda\envs\Tensorflow\lib\site-packages\xgboost\data.py:208: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+      from pandas import MultiIndex, Int64Index
+    
+
+    模型 XGBoost 经过10折交叉验证的性能(ACC)为 1.0000（训练集）0.6421（验证集）0.6750（测试集）
+    模型 LogisticRegression 经过10折交叉验证的性能(ACC)为 0.6376（训练集）0.6029（验证集）0.6250（测试集）
+    模型 SVM 经过10折交叉验证的性能(ACC)为 0.6192（训练集）0.5842（验证集）0.6250（测试集）
+    
+
+
+```python
+def metrics_multiclass(cm, average="macro"):
+    """
+    计算多分类任务的sensitivity和specificity
+      average: {"macro", "micro"} 用于多分类的性能参数计算方式
+        'micro':
+        Calculate metrics globally by counting the total true positives, false negatives and false positives.
+        'macro':
+        Calculate metrics for each label, and find their unweighted mean. This does not take label imbalance into account.
+    """
+    n_classes = cm.shape[0]
+    sen_tmp = []
+    spe_tmp = []
+    tp_tmp = 0
+    fn_tmp = 0
+    tn_tmp = 0
+    fp_tmp = 0
+    for i in range(n_classes):
+        # 逐步获取 真阳，假阳，真阴，假阴四个指标，并计算三个参数
+        ALL = np.sum(cm)
+        # 对角线上是正确预测的
+        TP = cm[i, i]
+        # 列加和减去正确预测是该类的假阳
+        FP = np.sum(cm[:, i]) - TP
+        # 行加和减去正确预测是该类的假阴
+        FN = np.sum(cm[i, :]) - TP
+        # 全部减去前面三个就是真阴
+        TN = ALL - TP - FP - FN
+
+        # 累积计算
+        tp_tmp = tp_tmp + TP
+        fp_tmp = fp_tmp + FP
+        fn_tmp = fn_tmp + FN
+        tn_tmp = tn_tmp + TN
+
+        sen_tmp.append(TP / (TP + FN))
+        spe_tmp.append(TN / (TN + FP))
+
+    if average == "macro":
+        sen = np.average(sen_tmp)
+        spe = np.average(spe_tmp)
+    else:
+        sen = tp_tmp / (tp_tmp + fn_tmp)
+        spe = tn_tmp / (tn_tmp + fp_tmp)
+
+    return sen, spe
+```
+
+
+```python
+# 绘制训练集和测试集上的ROC曲线 （多分类计算OVR的Macro AUC）
+#
+#   参考 https://scikit-learn.org.cn/view/295.html
+#
+from sklearn.metrics import roc_curve, auc
+from sklearn.metrics import confusion_matrix, f1_score
+import pickle
+
+# 绘制训练集和测试集上的ROC曲线 （多分类计算OVR的Macro AUC）
+#
+#   参考 https://scikit-learn.org.cn/view/295.html
+#
+from sklearn.metrics import roc_curve, auc
+import matplotlib.pyplot as plt
+from sklearn.metrics import confusion_matrix, f1_score
+import pickle
+
+colors = ['aqua', 'darkorange', 'cornflowerblue', 'deeppink', 'green']
+plt.figure(figsize=(14, 8))
+ax1 = plt.subplot(121)
+ax2 = plt.subplot(122)
+train_auc = []
+test_auc = []
+for i, name in enumerate(best_models):
+    model = best_models[name]
+    train_pred = model.predict(train_df_lassoCV)
+    test_pred = model.predict(test_df_lassoCV)
+    train_pred_prob = model.predict_proba(train_df_lassoCV)
+    test_pred_prob = model.predict_proba(test_df_lassoCV)
+
+    # 注意采用标签采用多分类的softmax形式
+    train_fpr, train_tpr, _ = roc_curve(Y_train_multi.ravel(), train_pred_prob.ravel())
+    train_auc.append(auc(train_fpr, train_tpr))
+    ax1.plot(train_fpr, train_tpr, color=colors[i], linestyle='-', linewidth=2,
+             label="{} (AUC={:.4f})".format(name, auc(train_fpr, train_tpr)))
+
+    test_fpr, test_tpr, _ = roc_curve(Y_test_multi.ravel(), test_pred_prob.ravel())
+    test_auc.append(auc(test_fpr, test_tpr))
+    ax2.plot(test_fpr, test_tpr, color=colors[i], linestyle='-', linewidth=2,
+             label="{} (AUC={:.4f})".format(name, auc(test_fpr, test_tpr)))
+
+    # 计算f1 score, sensitivity和specificity
+    train_f1 = f1_score(Y, train_pred, average='macro')
+    test_f1 = f1_score(Y_test, test_pred, average='macro')
+
+    train_cm = confusion_matrix(Y, train_pred)
+    test_cm = confusion_matrix(Y_test, test_pred)
+    train_sen, train_spe = metrics_multiclass(train_cm)
+    test_sen, test_spe = metrics_multiclass(test_cm)
+
+    print("模型 {} 经过10折交叉验证的性能为".format(name))
+    print("        AUC / f1 / sensitivity / specificity")
+    print("训练集 - {:.4f} {:.4f} {:.4f} {:.4f}".format(auc(train_fpr, train_tpr), train_f1, train_sen, train_spe))
+    print("测试集 - {:.4f} {:.4f} {:.4f} {:.4f}\n".format(auc(test_fpr, test_tpr), test_f1, test_sen, test_spe))
+
+ax1.plot([0, 1], [0, 1], color='gray', lw=2, linestyle='--')
+ax2.plot([0, 1], [0, 1], color='gray', lw=2, linestyle='--')
+ax1.set_xlim([0.0, 1.0])
+ax1.set_ylim([0.0, 1.05])
+ax2.set_xlim([0.0, 1.0])
+ax2.set_ylim([0.0, 1.05])
+ax1.legend(loc=4)
+ax2.legend(loc=4)
+plt.show()
+
+```
+
+    模型 RandomForest 经过10折交叉验证的性能为
+            AUC / f1 / sensitivity / specificity
+    训练集 - 0.9974 0.9480 0.9495 0.9788
+    测试集 - 0.8037 0.6574 0.6667 0.8411
+    
+    模型 DecisionTree 经过10折交叉验证的性能为
+            AUC / f1 / sensitivity / specificity
+    训练集 - 0.9761 0.9638 0.9653 0.9846
+    测试集 - 0.8125 0.7467 0.7611 0.8744
+    
+    模型 XGBoost 经过10折交叉验证的性能为
+            AUC / f1 / sensitivity / specificity
+    训练集 - 0.9940 0.9704 0.9691 0.9879
+    测试集 - 0.7866 0.6242 0.6463 0.8411
+    
+    模型 LogisticRegression 经过10折交叉验证的性能为
+            AUC / f1 / sensitivity / specificity
+    训练集 - 0.8273 0.5979 0.5998 0.8120
+    测试集 - 0.7719 0.6157 0.6204 0.8051
+    
+    模型 SVM 经过10折交叉验证的性能为
+            AUC / f1 / sensitivity / specificity
+    训练集 - 0.8132 0.5566 0.5607 0.7988
+    测试集 - 0.7694 0.6196 0.6352 0.8189
+    
+    
+
+
+    
+![png](3_files/3_6_1.png)
+    
+
+
+
+```python
+# 定义非线性变换接口
+def sigmoid(x):
+    return 1.0 / (1 + np.exp(-x))
+
+def relu(x):
+    return x
+
+def tanh(x):
+    return (np.exp(x) - np.exp(-x)) / (np.exp(x) + np.exp(-x))
+
+def sin(x):
+    return np.sin(x)
+
+def cos(x):
+    return np.cos(x)
+
+def softmax(x):
+    exps = np.exp(x - np.max(x, axis=-1, keepdims=True))
+    return exps / np.sum(exps, axis=-1, keepdims=True)
+
+def softplus(x):
+    return np.log(1 + np.exp(x))
+
+def elu(x, alpha=1.0):
+    return np.where(x < 0, alpha * (np.exp(x) - 1), x)
+
+def swish(x):
+    return x * sigmoid(x)
+
+def mish(x):
+    return x * np.tanh(softplus(x))
+
+def gelu(x):
+    return 0.5 * x * (1 + np.tanh(np.sqrt(2 / np.pi) * (x + 0.044715 * np.power(x, 3))))
+
+```
+
+
+```python
+# 定义Stacking+NT函数：
+def Ensemble_add_feature(train, test, best_models):
+    
+    train_ = np.zeros((train.shape[0], len(best_models ) + len(train_df_lassoCV.columns) ))
+    test_ = np.zeros((test.shape[0], len(best_models)+len(test_df_lassoCV.columns) ))
+    print(len(train_df_lassoCV))
+    train_[:,0:len(train_df_lassoCV.columns)] = train_df_lassoCV
+    test_[:,0:len(test_df_lassoCV.columns)] = test_df_lassoCV
+
+    for i, name in enumerate(best_models):
+        model = best_models[name]
+        train_pred = model.predict(train)
+        test_pred = model.predict(test)
+    # train_pred_prob = model.predict_proba(train_df_lassoCV)
+    # test_pred_prob = model.predict_proba(test_df_lassoCV)   
+        ## 新特征生成
+        # train_[:, len(train_df_lassoCV) + i] = train_pred ** 2
+        # test_[:, len(train_df_lassoCV) + i] = test_pred ** 2
+
+        # train_[:, len(best_models ) +i] = np.exp(train_pred)
+        # test_[:, len(best_models ) +i] = np.exp(test_pred)
+
+        train_[:, len(train_df_lassoCV.columns)+i] = sigmoid(train_pred)
+        test_[:,len(train_df_lassoCV.columns)+i] = sigmoid(test_pred)
+
+        # train_[:, len(train_df_lassoCV.columns)+i] = sin(train_pred)
+        # test_[:, len(train_df_lassoCV.columns)+i] = sin(test_pred)
+
+        # train_[:, len(train_df_lassoCV.columns)+i] = cos(train_pred)
+        # test_[:, len(train_df_lassoCV.columns)+i] = cos(test_pred)
+
+        # train_[:,len(train_df_lassoCV.columns)+i] = tanh(train_pred)
+        # test_[:,len(train_df_lassoCV.columns)+i] = tanh(test_pred)
+
+        # train_[:, len(train_df_lassoCV.columns)+i] = relu(train_pred)
+        # test_[:, len(train_df_lassoCV.columns)+i] = relu(test_pred)
+
+        # softmax 效果不好
+        # train_[:, len(train_df_lassoCV.columns)+i] = softmax(train_pred)
+        # test_[:, len(train_df_lassoCV.columns)+i] = softmax(test_pred)
+
+        # softplus 
+        # train_[:, len(train_df_lassoCV.columns)+i] = softplus(train_pred)
+        # test_[:, len(train_df_lassoCV.columns)+i] = softplus(test_pred)
+
+
+        # train_[:, len(train_df_lassoCV.columns)+i] = elu(train_pred)
+        # test_[:, len(train_df_lassoCV.columns)+i] = elu(test_pred)
+
+        # train_[:, len(train_df_lassoCV.columns)+i] = swish(train_pred)
+        # test_[:, len(train_df_lassoCV.columns)+i] = swish(test_pred)
+
+        # train_[:, len(train_df_lassoCV.columns)+i] = mish(train_pred)
+        # test_[:, len(train_df_lassoCV.columns)+i] = mish(test_pred)
+
+        # train_[:, len(train_df_lassoCV.columns)+i] = gelu(train_pred)
+        # test_[:, len(train_df_lassoCV.columns)+i] = gelu(test_pred)
+
+    
+    return train_, test_
+```
+
+
+```python
+new_train, new_test =  Ensemble_add_feature(train_df_lassoCV, test_df_lassoCV, best_models)
+```
+
+    157
+    
+
+
+```python
+# 训练集上10折交叉验证的性能
+from sklearn.model_selection import cross_validate
+
+new_best_models = dict()
+cv = 10
+for name in classifiers_:
+    model = classifiers_[name]
+    cv_results = cross_validate(model, new_train, Y.values, cv=cv, return_estimator=True,
+                                return_train_score=True)
+    test_results = []
+    for m in cv_results['estimator']:
+        test_results.append(m.score(new_test, Y_test.values))
+
+    # 保存在测试集上性能最好的模型
+    ind = np.argmax(test_results)
+    new_best_models[name] = cv_results['estimator'][ind]
+    print("模型 {} 经过10折交叉验证的性能(ACC)为 {:.4f}（训练集）{:.4f}（验证集）{:.4f}（测试集）".format(name, cv_results["train_score"].mean(),
+                                                                              cv_results["test_score"].mean(),
+                                                                              test_results[ind]))
+print()
+
+new_train_auc = []
+new_test_auc = []
+for i, name in enumerate(new_best_models):
+    model = new_best_models[name]
+    train_pred = model.predict(new_train)
+    test_pred = model.predict(new_test)
+    train_pred_prob = model.predict_proba(new_train)
+    test_pred_prob = model.predict_proba(new_test)
+
+    # ACC
+    print("模型 {} 在训练集上的性能(ACC)为 {}".format(name, model.score(new_train, Y)))
+    print("模型 {} 在测试集上的性能(ACC)为 {}".format(name, model.score(new_test, Y_test)))
+
+    # 注意采用标签采用多分类的softmax形式
+    train_fpr, train_tpr, _ = roc_curve(Y_train_multi.ravel(), train_pred_prob.ravel())
+    new_train_auc.append(auc(train_fpr, train_tpr))
+    # ax1.plot(train_fpr, train_tpr, color=colors[i], linestyle='-', linewidth=2,
+    #          label="{} (AUC={:.4f})".format(name, auc(train_fpr, train_tpr)))
+
+    test_fpr, test_tpr, _ = roc_curve(Y_test_multi.ravel(), test_pred_prob.ravel())
+    new_test_auc.append(auc(test_fpr, test_tpr))
+    # ax2.plot(test_fpr, test_tpr, color=colors[i], linestyle='-', linewidth=2,
+    #          label="{} (AUC={:.4f})".format(name, auc(test_fpr, test_tpr)))
+
+    # 计算f1 score, sensitivity和specificity
+    train_f1 = f1_score(Y, train_pred, average='macro')
+    test_f1 = f1_score(Y_test, test_pred, average='macro')
+
+    train_cm = confusion_matrix(Y, train_pred)
+    test_cm = confusion_matrix(Y_test, test_pred)
+    train_sen, train_spe = metrics_multiclass(train_cm)
+    test_sen, test_spe = metrics_multiclass(test_cm)
+
+    print("模型 {} 经过10折交叉验证的性能为".format(name))
+    print("        AUC / f1 / sensitivity / specificity")
+    print("训练集 - {:.4f} {:.4f} {:.4f} {:.4f}".format(auc(train_fpr, train_tpr), train_f1, train_sen, train_spe))
+    print("测试集 - {:.4f} {:.4f} {:.4f} {:.4f}\n".format(auc(test_fpr, test_tpr), test_f1, test_sen, test_spe))
+```
+
+    模型 RandomForest 经过10折交叉验证的性能(ACC)为 1.0000（训练集）0.9433（验证集）0.7250（测试集）
+    模型 DecisionTree 经过10折交叉验证的性能(ACC)为 1.0000（训练集）0.8979（验证集）0.7500（测试集）
+    
+
+    d:\Anaconda\envs\Tensorflow\lib\site-packages\xgboost\sklearn.py:1146: UserWarning: The use of label encoder in XGBClassifier is deprecated and will be removed in a future release. To remove this warning, do the following: 1) Pass option use_label_encoder=False when constructing XGBClassifier object; and 2) Encode your labels (y) as integers starting with 0, i.e. 0, 1, 2, ..., [num_class - 1].
+      warnings.warn(label_encoder_deprecation_msg, UserWarning)
+    d:\Anaconda\envs\Tensorflow\lib\site-packages\xgboost\sklearn.py:1146: UserWarning: The use of label encoder in XGBClassifier is deprecated and will be removed in a future release. To remove this warning, do the following: 1) Pass option use_label_encoder=False when constructing XGBClassifier object; and 2) Encode your labels (y) as integers starting with 0, i.e. 0, 1, 2, ..., [num_class - 1].
+      warnings.warn(label_encoder_deprecation_msg, UserWarning)
+    d:\Anaconda\envs\Tensorflow\lib\site-packages\xgboost\sklearn.py:1146: UserWarning: The use of label encoder in XGBClassifier is deprecated and will be removed in a future release. To remove this warning, do the following: 1) Pass option use_label_encoder=False when constructing XGBClassifier object; and 2) Encode your labels (y) as integers starting with 0, i.e. 0, 1, 2, ..., [num_class - 1].
+      warnings.warn(label_encoder_deprecation_msg, UserWarning)
+    d:\Anaconda\envs\Tensorflow\lib\site-packages\xgboost\sklearn.py:1146: UserWarning: The use of label encoder in XGBClassifier is deprecated and will be removed in a future release. To remove this warning, do the following: 1) Pass option use_label_encoder=False when constructing XGBClassifier object; and 2) Encode your labels (y) as integers starting with 0, i.e. 0, 1, 2, ..., [num_class - 1].
+      warnings.warn(label_encoder_deprecation_msg, UserWarning)
+    d:\Anaconda\envs\Tensorflow\lib\site-packages\xgboost\sklearn.py:1146: UserWarning: The use of label encoder in XGBClassifier is deprecated and will be removed in a future release. To remove this warning, do the following: 1) Pass option use_label_encoder=False when constructing XGBClassifier object; and 2) Encode your labels (y) as integers starting with 0, i.e. 0, 1, 2, ..., [num_class - 1].
+      warnings.warn(label_encoder_deprecation_msg, UserWarning)
+    d:\Anaconda\envs\Tensorflow\lib\site-packages\xgboost\sklearn.py:1146: UserWarning: The use of label encoder in XGBClassifier is deprecated and will be removed in a future release. To remove this warning, do the following: 1) Pass option use_label_encoder=False when constructing XGBClassifier object; and 2) Encode your labels (y) as integers starting with 0, i.e. 0, 1, 2, ..., [num_class - 1].
+      warnings.warn(label_encoder_deprecation_msg, UserWarning)
+    d:\Anaconda\envs\Tensorflow\lib\site-packages\xgboost\sklearn.py:1146: UserWarning: The use of label encoder in XGBClassifier is deprecated and will be removed in a future release. To remove this warning, do the following: 1) Pass option use_label_encoder=False when constructing XGBClassifier object; and 2) Encode your labels (y) as integers starting with 0, i.e. 0, 1, 2, ..., [num_class - 1].
+      warnings.warn(label_encoder_deprecation_msg, UserWarning)
+    d:\Anaconda\envs\Tensorflow\lib\site-packages\xgboost\sklearn.py:1146: UserWarning: The use of label encoder in XGBClassifier is deprecated and will be removed in a future release. To remove this warning, do the following: 1) Pass option use_label_encoder=False when constructing XGBClassifier object; and 2) Encode your labels (y) as integers starting with 0, i.e. 0, 1, 2, ..., [num_class - 1].
+      warnings.warn(label_encoder_deprecation_msg, UserWarning)
+    d:\Anaconda\envs\Tensorflow\lib\site-packages\xgboost\sklearn.py:1146: UserWarning: The use of label encoder in XGBClassifier is deprecated and will be removed in a future release. To remove this warning, do the following: 1) Pass option use_label_encoder=False when constructing XGBClassifier object; and 2) Encode your labels (y) as integers starting with 0, i.e. 0, 1, 2, ..., [num_class - 1].
+      warnings.warn(label_encoder_deprecation_msg, UserWarning)
+    d:\Anaconda\envs\Tensorflow\lib\site-packages\xgboost\sklearn.py:1146: UserWarning: The use of label encoder in XGBClassifier is deprecated and will be removed in a future release. To remove this warning, do the following: 1) Pass option use_label_encoder=False when constructing XGBClassifier object; and 2) Encode your labels (y) as integers starting with 0, i.e. 0, 1, 2, ..., [num_class - 1].
+      warnings.warn(label_encoder_deprecation_msg, UserWarning)
+    
+
+    模型 XGBoost 经过10折交叉验证的性能(ACC)为 1.0000（训练集）0.8979（验证集）0.7500（测试集）
+    模型 LogisticRegression 经过10折交叉验证的性能(ACC)为 0.9186（训练集）0.8904（验证集）0.7750（测试集）
+    模型 SVM 经过10折交叉验证的性能(ACC)为 0.9816（训练集）0.9742（验证集）0.7750（测试集）
+    
+    模型 RandomForest 在训练集上的性能(ACC)为 1.0
+    模型 RandomForest 在测试集上的性能(ACC)为 0.725
+    模型 RandomForest 经过10折交叉验证的性能为
+            AUC / f1 / sensitivity / specificity
+    训练集 - 1.0000 1.0000 1.0000 1.0000
+    测试集 - 0.8409 0.7020 0.7130 0.8617
+    
+    模型 DecisionTree 在训练集上的性能(ACC)为 0.9681528662420382
+    模型 DecisionTree 在测试集上的性能(ACC)为 0.75
+    模型 DecisionTree 经过10折交叉验证的性能为
+            AUC / f1 / sensitivity / specificity
+    训练集 - 0.9761 0.9638 0.9653 0.9846
+    测试集 - 0.8125 0.7467 0.7611 0.8744
+    
+    模型 XGBoost 在训练集上的性能(ACC)为 0.9681528662420382
+    模型 XGBoost 在测试集上的性能(ACC)为 0.75
+    模型 XGBoost 经过10折交叉验证的性能为
+            AUC / f1 / sensitivity / specificity
+    训练集 - 0.9995 0.9638 0.9653 0.9846
+    测试集 - 0.8644 0.7467 0.7611 0.8744
+    
+    模型 LogisticRegression 在训练集上的性能(ACC)为 0.9171974522292994
+    模型 LogisticRegression 在测试集上的性能(ACC)为 0.775
+    模型 LogisticRegression 经过10折交叉验证的性能为
+            AUC / f1 / sensitivity / specificity
+    训练集 - 0.9894 0.8986 0.8876 0.9537
+    测试集 - 0.8562 0.7676 0.7796 0.8887
+    
+    模型 SVM 在训练集上的性能(ACC)为 0.9808917197452229
+    模型 SVM 在测试集上的性能(ACC)为 0.775
+    模型 SVM 经过10折交叉验证的性能为
+            AUC / f1 / sensitivity / specificity
+    训练集 - 0.9990 0.9800 0.9820 0.9905
+    测试集 - 0.8703 0.7661 0.7796 0.8920
+    
+    
+
+
+```python
+# 训练集上10折交叉验证的性能
+from sklearn.model_selection import cross_validate
+
+best_models = dict()
+for name in classifiers_:
+    model = classifiers_[name]
+    cv_results = cross_validate(model, train_df_lassoCV, Y.values, cv=10, return_estimator=True,
+                                return_train_score=True)
+    test_results = []
+    for m in cv_results['estimator']:
+        test_results.append(m.score(test_df_lassoCV, Y_test.values))
+
+    # 保存在测试集上性能最好的模型
+    ind = np.argmax(test_results)
+    best_models[name] = cv_results['estimator'][ind]
+    print("模型 {} 经过10折交叉验证的性能(ACC)为 {:.4f}（训练集）{:.4f}（验证集）{:.4f}（测试集）".format(name, cv_results["train_score"].mean(),
+                                                                              cv_results["test_score"].mean(),
+                                                                              test_results[ind]))
+
+```
+
+
+```python
+# 定义一个class：
+# 存储最优基模型的def
+# 非线性变换的def
+# 元模型进行训练的def
+base_models = {}
+meta_model = {}
+from sklearn.model_selection import cross_validate
+
+class StackingNonlinearTransformations():
+    def __init__(self, base_models, meta_model, n_folds=10):
+        self.base_models = base_models
+        self.meta_model = meta_model
+        self.n_folds = n_folds
+        
+   
+    def NonlinearTransformations(self, x, NT, **kwargs):
+        if NT == None:
+            return x
+        elif NT == "relu":
+            return x
+        elif NT == "sigmoid":
+            return 1.0 / (1 + np.exp(-x))
+        elif NT == "elu":
+            if 'alpha' not in kwargs:
+                raise ValueError('alpha is not given')
+            alpha = kwargs["alpha"]
+            return np.where(x < 0, alpha * (np.exp(x) - 1), x)
+        elif NT == "tanh":
+            return (np.exp(x) - np.exp(-x)) / (np.exp(x) + np.exp(-x))
+        elif NT == "sin":
+            return np.sin(x)
+        elif NT == "cos":
+            return np.cos(x)
+        elif NT == "softmax":
+            exps = np.exp(x - np.max(x, axis=-1, keepdims=True))
+            return exps/np.sum(exps, axis=-1, keepdims=True)
+        elif NT == "softplus":
+            return np.log(1 + np.exp(x))
+
+
+    def base_model_fit(self, train_X, train_y, test_X, test_y,cv=10):
+        best_models = dict()
+        for name in self.base_models.keys():
+            model = self.base_models[name]
+            cv_results = cross_validate(model, train_X, train_y.values, cv=cv, return_estimator=True, return_train_score=True)
+            test_results = []
+            for m in cv_results['estimator']:
+                test_results.append(m.score(test_X, test_y.values))
+
+            # 保存在测试集上性能最好的模型
+            ind = np.argmax(test_results)
+            best_models[name] = cv_results['estimator'][ind]
+            
+
+
+
+        train_ = np.zeros((train_X.shape[0], len(self.base_models ) + len(train_X.columns)))
+        test_ = np.zeros((test_X.shape[0], len(self.base_models) + len(test_X.columns)))
+        
+        train_[:,0:len(train_X.columns)] = train_X
+        test_[:,0:len(test_X.columns)] = test_X
+
+        for i, name in enumerate(best_models):
+            model = best_models[name]
+            train_pred = model.predict(train_X)
+            test_pred = model.predict(test_X)
+
+            train_[:, len(train_X.columns)+i] = self.NonlinearTransformations(train_pred,"sigmoid")
+            test_[:,len(test_X.columns)+i] = self.NonlinearTransformations(test_pred,"sigmoid")
+
+            
+        return train_, test_
+
+    def fit(self, train_X, train_y, test_X, test_y, cv=10):
+
+        new_train, new_test = self.base_model_fit(train_X, train_y, test_X, test_y,cv)
+        model = list(self.meta_model.values())[0]
+        cv_results = cross_validate(model, new_train, train_y.values, cv=cv, return_estimator=True, return_train_score=True)
+        test_results = []
+        for m in cv_results['estimator']:
+            test_results.append(m.score(new_test, test_y.values))
+        ind = np.argmax(test_results)
+        new_best_models = cv_results['estimator'][ind]
+        model = new_best_models
+        train_pred = model.predict(new_train)
+        test_pred = model.predict(new_test)
+        train_pred_prob = model.predict_proba(new_train)
+        test_pred_prob = model.predict_proba(new_test)
+        
+        return train_pred, test_pred, train_pred_prob, test_pred_prob
+
+
+
+```
+
+
+```python
+
+meta_model = {'LogisticRegression':LogisticRegression(random_state=random_seed)}
+base_models = classifiers_
+SNT = StackingNonlinearTransformations(base_models, meta_model)
+train_pred, test_pred, train_pred_prob, test_pred_prob = SNT.fit(train_X=train_df_lassoCV, train_y=Y, test_X=test_df_lassoCV, test_y=Y_test)
+
+print(train_pred, test_pred, train_pred_prob, test_pred_prob)
+
+from sklearn.metrics import roc_curve, auc
+test_fpr, test_tpr, _ = roc_curve(Y_test_multi.ravel(), test_pred_prob.ravel())
+print(auc(test_fpr, test_tpr))
+
+```
+
+    d:\Anaconda\envs\Tensorflow\lib\site-packages\xgboost\sklearn.py:1146: UserWarning: The use of label encoder in XGBClassifier is deprecated and will be removed in a future release. To remove this warning, do the following: 1) Pass option use_label_encoder=False when constructing XGBClassifier object; and 2) Encode your labels (y) as integers starting with 0, i.e. 0, 1, 2, ..., [num_class - 1].
+      warnings.warn(label_encoder_deprecation_msg, UserWarning)
+    d:\Anaconda\envs\Tensorflow\lib\site-packages\xgboost\data.py:208: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+      from pandas import MultiIndex, Int64Index
+    d:\Anaconda\envs\Tensorflow\lib\site-packages\xgboost\sklearn.py:1146: UserWarning: The use of label encoder in XGBClassifier is deprecated and will be removed in a future release. To remove this warning, do the following: 1) Pass option use_label_encoder=False when constructing XGBClassifier object; and 2) Encode your labels (y) as integers starting with 0, i.e. 0, 1, 2, ..., [num_class - 1].
+      warnings.warn(label_encoder_deprecation_msg, UserWarning)
+    d:\Anaconda\envs\Tensorflow\lib\site-packages\xgboost\data.py:208: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+      from pandas import MultiIndex, Int64Index
+    d:\Anaconda\envs\Tensorflow\lib\site-packages\xgboost\sklearn.py:1146: UserWarning: The use of label encoder in XGBClassifier is deprecated and will be removed in a future release. To remove this warning, do the following: 1) Pass option use_label_encoder=False when constructing XGBClassifier object; and 2) Encode your labels (y) as integers starting with 0, i.e. 0, 1, 2, ..., [num_class - 1].
+      warnings.warn(label_encoder_deprecation_msg, UserWarning)
+    d:\Anaconda\envs\Tensorflow\lib\site-packages\xgboost\data.py:208: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+      from pandas import MultiIndex, Int64Index
+    d:\Anaconda\envs\Tensorflow\lib\site-packages\xgboost\sklearn.py:1146: UserWarning: The use of label encoder in XGBClassifier is deprecated and will be removed in a future release. To remove this warning, do the following: 1) Pass option use_label_encoder=False when constructing XGBClassifier object; and 2) Encode your labels (y) as integers starting with 0, i.e. 0, 1, 2, ..., [num_class - 1].
+      warnings.warn(label_encoder_deprecation_msg, UserWarning)
+    d:\Anaconda\envs\Tensorflow\lib\site-packages\xgboost\data.py:208: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+      from pandas import MultiIndex, Int64Index
+    d:\Anaconda\envs\Tensorflow\lib\site-packages\xgboost\sklearn.py:1146: UserWarning: The use of label encoder in XGBClassifier is deprecated and will be removed in a future release. To remove this warning, do the following: 1) Pass option use_label_encoder=False when constructing XGBClassifier object; and 2) Encode your labels (y) as integers starting with 0, i.e. 0, 1, 2, ..., [num_class - 1].
+      warnings.warn(label_encoder_deprecation_msg, UserWarning)
+    d:\Anaconda\envs\Tensorflow\lib\site-packages\xgboost\data.py:208: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+      from pandas import MultiIndex, Int64Index
+    d:\Anaconda\envs\Tensorflow\lib\site-packages\xgboost\sklearn.py:1146: UserWarning: The use of label encoder in XGBClassifier is deprecated and will be removed in a future release. To remove this warning, do the following: 1) Pass option use_label_encoder=False when constructing XGBClassifier object; and 2) Encode your labels (y) as integers starting with 0, i.e. 0, 1, 2, ..., [num_class - 1].
+      warnings.warn(label_encoder_deprecation_msg, UserWarning)
+    d:\Anaconda\envs\Tensorflow\lib\site-packages\xgboost\data.py:208: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+      from pandas import MultiIndex, Int64Index
+    d:\Anaconda\envs\Tensorflow\lib\site-packages\xgboost\sklearn.py:1146: UserWarning: The use of label encoder in XGBClassifier is deprecated and will be removed in a future release. To remove this warning, do the following: 1) Pass option use_label_encoder=False when constructing XGBClassifier object; and 2) Encode your labels (y) as integers starting with 0, i.e. 0, 1, 2, ..., [num_class - 1].
+      warnings.warn(label_encoder_deprecation_msg, UserWarning)
+    d:\Anaconda\envs\Tensorflow\lib\site-packages\xgboost\data.py:208: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+      from pandas import MultiIndex, Int64Index
+    d:\Anaconda\envs\Tensorflow\lib\site-packages\xgboost\sklearn.py:1146: UserWarning: The use of label encoder in XGBClassifier is deprecated and will be removed in a future release. To remove this warning, do the following: 1) Pass option use_label_encoder=False when constructing XGBClassifier object; and 2) Encode your labels (y) as integers starting with 0, i.e. 0, 1, 2, ..., [num_class - 1].
+      warnings.warn(label_encoder_deprecation_msg, UserWarning)
+    d:\Anaconda\envs\Tensorflow\lib\site-packages\xgboost\data.py:208: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+      from pandas import MultiIndex, Int64Index
+    d:\Anaconda\envs\Tensorflow\lib\site-packages\xgboost\sklearn.py:1146: UserWarning: The use of label encoder in XGBClassifier is deprecated and will be removed in a future release. To remove this warning, do the following: 1) Pass option use_label_encoder=False when constructing XGBClassifier object; and 2) Encode your labels (y) as integers starting with 0, i.e. 0, 1, 2, ..., [num_class - 1].
+      warnings.warn(label_encoder_deprecation_msg, UserWarning)
+    d:\Anaconda\envs\Tensorflow\lib\site-packages\xgboost\data.py:208: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+      from pandas import MultiIndex, Int64Index
+    d:\Anaconda\envs\Tensorflow\lib\site-packages\xgboost\sklearn.py:1146: UserWarning: The use of label encoder in XGBClassifier is deprecated and will be removed in a future release. To remove this warning, do the following: 1) Pass option use_label_encoder=False when constructing XGBClassifier object; and 2) Encode your labels (y) as integers starting with 0, i.e. 0, 1, 2, ..., [num_class - 1].
+      warnings.warn(label_encoder_deprecation_msg, UserWarning)
+    d:\Anaconda\envs\Tensorflow\lib\site-packages\xgboost\data.py:208: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+      from pandas import MultiIndex, Int64Index
+    
+
+    [0 0 0 0 0 2 2 2 2 2 2 2 2 1 2 2 2 2 2 2 0 0 0 1 0 0 1 0 2 2 2 1 0 1 2 0 2
+     2 1 2 2 2 1 1 0 2 1 2 2 0 2 0 0 2 2 0 0 2 2 1 2 0 2 2 1 0 0 0 0 1 1 2 2 0
+     0 1 2 2 2 0 2 2 2 0 1 0 0 0 0 2 2 1 0 2 0 2 1 2 0 2 2 1 1 0 2 2 2 2 2 0 2
+     0 2 1 2 2 0 2 0 0 2 2 2 0 2 2 1 0 2 2 2 2 2 0 1 2 1 0 2 2 2 1 2 1 1 0 2 2
+     0 2 2 0 0 2 1 2 0] [0 1 1 1 0 2 1 0 2 0 0 2 0 0 2 0 0 0 2 2 2 2 1 2 1 0 1 0 0 1 2 2 0 2 0 1 2
+     2 1 2] [[7.98786397e-01 1.69605435e-01 3.16081676e-02]
+     [8.03607989e-01 9.40798583e-02 1.02312152e-01]
+     [7.52347690e-01 2.11163387e-01 3.64889232e-02]
+     [7.91619966e-01 1.71735626e-01 3.66444083e-02]
+     [8.66192574e-01 9.05399411e-02 4.32674849e-02]
+     [2.64289472e-02 6.23805865e-02 9.11190466e-01]
+     [6.58321922e-03 1.03126884e-02 9.83104092e-01]
+     [5.56714002e-06 3.13986117e-07 9.99994119e-01]
+     [6.31876006e-02 2.74163329e-01 6.62649071e-01]
+     [9.03391815e-02 3.84241497e-01 5.25419322e-01]
+     [1.29275193e-02 5.95725018e-02 9.27499979e-01]
+     [2.73085475e-02 1.45869371e-01 8.26822082e-01]
+     [4.35942768e-02 4.12456497e-01 5.43949227e-01]
+     [1.85891093e-01 4.95132076e-01 3.18976831e-01]
+     [2.21323474e-02 3.38608300e-02 9.44006823e-01]
+     [1.87873110e-01 3.84692407e-01 4.27434483e-01]
+     [2.68811165e-01 2.84499491e-01 4.46689344e-01]
+     [2.59144723e-02 2.87414209e-01 6.86671319e-01]
+     [2.06386607e-01 3.95290587e-01 3.98322806e-01]
+     [3.62890421e-02 6.62503221e-02 8.97460636e-01]
+     [7.87740453e-01 1.80174240e-01 3.20853068e-02]
+     [7.00242210e-01 2.34947665e-01 6.48101245e-02]
+     [7.37339484e-01 1.69966319e-01 9.26941969e-02]
+     [2.77288314e-01 3.96972650e-01 3.25739036e-01]
+     [6.69567838e-01 2.66316340e-01 6.41158219e-02]
+     [7.47477430e-01 1.50726402e-01 1.01796167e-01]
+     [8.70045602e-02 5.01211186e-01 4.11784254e-01]
+     [8.68921831e-01 8.91031275e-02 4.19750416e-02]
+     [3.25901714e-02 2.42757069e-01 7.24652760e-01]
+     [3.53397592e-02 2.58418074e-01 7.06242167e-01]
+     [6.81983930e-02 1.91605088e-01 7.40196518e-01]
+     [2.29303699e-01 5.14796613e-01 2.55899688e-01]
+     [7.28126469e-01 2.42286576e-01 2.95869548e-02]
+     [2.11518519e-01 4.72495561e-01 3.15985920e-01]
+     [6.86771750e-02 2.41202412e-01 6.90120413e-01]
+     [4.56439625e-01 2.92334204e-01 2.51226171e-01]
+     [2.35951003e-03 8.94287172e-03 9.88697618e-01]
+     [5.84714019e-03 3.87784689e-02 9.55374391e-01]
+     [2.32468741e-01 5.43872453e-01 2.23658805e-01]
+     [1.01607216e-04 8.01645889e-05 9.99818228e-01]
+     [7.37470020e-03 2.01742680e-02 9.72451032e-01]
+     [1.75437722e-02 7.70095335e-02 9.05446694e-01]
+     [1.51794269e-01 6.36902364e-01 2.11303367e-01]
+     [2.28630779e-01 4.54513600e-01 3.16855621e-01]
+     [7.45641217e-01 1.85859169e-01 6.84996133e-02]
+     [6.52263123e-02 3.41753034e-01 5.93020654e-01]
+     [2.01106012e-01 5.04824073e-01 2.94069915e-01]
+     [6.56315924e-04 9.84681766e-04 9.98359002e-01]
+     [4.66400475e-02 3.18332409e-01 6.35027543e-01]
+     [8.23097715e-01 1.49822781e-01 2.70795036e-02]
+     [2.41541421e-05 9.22716900e-06 9.99966619e-01]
+     [4.46125562e-01 3.96839242e-01 1.57035197e-01]
+     [7.68979315e-01 1.90777911e-01 4.02427742e-02]
+     [1.67097338e-02 2.46627687e-02 9.58627497e-01]
+     [6.55957679e-04 1.33265055e-03 9.98011392e-01]
+     [7.89041958e-01 1.81510450e-01 2.94475925e-02]
+     [4.76881159e-01 3.82695168e-01 1.40423673e-01]
+     [1.38957721e-01 3.05852153e-01 5.55190126e-01]
+     [5.78196942e-04 3.49984972e-05 9.99386805e-01]
+     [3.68203364e-01 3.83338959e-01 2.48457677e-01]
+     [6.08174150e-02 2.64501563e-01 6.74681022e-01]
+     [9.11078059e-01 5.92273776e-02 2.96945630e-02]
+     [3.69622029e-02 1.64157386e-01 7.98880411e-01]
+     [7.58531105e-02 3.96294748e-01 5.27852141e-01]
+     [1.95329341e-01 5.55302710e-01 2.49367949e-01]
+     [8.00659609e-01 1.60786124e-01 3.85542674e-02]
+     [6.98110394e-01 2.34441029e-01 6.74485774e-02]
+     [7.65690794e-01 2.03125216e-01 3.11839894e-02]
+     [7.16789649e-01 2.03575981e-01 7.96343699e-02]
+     [2.52147856e-01 4.95772281e-01 2.52079863e-01]
+     [2.33751947e-01 5.26615370e-01 2.39632682e-01]
+     [3.48549836e-02 1.40844296e-01 8.24300720e-01]
+     [4.31851108e-04 5.44385512e-05 9.99513710e-01]
+     [7.08319324e-01 2.26379874e-01 6.53008018e-02]
+     [7.85867768e-01 1.15875909e-01 9.82563230e-02]
+     [1.49285446e-01 6.43352977e-01 2.07361577e-01]
+     [4.77859030e-02 3.61083347e-01 5.91130750e-01]
+     [1.32601339e-05 1.92751376e-05 9.99967465e-01]
+     [8.69515058e-05 3.01424280e-05 9.99882906e-01]
+     [7.73788515e-01 1.99475846e-01 2.67356393e-02]
+     [2.52403851e-02 1.22695333e-01 8.52064282e-01]
+     [6.62111189e-02 3.13246793e-01 6.20542088e-01]
+     [3.99541391e-02 2.95868376e-01 6.64177485e-01]
+     [8.22532255e-01 1.45832130e-01 3.16356146e-02]
+     [2.63126961e-01 4.46488003e-01 2.90385035e-01]
+     [8.58027770e-01 1.09849800e-01 3.21224294e-02]
+     [7.10636412e-01 2.23726446e-01 6.56371416e-02]
+     [8.12740585e-01 8.62682669e-02 1.00991148e-01]
+     [8.19398349e-01 1.57370876e-01 2.32307747e-02]
+     [5.96714067e-02 2.25097015e-01 7.15231578e-01]
+     [2.92338228e-02 1.06116494e-01 8.64649683e-01]
+     [1.11585307e-01 6.75251710e-01 2.13162983e-01]
+     [8.31464270e-01 1.46748930e-01 2.17868003e-02]
+     [6.74214901e-02 3.31668695e-01 6.00909815e-01]
+     [7.00535288e-01 2.56306921e-01 4.31577905e-02]
+     [1.42692784e-02 3.34527111e-03 9.82385450e-01]
+     [1.77811887e-01 6.01371414e-01 2.20816699e-01]
+     [4.86696249e-02 3.10275524e-01 6.41054851e-01]
+     [7.75679989e-01 1.93388835e-01 3.09311763e-02]
+     [2.16490047e-03 5.98298366e-05 9.97775270e-01]
+     [1.24324901e-05 2.89506180e-06 9.99984672e-01]
+     [2.22369795e-01 4.57757617e-01 3.19872588e-01]
+     [2.05810905e-01 4.87066088e-01 3.07123008e-01]
+     [8.74034657e-01 9.35941514e-02 3.23711917e-02]
+     [3.67874915e-02 2.13302533e-01 7.49909975e-01]
+     [3.59052095e-02 1.78350455e-01 7.85744335e-01]
+     [2.20894555e-01 3.55160584e-01 4.23944861e-01]
+     [5.24633391e-03 4.96205219e-02 9.45133144e-01]
+     [5.27203325e-02 9.73688814e-02 8.49910786e-01]
+     [8.17122662e-01 1.39414693e-01 4.34626442e-02]
+     [3.42552164e-02 2.30473298e-01 7.35271485e-01]
+     [8.01768720e-01 1.70115614e-01 2.81156656e-02]
+     [2.91515710e-01 2.86419334e-01 4.22064956e-01]
+     [3.01857693e-01 4.18977649e-01 2.79164658e-01]
+     [1.31739300e-02 2.16117025e-02 9.65214368e-01]
+     [5.00401636e-03 3.87830907e-03 9.91117675e-01]
+     [7.44886182e-01 2.11559519e-01 4.35542991e-02]
+     [5.95253556e-02 3.91207561e-01 5.49267083e-01]
+     [8.66079551e-01 1.06102489e-01 2.78179601e-02]
+     [3.65878132e-01 3.46774779e-01 2.87347090e-01]
+     [7.18653042e-06 2.43778121e-06 9.99990376e-01]
+     [8.86193319e-04 6.37648441e-05 9.99050042e-01]
+     [2.39809501e-01 3.63195508e-01 3.96994992e-01]
+     [7.48960624e-01 2.21827781e-01 2.92115956e-02]
+     [3.70626424e-02 1.74146878e-01 7.88790480e-01]
+     [3.35477348e-02 4.78102597e-01 4.88349669e-01]
+     [1.81724731e-01 5.78662138e-01 2.39613131e-01]
+     [8.44779549e-01 1.34731231e-01 2.04892198e-02]
+     [4.29899032e-02 3.46649330e-01 6.10360767e-01]
+     [1.25110049e-02 6.27672524e-02 9.24721743e-01]
+     [2.54349517e-02 2.41452149e-01 7.33112900e-01]
+     [4.66512604e-02 1.97634867e-01 7.55713873e-01]
+     [2.65439747e-02 8.61988767e-02 8.87257149e-01]
+     [7.16787257e-01 2.45763041e-01 3.74497015e-02]
+     [1.95515717e-01 4.99840326e-01 3.04643957e-01]
+     [2.31213016e-03 5.68899923e-03 9.91998871e-01]
+     [3.02484695e-01 3.67696335e-01 3.29818969e-01]
+     [6.03254895e-01 3.27745389e-01 6.89997166e-02]
+     [4.84823524e-02 3.72184801e-01 5.79332847e-01]
+     [3.88687483e-02 2.27865214e-01 7.33266038e-01]
+     [3.72358130e-02 1.43826694e-01 8.18937493e-01]
+     [4.22150974e-01 5.09967334e-01 6.78816923e-02]
+     [1.44358511e-05 3.53400311e-06 9.99982030e-01]
+     [2.93840559e-01 4.35732341e-01 2.70427100e-01]
+     [3.08374499e-01 5.01335872e-01 1.90289628e-01]
+     [5.50171673e-01 3.55933713e-01 9.38946137e-02]
+     [1.00870996e-01 4.14954816e-01 4.84174188e-01]
+     [2.43878907e-01 2.47910899e-01 5.08210194e-01]
+     [7.84796219e-01 1.78989131e-01 3.62146502e-02]
+     [6.17529014e-02 3.38641137e-01 5.99605961e-01]
+     [2.32779319e-01 2.78395670e-01 4.88825011e-01]
+     [6.23691713e-01 3.29952558e-01 4.63557298e-02]
+     [6.48095343e-01 3.13361734e-01 3.85429224e-02]
+     [2.98490899e-01 3.40569438e-01 3.60939664e-01]
+     [2.47638702e-01 4.96969705e-01 2.55391593e-01]
+     [3.59801681e-05 3.89351530e-05 9.99925085e-01]
+     [8.22010958e-01 1.42218397e-01 3.57706458e-02]] [[7.57690319e-01 2.15765702e-01 2.65439787e-02]
+     [2.24236188e-01 4.56931996e-01 3.18831817e-01]
+     [4.51783852e-01 4.86295381e-01 6.19207666e-02]
+     [2.67759413e-01 4.95781572e-01 2.36459015e-01]
+     [8.93593736e-01 6.83144804e-02 3.80917834e-02]
+     [4.56789989e-02 1.51049024e-01 8.03271977e-01]
+     [3.48646077e-01 4.69162495e-01 1.82191428e-01]
+     [7.70371069e-01 1.92453665e-01 3.71752660e-02]
+     [2.92361720e-02 1.36400919e-01 8.34362909e-01]
+     [7.91777546e-01 1.78397308e-01 2.98251461e-02]
+     [7.05172587e-01 2.50739922e-01 4.40874910e-02]
+     [6.44243061e-04 1.15470282e-03 9.98201054e-01]
+     [8.33349584e-01 1.39406620e-01 2.72437955e-02]
+     [7.94729027e-01 1.76119383e-01 2.91515906e-02]
+     [7.62098585e-02 1.56504593e-01 7.67285548e-01]
+     [6.26567093e-01 3.42803185e-01 3.06297217e-02]
+     [7.47227843e-01 2.14844743e-01 3.79274140e-02]
+     [7.61050009e-01 2.13900447e-01 2.50495442e-02]
+     [3.24771495e-02 4.23211195e-01 5.44311656e-01]
+     [1.18963573e-02 5.23715238e-02 9.35732119e-01]
+     [2.13817593e-05 1.02287198e-05 9.99968390e-01]
+     [4.50874319e-01 3.09577781e-02 5.18167903e-01]
+     [2.77648676e-01 4.51336036e-01 2.71015288e-01]
+     [1.28333994e-02 4.41898528e-02 9.42976748e-01]
+     [1.91456101e-01 4.05978728e-01 4.02565170e-01]
+     [6.58309566e-01 1.98781718e-01 1.42908716e-01]
+     [2.24829634e-01 4.40746040e-01 3.34424326e-01]
+     [6.29917199e-01 2.35113703e-01 1.34969098e-01]
+     [7.66974837e-01 2.08536414e-01 2.44887488e-02]
+     [4.16676999e-01 4.80316138e-01 1.03006862e-01]
+     [1.58223891e-03 2.31608519e-03 9.96101676e-01]
+     [2.58775164e-04 2.42472774e-05 9.99716978e-01]
+     [8.40128641e-01 1.26973885e-01 3.28974738e-02]
+     [7.21285970e-03 2.86309548e-02 9.64156185e-01]
+     [6.52866666e-01 3.24764698e-01 2.23686356e-02]
+     [2.41687444e-01 4.72064771e-01 2.86247785e-01]
+     [8.28419375e-02 4.11308528e-01 5.05849534e-01]
+     [4.40553422e-05 2.35332311e-05 9.99932411e-01]
+     [2.78964612e-01 4.59652130e-01 2.61383258e-01]
+     [2.97970311e-02 2.75009795e-02 9.42701989e-01]]
+    0.85625
+    
+# upload log
+
+0.0.4 更新正确的Class调用方法
+
