@@ -1,0 +1,55 @@
+[tool.poetry]
+name = "fluxrpc"
+version = "0.11.0"
+description = "\"A sercure RPC provider for Flux\""
+authors = ["David White <dr.white.nz@gmail.com>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+six = "^1.16.0"
+pymongo = "^4.3.2"
+gevent = {version="^21.1.2", optional = true}
+gevent-websocket = {version="^0.10.1", optional = true}
+msgpack = {version="^1.0.2", optional = true}
+pika = {version="^1.2.0", optional = true}
+pyzmq = {version="^22.0.3", optional = true}
+pycryptodomex = {version="^3.15.0", optional = true}
+python-bitcoinlib = {version="^0.11.2", optional = true}
+requests = {version="^2.28.1", optional = true}
+werkzeug = {version="^2.2.2", optional = true}
+
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.2.4"
+pytest-cov = "^2.11.1"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.extras]
+gevent = ['gevent']
+httpclient = ['requests', 'websocket-client', 'gevent-websocket']
+msgpack = ['msgpack']
+socket = ['pycryptodomex', 'pymongo', 'python-bitcoinlib']
+websocket = ['gevent-websocket']
+wsgi = ['werkzeug']
+zmq = ['pyzmq']
+jsonext = ['jsonext']
+rabbitmq = ['pika']
+
+[tool.isort]
+profile = "black"
+
+[tool.tox]
+legacy_tox_ini = """
+[tox]
+envlist = py34, py35, py36, py37, py38, py39
+
+[testenv]
+deps = -rrequirements.txt
+commands=
+    pytest -rs
+    pytest --cov=tinyrpc/ --cov-report=term --cov-report=html
+"""
