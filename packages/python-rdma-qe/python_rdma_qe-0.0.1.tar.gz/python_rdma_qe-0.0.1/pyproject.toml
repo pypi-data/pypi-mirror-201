@@ -1,0 +1,125 @@
+[build-system]
+requires = ["hatchling", "hatch-requirements-txt"]
+build-backend = "hatchling.build"
+
+[project]
+name = "python-rdma-qe"
+description = 'Redhat Kernel RDMA QE Python libs and tests'
+readme = "README.md"
+requires-python = ">=3.7"
+license = "GPL-3.0-or-later"
+license-files = { paths = ["LICENSE"]}
+
+keywords = []
+authors = [
+  { name = "Zhaojuan Guo", email = "zguo@redhat.com" },
+]
+maintainers = [
+  { name = "Zhaojuan Guo", email = "zguo@redhat.com" },
+]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.6",
+  "Programming Language :: Python :: 3.7",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Intended Audience :: Developers",
+  "Topic :: Software Development :: Testing",
+  "Operating System :: POSIX :: Linux",
+  "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+]
+
+dependencies = [
+  "pytest",
+  "pytest-cov",
+  "libsan",
+  "stqe",
+]
+
+dynamic = ["version", "optional-dependencies"]
+
+[project.urls]
+Documentation = "https://gitlab.com/rh-rdma-qe/python-rdma-qe#README.md"
+Issues = "https://gitlab.com/rh-rdma-qe/python-rdma-qe/issues"
+Source = "https://gitlab.com/rh-rdma-qe/python-rdma-qe"
+
+[tool.hatch.metadata.hooks.requirements_txt.optional-dependencies]
+stable = ["requirements-stable.txt"]
+
+[tool.black]
+line-length = 120
+target-version = ["py311", "py310", "py39", "py38", "py37", "py36"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py37"
+select = [
+  "B",    # flake8-bugbear
+  "C4",   # flake8-comprehensions
+  "E",    # pycodestyle
+  "F",    # pyflakes
+  "W",    # pycodestyle
+  "RUF",  # ruff
+  "I",    # isort
+  "N",    # pep8-naming
+  "UP",   # pyupgrade
+  "YTT",  # flake8-2020
+  "ISC",  # flake8-implicit-str-concat
+  "INP",  # flake8-no-pep420
+  "PIE",  # flake8-pie
+  "PT",   # flake8-pytest-style
+  "RET",  # flake8-return
+  "SIM",  # flake8-simplify
+  "ARG",  # flake8-unused-arguments
+  "PGH",  # pygrep-hooks
+  "PL",   # pylint
+  "TRY",  # tryceratops
+]
+ignore = [
+  "RET504",  # Unnecessary variable assignment before `return`
+  "RET505",  # unnecessary `{branch}` after `return` statement
+  "SIM105",  # use `contextlib.suppress({exception})`
+  "PLR1722", # use sys.exit()
+  "PLR2004", # magic value
+  "PLW0602", # using global but no assignment is done
+  "PLR09",   # pylint-refactor too-many
+]
+
+[tool.ruff.pydocstyle]
+convention = "pep257"
+
+[tool.pep8]
+max-line-length = "120"
+
+[tool.pytest.ini_options]
+addopts = ["--verbose"]
+testpaths = ["tests"]
+
+[tool.hatch.version]
+path = "rdmaqe/__about__.py"
+
+[tool.hatch.envs.default]
+
+[tool.hatch.envs.default.scripts]
+cov = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=rdmaqe --cov=tests {args}"
+no-cov = "cov --no-cov {args}"
+
+[[tool.hatch.envs.test.matrix]]
+python = ["37", "38", "39", "310", "311"]
+
+[tool.coverage.run]
+branch = true
+parallel = true
+omit = [
+  "rdmaqe/__about__.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+  "no cov",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+]
